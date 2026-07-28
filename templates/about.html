@@ -75,77 +75,113 @@
         <h2 class="fw-bold">What We <span class="text-primary">Offer</span></h2>
         <p class="text-muted mb-0">Every listing includes contact details, location, images, and Google Maps integration.</p>
     </div>
-    <div class="row g-3" data-aos="fade-up">
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-house-door"></i></div>
-                <div class="hk-meta-value">Real Estate</div>
+    <div class="row g-4" data-aos="fade-up">
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/offer/real-estate.jpg' %}" alt="Real Estate" loading="lazy">
+                    <div class="hk-service-card-icon"><i class="bi bi-house-door"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>Real Estate</h5>
+                    <p>Find houses, apartments, plots, villas, rental properties, and commercial spaces available across Kuppam.</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-shop"></i></div>
-                <div class="hk-meta-value">Local Businesses</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/offer/local-businesses.jpg' %}" alt="Shops" loading="lazy">
+                    <div class="hk-service-card-icon"><i class="bi bi-shop"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>Shops</h5>
+                    <p>Explore clothing stores, electronics, supermarkets, pharmacies, furniture stores, and more.</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-cup-hot"></i></div>
-                <div class="hk-meta-value">Restaurants &amp; Cafés</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/services/jobs.jpg' %}" alt="Jobs" loading="lazy">
+                    <div class="hk-service-card-icon"><i class="bi bi-briefcase"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>Jobs</h5>
+                    <p>Browse job openings from local shops, offices, and companies hiring across Kuppam.</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-mortarboard"></i></div>
-                <div class="hk-meta-value">Schools &amp; Colleges</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/offer/community-events.jpg' %}" alt="Events" loading="lazy" style="object-position: top center;">
+                    <div class="hk-service-card-icon"><i class="bi bi-calendar-event"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>Events</h5>
+                    <p>Stay updated with upcoming festivals, exhibitions, public events, and local programs.</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-hospital"></i></div>
-                <div class="hk-meta-value">Hospitals &amp; Healthcare</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/offer/restaurants-cafes.jpg' %}" alt="Restaurants" loading="lazy">
+                    <div class="hk-service-card-icon"><i class="bi bi-cup-hot"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>Restaurants</h5>
+                    <p>Discover the best restaurants, cafés, bakeries, and food outlets in Kuppam.</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-bus-front"></i></div>
-                <div class="hk-meta-value">Transport Services</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/offer/hospitals-healthcare.jpg' %}" alt="Hospitals" loading="lazy">
+                    <div class="hk-service-card-icon"><i class="bi bi-hospital"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>Hospitals</h5>
+                    <p>Find hospitals, clinics, diagnostic centers, pharmacies, and emergency healthcare services.</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-binoculars"></i></div>
-                <div class="hk-meta-value">Tourist Places</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/offer/schools-colleges.jpg' %}" alt="Education" loading="lazy">
+                    <div class="hk-service-card-icon"><i class="bi bi-mortarboard"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>Education</h5>
+                    <p>Explore schools, colleges, universities, coaching centers, and educational institutions.</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-bank"></i></div>
-                <div class="hk-meta-value">Government Offices</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/offer/transport-services.jpg' %}" alt="Transport" loading="lazy">
+                    <div class="hk-service-card-icon"><i class="bi bi-bus-front"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>Transport</h5>
+                    <p>Find buses, taxis, auto services, logistics, and transportation facilities.</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-bag"></i></div>
-                <div class="hk-meta-value">Shopping &amp; Retail</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-exclamation-triangle"></i></div>
-                <div class="hk-meta-value">Emergency Services</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-calendar-event"></i></div>
-                <div class="hk-meta-value">Community Events</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="hk-meta-item">
-                <div class="hk-meta-icon"><i class="bi bi-tools"></i></div>
-                <div class="hk-meta-value">Local Services</div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="hk-service-card">
+                <div class="hk-service-card-media">
+                    <img src="{% static 'images/services/news.jpg' %}" alt="News" loading="lazy">
+                    <div class="hk-service-card-icon"><i class="bi bi-newspaper"></i></div>
+                </div>
+                <div class="hk-service-card-body">
+                    <h5>News</h5>
+                    <p>Catch up on local announcements, civic updates, and news from around Kuppam.</p>
+                </div>
             </div>
         </div>
     </div>

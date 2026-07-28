@@ -3,24 +3,32 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
-<h3 class="fw-bold mb-4" data-aos="fade-up">Posts</h3>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1" data-aos="fade-up">Posts</h3>
+        <p class="text-muted small mb-0">Manage every listing across all categories from one place.</p>
+    </div>
+</div>
 
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-collection"></i></div><div><div class="hk-stat-value">{{ counts.total }}</div><div class="hk-stat-label">Total Posts</div></div></div></div>
-    <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ counts.pending }}</div><div class="hk-stat-label">Pending</div></div></div></div>
+    <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:#B8790A;"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ counts.pending }}</div><div class="hk-stat-label">Pending</div></div></div></div>
     <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--hk-emerald-bg); color:var(--hk-emerald);"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ counts.approved }}</div><div class="hk-stat-label">Approved</div></div></div></div>
     <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:#FCE9EC; color:#dc3545;"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ counts.rejected }}</div><div class="hk-stat-label">Rejected</div></div></div></div>
 </div>
 
-<form method="get" class="card mb-3">
+<form method="get" class="card hk-toolbar-card mb-3">
     <div class="card-body">
-        <div class="row g-2 align-items-end">
+        <div class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="form-label small text-muted mb-1">Search</label>
-                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Title, company, location...">
+                <label class="hk-filter-label">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0" style="border-color:var(--hk-border-soft); border-radius:10px 0 0 10px;"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" style="border-radius:0 10px 10px 0;" placeholder="Title, company, location...">
+                </div>
             </div>
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Type</label>
+                <label class="hk-filter-label">Type</label>
                 <select name="model" class="form-select">
                     <option value="">All Types</option>
                     {% for key in model_choices %}
@@ -29,7 +37,7 @@
                 </select>
             </div>
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Category</label>
+                <label class="hk-filter-label">Category</label>
                 <select name="category" class="form-select">
                     <option value="">All Categories</option>
                     {% for cat in categories %}
@@ -38,7 +46,7 @@
                 </select>
             </div>
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Admin/User</label>
+                <label class="hk-filter-label">Admin/User</label>
                 <select name="owner" class="form-select">
                     <option value="">All Admins</option>
                     {% for owner in owners %}
@@ -47,7 +55,7 @@
                 </select>
             </div>
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Status</label>
+                <label class="hk-filter-label">Status</label>
                 <select name="status" class="form-select">
                     <option value="">All Statuses</option>
                     {% for value, label in status_choices %}
@@ -56,12 +64,12 @@
                 </select>
             </div>
             <div class="col-6 col-md-1">
-                <button class="btn btn-primary w-100" type="submit"><i class="bi bi-funnel"></i></button>
+                <button class="btn btn-primary w-100" type="submit" title="Apply filters"><i class="bi bi-funnel"></i></button>
             </div>
         </div>
-        <div class="row g-2 mt-1">
-            <div class="col-md-3">
-                <label class="form-label small text-muted mb-1">Sort by</label>
+        <div class="row g-3 mt-1">
+            <div class="col-6 col-md-3">
+                <label class="hk-filter-label">Sort by</label>
                 <select name="sort" class="form-select" onchange="this.form.submit()">
                     <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
                     <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
@@ -69,6 +77,11 @@
                     <option value="most_liked" {% if sort == 'most_liked' %}selected{% endif %}>Most liked</option>
                 </select>
             </div>
+            {% if query or selected_model or selected_category or selected_owner or status_filter %}
+            <div class="col-6 col-md-2 d-flex align-items-end">
+                <a href="{% url 'core:dashboard_posts' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x-circle"></i> Clear filters</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </form>
@@ -77,21 +90,19 @@
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
-    <div class="card mb-3">
-        <div class="card-body d-flex flex-wrap align-items-center gap-2">
-            <select name="bulk_action" id="hkBulkAction" class="form-select w-auto">
-                <option value="approve">Approve selected</option>
-                <option value="reject">Reject selected</option>
-                <option value="enable">Enable selected</option>
-                <option value="disable">Disable selected</option>
-                <option value="feature">Feature selected</option>
-                <option value="unfeature">Unfeature selected</option>
-                <option value="delete">Delete selected</option>
-            </select>
-            <input type="text" name="note" class="form-control w-auto flex-grow-1" placeholder="Reason (used for reject)" style="min-width:220px;">
-            <button type="submit" id="hkBulkApply" class="btn btn-outline-primary">Apply to Selected</button>
-            <span class="text-muted small ms-auto">{{ page_obj.paginator.count }} post(s)</span>
-        </div>
+    <div class="hk-bulkbar d-flex flex-wrap align-items-center gap-2 mb-3" id="hkBulkbar">
+        <select name="bulk_action" id="hkBulkAction" class="form-select w-auto">
+            <option value="approve">Approve</option>
+            <option value="reject">Reject</option>
+            <option value="enable">Enable</option>
+            <option value="disable">Disable</option>
+            <option value="feature">Feature</option>
+            <option value="unfeature">Unfeature</option>
+            <option value="delete">Delete</option>
+        </select>
+        <input type="text" name="note" class="form-control w-auto flex-grow-1" placeholder="Reason (used for reject)" style="min-width:220px;">
+        <button type="submit" id="hkBulkApply" class="btn btn-primary"><i class="bi bi-check2-circle"></i> Apply to Selected</button>
+        <span class="hk-bulkbar-count ms-auto" id="hkBulkbarCount">{{ page_obj.paginator.count }} post{{ page_obj.paginator.count|pluralize }}</span>
     </div>
 
     <div class="card">
@@ -99,8 +110,8 @@
             <table class="table align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th style="width:36px;"><input type="checkbox" id="hkSelectAll"></th>
-                        <th style="width:64px;">Photo</th>
+                        <th style="width:36px;"><input type="checkbox" id="hkSelectAll" class="form-check-input"></th>
+                        <th style="width:70px;">Photo</th>
                         <th>Title</th>
                         <th>Type</th>
                         <th>Category</th>
@@ -116,42 +127,38 @@
                     {% for item in page_obj %}
                     {% with obj=item.obj %}
                     <tr>
-                        <td><input type="checkbox" name="items" value="{{ item.model_key }}:{{ obj.pk }}" class="hkRowCheck"></td>
-                        <td><img src="{{ obj.display_image }}" alt="" class="rounded" style="width:48px;height:48px;object-fit:cover;"></td>
-                        <td>
+                        <td><input type="checkbox" name="items" value="{{ item.model_key }}:{{ obj.pk }}" class="hkRowCheck form-check-input"></td>
+                        <td><img src="{{ obj.display_image }}" alt="" class="hk-post-thumb"></td>
+                        <td class="{% if not obj.is_active %}hk-post-title-off{% endif %}">
                             <div class="fw-semibold">{{ obj }}</div>
-                            {% if obj.is_featured %}<span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Featured</span>{% endif %}
-                            {% if not obj.is_active %}<span class="badge bg-secondary">Disabled</span>{% endif %}
+                            <div class="d-flex gap-1 mt-1">
+                                {% if obj.is_featured %}<span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Featured</span>{% endif %}
+                                {% if not obj.is_active %}<span class="badge bg-secondary">Disabled</span>{% endif %}
+                            </div>
                         </td>
-                        <td><span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ item.model_key }}</span></td>
-                        <td>{{ obj.listing_category.label|default:'—' }}</td>
-                        <td>{% if obj.owner %}{{ obj.owner.profile.full_name|default:obj.owner.email }}{% else %}Staff{% endif %}</td>
+                        <td><span class="hk-type-pill hk-type-{{ item.model_key }}">{{ item.model_key }}</span></td>
+                        <td class="small">{{ obj.listing_category.label|default:'—' }}</td>
+                        <td class="small">{% if obj.owner %}{{ obj.owner.profile.full_name|default:obj.owner.email }}{% else %}Staff{% endif %}</td>
                         <td>
-                            <span class="badge
-                                {% if obj.status == 'approved' %}bg-success
-                                {% elif obj.status == 'pending' %}bg-warning text-dark
-                                {% elif obj.status == 'rejected' %}bg-danger
-                                {% else %}bg-info text-dark{% endif %}">
-                                {{ obj.get_status_display }}
-                            </span>
+                            <span class="hk-status-pill hk-status-{{ obj.status }}">{{ obj.get_status_display }}</span>
                         </td>
-                        <td>{{ obj.view_count }}</td>
-                        <td>{{ obj.like_count }}</td>
+                        <td class="small text-muted"><i class="bi bi-eye"></i> {{ obj.view_count }}</td>
+                        <td class="small text-muted"><i class="bi bi-hand-thumbs-up"></i> {{ obj.like_count }}</td>
                         <td class="small text-muted">{{ obj.created_at|date:"d M Y" }}</td>
                         <td class="text-end">
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'core:dashboard_post_detail' item.model_key obj.pk %}" class="btn btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>
-                                <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
-                                <button type="submit" formaction="{% url 'core:dashboard_post_toggle_active' item.model_key obj.pk %}" class="btn btn-outline-secondary" title="{% if obj.is_active %}Disable{% else %}Enable{% endif %}">
+                            <div class="d-flex justify-content-end gap-1">
+                                <a href="{% url 'core:dashboard_post_detail' item.model_key obj.pk %}" class="hk-row-action-btn" title="View"><i class="bi bi-eye"></i></a>
+                                <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="hk-row-action-btn" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <button type="submit" formaction="{% url 'core:dashboard_post_toggle_active' item.model_key obj.pk %}" class="hk-row-action-btn" title="{% if obj.is_active %}Disable{% else %}Enable{% endif %}">
                                     <i class="bi {% if obj.is_active %}bi-toggle-on{% else %}bi-toggle-off{% endif %}"></i>
                                 </button>
-                                <button type="submit" formaction="{% url 'core:listing_delete' item.model_key obj.pk %}" class="btn btn-outline-danger hkConfirmDelete" title="Delete"><i class="bi bi-trash"></i></button>
+                                <button type="submit" formaction="{% url 'core:listing_delete' item.model_key obj.pk %}" class="hk-row-action-btn hk-row-action-danger hkConfirmDelete" title="Delete"><i class="bi bi-trash"></i></button>
                             </div>
                         </td>
                     </tr>
                     {% endwith %}
                     {% empty %}
-                    <tr><td colspan="11" class="text-center text-muted py-5">No posts match these filters.</td></tr>
+                    <tr><td colspan="11" class="text-center text-muted py-5"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No posts match these filters.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -176,11 +183,29 @@
 <script>
 (function () {
     const selectAll = document.getElementById('hkSelectAll');
+    const rowChecks = document.querySelectorAll('.hkRowCheck');
+    const bulkbar = document.getElementById('hkBulkbar');
+    const countLabel = document.getElementById('hkBulkbarCount');
+    const totalLabel = '{{ page_obj.paginator.count }} post{{ page_obj.paginator.count|pluralize }}';
+
+    function updateBulkbar() {
+        const checked = document.querySelectorAll('.hkRowCheck:checked').length;
+        if (checked > 0) {
+            bulkbar.classList.add('hk-bulkbar-active');
+            countLabel.textContent = checked + ' selected';
+        } else {
+            bulkbar.classList.remove('hk-bulkbar-active');
+            countLabel.textContent = totalLabel;
+        }
+    }
+
     if (selectAll) {
         selectAll.addEventListener('change', function () {
-            document.querySelectorAll('.hkRowCheck').forEach(function (cb) { cb.checked = selectAll.checked; });
+            rowChecks.forEach(function (cb) { cb.checked = selectAll.checked; });
+            updateBulkbar();
         });
     }
+    rowChecks.forEach(function (cb) { cb.addEventListener('change', updateBulkbar); });
 
     document.querySelectorAll('.hkConfirmDelete').forEach(function (btn) {
         btn.addEventListener('click', function (e) {

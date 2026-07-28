@@ -46,13 +46,6 @@
                         <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}">Contact</a>
                     </li>
                     {% if user.is_authenticated %}
-                        {% if user.is_staff %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'core:upload_hub' %}">
-                                <i class="bi bi-cloud-arrow-up"></i> Uploads
-                            </a>
-                        </li>
-                        {% endif %}
                         {% if user.profile.role == 'super_admin' or user.profile.role == 'admin' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'core:dashboard' %}">

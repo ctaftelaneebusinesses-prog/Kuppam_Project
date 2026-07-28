@@ -42,6 +42,11 @@
                 <a class="nav-link hk-dash-link {% if active_nav == 'categories' %}active{% endif %}" href="{% url 'core:dashboard_categories' %}">
                     <i class="bi bi-tags"></i> Categories
                 </a>
+                {% if user.is_staff %}
+                <a class="nav-link hk-dash-link {% if active_nav == 'uploads' %}active{% endif %}" href="{% url 'core:upload_hub' %}">
+                    <i class="bi bi-cloud-arrow-up"></i> Uploads
+                </a>
+                {% endif %}
                 <hr class="my-2">
                 {% endif %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'my_listings' %}active{% endif %}" href="{% url 'core:my_listings' %}">
