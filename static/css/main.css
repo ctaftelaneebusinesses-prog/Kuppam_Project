@@ -1,103 +1,13 @@
 /* ==========================================================================
    Hello Kuppam — Design System
    One consistent, soft, premium visual language shared by every module.
+
+   Design tokens (color/type/spacing/radius/shadow scales, light + dark) now
+   live in tokens.css, loaded before this file — see base.html. Every rule
+   below should read a --hk-*/--bs-* custom property from there rather than
+   a literal value; that's what lets a single token change re-theme every
+   module at once.
    ========================================================================== */
-
-/* --- Design tokens -------------------------------------------------- */
-:root {
-    /* Brand — Deep Blue -> Royal Purple */
-    --bs-primary: #0F4C81;
-    --bs-primary-rgb: 15, 76, 129;
-    --bs-primary-bg-subtle: #E8EFF7;
-    --bs-primary-border-subtle: #BFD4E8;
-    --bs-primary-text-emphasis: #0B3A63;
-
-    --bs-link-color: #0F4C81;
-    --bs-link-color-rgb: 15, 76, 129;
-    --bs-link-hover-color: #0B3A63;
-    --bs-link-hover-color-rgb: 11, 58, 99;
-
-    --bs-warning: #F0A93A;
-    --bs-warning-rgb: 240, 169, 58;
-    --bs-warning-bg-subtle: #FDF1DD;
-    --bs-warning-border-subtle: #F8DBA3;
-
-    --bs-focus-ring-color: rgba(15, 76, 129, .2);
-
-    /* Accent palette */
-    --hk-purple: #5B3DE0;
-    --hk-emerald: #0FA36B;
-    --hk-emerald-bg: #E4F7EF;
-    --hk-sky: #3EC1F3;
-    --hk-gold: #F0A93A;
-
-    --bs-body-font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    --hk-font-heading: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    --bs-body-bg: #F6F7FC;
-    --bs-body-color: #333A4D;
-
-    --bs-border-radius-sm: .5rem;
-    --bs-border-radius: .625rem;
-    --bs-border-radius-lg: 1rem;
-    --bs-border-radius-xl: 1.25rem;
-    --bs-border-radius-2xl: 1.5rem;
-
-    /* Custom tokens not covered by Bootstrap variables */
-    --hk-ink: #171A2B;
-    --hk-ink-soft: #6B7089;
-    --hk-border-soft: #EDEFF7;
-    --hk-surface: #FFFFFF;
-    --hk-radius-card: 18px;
-    --hk-radius-pill: 999px;
-    --hk-shadow-sm: 0 2px 10px rgba(23, 25, 46, .05);
-    --hk-shadow-md: 0 10px 28px rgba(23, 25, 46, .08);
-    --hk-shadow-hover: 0 18px 40px rgba(23, 25, 46, .14);
-    --hk-gradient: linear-gradient(135deg, #0B3A63 0%, #0F4C81 45%, #5B3DE0 100%);
-    --hk-gradient-soft: linear-gradient(135deg, rgba(15,76,129,.08) 0%, rgba(91,61,224,.08) 100%);
-
-    --hk-footer-bg: #171A2B;
-    --hk-footer-border: rgba(255, 255, 255, .08);
-}
-
-/* --- Dark theme tokens ------------------------------------------------------
-   Toggled by setting data-theme="dark" on <html> (see the navbar theme toggle
-   in base.html + main.js). Because every component below is already built on
-   these shared custom properties, redefining them here is enough to retheme
-   navbar, cards, forms, tables and footer in one place — no per-component
-   dark rule needed except where a component uses a literal color instead of
-   a token (those overrides live further down, grouped by component). -------- */
-html[data-theme="dark"] {
-    --bs-primary: #5B9BE8;
-    --bs-primary-rgb: 91, 155, 232;
-    --bs-primary-bg-subtle: rgba(91, 155, 232, .16);
-    --bs-primary-border-subtle: rgba(91, 155, 232, .32);
-    --bs-primary-text-emphasis: #A9CCF3;
-
-    --bs-link-color: #5B9BE8;
-    --bs-link-color-rgb: 91, 155, 232;
-    --bs-link-hover-color: #8AB8EF;
-    --bs-link-hover-color-rgb: 138, 184, 239;
-
-    --bs-warning-bg-subtle: rgba(240, 169, 58, .16);
-    --bs-warning-border-subtle: rgba(240, 169, 58, .32);
-
-    --bs-body-bg: #0F1119;
-    --bs-body-color: #D8DAEA;
-
-    --hk-ink: #EDEEF7;
-    --hk-ink-soft: #9AA0BE;
-    --hk-border-soft: #262A3D;
-    --hk-surface: #171A28;
-
-    --hk-shadow-sm: 0 2px 10px rgba(0, 0, 0, .35);
-    --hk-shadow-md: 0 10px 28px rgba(0, 0, 0, .45);
-    --hk-shadow-hover: 0 18px 40px rgba(0, 0, 0, .55);
-
-    --hk-gradient-soft: linear-gradient(135deg, rgba(91,155,232,.10) 0%, rgba(232,178,61,.10) 100%);
-
-    --hk-footer-bg: #0A0C14;
-    --hk-footer-border: rgba(255, 255, 255, .06);
-}
 
 /* --- Base ------------------------------------------------------------ */
 body {
@@ -164,29 +74,51 @@ a {
     to { opacity: 1; transform: scale(1); }
 }
 
-/* --- Navbar --------------------------------------------------------------
+/* --- Navbar ----------------------------------------------------------------
    Always position:fixed (every page, not just the homepage) so it can never
    be scrolled out of view, with a high z-index above ordinary content —
    below Bootstrap modals/tooltips (1055+) so those still layer correctly.
    body { padding-top } above reserves the matching space so nothing ends up
    hidden underneath it; the one exception is the homepage hero, which wants
    to render full-bleed behind the glass navbar (see .hk-has-transparent-hero
-   and the hero's own negative margin, set via main.js). ------------------- */
+   and the hero's own negative margin, set via main.js).
+
+   Two skins share this markup:
+   - .hk-navbar-transparent  → homepage only, floats over the hero image
+   - default (no modifier)   → every other page, glass-over-content
+   .hk-navbar-solid is added by main.js once the user scrolls the transparent
+   variant past the hero, cross-fading it into the same glass look the
+   default skin already has. ---------------------------------------------- */
 .navbar {
     position: fixed !important;
     top: 0 !important;
     left: 0;
     right: 0;
-    z-index: 1050;
-    padding-top: .85rem;
-    padding-bottom: .85rem;
-    transition: background-color .3s ease, box-shadow .3s ease, backdrop-filter .3s ease;
+    z-index: var(--hk-z-nav);
+    padding-top: var(--hk-space-3);
+    padding-bottom: var(--hk-space-3);
+    transition: background-color var(--hk-duration-base) var(--hk-ease-out),
+                box-shadow var(--hk-duration-base) var(--hk-ease-out),
+                backdrop-filter var(--hk-duration-base) var(--hk-ease-out),
+                border-color var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.navbar:not(.hk-navbar-transparent) {
+    background-color: rgba(255, 255, 255, .72) !important;
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    box-shadow: var(--hk-elevation-1) !important;
+    border-bottom: 1px solid var(--hk-border-soft);
+}
+
+html[data-theme="dark"] .navbar:not(.hk-navbar-transparent) {
+    background-color: rgba(10, 11, 16, .72) !important;
 }
 
 .hk-navbar-transparent {
     background-color: rgba(255, 255, 255, 0.08) !important;
-    backdrop-filter: blur(14px) saturate(160%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
     box-shadow: none !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
@@ -196,7 +128,8 @@ a {
     color: #fff !important;
 }
 
-.hk-navbar-transparent .navbar-brand i {
+.hk-navbar-transparent .navbar-brand .hk-brand-mark {
+    background: rgba(255, 255, 255, .16);
     color: #fff;
 }
 
@@ -211,22 +144,15 @@ a {
 }
 
 .hk-navbar-solid {
-    background-color: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(14px) saturate(180%);
-    -webkit-backdrop-filter: blur(14px) saturate(180%);
-    box-shadow: var(--hk-shadow-sm) !important;
-    border-bottom: 1px solid var(--hk-border-soft);
-}
-
-/* Plain (non-transparent) navbar used on every page except the homepage —
-   themed directly off the shared tokens so it flips with the rest of the site. */
-.navbar:not(.hk-navbar-transparent) {
-    background-color: var(--hk-surface) !important;
+    background-color: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    box-shadow: var(--hk-elevation-1) !important;
     border-bottom: 1px solid var(--hk-border-soft);
 }
 
 html[data-theme="dark"] .hk-navbar-solid {
-    background-color: rgba(15, 17, 25, 0.85) !important;
+    background-color: rgba(10, 11, 16, 0.72) !important;
 }
 
 .navbar .hk-theme-toggle {
@@ -253,7 +179,7 @@ html[data-theme="dark"] .hk-navbar-solid {
 /* Once scrolled past the hero, .hk-navbar-solid is added alongside
    .hk-navbar-transparent (which is never removed) — override its white-text
    rules back to the normal dark navbar colors so text stays legible against
-   the now-solid white background. */
+   the now-solid glass background. */
 .hk-navbar-transparent.hk-navbar-solid .navbar-brand,
 .hk-navbar-transparent.hk-navbar-solid .navbar-nav .nav-link {
     color: var(--hk-ink-soft) !important;
@@ -263,8 +189,9 @@ html[data-theme="dark"] .hk-navbar-solid {
     color: var(--hk-ink) !important;
 }
 
-.hk-navbar-transparent.hk-navbar-solid .navbar-brand i {
-    color: var(--bs-primary);
+.hk-navbar-transparent.hk-navbar-solid .hk-brand-mark {
+    background: var(--hk-gradient);
+    color: #fff;
 }
 
 .hk-navbar-transparent.hk-navbar-solid .navbar-toggler-icon {
@@ -278,22 +205,39 @@ html[data-theme="dark"] .hk-navbar-solid {
 }
 
 .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
     font-family: var(--hk-font-heading);
-    font-size: 1.35rem;
+    font-size: 1.2rem;
     font-weight: 700;
+    letter-spacing: var(--hk-tracking-tight);
     color: var(--hk-ink) !important;
 }
 
-.navbar-brand i {
-    color: var(--bs-primary);
+/* Small gradient logotype mark preceding the wordmark — reads as a real
+   product mark rather than a bare Bootstrap icon glyph. */
+.hk-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--hk-radius-sm);
+    background: var(--hk-gradient);
+    color: #fff;
+    font-size: 1rem;
+    transition: background-color var(--hk-duration-base) var(--hk-ease-out);
 }
 
 .navbar-nav .nav-link {
     font-weight: 500;
+    font-size: var(--hk-text-sm);
     color: var(--hk-ink-soft) !important;
-    padding: .5rem .9rem !important;
+    padding: .55rem 1rem !important;
     border-radius: var(--hk-radius-pill);
-    transition: color .15s ease, background-color .15s ease;
+    transition: color var(--hk-duration-fast) var(--hk-ease-out),
+                background-color var(--hk-duration-fast) var(--hk-ease-out);
     position: relative;
 }
 
@@ -303,12 +247,130 @@ html[data-theme="dark"] .hk-navbar-solid {
     background-color: var(--bs-primary-bg-subtle);
 }
 
+.hk-navbar-transparent .navbar-nav .nav-link:hover,
+.hk-navbar-transparent .navbar-nav .nav-link:focus {
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
 .navbar-nav .nav-link.active {
     font-weight: 600;
+    color: var(--bs-primary) !important;
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.hk-navbar-transparent:not(.hk-navbar-solid) .navbar-nav .nav-link.active {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.16);
 }
 
 .navbar-nav .nav-link.btn {
-    padding: .5rem 1.1rem !important;
+    padding: .55rem 1.15rem !important;
+}
+
+/* --- Navbar profile dropdown ------------------------------------------------- */
+.hk-navbar-avatar-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: .3rem !important;
+    border-radius: var(--hk-radius-pill);
+}
+
+.hk-navbar-avatar-btn img {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border: 2px solid var(--bs-primary-bg-subtle);
+    transition: border-color var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-navbar-transparent:not(.hk-navbar-solid) .hk-navbar-avatar-btn img {
+    border-color: rgba(255, 255, 255, .4);
+}
+
+.hk-navbar-avatar-btn:hover img {
+    border-color: var(--bs-primary);
+}
+
+.navbar .dropdown-menu {
+    border: 1px solid var(--hk-border-soft);
+    border-radius: var(--hk-radius-md);
+    box-shadow: var(--hk-elevation-4);
+    background-color: var(--hk-surface);
+    padding: .5rem;
+    margin-top: .6rem !important;
+    min-width: 220px;
+    animation: hk-scale-in var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.navbar .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    border-radius: var(--hk-radius-xs);
+    padding: .55rem .7rem;
+    font-size: var(--hk-text-sm);
+    font-weight: 500;
+    color: var(--hk-ink-soft);
+    transition: background-color var(--hk-duration-fast) var(--hk-ease-out), color var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item:focus {
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+}
+
+/* --- Mobile navigation drawer (Bootstrap Offcanvas, right-hand slide-in) ----- */
+.hk-nav-drawer {
+    width: min(320px, 86vw);
+    background: var(--hk-surface);
+    border-left: 1px solid var(--hk-border-soft);
+    z-index: var(--hk-z-drawer);
+}
+
+.hk-nav-drawer .offcanvas-header {
+    padding: 1.25rem 1.4rem;
+    border-bottom: 1px solid var(--hk-border-soft);
+}
+
+.hk-nav-drawer .offcanvas-body {
+    padding: 1.1rem 1rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.hk-nav-drawer .nav-link {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .85rem 1rem !important;
+    border-radius: var(--hk-radius-sm);
+    font-weight: 600;
+    font-size: var(--hk-text-md);
+    color: var(--hk-ink) !important;
+}
+
+.hk-nav-drawer .nav-link:hover,
+.hk-nav-drawer .nav-link:focus,
+.hk-nav-drawer .nav-link.active {
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary) !important;
+}
+
+.hk-nav-drawer .hk-nav-drawer-divider {
+    height: 1px;
+    background: var(--hk-border-soft);
+    margin: .85rem 0;
+    border: none;
+}
+
+.hk-nav-drawer .hk-nav-drawer-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.offcanvas-backdrop {
+    backdrop-filter: blur(2px);
 }
 
 /* --- Messages ------------------------------------------------------------ */
@@ -1313,26 +1375,59 @@ html[data-theme="dark"] .hk-navbar-solid {
     overflow-y: auto;
 }
 
-/* --- Footer ------------------------------------------------------------------------- */
+/* --- Footer -----------------------------------------------------------------
+   Always dark regardless of site theme (it's the one surface that stays
+   constant), built on the same --hk-dark-* primitives as dark mode itself so
+   it never looks like a bolted-on separate skin. --------------------------- */
 footer {
     background-color: var(--hk-footer-bg) !important;
     border-top: 1px solid var(--hk-footer-border);
-    transition: background-color .3s ease, border-color .3s ease;
+    padding-top: var(--hk-space-12) !important;
+    padding-bottom: var(--hk-space-6) !important;
+    transition: background-color var(--hk-duration-base) var(--hk-ease-out), border-color var(--hk-duration-base) var(--hk-ease-out);
 }
 
 footer a {
-    transition: color .15s ease;
+    transition: color var(--hk-duration-fast) var(--hk-ease-out), transform var(--hk-duration-fast) var(--hk-ease-out);
 }
 
 footer a:hover {
     color: #fff !important;
-    text-decoration: underline !important;
+}
+
+.hk-footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+    font-family: var(--hk-font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: var(--hk-tracking-tight);
+    color: #fff;
+}
+
+.hk-footer-brand .hk-brand-mark {
+    background: var(--hk-gradient);
+}
+
+.hk-footer-tagline {
+    color: #9096AD;
+    font-size: var(--hk-text-sm);
+    line-height: var(--hk-leading-normal);
+    max-width: 32ch;
 }
 
 .hk-craftlanee-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+.hk-craftlanee-credit {
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid var(--hk-footer-border);
+    border-radius: var(--hk-radius-lg);
+    padding: 1rem 1.25rem;
 }
 
 .hk-craftlanee-credit a {
@@ -1347,14 +1442,20 @@ footer a:hover {
 
 .hk-footer-heading {
     font-family: var(--hk-font-heading);
-    letter-spacing: .02em;
+    font-size: var(--hk-text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--hk-tracking-wide);
+    color: #E4E6F1;
+    margin-bottom: 1.1rem;
 }
 
 .hk-footer-links a {
-    color: #A7ADC4;
+    color: #9096AD;
     text-decoration: none;
     display: inline-block;
-    padding: 4px 0;
+    padding: .3rem 0;
+    font-size: var(--hk-text-sm);
 }
 
 .hk-footer-links a:hover {
@@ -1366,41 +1467,66 @@ footer a:hover {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--hk-footer-border);
     color: #fff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    transition: background-color .2s ease, transform .2s ease;
+    transition: background-color var(--hk-duration-base) var(--hk-ease-out), transform var(--hk-duration-base) var(--hk-ease-out), border-color var(--hk-duration-base) var(--hk-ease-out);
 }
 
 .hk-social-icon:hover {
     background: var(--hk-gradient);
+    border-color: transparent;
     color: #fff;
     transform: translateY(-3px);
 }
 
 .hk-newsletter-form {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--hk-footer-border);
     border-radius: var(--hk-radius-pill);
     padding: 6px;
+    transition: border-color var(--hk-duration-fast) var(--hk-ease-out), background-color var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-newsletter-form:focus-within {
+    border-color: rgba(91, 155, 232, .5);
+    background: rgba(255, 255, 255, 0.07);
 }
 
 .hk-newsletter-form input {
     background: transparent;
     border: none;
     color: #fff;
+    font-size: var(--hk-text-sm);
 }
 
 .hk-newsletter-form input::placeholder {
-    color: #8B90A6;
+    color: #6E7388;
 }
 
 .hk-newsletter-form input:focus {
     outline: none;
     box-shadow: none;
+}
+
+.hk-footer-bottom {
+    border-top: 1px solid var(--hk-footer-border);
+    padding-top: var(--hk-space-5);
+    margin-top: var(--hk-space-6);
+}
+
+.hk-footer-legal a {
+    color: #9096AD;
+    text-decoration: none;
+    font-size: var(--hk-text-sm);
+}
+
+.hk-footer-legal a:hover {
+    color: #fff !important;
 }
 
 /* --- Dashboard (Admin / Super Admin) ------------------------------------------------- */

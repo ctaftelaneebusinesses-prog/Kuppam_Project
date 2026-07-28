@@ -2,27 +2,32 @@
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Hello Kuppam frontend loaded.');
 
-    // Site-wide light/dark theme toggle (navbar button). The initial theme is
-    // already applied pre-paint by the inline anti-flash script in base.html;
-    // this just wires up the button and keeps localStorage in sync so the
+    // Site-wide light/dark theme toggle. The initial theme is already applied
+    // pre-paint by the inline anti-flash script in base.html; this wires up
+    // every toggle button on the page (desktop navbar + mobile drawer both
+    // have their own) and keeps them all in sync via localStorage, so the
     // choice persists across every page, including the dashboard.
     (function () {
         const root = document.documentElement;
-        const toggle = document.getElementById('hkThemeToggle');
-        const icon = document.getElementById('hkThemeIcon');
-        if (!toggle || !icon) return;
+        const toggles = document.querySelectorAll('[id^="hkThemeToggle"]');
+        const icons = document.querySelectorAll('[id^="hkThemeIcon"]');
+        if (!toggles.length) return;
 
-        function paintIcon(theme) {
-            icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+        function paintIcons(theme) {
+            icons.forEach(function (icon) {
+                icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+            });
         }
 
-        paintIcon(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+        paintIcons(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
 
-        toggle.addEventListener('click', function () {
-            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            root.setAttribute('data-theme', next);
-            try { localStorage.setItem('hkTheme', next); } catch (e) {}
-            paintIcon(next);
+        toggles.forEach(function (toggle) {
+            toggle.addEventListener('click', function () {
+                const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                root.setAttribute('data-theme', next);
+                try { localStorage.setItem('hkTheme', next); } catch (e) {}
+                paintIcons(next);
+            });
         });
     })();
 
@@ -189,18 +194,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Close mobile navbar after clicking a nav link
-    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-    const navbarCollapse = document.getElementById('navbarMain');
-
-    navLinks.forEach(function (link) {
-        link.addEventListener('click', function () {
-            if (navbarCollapse.classList.contains('show')) {
-                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(navbarCollapse);
-                bsCollapse.hide();
-            }
+    // Close the mobile nav drawer after clicking a link inside it
+    const navDrawerEl = document.getElementById('hkNavDrawer');
+    if (navDrawerEl && window.bootstrap) {
+        navDrawerEl.querySelectorAll('.nav-link, a.btn').forEach(function (link) {
+            link.addEventListener('click', function () {
+                const instance = bootstrap.Offcanvas.getInstance(navDrawerEl);
+                if (instance) instance.hide();
+            });
         });
-    });
+    }
 
     // Bootstrap client-side validation, plus a loading state on the button
     // that actually triggered submission (prevents double-submits and gives
