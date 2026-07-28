@@ -28,13 +28,15 @@
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.GET.next }}">
 
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        <div class="form-floating mb-3 {% if form.username.errors %}hk-field-invalid{% endif %}">
                             {{ form.username }}
+                            <label for="{{ form.username.id_for_label }}">Username</label>
+                            {% if form.username.errors %}<div class="hk-field-error">{{ form.username.errors|striptags }}</div>{% endif %}
                         </div>
-                        <div class="mb-4">
-                            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                        <div class="form-floating mb-4 {% if form.password.errors %}hk-field-invalid{% endif %}">
                             {{ form.password }}
+                            <label for="{{ form.password.id_for_label }}">Password</label>
+                            {% if form.password.errors %}<div class="hk-field-error">{{ form.password.errors|striptags }}</div>{% endif %}
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 btn-lg hk-cta-btn">

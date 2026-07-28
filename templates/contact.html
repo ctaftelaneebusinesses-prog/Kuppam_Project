@@ -31,35 +31,35 @@
 
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
-                                {{ form.name }}
-                                {% if form.name.errors %}
-                                    <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
-                                {% endif %}
+                                <div class="form-floating {% if form.name.errors %}hk-field-invalid{% endif %}">
+                                    {{ form.name }}
+                                    <label for="{{ form.name.id_for_label }}">Name</label>
+                                    {% if form.name.errors %}<div class="hk-field-error">{{ form.name.errors.0 }}</div>{% endif %}
+                                </div>
                             </div>
 
                             <div class="col-md-6">
-                                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
-                                {% endif %}
+                                <div class="form-floating {% if form.email.errors %}hk-field-invalid{% endif %}">
+                                    {{ form.email }}
+                                    <label for="{{ form.email.id_for_label }}">Email</label>
+                                    {% if form.email.errors %}<div class="hk-field-error">{{ form.email.errors.0 }}</div>{% endif %}
+                                </div>
                             </div>
 
                             <div class="col-12">
-                                <label for="{{ form.subject.id_for_label }}" class="form-label">Subject</label>
-                                {{ form.subject }}
-                                {% if form.subject.errors %}
-                                    <div class="text-danger small mt-1">{{ form.subject.errors.0 }}</div>
-                                {% endif %}
+                                <div class="form-floating {% if form.subject.errors %}hk-field-invalid{% endif %}">
+                                    {{ form.subject }}
+                                    <label for="{{ form.subject.id_for_label }}">Subject</label>
+                                    {% if form.subject.errors %}<div class="hk-field-error">{{ form.subject.errors.0 }}</div>{% endif %}
+                                </div>
                             </div>
 
                             <div class="col-12">
-                                <label for="{{ form.message.id_for_label }}" class="form-label">Message</label>
-                                {{ form.message }}
-                                {% if form.message.errors %}
-                                    <div class="text-danger small mt-1">{{ form.message.errors.0 }}</div>
-                                {% endif %}
+                                <div class="form-floating {% if form.message.errors %}hk-field-invalid{% endif %}">
+                                    {{ form.message }}
+                                    <label for="{{ form.message.id_for_label }}">Message</label>
+                                    {% if form.message.errors %}<div class="hk-field-error">{{ form.message.errors.0 }}</div>{% endif %}
+                                </div>
                             </div>
                         </div>
 

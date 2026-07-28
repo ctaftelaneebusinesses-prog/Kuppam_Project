@@ -53,7 +53,10 @@ Requires the surrounding view to have merged in _community_context(request, obj)
                 {% if user.is_authenticated %}
                 <form method="post" action="{% url 'core:add_comment' model_key obj.pk %}" class="mb-3">
                     {% csrf_token %}
-                    {{ comment_form.body }}
+                    <div class="form-floating {% if comment_form.body.errors %}hk-field-invalid{% endif %}">
+                        {{ comment_form.body }}
+                        <label for="{{ comment_form.body.id_for_label }}">Write a comment...</label>
+                    </div>
                     <button type="submit" class="btn btn-primary btn-sm mt-2">Post Comment</button>
                 </form>
                 {% else %}
@@ -113,7 +116,10 @@ Requires the surrounding view to have merged in _community_context(request, obj)
                         <i class="bi bi-star" data-star-value="5"></i>
                         <div class="d-none">{{ review_form.rating }}</div>
                     </div>
-                    {{ review_form.body }}
+                    <div class="form-floating {% if review_form.body.errors %}hk-field-invalid{% endif %}">
+                        {{ review_form.body }}
+                        <label for="{{ review_form.body.id_for_label }}">Share your experience (optional)</label>
+                    </div>
                     <button type="submit" class="btn btn-primary btn-sm mt-2">Submit Review</button>
                 </form>
                 {% else %}
@@ -149,13 +155,13 @@ Requires the surrounding view to have merged in _community_context(request, obj)
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Reason</label>
+                        <div class="form-floating mb-3 {% if report_form.reason.errors %}hk-field-invalid{% endif %}">
                             {{ report_form.reason }}
+                            <label for="{{ report_form.reason.id_for_label }}">Reason</label>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Details (optional)</label>
+                        <div class="form-floating {% if report_form.details.errors %}hk-field-invalid{% endif %}">
                             {{ report_form.details }}
+                            <label for="{{ report_form.details.id_for_label }}">Details (optional)</label>
                         </div>
                     </div>
                     <div class="modal-footer">

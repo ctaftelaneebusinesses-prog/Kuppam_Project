@@ -20,6 +20,7 @@
     </div>
 </div>
 
+{% if items %}
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -39,37 +40,46 @@
                 {% with obj=item.obj %}
                 <tr>
                     <td>{{ obj }}</td>
-                    <td class="text-uppercase small text-muted">{{ item.model_key }}</td>
+                    <td><span class="hk-type-pill hk-type-{{ item.model_key }}">{{ item.model_key }}</span></td>
                     <td>
-                        <span class="badge
-                            {% if obj.status == 'approved' %}bg-success
-                            {% elif obj.status == 'pending' %}bg-warning text-dark
-                            {% elif obj.status == 'rejected' %}bg-danger
-                            {% else %}bg-info text-dark{% endif %}">
-                            {{ obj.get_status_display }}
-                        </span>
+                        <span class="hk-status-pill hk-status-{{ obj.status }}">{{ obj.get_status_display }}</span>
                         {% if obj.rejection_reason %}<div class="small text-muted mt-1">{{ obj.rejection_reason }}</div>{% endif %}
                     </td>
                     <td>{{ obj.view_count }}</td>
                     <td>{{ obj.like_count }}</td>
                     <td>{% if obj.review_count %}{{ obj.avg_rating }} ★ ({{ obj.review_count }}){% else %}—{% endif %}</td>
                     <td class="text-end">
-                        {% if obj.status == 'approved' %}
-                        <a href="{{ obj.get_absolute_url }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
-                        {% endif %}
-                        <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                        <form method="post" action="{% url 'core:listing_delete' item.model_key obj.pk %}" class="d-inline" onsubmit="return confirm('Delete this listing?');">
+                        <div class="d-flex justify-content-end gap-1">
+                            {% if obj.status == 'approved' %}
+                            <a href="{{ obj.get_absolute_url }}" class="hk-row-action-btn" title="View"><i class="bi bi-eye"></i></a>
+                            {% endif %}
+                            <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="hk-row-action-btn" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <button type="submit" form="hkDelete-{{ item.model_key }}-{{ obj.pk }}" class="hk-row-action-btn hk-row-action-danger hkConfirmDelete" title="Delete"><i class="bi bi-trash"></i></button>
+                        </div>
+                        <form method="post" id="hkDelete-{{ item.model_key }}-{{ obj.pk }}" action="{% url 'core:listing_delete' item.model_key obj.pk %}" class="d-none">
                             {% csrf_token %}
-                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                         </form>
                     </td>
                 </tr>
                 {% endwith %}
-                {% empty %}
-                <tr><td colspan="7" class="text-center text-muted py-4">You haven't added any listings yet.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+{% else %}
+<div class="alert alert-info text-center py-5 hk-empty-state">
+    <i class="bi bi-card-list display-4 d-block mb-3"></i>
+    <p class="fw-bold mb-1">You haven't added any listings yet</p>
+    <p class="text-muted mb-0">Use "Add a New Listing" above to publish your first one.</p>
+</div>
+{% endif %}
+
+<script>
+document.querySelectorAll('.hkConfirmDelete').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+        if (!confirm('Delete this listing? This cannot be undone.')) e.preventDefault();
+    });
+});
+</script>
 {% endblock %}

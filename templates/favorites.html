@@ -4,8 +4,12 @@
 
 {% block content %}
 <section class="container py-5">
-    <h3 class="fw-bold mb-4">My Favorites</h3>
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="hk-section-icon"><i class="bi bi-heart"></i></div>
+        <h3 class="fw-bold mb-0">My Favorites</h3>
+    </div>
 
+    {% if items %}
     <div class="row g-3">
         {% for item in items %}
         <div class="col-md-6 col-lg-4">
@@ -19,9 +23,17 @@
                 </div>
             </div>
         </div>
-        {% empty %}
-        <div class="col-12 text-center text-muted py-5">You haven't saved any favorites yet.</div>
         {% endfor %}
     </div>
+    {% else %}
+    <div class="alert alert-info text-center py-5 hk-empty-state">
+        <i class="bi bi-heart display-4 d-block mb-3"></i>
+        <p class="fw-bold mb-1">You haven't saved any favorites yet</p>
+        <p class="text-muted mb-3">Tap the heart on any listing to save it here for later.</p>
+        <a href="{% url 'core:home' %}" class="btn btn-outline-primary">
+            <i class="bi bi-compass"></i> Explore Listings
+        </a>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}

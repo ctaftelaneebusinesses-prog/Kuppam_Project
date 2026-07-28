@@ -4,8 +4,11 @@
 
 {% block content %}
 <section class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold mb-0">Notifications</h3>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="hk-section-icon"><i class="bi bi-bell"></i></div>
+            <h3 class="fw-bold mb-0">Notifications</h3>
+        </div>
         {% if notification_qs %}
         <form method="post" action="{% url 'core:notifications_mark_all_read' %}">
             {% csrf_token %}
@@ -14,13 +17,17 @@
         {% endif %}
     </div>
 
-    <div class="card">
+    {% if notification_qs %}
+    <div class="card hk-detail-panel">
         <div class="list-group list-group-flush">
             {% for note in notification_qs %}
-            <div class="list-group-item d-flex justify-content-between align-items-center {% if not note.is_read %}bg-primary-subtle{% endif %}">
-                <div>
-                    {% if note.url %}<a href="{{ note.url }}" class="text-decoration-none">{{ note.message }}</a>{% else %}{{ note.message }}{% endif %}
-                    <div class="text-muted small">{{ note.created_at|date:"d M Y, H:i" }}</div>
+            <div class="list-group-item d-flex justify-content-between align-items-center gap-3 {% if not note.is_read %}bg-primary-subtle{% endif %}">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="hk-meta-icon"><i class="bi {% if note.is_read %}bi-bell{% else %}bi-bell-fill{% endif %}"></i></div>
+                    <div>
+                        {% if note.url %}<a href="{{ note.url }}" class="text-decoration-none {% if not note.is_read %}fw-semibold{% endif %}">{{ note.message }}</a>{% else %}<span class="{% if not note.is_read %}fw-semibold{% endif %}">{{ note.message }}</span>{% endif %}
+                        <div class="text-muted small">{{ note.created_at|date:"d M Y, H:i" }}</div>
+                    </div>
                 </div>
                 {% if not note.is_read %}
                 <form method="post" action="{% url 'core:notification_mark_read' note.pk %}">
@@ -29,10 +36,15 @@
                 </form>
                 {% endif %}
             </div>
-            {% empty %}
-            <div class="list-group-item text-muted text-center py-4">No notifications yet.</div>
             {% endfor %}
         </div>
     </div>
+    {% else %}
+    <div class="alert alert-info text-center py-5 hk-empty-state">
+        <i class="bi bi-bell display-4 d-block mb-3"></i>
+        <p class="fw-bold mb-1">No notifications yet</p>
+        <p class="text-muted mb-0">We'll let you know here when there's something new.</p>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}

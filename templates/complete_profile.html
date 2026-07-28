@@ -28,38 +28,51 @@
                             <input type="email" class="form-control" value="{{ email }}" disabled readonly>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="{{ form.full_name.id_for_label }}" class="form-label">Full Name</label>
+                        <div class="form-floating mb-3 {% if form.full_name.errors %}hk-field-invalid{% endif %}">
                             {{ form.full_name }}
+                            <label for="{{ form.full_name.id_for_label }}">Full Name</label>
+                            {% if form.full_name.errors %}<div class="hk-field-error">{{ form.full_name.errors|striptags }}</div>{% endif %}
                         </div>
 
-                        <div class="mb-3">
-                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">Mobile Number</label>
+                        <div class="form-floating mb-3 {% if form.phone_number.errors %}hk-field-invalid{% endif %}">
                             {{ form.phone_number }}
+                            <label for="{{ form.phone_number.id_for_label }}">Mobile Number</label>
+                            {% if form.phone_number.errors %}<div class="hk-field-error">{{ form.phone_number.errors|striptags }}</div>{% endif %}
                         </div>
 
                         <div class="mb-3">
                             <label for="{{ form.profile_photo.id_for_label }}" class="form-label">Profile Photo (optional)</label>
                             {{ form.profile_photo }}
+                            {% if form.profile_photo.errors %}<div class="hk-field-error">{{ form.profile_photo.errors|striptags }}</div>{% endif %}
                         </div>
 
-                        <div class="mb-3">
-                            <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                        <div class="form-floating mb-3 {% if form.address.errors %}hk-field-invalid{% endif %}">
                             {{ form.address }}
+                            <label for="{{ form.address.id_for_label }}">Address</label>
+                            {% if form.address.errors %}<div class="hk-field-error">{{ form.address.errors|striptags }}</div>{% endif %}
                         </div>
 
                         <div class="row g-3 mb-4">
                             <div class="col-md-4">
-                                <label for="{{ form.city.id_for_label }}" class="form-label">City</label>
-                                {{ form.city }}
+                                <div class="form-floating {% if form.city.errors %}hk-field-invalid{% endif %}">
+                                    {{ form.city }}
+                                    <label for="{{ form.city.id_for_label }}">City</label>
+                                    {% if form.city.errors %}<div class="hk-field-error">{{ form.city.errors|striptags }}</div>{% endif %}
+                                </div>
                             </div>
                             <div class="col-md-4">
-                                <label for="{{ form.state.id_for_label }}" class="form-label">State</label>
-                                {{ form.state }}
+                                <div class="form-floating {% if form.state.errors %}hk-field-invalid{% endif %}">
+                                    {{ form.state }}
+                                    <label for="{{ form.state.id_for_label }}">State</label>
+                                    {% if form.state.errors %}<div class="hk-field-error">{{ form.state.errors|striptags }}</div>{% endif %}
+                                </div>
                             </div>
                             <div class="col-md-4">
-                                <label for="{{ form.pincode.id_for_label }}" class="form-label">Pincode</label>
-                                {{ form.pincode }}
+                                <div class="form-floating {% if form.pincode.errors %}hk-field-invalid{% endif %}">
+                                    {{ form.pincode }}
+                                    <label for="{{ form.pincode.id_for_label }}">Pincode</label>
+                                    {% if form.pincode.errors %}<div class="hk-field-error">{{ form.pincode.errors|striptags }}</div>{% endif %}
+                                </div>
                             </div>
                         </div>
 

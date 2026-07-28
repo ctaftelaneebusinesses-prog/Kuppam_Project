@@ -43,15 +43,8 @@
             {% if related_articles %}
             <h6 class="hk-related-heading mb-3">More News</h6>
             {% for related in related_articles %}
-            <div class="card hk-card mb-3">
-                <div class="card-body">
-                    <p class="text-muted small mb-1">{{ related.published_date|date:"d M Y" }}</p>
-                    <h6 class="card-title">{{ related.title }}</h6>
-                    <p class="card-text text-muted small mb-2">{{ related.content|truncatewords:15 }}</p>
-                    <a href="{% url 'core:news_detail' related.slug %}" class="btn btn-sm btn-outline-primary">
-                        Read More
-                    </a>
-                </div>
+            <div class="mb-3">
+                {% include 'partials/news_card.html' with article=related %}
             </div>
             {% endfor %}
             {% endif %}

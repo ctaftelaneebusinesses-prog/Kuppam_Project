@@ -5,6 +5,7 @@
 {% block dashboard_content %}
 <h3 class="fw-bold mb-4" data-aos="fade-up">Manage Categories</h3>
 
+{% if categories %}
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -22,7 +23,7 @@
                     <td><i class="bi {{ category.icon }} me-1"></i> {{ category.label }}</td>
                     <td class="text-muted">{{ category.get_listing_model_display }}</td>
                     <td>
-                        {% if category.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+                        {% if category.is_active %}<span class="hk-status-pill hk-status-active">Active</span>{% else %}<span class="hk-status-pill hk-status-inactive">Inactive</span>{% endif %}
                     </td>
                     <td class="text-end">
                         <form method="post" class="d-inline">
@@ -32,11 +33,16 @@
                         </form>
                     </td>
                 </tr>
-                {% empty %}
-                <tr><td colspan="4" class="text-center text-muted py-4">No categories yet.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+{% else %}
+<div class="alert alert-info text-center py-5 hk-empty-state">
+    <i class="bi bi-tags display-4 d-block mb-3"></i>
+    <p class="fw-bold mb-1">No categories yet</p>
+    <p class="text-muted mb-0">Categories will appear here once they're added.</p>
+</div>
+{% endif %}
 {% endblock %}

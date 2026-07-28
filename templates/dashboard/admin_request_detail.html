@@ -7,7 +7,7 @@
 
 <div class="row g-4">
     <div class="col-lg-7">
-        <div class="card mb-4">
+        <div class="card hk-detail-panel mb-4">
             <div class="card-header bg-white fw-semibold">Applicant Profile</div>
             <div class="card-body">
                 <div class="d-flex align-items-center gap-3 mb-3">
@@ -17,17 +17,57 @@
                         <div class="text-muted small">{{ admin_request.user.email }}</div>
                     </div>
                 </div>
-                <dl class="row mb-0 small">
-                    <dt class="col-sm-4">Phone</dt><dd class="col-sm-8">{{ admin_request.user.profile.phone_number|default:"—" }}</dd>
-                    <dt class="col-sm-4">Address</dt><dd class="col-sm-8">{{ admin_request.user.profile.address|default:"—" }}</dd>
-                    <dt class="col-sm-4">City / State</dt><dd class="col-sm-8">{{ admin_request.user.profile.city }} {{ admin_request.user.profile.state }}</dd>
-                    <dt class="col-sm-4">Pincode</dt><dd class="col-sm-8">{{ admin_request.user.profile.pincode|default:"—" }}</dd>
-                    <dt class="col-sm-4">Submitted</dt><dd class="col-sm-8">{{ admin_request.created_at|date:"d M Y, H:i" }}</dd>
-                </dl>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="hk-meta-item">
+                            <div class="hk-meta-icon"><i class="bi bi-telephone-fill"></i></div>
+                            <div>
+                                <div class="hk-meta-label">Phone</div>
+                                <div class="hk-meta-value">{{ admin_request.user.profile.phone_number|default:"—" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="hk-meta-item">
+                            <div class="hk-meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                            <div>
+                                <div class="hk-meta-label">Address</div>
+                                <div class="hk-meta-value">{{ admin_request.user.profile.address|default:"—" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="hk-meta-item">
+                            <div class="hk-meta-icon"><i class="bi bi-signpost-2-fill"></i></div>
+                            <div>
+                                <div class="hk-meta-label">City / State</div>
+                                <div class="hk-meta-value">{{ admin_request.user.profile.city }} {{ admin_request.user.profile.state }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="hk-meta-item">
+                            <div class="hk-meta-icon"><i class="bi bi-mailbox"></i></div>
+                            <div>
+                                <div class="hk-meta-label">Pincode</div>
+                                <div class="hk-meta-value">{{ admin_request.user.profile.pincode|default:"—" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="hk-meta-item">
+                            <div class="hk-meta-icon"><i class="bi bi-calendar-check"></i></div>
+                            <div>
+                                <div class="hk-meta-label">Submitted</div>
+                                <div class="hk-meta-value">{{ admin_request.created_at|date:"d M Y, H:i" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card hk-detail-panel">
             <div class="card-header bg-white fw-semibold">Requested Permissions</div>
             <div class="card-body">
                 {% for category in admin_request.categories.all %}
@@ -38,9 +78,9 @@
     </div>
 
     <div class="col-lg-5">
-        <div class="card">
+        <div class="card hk-detail-panel">
             <div class="card-header bg-white fw-semibold">
-                Decision — current status: <span class="badge bg-secondary-subtle text-secondary">{{ admin_request.get_status_display }}</span>
+                Decision — current status: <span class="hk-status-pill hk-status-{{ admin_request.status }}">{{ admin_request.get_status_display }}</span>
             </div>
             <div class="card-body">
                 <form method="post">

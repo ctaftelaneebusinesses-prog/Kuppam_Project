@@ -115,7 +115,7 @@
                             <div class="small">{{ comment.body }}</div>
                         </div>
                         {% empty %}
-                        <p class="text-muted small mb-0">No comments yet.</p>
+                        <div class="hk-empty-state text-center py-3 small">No comments yet.</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -134,7 +134,7 @@
                             {% if review.body %}<div class="small">{{ review.body }}</div>{% endif %}
                         </div>
                         {% empty %}
-                        <p class="text-muted small mb-0">No reviews yet.</p>
+                        <div class="hk-empty-state text-center py-3 small">No reviews yet.</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -146,7 +146,7 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h6 class="fw-bold mb-3">Moderation</h6>
-                <form method="post" action="{% url 'core:dashboard_listing_review' model_key obj.pk %}" class="mb-3">
+                <form method="post" action="{% url 'core:dashboard_listing_review' model_key obj.pk %}" class="hk-review-form mb-3">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.path }}">
                     <textarea name="note" class="form-control form-control-sm mb-2" rows="2" placeholder="Reason / requested changes (for reject or changes-requested)"></textarea>

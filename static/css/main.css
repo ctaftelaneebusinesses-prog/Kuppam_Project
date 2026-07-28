@@ -1170,10 +1170,6 @@ footer a:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: #fff;
-    border-radius: var(--hk-radius-pill);
-    padding: 6px 16px;
-    box-shadow: var(--hk-shadow-sm);
 }
 
 .hk-craftlanee-credit a {
@@ -1695,6 +1691,24 @@ html[data-theme="dark"] .hk-dashboard-main .text-muted {
     color: #8B90A6 !important;
 }
 
+.hk-status-active { background: var(--hk-emerald-bg); color: var(--hk-emerald); }
+.hk-status-inactive { background: #F1F2F8; color: var(--hk-ink-soft); }
+
+html[data-theme="dark"] .hk-status-inactive { background: #20233590; color: #9AA0BE; }
+
+/* --- Inline moderation panel (approve/reject/changes-requested with a note) ----------- */
+.hk-review-form {
+    background: #F8F9FD;
+    border: 1px solid var(--hk-border-soft);
+    border-radius: var(--bs-border-radius-lg);
+    padding: 14px 16px;
+}
+
+html[data-theme="dark"] .hk-review-form {
+    background: #191C2B;
+    border-color: #262A3D;
+}
+
 /* --- Community engagement (listing detail pages) -------------------------------------- */
 .hk-engage-bar {
     display: flex;
@@ -2171,4 +2185,135 @@ html[data-theme="dark"] .hk-dashboard-main .text-muted {
     .hk-hero-content h1 {
         font-size: 2rem;
     }
+}
+
+/* --- Sitewide form polish (floating labels + validation feedback) -------------------- */
+.form-control,
+.form-select {
+    border-color: var(--hk-border-soft);
+    border-radius: var(--bs-border-radius-lg);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 .18rem rgba(var(--bs-primary-rgb), .12);
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: .88rem;
+    color: var(--hk-ink);
+}
+
+/* Floating label wrapper — every text/email/tel/textarea/select input site-wide.
+   The widget's own placeholder is kept (Django forms already set one) but hidden
+   visually so it doesn't double up with the floated label. */
+.form-floating > .form-control,
+.form-floating > .form-select {
+    border-color: var(--hk-border-soft);
+    border-radius: var(--bs-border-radius-lg);
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 .18rem rgba(var(--bs-primary-rgb), .12);
+}
+
+.form-floating > .form-control::placeholder {
+    color: transparent;
+}
+
+.form-floating > label {
+    color: var(--hk-ink-soft);
+}
+
+.form-floating > textarea.form-control {
+    height: auto;
+    min-height: calc(3.5rem + 2px);
+    padding-top: 1.625rem;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    color: var(--bs-primary);
+    opacity: 1;
+}
+
+/* Inline validation — wrap a .form-floating (or any field block) in
+   .hk-field-invalid when {{ field.errors }} is truthy; no widget changes needed. */
+.hk-field-invalid > .form-control,
+.hk-field-invalid > .form-select {
+    border-color: #dc3545;
+}
+
+.hk-field-invalid > .form-control:focus,
+.hk-field-invalid > .form-select:focus {
+    box-shadow: 0 0 0 .18rem rgba(220, 53, 69, .15);
+}
+
+.hk-field-error {
+    color: #dc3545;
+    font-size: .8rem;
+    margin-top: .35rem;
+}
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .form-floating > .form-control,
+html[data-theme="dark"] .form-floating > .form-select {
+    background-color: #12141F;
+    border-color: #262A3D;
+    color: #E4E6F1;
+}
+
+html[data-theme="dark"] .form-floating > label {
+    color: #9AA0BE;
+}
+
+/* --- Sitewide pagination polish ------------------------------------------------------- */
+.pagination {
+    gap: 6px;
+}
+
+.pagination .page-link {
+    border: none;
+    border-radius: var(--hk-radius-pill);
+    color: var(--hk-ink-soft);
+    font-weight: 600;
+    min-width: 40px;
+    text-align: center;
+    padding: .5rem .85rem;
+    transition: background-color .15s ease, color .15s ease, transform .15s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+    transform: translateY(-1px);
+}
+
+.pagination .page-link:focus {
+    box-shadow: 0 0 0 .18rem rgba(var(--bs-primary-rgb), .15);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--hk-gradient);
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    background: transparent;
+    color: var(--hk-ink-soft);
+    opacity: .55;
+}
+
+html[data-theme="dark"] .pagination .page-link {
+    color: #9AA0BE;
+}
+
+html[data-theme="dark"] .pagination .page-link:hover {
+    background-color: rgba(var(--bs-primary-rgb), .18);
 }
