@@ -66,7 +66,7 @@
 
                 {% if user.is_authenticated %}
                     {% if user.profile.role == 'super_admin' or user.profile.role == 'admin' %}
-                    <a class="nav-link d-none d-lg-inline-flex" href="{% url 'core:dashboard' %}" title="Dashboard">
+                    <a class="hk-theme-toggle d-none d-lg-inline-flex" href="{% url 'core:dashboard' %}" title="Dashboard">
                         <i class="bi bi-speedometer2"></i>
                     </a>
                     {% endif %}
