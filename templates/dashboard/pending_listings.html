@@ -1,0 +1,57 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<h3 class="fw-bold mb-4" data-aos="fade-up">Listing Approvals</h3>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-sm-4 col-md-3">
+        <select name="status" class="form-select">
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+            <option value="" {% if not status_filter %}selected{% endif %}>All Statuses</option>
+        </select>
+    </div>
+    <div class="col-sm-2">
+        <button class="btn btn-outline-primary w-100" type="submit">Filter</button>
+    </div>
+</form>
+
+{% for item in items %}
+{% with obj=item.obj %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ item.model_key }}</span>
+                <span class="badge bg-primary-subtle text-primary">{{ obj.get_status_display }}</span>
+                <h5 class="fw-bold mt-2 mb-1">{{ obj }}</h5>
+                <p class="text-muted small mb-1">
+                    Submitted by
+                    {% if obj.owner %}{{ obj.owner.profile.full_name|default:obj.owner.email }}{% else %}Staff{% endif %}
+                    &middot; {{ obj.created_at|date:"d M Y, H:i" }}
+                    {% if obj.listing_category %}&middot; Category: {{ obj.listing_category.label }}{% endif %}
+                </p>
+                {% if obj.description %}<p class="small mb-0">{{ obj.description|truncatewords:30 }}</p>{% endif %}
+                {% if obj.content %}<p class="small mb-0">{{ obj.content|truncatewords:30 }}</p>{% endif %}
+            </div>
+
+            <form method="post" action="{% url 'core:dashboard_listing_review' item.model_key obj.pk %}" class="hk-review-form" style="min-width: 280px;">
+                {% csrf_token %}
+                <textarea name="note" class="form-control form-control-sm mb-2" rows="2" placeholder="Reason / requested changes (for reject or changes-requested)"></textarea>
+                <div class="d-flex gap-2">
+                    <button type="submit" name="action" value="approve" class="btn btn-sm btn-success flex-fill">Approve</button>
+                    <button type="submit" name="action" value="changes_requested" class="btn btn-sm btn-outline-warning flex-fill">Changes</button>
+                    <button type="submit" name="action" value="reject" class="btn btn-sm btn-outline-danger flex-fill">Reject</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endwith %}
+{% empty %}
+<div class="text-center text-muted py-5">Nothing here.</div>
+{% endfor %}
+{% endblock %}

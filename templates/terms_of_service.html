@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Terms of Service</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <h1 class="fw-bold mb-4">Terms of Service</h1>
+            <div class="hk-description-box">
+                <p>By using Hello Kuppam, you agree to these terms.</p>
+                <p><strong>Listings:</strong> content submitted by businesses, employers and community
+                members must be accurate and lawful. Hello Kuppam reserves the right to review, edit,
+                approve or remove any listing.</p>
+                <p><strong>Accounts:</strong> you're responsible for the accuracy of information tied to
+                your account and for keeping your sign-in secure.</p>
+                <p><strong>Availability:</strong> the service is provided "as is"; we aim for high
+                availability but don't guarantee uninterrupted access.</p>
+                <p class="text-muted small mb-0">This is placeholder legal text for development purposes —
+                replace with your finalized terms before launch.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

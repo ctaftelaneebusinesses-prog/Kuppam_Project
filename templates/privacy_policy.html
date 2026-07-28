@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Privacy Policy</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <h1 class="fw-bold mb-4">Privacy Policy</h1>
+            <div class="hk-description-box">
+                <p>Hello Kuppam ("we", "us") respects your privacy. This page explains, in plain terms,
+                what information we collect when you use this site and how it is used.</p>
+                <p><strong>Information we collect:</strong> account details you provide when signing in
+                (name, email, profile photo via Google), listings you submit, and basic usage data such
+                as pages viewed and searches performed.</p>
+                <p><strong>How we use it:</strong> to operate the directory, show you relevant listings,
+                manage your submissions and favorites, and send you service-related notifications.</p>
+                <p><strong>What we don't do:</strong> we don't sell your personal data to third parties.</p>
+                <p class="text-muted small mb-0">This is placeholder legal text for development purposes —
+                replace with your finalized privacy policy before launch.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

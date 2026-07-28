@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:event_list' %}">Events</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            {% if event.has_image %}
+            <img src="{{ event.display_image }}" class="img-fluid w-100 hk-detail-img" alt="{{ event.title }}" data-fallback-icon="{{ event.placeholder_icon }}">
+            {% else %}
+            <div class="hk-detail-placeholder"><i class="bi {{ event.placeholder_icon }}"></i></div>
+            {% endif %}
+        </div>
+        <div class="col-lg-6">
+            <span class="hk-badge-date mb-2">
+                <i class="bi bi-calendar3"></i> {{ event.event_date|date:"l, d F Y" }}
+            </span>
+            {% if not event.is_upcoming %}
+            <span class="badge bg-secondary mb-2 ms-1">Past Event</span>
+            {% endif %}
+            {% if event.is_featured %}
+            <span class="badge bg-warning text-dark mb-2 ms-1">
+                <i class="bi bi-star-fill"></i> Featured
+            </span>
+            {% endif %}
+            <h1 class="fw-bold mb-3">{{ event.title }}</h1>
+
+            {% if event.description %}
+            <div class="hk-description-box mb-4">{{ event.description|linebreaksbr }}</div>
+            {% endif %}
+
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-sm-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Venue</div>
+                            <div class="hk-meta-value">{{ event.location|truncatechars:26 }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% if event.contact_number %}
+                <div class="col-12 col-sm-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Contact</div>
+                            <div class="hk-meta-value">
+                                <a href="tel:{{ event.contact_number }}">{{ event.contact_number }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if event.contact_number %}
+            <a href="tel:{{ event.contact_number }}" class="btn btn-primary btn-lg hk-cta-btn">
+                <i class="bi bi-telephone"></i> Call for Details
+            </a>
+            {% endif %}
+            <a href="{% url 'core:event_list' %}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left"></i> Back to Events
+            </a>
+        </div>
+    </div>
+
+    {% include 'partials/community_widget.html' with obj=event %}
+
+    {% if related_events %}
+    <div class="mt-5">
+        <h4 class="hk-related-heading mb-4">More Events</h4>
+        <div class="row g-4">
+            {% for related in related_events %}
+            <div class="col-sm-6 col-lg-4">
+                {% include 'partials/event_card.html' with event=related %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

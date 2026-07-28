@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5 text-center">
+    <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted">Signing you in...</p>
+    <div id="callback-error" class="alert alert-danger d-none mt-3 mx-auto" style="max-width: 480px;"></div>
+    <a id="retry-link" href="{% url 'core:google_login' %}" class="btn btn-outline-primary d-none mt-2">Try Again</a>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    const supabase = createClient('{{ SUPABASE_URL }}', '{{ SUPABASE_ANON_KEY }}');
+
+    function getCookie(name) {
+        const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return match ? match.pop() : '';
+    }
+
+    function showError(msg) {
+        const box = document.getElementById('callback-error');
+        box.textContent = msg;
+        box.classList.remove('d-none');
+        document.getElementById('retry-link').classList.remove('d-none');
+    }
+
+    async function waitForSession() {
+        const { data } = await supabase.auth.getSession();
+        if (data && data.session) {
+            return data.session;
+        }
+        return new Promise((resolve) => {
+            const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    sub.subscription.unsubscribe();
+                    resolve(session);
+                }
+            });
+            setTimeout(() => resolve(null), 4000);
+        });
+    }
+
+    async function completeSignIn() {
+        const session = await waitForSession();
+        if (!session) {
+            showError('We could not complete sign-in. Please try again.');
+            return;
+        }
+
+        try {
+            const resp = await fetch('{% url "core:auth_callback_api" %}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ access_token: session.access_token }),
+            });
+            const payload = await resp.json();
+            if (!resp.ok) {
+                showError(payload.error || 'Sign-in failed.');
+                return;
+            }
+            window.location.href = payload.redirect;
+        } catch (e) {
+            showError('Network error while signing in.');
+        }
+    }
+
+    completeSignIn();
+</script>
+{% endblock %}

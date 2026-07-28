@@ -1,0 +1,587 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hk-history-hero" style="background-image: url('{% static 'images/history/hero-scenic.jpg' %}');">
+    <div class="hk-history-hero-overlay"></div>
+    <div class="container text-center hk-history-hero-content">
+        <span class="badge bg-light text-primary mb-3" data-aos="fade-up"><i class="bi bi-clock-history"></i> A Journey Through Time</span>
+        <h1 class="fw-bold mb-2" data-aos="fade-up" data-aos-delay="100">History of Kuppam</h1>
+        <p class="lead mb-0 opacity-75" data-aos="fade-up" data-aos-delay="200">From ancient roots to a growing educational and agricultural hub in Andhra Pradesh</p>
+    </div>
+    <a href="#timeline" class="hk-history-scroll-cue" aria-label="Scroll down"><i class="bi bi-chevron-down"></i></a>
+</section>
+
+<!-- Timeline overview -->
+<section class="container py-5" id="timeline">
+    <div class="text-center mb-5" data-aos="fade-up">
+        <h2 class="fw-bold">Kuppam Through the Ages</h2>
+        <p class="text-muted">A quick chronological index — tap any era to jump to the full story below</p>
+    </div>
+    <div class="hk-timeline">
+        <a href="#ancient-history" class="hk-timeline-item" data-aos="fade-up">
+            <div class="hk-timeline-icon"><i class="bi bi-bank"></i></div>
+            <div class="hk-timeline-body">
+                <div class="hk-timeline-period">Ancient Era</div>
+                <div class="hk-timeline-title">Early South Indian Dynasties</div>
+                <p class="hk-timeline-summary">Satavahana, Pallava, Chola and Vijayanagara influence shape the wider region.</p>
+            </div>
+        </a>
+        <a href="#medieval-history" class="hk-timeline-item" data-aos="fade-up">
+            <div class="hk-timeline-icon"><i class="bi bi-shield-fill"></i></div>
+            <div class="hk-timeline-body">
+                <div class="hk-timeline-period">Medieval Period</div>
+                <div class="hk-timeline-title">Local Nayaka &amp; Zamindari Rule</div>
+                <p class="hk-timeline-summary">Feudal chieftaincies, including local Naidu ruling families, govern the area.</p>
+            </div>
+        </a>
+        <a href="#british-period" class="hk-timeline-item" data-aos="fade-up">
+            <div class="hk-timeline-icon"><i class="bi bi-train-front"></i></div>
+            <div class="hk-timeline-body">
+                <div class="hk-timeline-period">British Colonial Era</div>
+                <div class="hk-timeline-title">Madras Presidency &amp; the Railway</div>
+                <p class="hk-timeline-summary">Kuppam is connected by rail, a legacy that still serves the town today.</p>
+            </div>
+        </a>
+        <a href="#after-independence" class="hk-timeline-item" data-aos="fade-up">
+            <div class="hk-timeline-icon"><i class="bi bi-flag-fill"></i></div>
+            <div class="hk-timeline-body">
+                <div class="hk-timeline-period">1947 – 1956</div>
+                <div class="hk-timeline-title">Independence &amp; Andhra Pradesh</div>
+                <p class="hk-timeline-summary">Kuppam becomes part of independent India's new state boundaries.</p>
+            </div>
+        </a>
+        <a href="#educational-growth" class="hk-timeline-item" data-aos="fade-up">
+            <div class="hk-timeline-icon"><i class="bi bi-mortarboard-fill"></i></div>
+            <div class="hk-timeline-body">
+                <div class="hk-timeline-period">1997</div>
+                <div class="hk-timeline-title">Dravidian University Established</div>
+                <p class="hk-timeline-summary">Higher education reshapes Kuppam into a student destination.</p>
+            </div>
+        </a>
+        <a href="#agriculture-economy" class="hk-timeline-item" data-aos="fade-up">
+            <div class="hk-timeline-icon"><i class="bi bi-flower1"></i></div>
+            <div class="hk-timeline-body">
+                <div class="hk-timeline-period">Ongoing</div>
+                <div class="hk-timeline-title">An Agricultural Economy Matures</div>
+                <p class="hk-timeline-summary">Tomato, mango and mulberry farming anchor the local economy.</p>
+            </div>
+        </a>
+        <a href="#present-day" class="hk-timeline-item" data-aos="fade-up">
+            <div class="hk-timeline-icon"><i class="bi bi-buildings"></i></div>
+            <div class="hk-timeline-body">
+                <div class="hk-timeline-period">Today</div>
+                <div class="hk-timeline-title">A Growing Education &amp; Trade Hub</div>
+                <p class="hk-timeline-summary">Kuppam balances its agricultural roots with modern civic growth.</p>
+            </div>
+        </a>
+        <a href="#future-vision" class="hk-timeline-item" data-aos="fade-up">
+            <div class="hk-timeline-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
+            <div class="hk-timeline-body">
+                <div class="hk-timeline-period">Tomorrow</div>
+                <div class="hk-timeline-title">A Smart, Sustainable Kuppam</div>
+                <p class="hk-timeline-summary">Better connectivity, digital access, and sustainable growth ahead.</p>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- 1. Introduction -->
+<section class="hk-history-section" id="introduction">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/intro-landscape.jpg' %}" alt="Landscape view near Kuppam, Andhra Pradesh" loading="lazy">
+                    <span class="hk-history-media-tag">Landscape near Kuppam</span>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-history-icon mb-3"><i class="bi bi-geo-alt-fill"></i></div>
+                <h2 class="fw-bold mb-3">Introduction to Kuppam</h2>
+                <p class="text-muted">
+                    Kuppam is a town and mandal headquarters in Chittoor district, Andhra Pradesh, sitting close to
+                    the tri-junction where Andhra Pradesh, Tamil Nadu and Karnataka meet. Its location has long made
+                    it a meeting point of Telugu, Tamil and Kannada language and culture.
+                </p>
+                <p class="text-muted mb-0">
+                    Ringed by hills and known for a relatively pleasant climate, Kuppam has grown from a rural
+                    agricultural centre into a town recognised for its university, engineering colleges, and produce
+                    markets — while still holding on to its small-town, close-knit character.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. Origin of Name -->
+<section class="hk-history-section" id="origin-of-name">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-lg-2" data-aos="fade-left">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/origin-map.jpg' %}" alt="Map of Kuppam assembly constituency mandals" loading="lazy">
+                    <span class="hk-history-media-tag">Kuppam constituency map</span>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1" data-aos="fade-right">
+                <div class="hk-history-icon mb-3"><i class="bi bi-translate"></i></div>
+                <h2 class="fw-bold mb-3">Origin of the Name "Kuppam"</h2>
+                <p class="text-muted">
+                    "Kuppam" is widely understood locally to mean a meeting place or confluence — a fitting name
+                    given the town's position at the tri-junction of three states. It follows a Dravidian-language
+                    place-naming pattern common across the Telugu- and Tamil-speaking border region.
+                </p>
+                <p class="text-muted mb-0">
+                    Local oral histories may offer more specific accounts of the name's origin — an area where
+                    community knowledge can meaningfully add to this page over time.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. Ancient History -->
+<section class="hk-history-section" id="ancient-history">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/culture-temple.jpg' %}" alt="Sri Subrahmanya Swamy temple deity, Kuppam" loading="lazy">
+                    <span class="hk-history-media-tag">Sri Subrahmanya Swamy Temple, Kuppam</span>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-history-icon mb-3"><i class="bi bi-bank"></i></div>
+                <h2 class="fw-bold mb-3">Ancient History</h2>
+                <p class="text-muted">
+                    The wider Rayalaseema and southern Andhra region — of which Chittoor district and Kuppam are
+                    part — has been shaped over centuries by successive South Indian dynasties, including the
+                    Satavahanas, Pallavas, Cholas, and later the Vijayanagara Empire, each leaving behind temple
+                    architecture, irrigation tanks, and inscriptions across the region.
+                </p>
+                <p class="text-muted mb-0">
+                    Kuppam's own Sri Subrahmanya Swamy temple carries that long temple-building tradition forward,
+                    remaining an active place of worship for the local community today.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4. Medieval History -->
+<section class="hk-history-section" id="medieval-history">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-lg-2" data-aos="fade-left">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/medieval-raja.jpg' %}" alt="Raja K.J.V. Naidu of Kuppam, historical portrait" loading="lazy" style="object-position: top;">
+                    <span class="hk-history-media-tag">Raja K.J.V. Naidu of Kuppam</span>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1" data-aos="fade-right">
+                <div class="hk-history-icon mb-3"><i class="bi bi-shield-fill"></i></div>
+                <h2 class="fw-bold mb-3">Medieval History</h2>
+                <p class="text-muted">
+                    During the medieval period, the region came under the influence of the Vijayanagara Empire and,
+                    later, local Nayaka and zamindari chieftaincies who governed on its behalf — a pattern reflected
+                    across Chittoor district. Kuppam's own Naidu ruling lineage, including figures such as Raja
+                    K.J.V. Naidu pictured here, forms part of this local feudal history.
+                </p>
+                <p class="text-muted mb-0">
+                    These centuries laid much of the agrarian and temple-centred village structure that
+                    characterises the Kuppam area to this day.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. British Colonial Period -->
+<section class="hk-history-section" id="british-period">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/railway-station.jpg' %}" alt="Kuppam railway station" loading="lazy">
+                    <span class="hk-history-media-tag">Kuppam Railway Station</span>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-history-icon mb-3"><i class="bi bi-train-front"></i></div>
+                <h2 class="fw-bold mb-3">British Colonial Period</h2>
+                <p class="text-muted">
+                    Under British rule, the area was administered as part of the Madras Presidency. The colonial
+                    era brought the railway line through this part of Chittoor district, connecting Kuppam to wider
+                    trade and administrative networks — Kuppam's own railway station, still in use today, remains a
+                    direct legacy of that period of infrastructure expansion.
+                </p>
+                <p class="text-muted mb-0">
+                    Colonial-era revenue and administrative records from this time offer another rich vein of local
+                    history worth documenting alongside this page.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6. History After Independence -->
+<section class="hk-history-section" id="after-independence">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-lg-2" data-aos="fade-left">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/after-independence.jpg' %}" alt="Community book-release event, Kuppam HP i-community" loading="lazy">
+                    <span class="hk-history-media-tag">Kuppam i-community, early development era</span>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1" data-aos="fade-right">
+                <div class="hk-history-icon mb-3"><i class="bi bi-flag-fill"></i></div>
+                <h2 class="fw-bold mb-3">History After Indian Independence</h2>
+                <p class="text-muted">
+                    After 1947, the region became part of independent India's evolving state boundaries — first
+                    Madras State, then the Andhra State formed in 1953, and finally the unified Andhra Pradesh
+                    created in 1956. Kuppam settled into its present role as a mandal headquarters within Chittoor
+                    district.
+                </p>
+                <p class="text-muted mb-0">
+                    Community and literacy initiatives, like the Telugu-language book release pictured here, mark
+                    the kind of grassroots development activity that shaped Kuppam in the decades that followed.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. Development of Kuppam -->
+<section class="hk-history-section" id="development">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/development-activity.jpg' %}" alt="Community learning activity centre in Kuppam" loading="lazy">
+                    <span class="hk-history-media-tag">Kuppam community learning centre</span>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-history-icon mb-3"><i class="bi bi-building-up"></i></div>
+                <h2 class="fw-bold mb-3">Development of Kuppam</h2>
+                <p class="text-muted">
+                    Over the last few decades, Kuppam has seen sustained investment in roads, drinking water,
+                    power supply, and public buildings, alongside hands-on community learning initiatives that
+                    brought interactive science and skill-building facilities to local children and residents.
+                </p>
+                <p class="text-muted mb-0">
+                    This steady, incremental development is a recurring theme in the town's recent history rather
+                    than any single turning point.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 8. Political Importance -->
+<section class="hk-history-section" id="political-importance">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-lg-2" data-aos="fade-left">
+                <div class="hk-history-media hk-history-media-contain">
+                    <img src="{% static 'images/history/political-kada.jpg' %}" alt="Kuppam Area Development Authority emblem" loading="lazy">
+                    <span class="hk-history-media-tag">Kuppam Area Development Authority</span>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1" data-aos="fade-right">
+                <div class="hk-history-icon mb-3"><i class="bi bi-bank2"></i></div>
+                <h2 class="fw-bold mb-3">Political Importance</h2>
+                <p class="text-muted">
+                    Kuppam is a state legislative assembly constituency in Andhra Pradesh, represented for an
+                    extended period by N. Chandrababu Naidu, who has served as Chief Minister of Andhra Pradesh —
+                    a long association that has kept Kuppam prominent in state-level development planning, including
+                    through dedicated bodies like the Kuppam Area Development Authority shown here.
+                </p>
+                <p class="text-muted mb-0">
+                    This section focuses on Kuppam's administrative and electoral significance rather than on
+                    individual political narratives.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 9. Educational Growth -->
+<section class="hk-history-section" id="educational-growth">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/education-university.jpg' %}" alt="Dravidian University campus arch, Kuppam" loading="lazy">
+                    <span class="hk-history-media-tag">Dravidian University, Kuppam</span>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-history-icon mb-3"><i class="bi bi-mortarboard-fill"></i></div>
+                <h2 class="fw-bold mb-3">Educational Growth</h2>
+                <p class="text-muted">
+                    Kuppam is home to Dravidian University, established in 1997 to promote study and research on
+                    Dravidian languages and culture, along with Kuppam Engineering College and other degree colleges
+                    that have grown up around it — together turning the town into a destination for students from
+                    across the tri-state border area.
+                </p>
+                <p class="text-muted mb-0">
+                    This growth in higher education has been one of the most visible drivers of Kuppam's modern
+                    development, bringing a steady student population and associated local economy.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 10. Agriculture and Economy -->
+<section class="hk-history-section" id="agriculture-economy">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-lg-2" data-aos="fade-left">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/agriculture-canal.jpg' %}" alt="Irrigation canal near Kuppam" loading="lazy">
+                    <span class="hk-history-media-tag">Irrigation canal near Kuppam</span>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1" data-aos="fade-right">
+                <div class="hk-history-icon mb-3"><i class="bi bi-flower1"></i></div>
+                <h2 class="fw-bold mb-3">Agriculture and Economy</h2>
+                <p class="text-muted">
+                    Kuppam's economy has long rested on agriculture — the area is particularly well known for
+                    tomato cultivation and trade, alongside mango orchards, groundnuts, mulberry (sericulture), and
+                    a range of vegetable crops supported by local irrigation canals like the one pictured here.
+                </p>
+                <p class="text-muted mb-0">
+                    Local markets built around tomato and produce trading remain a defining part of Kuppam's
+                    economic identity, even as education and services have added new dimensions to the local economy.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 11. Culture and Traditions -->
+<section class="hk-history-section" id="culture-traditions">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/gangamma.jpg' %}" alt="Tirupati Gangamma Jatara celebration, Kuppam" loading="lazy">
+                    <span class="hk-history-media-tag">Gangamma Jatara, Kuppam</span>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-history-icon mb-3"><i class="bi bi-palette-fill"></i></div>
+                <h2 class="fw-bold mb-3">Culture and Traditions</h2>
+                <p class="text-muted">
+                    Sitting at the meeting point of three states, Kuppam reflects a blend of Telugu, Tamil and
+                    Kannada customs, language, and cuisine. Village temple traditions such as the Gangamma Jatara
+                    pictured here, weekly markets, and extended-family community life continue to shape everyday
+                    culture in and around the town.
+                </p>
+                <p class="text-muted mb-0">
+                    This cultural mix is one of Kuppam's more distinctive traits compared to towns further inside
+                    any single state.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 12. Festivals -->
+<section class="hk-history-section" id="festivals">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-lg-2" data-aos="fade-left">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/festival-main.jpg' %}" alt="Local festival celebration in Kuppam" loading="lazy">
+                    <span class="hk-history-media-tag">Festival celebrations, Kuppam</span>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1" data-aos="fade-right">
+                <div class="hk-history-icon mb-3"><i class="bi bi-stars"></i></div>
+                <h2 class="fw-bold mb-3">Festivals</h2>
+                <p class="text-muted">
+                    Like much of Andhra Pradesh, Kuppam celebrates Sankranti, Ugadi, and Dasara with community
+                    gatherings, alongside local temple festivals (jatras) that draw residents from surrounding
+                    villages for processions, fairs, and shared meals.
+                </p>
+                <p class="text-muted mb-0">
+                    These festival calendars are a good example of content best filled in further with specifics
+                    from local temple committees and residents.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 13. Tourism and Famous Places -->
+<section class="hk-history-section" id="tourism">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/gallery-horsley-view.jpg' %}" alt="View from Horsley Hills, near Kuppam" loading="lazy">
+                    <span class="hk-history-media-tag">Horsley Hills, Chittoor district</span>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-history-icon mb-3"><i class="bi bi-binoculars-fill"></i></div>
+                <h2 class="fw-bold mb-3">Tourism and Famous Places</h2>
+                <p class="text-muted">
+                    Kuppam sits within reach of hill destinations in Chittoor district, including the well-known
+                    Horsley Hills further north — often called the "Ooty of Andhra Pradesh" for its misty
+                    viewpoints, forests and cool climate. The Dravidian University campus itself has become a
+                    local landmark worth visiting.
+                </p>
+                <p class="text-muted mb-0">
+                    See the Gallery section below for more scenic views of the hills and surrounding countryside.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 14. Present-Day Kuppam -->
+<section class="hk-history-section" id="present-day">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-lg-2" data-aos="fade-left">
+                <div class="hk-history-media">
+                    <img src="{% static 'images/history/present-day.jpg' %}" alt="Community academy event at Dravidian University, Kuppam" loading="lazy">
+                    <span class="hk-history-media-tag">Community event, Dravidian University</span>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1" data-aos="fade-right">
+                <div class="hk-history-icon mb-3"><i class="bi bi-buildings"></i></div>
+                <h2 class="fw-bold mb-3">Present-Day Kuppam</h2>
+                <p class="text-muted">
+                    Today, Kuppam functions as a mandal headquarters with an active town centre, produce markets,
+                    schools and colleges, and steadily improving road and civic infrastructure — while still
+                    keeping its identity as an agricultural trading town for the surrounding villages.
+                </p>
+                <p class="text-muted mb-0">
+                    Hello Kuppam itself — this directory — is part of that present-day story: a local information
+                    portal built for the town's businesses, students, job-seekers and residents.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 15. Future Vision -->
+<section class="hk-history-section" id="future-vision">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-history-media hk-history-media-illustrative">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    <span class="hk-history-media-tag">Illustrative — no real photo exists yet for this forward-looking section</span>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-history-icon mb-3"><i class="bi bi-rocket-takeoff-fill"></i></div>
+                <h2 class="fw-bold mb-3">Future Vision</h2>
+                <p class="text-muted">
+                    Looking ahead, Kuppam's growth path points toward better-connected roads and transport, wider
+                    digital access for residents and students, continued expansion of its education sector, and more
+                    sustainable, higher-value use of its agricultural land.
+                </p>
+                <p class="text-muted mb-0">
+                    Platforms like Hello Kuppam aim to support that future by making local businesses, jobs,
+                    services and civic information easier for everyone in the community to find and use.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Gallery -->
+<section class="hk-history-section" id="gallery">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="fw-bold">Gallery of Kuppam</h2>
+            <p class="text-muted">More glimpses of the town, its university, and the hills around it — tap any photo to enlarge</p>
+        </div>
+        <div class="row g-3">
+            {% for img in gallery_images %}
+            <div class="col-6 col-md-4 col-lg-3 {% if img.wide %}col-lg-6{% endif %}" data-aos="fade-up">
+                <div class="hk-gallery-item {% if img.wide %}hk-gallery-wide{% endif %}" data-bs-toggle="modal" data-bs-target="#galleryModal" data-img="{% static img.file %}" data-caption="{{ img.caption }}">
+                    <img src="{% static img.file %}" alt="{{ img.caption }}" loading="lazy">
+                    <span class="hk-gallery-caption">{{ img.caption }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Gallery lightbox -->
+<div class="modal fade" id="galleryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h6 class="modal-title" id="galleryModalCaption"></h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <img src="" id="galleryModalImg" class="img-fluid w-100 rounded" alt="">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5" data-aos="fade-up">
+    <details class="hk-credits">
+        <summary>Photo credits (Wikimedia Commons contributors)</summary>
+        <ul class="small">
+            <li>Scenic &amp; landscape views near Kuppam — KuppamArunKumar, CC BY-SA 4.0</li>
+            <li>Kuppam constituency map — Gunasekharkaluva, CC BY-SA 4.0</li>
+            <li>Sri Subrahmanya Swamy Temple, Kuppam — KuppamArunKumar, CC BY-SA 4.0</li>
+            <li>Raja K.J.V. Naidu of Kuppam — M.Baliah Naidu, CC BY-SA 4.0</li>
+            <li>Kuppam railway station — Pavan Kumar, CC BY-SA 4.0</li>
+            <li>Diana Bell / Kuppam HP i-community — Sai Sreekanth Mulagaleti, CC BY-SA 2.0</li>
+            <li>Kuppam community learning activity — Indialeads, CC BY 3.0</li>
+            <li>Kuppam Area Development Authority emblem — Abishek 7787, CC BY-SA 4.0</li>
+            <li>Dravidian University, Kuppam — Drcenjary / KuppamArunKumar, CC BY-SA 3.0/4.0</li>
+            <li>Kuppam Engineering College — KuppamArunKumar, CC BY-SA 4.0</li>
+            <li>Tirupati Gangamma Jatara, Kuppam — KuppamArunKumar, CC BY-SA 4.0</li>
+            <li>Kuppam festival — Kiran kumar 2029, CC BY-SA 4.0</li>
+            <li>Horsley Hills views — Sumanth, Anil Duth, rajaraman sundaram and other Commons contributors, CC BY/CC BY-SA</li>
+            <li>Kanipakam Temple gopuram, Chittoor district — Wikimedia Commons contributors, CC BY-SA</li>
+            <li>Tomato cultivation, South India — Ajith Kumar, CC BY 2.0</li>
+            <li>Wiki Academy, Dravidian University — Wikimedia Commons contributor, CC BY-SA 3.0</li>
+        </ul>
+        <p class="mb-0">Full attribution and licence terms are available on each image's Wikimedia Commons file page.</p>
+    </details>
+</div>
+
+<div class="container pb-5 text-center" data-aos="fade-up">
+    <a href="{% url 'core:home' %}" class="btn btn-primary btn-lg">
+        <i class="bi bi-house-door"></i> Back to Home
+    </a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('galleryModal');
+    if (modal) {
+        modal.addEventListener('show.bs.modal', function (event) {
+            const trigger = event.relatedTarget;
+            modal.querySelector('#galleryModalImg').src = trigger.dataset.img;
+            modal.querySelector('#galleryModalCaption').textContent = trigger.dataset.caption;
+        });
+    }
+});
+</script>
+{% endblock %}

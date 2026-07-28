@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">What brings you to Hello Kuppam?</h2>
+        <p class="text-muted">Choose an option to continue — you can always change this later</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5">
+                <button type="submit" name="intent" value="upload" class="btn w-100 h-100 text-start p-4 card hk-detail-panel border-0">
+                    <div class="hk-icon-circle hk-icon-circle-lg mb-3">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </div>
+                    <h4 class="fw-bold">I want to Upload My Information</h4>
+                    <p class="text-muted mb-0">List your business, shop, restaurant, school, property, job, event, news, or transport service.</p>
+                </button>
+            </div>
+            <div class="col-md-5">
+                <button type="submit" name="intent" value="explore" class="btn w-100 h-100 text-start p-4 card hk-detail-panel border-0">
+                    <div class="hk-icon-circle hk-icon-circle-lg mb-3">
+                        <i class="bi bi-compass"></i>
+                    </div>
+                    <h4 class="fw-bold">I want to Explore Hello Kuppam</h4>
+                    <p class="text-muted mb-0">Browse listings, save favorites, like, comment, and leave reviews.</p>
+                </button>
+            </div>
+        </div>
+    </form>
+</section>
+{% endblock %}

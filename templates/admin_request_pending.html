@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card hk-detail-panel">
+                <div class="card-body p-4 p-md-5 text-center">
+                    {% if not admin_request %}
+                        <div class="hk-icon-circle hk-icon-circle-lg mx-auto mb-3">
+                            <i class="bi bi-question-circle"></i>
+                        </div>
+                        <h3 class="fw-bold mt-2">No request found</h3>
+                        <p class="text-muted mb-4">You haven't applied to become a Content Provider yet.</p>
+                        <a href="{% url 'core:admin_request_new' %}" class="btn btn-primary hk-cta-btn">Apply Now</a>
+
+                    {% elif admin_request.status == 'pending' %}
+                        <div class="hk-icon-circle hk-icon-circle-lg mx-auto mb-3">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <h3 class="fw-bold mt-2">Application Pending</h3>
+                        <p class="text-muted mb-1">Your request to manage:</p>
+                        <p class="fw-semibold mb-4">
+                            {% for category in admin_request.categories.all %}
+                                <span class="badge bg-primary-subtle text-primary">{{ category.label }}</span>
+                            {% endfor %}
+                        </p>
+                        <p class="text-muted mb-0">is awaiting review by the Super Admin. We'll notify you once it's decided.</p>
+
+                    {% elif admin_request.status == 'approved' %}
+                        <div class="hk-icon-circle hk-icon-circle-lg mx-auto mb-3">
+                            <i class="bi bi-check-circle text-success"></i>
+                        </div>
+                        <h3 class="fw-bold mt-2">You're an Admin now!</h3>
+                        <p class="text-muted mb-4">Your request was approved. You can start adding listings.</p>
+                        <a href="{% url 'core:my_listings' %}" class="btn btn-primary hk-cta-btn">Go to My Listings</a>
+
+                    {% elif admin_request.status == 'rejected' %}
+                        <div class="hk-icon-circle hk-icon-circle-lg mx-auto mb-3">
+                            <i class="bi bi-x-circle text-danger"></i>
+                        </div>
+                        <h3 class="fw-bold mt-2">Application Rejected</h3>
+                        {% if admin_request.review_note %}
+                            <div class="alert alert-danger text-start">{{ admin_request.review_note }}</div>
+                        {% endif %}
+                        <a href="{% url 'core:admin_request_new' %}" class="btn btn-outline-primary hk-cta-btn">Apply Again</a>
+
+                    {% elif admin_request.status == 'changes_requested' %}
+                        <div class="hk-icon-circle hk-icon-circle-lg mx-auto mb-3">
+                            <i class="bi bi-pencil-square text-warning"></i>
+                        </div>
+                        <h3 class="fw-bold mt-2">Changes Requested</h3>
+                        {% if admin_request.review_note %}
+                            <div class="alert alert-warning text-start">{{ admin_request.review_note }}</div>
+                        {% endif %}
+                        <a href="{% url 'core:admin_request_new' %}" class="btn btn-primary hk-cta-btn">Update &amp; Resubmit</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

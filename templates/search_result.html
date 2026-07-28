@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
+        <div class="hk-section-icon"><i class="bi bi-search"></i></div>
+        <div>
+            <h2 class="fw-bold mb-0">
+                {% if query %}Search Results for "{{ query }}"{% else %}Search Hello Kuppam{% endif %}
+            </h2>
+            <p class="text-muted mb-0">Businesses, properties, jobs, events and news — all in one search</p>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="hk-search-bar mb-4" data-aos="fade-up">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12">
+                <label class="form-label" for="global-search-input">
+                    <i class="bi bi-funnel"></i> Search Everything
+                </label>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search text-primary"></i></span>
+                    <input
+                        type="text"
+                        id="global-search-input"
+                        name="q"
+                        class="form-control"
+                        placeholder="Search shops, jobs, restaurants..."
+                        value="{{ query }}"
+                        minlength="2"
+                        required
+                    >
+                </div>
+            </div>
+            <div class="col-8 col-md-4">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-4 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if query %}
+        <!-- Results count -->
+        <div class="hk-results-bar mb-4" data-aos="fade-up">
+            <i class="bi bi-list-check"></i>
+            Found {{ total_results }} result{{ total_results|pluralize }} for "<strong>{{ query }}</strong>"
+            across {{ results|length }} categor{{ results|length|pluralize:"y,ies" }}
+            &mdash; <a href="{% url 'core:search' %}">Clear search <i class="bi bi-x-circle"></i></a>
+        </div>
+
+        {% if results %}
+            {% for result in results %}
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-3" data-aos="fade-up">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="hk-section-icon"><i class="bi {{ result.icon }}"></i></div>
+                        <h4 class="mb-0">{{ result.label }} <span class="text-muted fw-normal">({{ result.count }})</span></h4>
+                    </div>
+                    <a href="{{ result.view_all_url }}" class="btn btn-outline-primary btn-sm">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="row g-4">
+                    {% for item in result.items %}
+                    <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+                        {% include result.card_partial with business=item property=item job=item event=item article=item %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="alert alert-info text-center py-5 hk-empty-state" data-aos="fade-up">
+            <i class="bi bi-search display-4 d-block mb-3"></i>
+            <p class="fw-bold mb-1">No results for "{{ query }}"</p>
+            <p class="text-muted mb-0">Try different keywords, or browse a category directly from the menu above.</p>
+        </div>
+        {% endif %}
+    {% else %}
+    <div class="text-center py-5 hk-empty-state" data-aos="fade-up">
+        <i class="bi bi-compass display-4 d-block mb-3"></i>
+        <p class="fw-bold mb-1">What are you looking for?</p>
+        <p class="text-muted mb-4">Search across businesses, properties, jobs, events and news — or jump straight into a category.</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            {% for cat in categories %}
+            <a href="?category={{ cat.slug }}" class="btn btn-outline-primary btn-sm rounded-pill">
+                <i class="bi {{ cat.icon }}"></i> {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

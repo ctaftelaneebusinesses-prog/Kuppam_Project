@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
+        <div class="hk-section-icon"><i class="bi bi-shop"></i></div>
+        <div>
+            <h2 class="fw-bold mb-0">Businesses &amp; Shops</h2>
+            <p class="text-muted mb-0">Browse local businesses and shops in Kuppam</p>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="hk-search-bar mb-4">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12">
+                <label class="form-label" for="business-search-input">
+                    <i class="bi bi-funnel"></i> Search &amp; Filter
+                </label>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search text-primary"></i></span>
+                    <input
+                        type="text"
+                        id="business-search-input"
+                        name="q"
+                        class="form-control"
+                        placeholder="Search by business name..."
+                        value="{{ query }}"
+                    >
+                </div>
+            </div>
+            <div class="col-8 col-md-4">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for value, label in category_choices %}
+                    <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-4 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results count -->
+    <div class="hk-results-bar mb-4">
+        <i class="bi bi-list-check"></i>
+        {% if query or selected_category %}
+            Showing {{ total_results }} result{{ total_results|pluralize }}
+            {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
+            {% if selected_category %} in <strong>{{ selected_category }}</strong>{% endif %}
+            &mdash; <a href="{% url 'core:business_list' %}">Clear filters <i class="bi bi-x-circle"></i></a>
+        {% else %}
+            Showing {{ total_results }} business{{ total_results|pluralize:"es" }}
+        {% endif %}
+    </div>
+
+    <!-- Business Grid -->
+    {% if page_obj %}
+    <div class="row g-4">
+        {% for business in page_obj %}
+        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+            {% include 'partials/business_card.html' with business=business %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-5" aria-label="Business listing pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="First page">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Previous page">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Next page">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Last page">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center py-5 hk-empty-state">
+        <i class="bi bi-shop display-4 d-block mb-3"></i>
+        <p class="fw-bold mb-1">No businesses found</p>
+        <p class="text-muted mb-3">Try adjusting your search or filters.</p>
+        {% if query or selected_category %}
+        <a href="{% url 'core:business_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

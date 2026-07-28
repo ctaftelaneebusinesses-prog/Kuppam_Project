@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block navbar_class %}hk-navbar-transparent{% endblock %}
+{% block body_class %}hk-has-transparent-hero{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section: full-screen themed slide carousel. Each .hk-hero-slide is a
+     styled placeholder panel — swap its background-image for a real Kuppam
+     photo/video by setting an inline style or a CSS rule keyed to its class. -->
+<section class="hk-hero hk-hero-fullscreen text-white">
+    <div class="hk-hero-slides">
+        <div class="hk-hero-slide is-active" style="background-image: linear-gradient(135deg, #0B3A63 0%, #12578F 55%, #3EC1F3 100%);">
+            <span class="hk-hero-slide-tag"><i class="bi bi-image"></i> Placeholder — Kuppam Hills at Sunrise</span>
+        </div>
+        <div class="hk-hero-slide" style="background-image: linear-gradient(135deg, #0FA36B 0%, #0B3A63 100%);">
+            <span class="hk-hero-slide-tag"><i class="bi bi-image"></i> Placeholder — Green Valleys &amp; Farms</span>
+        </div>
+        <div class="hk-hero-slide" style="background-image: linear-gradient(135deg, #5B3DE0 0%, #0F4C81 100%);">
+            <span class="hk-hero-slide-tag"><i class="bi bi-image"></i> Placeholder — Local Markets</span>
+        </div>
+        <div class="hk-hero-slide" style="background-image: linear-gradient(135deg, #F0A93A 0%, #0B3A63 100%);">
+            <span class="hk-hero-slide-tag"><i class="bi bi-image"></i> Placeholder — Educational Institutions</span>
+        </div>
+        <div class="hk-hero-slide" style="background-image: linear-gradient(135deg, #0B3A63 0%, #5B3DE0 55%, #3EC1F3 100%);">
+            <span class="hk-hero-slide-tag"><i class="bi bi-image"></i> Placeholder — Scenic Roads &amp; Drone Views</span>
+        </div>
+    </div>
+    <div class="hk-hero-overlay"></div>
+
+    <div class="container text-center hk-hero-content">
+        <h1 class="fw-bold mb-3" data-aos="fade-up">Welcome to Hello Kuppam</h1>
+        <p class="lead mb-4 opacity-75" data-aos="fade-up" data-aos-delay="100">
+            Discover businesses, jobs, homes, events and news — everything happening around Kuppam, in one place.
+        </p>
+
+        <form action="{% url 'core:search' %}" method="get" class="hk-search-shell mx-auto" data-aos="fade-up" data-aos-delay="200">
+            <div class="row g-0 align-items-center justify-content-center">
+                <div class="col-12 col-md-5">
+                    <input
+                        type="text"
+                        name="q"
+                        class="form-control form-control-lg"
+                        placeholder="Search shops, jobs, restaurants..."
+                        required
+                        minlength="2"
+                        autocomplete="off"
+                        id="hkSearchInput"
+                    >
+                </div>
+                <div class="col-8 col-md-3">
+                    <select name="category" class="form-select form-select-lg">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-4 col-md-auto p-1">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4" data-aos="fade-up" data-aos-delay="300">
+            <a href="{% url 'core:business_list' %}" class="hk-quick-pill"><i class="bi bi-shop"></i> Shops</a>
+            <a href="{% url 'core:property_list' %}" class="hk-quick-pill"><i class="bi bi-house-door"></i> Real Estate</a>
+            <a href="{% url 'core:job_list' %}" class="hk-quick-pill"><i class="bi bi-briefcase"></i> Jobs</a>
+            <a href="{% url 'core:restaurant_list' %}" class="hk-quick-pill"><i class="bi bi-cup-hot"></i> Restaurants</a>
+            <a href="{% url 'core:event_list' %}" class="hk-quick-pill"><i class="bi bi-calendar-event"></i> Events</a>
+        </div>
+    </div>
+
+    <a href="#stats" class="hk-scroll-cue" aria-label="Scroll down">
+        <i class="bi bi-chevron-down"></i>
+    </a>
+</section>
+
+<!-- Stats strip -->
+<section class="container" id="stats">
+    <div class="hk-stats-strip row g-4 text-center" data-aos="fade-up">
+        <div class="col-6 col-md-3">
+            <div class="hk-stat-number" data-count="{{ stats.businesses }}">0</div>
+            <div class="hk-stat-label">Local Businesses</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="hk-stat-number" data-count="{{ stats.properties }}">0</div>
+            <div class="hk-stat-label">Properties Listed</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="hk-stat-number" data-count="{{ stats.jobs }}">0</div>
+            <div class="hk-stat-label">Open Jobs</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="hk-stat-number" data-count="{{ stats.users }}">0</div>
+            <div class="hk-stat-label">Community Members</div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="container py-5" id="categories">
+    <div class="text-center mb-5" data-aos="fade-up">
+        <h2 class="fw-bold">Explore Categories</h2>
+        <p class="text-muted">Everything Kuppam has to offer, organized in one place</p>
+    </div>
+    <div class="row g-4">
+        {% for cat in categories %}
+        {% if cat.slug == 'shops' %}
+            {% url 'core:business_list' as cat_url %}
+        {% elif cat.slug == 'real-estate' %}
+            {% url 'core:property_list' as cat_url %}
+        {% elif cat.slug == 'jobs' %}
+            {% url 'core:job_list' as cat_url %}
+        {% elif cat.slug == 'events' %}
+            {% url 'core:event_list' as cat_url %}
+        {% elif cat.slug == 'news' %}
+            {% url 'core:news_list' as cat_url %}
+        {% elif cat.slug == 'restaurants' %}
+            {% url 'core:restaurant_list' as cat_url %}
+        {% elif cat.slug == 'hospitals' %}
+            {% url 'core:hospital_list' as cat_url %}
+        {% elif cat.slug == 'education' %}
+            {% url 'core:education_list' as cat_url %}
+        {% elif cat.slug == 'transport' %}
+            {% url 'core:transport_list' as cat_url %}
+        {% endif %}
+        <div class="col-sm-6 col-lg-4" id="{{ cat.slug }}" data-aos="fade-up">
+            <div class="hk-service-card">
+                <a href="{{ cat_url }}" class="text-decoration-none">
+                    <div class="hk-service-card-media">
+                        <img src="{% static cat.image %}" alt="{{ cat.name }}" loading="lazy">
+                        <span class="hk-service-card-count"><i class="bi bi-list-check"></i> {{ cat.count }} Listing{{ cat.count|pluralize }}</span>
+                        <div class="hk-service-card-icon"><i class="bi {{ cat.icon }}"></i></div>
+                    </div>
+                </a>
+                <div class="hk-service-card-body">
+                    <h5><a href="{{ cat_url }}" class="text-decoration-none text-dark">{{ cat.name }}</a></h5>
+                    <p>{{ cat.description }}</p>
+                    <a href="{{ cat_url }}" class="btn btn-primary">
+                        Explore {{ cat.name }} <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Featured Businesses Section -->
+{% if featured_businesses %}
+<section class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="hk-section-icon"><i class="bi bi-shop"></i></div>
+            <h2 class="mb-0">Featured Businesses</h2>
+        </div>
+        <a href="{% url 'core:business_list' %}" class="btn btn-outline-primary btn-sm">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row g-4">
+        {% for business in featured_businesses %}
+        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+            {% include 'partials/business_card.html' with business=business %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Properties Section -->
+{% if featured_properties %}
+<section class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="hk-section-icon"><i class="bi bi-house-door"></i></div>
+            <h2 class="mb-0">Featured Properties</h2>
+        </div>
+        <a href="{% url 'core:property_list' %}" class="btn btn-outline-primary btn-sm">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row g-4">
+        {% for property in featured_properties %}
+        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+            {% include 'partials/property_card.html' with property=property %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Jobs Section -->
+{% if featured_jobs %}
+<section class="container py-5" id="jobs-preview">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="hk-section-icon"><i class="bi bi-briefcase"></i></div>
+            <h2 class="mb-0">Featured Jobs</h2>
+        </div>
+        <a href="{% url 'core:job_list' %}" class="btn btn-outline-primary btn-sm">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row g-4">
+        {% for job in featured_jobs %}
+        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+            {% include 'partials/job_card.html' with job=job %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Upcoming Events Section -->
+{% if featured_events %}
+<section class="container py-5" id="events-preview">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="hk-section-icon"><i class="bi bi-calendar-event"></i></div>
+            <h2 class="mb-0">Upcoming Events</h2>
+        </div>
+        <a href="{% url 'core:event_list' %}" class="btn btn-outline-primary btn-sm">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row g-4">
+        {% for event in featured_events %}
+        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+            {% include 'partials/event_card.html' with event=event %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest News Section -->
+{% if featured_news %}
+<section class="container py-5" id="news-preview">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="hk-section-icon"><i class="bi bi-newspaper"></i></div>
+            <h2 class="mb-0">Latest News</h2>
+        </div>
+        <a href="{% url 'core:news_list' %}" class="btn btn-outline-primary btn-sm">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row g-4">
+        {% for article in featured_news %}
+        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+            {% include 'partials/news_card.html' with article=article %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
+        <div class="hk-section-icon"><i class="bi bi-house-door"></i></div>
+        <div>
+            <h2 class="fw-bold mb-0">Properties</h2>
+            <p class="text-muted mb-0">Browse real estate listings — sale, rent, plots &amp; more in Kuppam</p>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="hk-search-bar mb-4">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12">
+                <label class="form-label" for="property-search-input">
+                    <i class="bi bi-funnel"></i> Search &amp; Filter
+                </label>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search text-primary"></i></span>
+                    <input
+                        type="text"
+                        id="property-search-input"
+                        name="q"
+                        class="form-control"
+                        placeholder="Search by title or location..."
+                        value="{{ query }}"
+                    >
+                </div>
+            </div>
+            <div class="col-8 col-md-4">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for value, label in type_choices %}
+                    <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-4 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results count -->
+    <div class="hk-results-bar mb-4">
+        <i class="bi bi-list-check"></i>
+        {% if query or selected_type %}
+            Showing {{ total_results }} result{{ total_results|pluralize }}
+            {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
+            {% if selected_type %} in <strong>{{ selected_type }}</strong>{% endif %}
+            &mdash; <a href="{% url 'core:property_list' %}">Clear filters <i class="bi bi-x-circle"></i></a>
+        {% else %}
+            Showing {{ total_results }} propert{{ total_results|pluralize:"y,ies" }}
+        {% endif %}
+    </div>
+
+    <!-- Property Grid -->
+    {% if page_obj %}
+    <div class="row g-4">
+        {% for property in page_obj %}
+        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+            {% include 'partials/property_card.html' with property=property %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-5" aria-label="Property listing pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="First page">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Previous page">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Next page">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Last page">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center py-5 hk-empty-state">
+        <i class="bi bi-house display-4 d-block mb-3"></i>
+        <p class="fw-bold mb-1">No properties found</p>
+        <p class="text-muted mb-3">Try adjusting your search or filters.</p>
+        {% if query or selected_type %}
+        <a href="{% url 'core:property_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

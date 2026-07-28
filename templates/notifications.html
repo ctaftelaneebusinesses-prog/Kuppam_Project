@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">Notifications</h3>
+        {% if notification_qs %}
+        <form method="post" action="{% url 'core:notifications_mark_all_read' %}">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-secondary">Mark all as read</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="list-group list-group-flush">
+            {% for note in notification_qs %}
+            <div class="list-group-item d-flex justify-content-between align-items-center {% if not note.is_read %}bg-primary-subtle{% endif %}">
+                <div>
+                    {% if note.url %}<a href="{{ note.url }}" class="text-decoration-none">{{ note.message }}</a>{% else %}{{ note.message }}{% endif %}
+                    <div class="text-muted small">{{ note.created_at|date:"d M Y, H:i" }}</div>
+                </div>
+                {% if not note.is_read %}
+                <form method="post" action="{% url 'core:notification_mark_read' note.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-light">Mark read</button>
+                </form>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="list-group-item text-muted text-center py-4">No notifications yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

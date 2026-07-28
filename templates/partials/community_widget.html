@@ -1,0 +1,170 @@
+{% comment %}
+Reusable community feature block (like, favorite, share, comments, reviews)
+for any listing detail page. Include with:
+  {% include 'partials/community_widget.html' with obj=business %}
+Requires the surrounding view to have merged in _community_context(request, obj).
+{% endcomment %}
+<div class="hk-community mt-5 pt-4 border-top">
+
+    <div class="hk-engage-bar mb-4">
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'core:toggle_like' model_key obj.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="hk-engage-btn {% if is_liked %}hk-like-active{% endif %}">
+                <i class="bi bi-hand-thumbs-up{% if is_liked %}-fill{% endif %}"></i> {{ obj.like_count }} Like{{ obj.like_count|pluralize }}
+            </button>
+        </form>
+        <form method="post" action="{% url 'core:toggle_favorite' model_key obj.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="hk-engage-btn {% if is_favorited %}hk-fav-active{% endif %}">
+                <i class="bi bi-heart{% if is_favorited %}-fill{% endif %}"></i> {% if is_favorited %}Saved{% else %}Save{% endif %}
+            </button>
+        </form>
+        {% else %}
+        <a href="{% url 'core:google_login' %}" class="hk-engage-btn"><i class="bi bi-hand-thumbs-up"></i> {{ obj.like_count }} Like{{ obj.like_count|pluralize }}</a>
+        <a href="{% url 'core:google_login' %}" class="hk-engage-btn"><i class="bi bi-heart"></i> Save</a>
+        {% endif %}
+
+        <span class="hk-engage-stat"><i class="bi bi-eye"></i> {{ obj.view_count }} views</span>
+        <span class="hk-engage-stat"><i class="bi bi-star-fill"></i> {% if obj.review_count %}{{ obj.avg_rating }} ({{ obj.review_count }} review{{ obj.review_count|pluralize }}){% else %}No reviews yet{% endif %}</span>
+
+        {% if user.is_authenticated %}
+        <button type="button" class="hk-engage-btn ms-auto" data-bs-toggle="modal" data-bs-target="#reportModal-{{ model_key }}-{{ obj.pk }}">
+            <i class="bi bi-flag"></i> Report
+        </button>
+        {% endif %}
+    </div>
+
+    <div class="hk-share-card mb-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-share text-primary"></i> Share this listing</h6>
+        <div class="d-flex flex-wrap gap-2 hk-share-row" data-share-url="{{ public_url }}" data-share-endpoint="{% url 'core:record_share' model_key obj.pk %}">
+            <a class="hk-share-icon-btn hk-share-whatsapp hk-share-btn" data-platform="whatsapp" href="https://wa.me/?text={{ public_url|urlencode }}" target="_blank" rel="noopener" title="Share on WhatsApp"><i class="bi bi-whatsapp"></i></a>
+            <a class="hk-share-icon-btn hk-share-facebook hk-share-btn" data-platform="facebook" href="https://www.facebook.com/sharer/sharer.php?u={{ public_url|urlencode }}" target="_blank" rel="noopener" title="Share on Facebook"><i class="bi bi-facebook"></i></a>
+            <a class="hk-share-icon-btn hk-share-telegram hk-share-btn" data-platform="telegram" href="https://t.me/share/url?url={{ public_url|urlencode }}" target="_blank" rel="noopener" title="Share on Telegram"><i class="bi bi-telegram"></i></a>
+            <a class="hk-share-icon-btn hk-share-twitter hk-share-btn" data-platform="twitter" href="https://twitter.com/intent/tweet?url={{ public_url|urlencode }}" target="_blank" rel="noopener" title="Share on X"><i class="bi bi-twitter-x"></i></a>
+            <button type="button" class="hk-share-icon-btn hk-share-copy hk-share-btn hk-copy-link-btn" data-platform="copy_link" title="Copy link"><i class="bi bi-link-45deg"></i></button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="hk-comments-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-text text-primary"></i> Comments ({{ obj.comment_count }})</h6>
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'core:add_comment' model_key obj.pk %}" class="mb-3">
+                    {% csrf_token %}
+                    {{ comment_form.body }}
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">Post Comment</button>
+                </form>
+                {% else %}
+                <p class="text-muted small"><a href="{% url 'core:google_login' %}">Sign in</a> to leave a comment.</p>
+                {% endif %}
+
+                {% for comment in comments %}
+                <div class="hk-comment-item mb-2">
+                    <div class="d-flex gap-2">
+                        <div class="hk-comment-avatar">{{ comment.user.profile.full_name|default:comment.user.username|first|upper }}</div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-semibold small">{{ comment.user.profile.full_name|default:comment.user.username }}</span>
+                                <span class="small text-muted">{{ comment.created_at|date:"d M Y, H:i" }}</span>
+                            </div>
+                            <div class="small mt-1">{{ comment.body }}</div>
+                            {% for reply in comment.replies.all %}
+                            <div class="d-flex gap-2 mt-2 ps-2 border-start">
+                                <div class="hk-comment-avatar" style="width:28px;height:28px;min-width:28px;font-size:.7rem;">{{ reply.user.profile.full_name|default:reply.user.username|first|upper }}</div>
+                                <div>
+                                    <span class="fw-semibold small">{{ reply.user.profile.full_name|default:reply.user.username }}</span>
+                                    <div class="small">{{ reply.body }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'core:add_comment' model_key obj.pk %}" class="mt-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="parent_id" value="{{ comment.pk }}">
+                                <div class="input-group input-group-sm" style="max-width: 320px;">
+                                    <input type="text" name="body" class="form-control" placeholder="Reply...">
+                                    <button class="btn btn-outline-secondary" type="submit">Reply</button>
+                                </div>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted small mb-0">No comments yet — be the first!</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="hk-reviews-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-star text-primary"></i> Reviews ({{ obj.review_count }})</h6>
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'core:add_review' model_key obj.pk %}" class="mb-3">
+                    {% csrf_token %}
+                    <label class="form-label small text-muted d-block mb-1">Your Rating</label>
+                    <div class="hk-star-picker mb-2" data-star-picker>
+                        <i class="bi bi-star" data-star-value="1"></i>
+                        <i class="bi bi-star" data-star-value="2"></i>
+                        <i class="bi bi-star" data-star-value="3"></i>
+                        <i class="bi bi-star" data-star-value="4"></i>
+                        <i class="bi bi-star" data-star-value="5"></i>
+                        <div class="d-none">{{ review_form.rating }}</div>
+                    </div>
+                    {{ review_form.body }}
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">Submit Review</button>
+                </form>
+                {% else %}
+                <p class="text-muted small"><a href="{% url 'core:google_login' %}">Sign in</a> to leave a review.</p>
+                {% endif %}
+
+                {% for review in reviews %}
+                <div class="hk-review-item mb-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="fw-semibold small">{{ review.user.profile.full_name|default:review.user.username }}</span>
+                        <span class="small text-muted">{{ review.created_at|date:"d M Y" }}</span>
+                    </div>
+                    <div class="hk-star-display my-1">
+                        {% for i in "12345" %}{% if forloop.counter <= review.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}{% endfor %}
+                    </div>
+                    {% if review.body %}<div class="small">{{ review.body }}</div>{% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted small mb-0">No reviews yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="modal fade" id="reportModal-{{ model_key }}-{{ obj.pk }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'core:report_listing' model_key obj.pk %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">Report Listing</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Reason</label>
+                            {{ report_form.reason }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Details (optional)</label>
+                            {{ report_form.details }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,108 @@
+/* Hello Kuppam — Django admin re-theme.
+   Overrides Django's own admin CSS custom properties (defined in
+   admin/css/base.css) rather than fighting its markup, so this stays
+   safe across minor Django version bumps. */
+
+:root {
+    --primary: #4F6EF7;
+    --primary-fg: #fff;
+
+    --header-color: #fff;
+    --header-bg: #171A2B;
+    --header-link-color: #fff;
+
+    --breadcrumbs-fg: #C9D3FB;
+    --breadcrumbs-link-fg: #fff;
+    --breadcrumbs-bg: #4F6EF7;
+
+    --link-fg: #4F6EF7;
+    --link-hover-color: #3752C4;
+    --link-selected-fg: #3752C4;
+
+    --button-bg: #4F6EF7;
+    --button-hover-bg: #3752C4;
+    --default-button-bg: #3752C4;
+    --default-button-hover-bg: #2C419C;
+
+    --object-tools-bg: #4F6EF7;
+    --object-tools-hover-bg: #3752C4;
+
+    --font-family-primary: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+    font-family: var(--font-family-primary);
+}
+
+#header {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .1);
+    padding: 14px 40px;
+}
+
+#site-name a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.15rem;
+}
+
+.hk-admin-quicklinks {
+    display: flex;
+    gap: 18px;
+    padding: 8px 40px;
+    background: #10121D;
+}
+
+.hk-admin-quicklinks a {
+    color: #C9D3FB;
+    text-decoration: none;
+    font-size: .82rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hk-admin-quicklinks a:hover {
+    color: #fff;
+}
+
+div.breadcrumbs {
+    font-size: .85rem;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    border-radius: 10px 10px 0 0;
+}
+
+.module {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+}
+
+.button, input[type="submit"], input[type="button"], .submit-row input, a.button {
+    border-radius: 8px !important;
+    font-weight: 500;
+}
+
+.object-tools a {
+    border-radius: 8px !important;
+}
+
+#changelist-filter {
+    border-radius: 10px;
+}
+
+.selector-chosen h2, .selector-available h2 {
+    border-radius: 8px 8px 0 0;
+}
+
+#result_list thead th {
+    font-weight: 600;
+}
+
+#result_list tbody tr:hover {
+    background-color: #F0F3FF;
+}

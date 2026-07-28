@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:job_list' %}">Jobs</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ job.job_title }}</li>
+        </ol>
+    </nav>
+
+    <!-- Gradient Hero -->
+    <div class="hk-detail-hero p-4 p-md-5 mb-4">
+        <div class="d-flex align-items-center flex-wrap gap-3">
+            <div class="hk-icon-circle hk-icon-circle-lg">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+            <div>
+                {% if job.is_featured %}
+                <span class="badge bg-warning text-dark mb-2">
+                    <i class="bi bi-star-fill"></i> Featured
+                </span>
+                {% endif %}
+                <h1 class="fw-bold mb-1">{{ job.job_title }}</h1>
+                <p class="mb-0 fs-5 opacity-75">
+                    <i class="bi bi-building"></i> {{ job.company }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if job.has_image %}
+    <div class="row g-4 mb-1">
+        <div class="col-12">
+            <img src="{{ job.display_image }}" class="img-fluid w-100 hk-detail-img" alt="{{ job.job_title }}" data-fallback-icon="{{ job.placeholder_icon }}">
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            {% if job.description %}
+            <h6 class="fw-bold mb-2"><i class="bi bi-file-text text-primary"></i> Job Description</h6>
+            <div class="hk-description-box">
+                {{ job.description|linebreaksbr }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Location</div>
+                            <div class="hk-meta-value">{{ job.location|truncatechars:22 }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% if job.salary %}
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-cash-stack"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Salary</div>
+                            <div class="hk-meta-value">{{ job.salary|truncatechars:18 }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-calendar3"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Posted</div>
+                            <div class="hk-meta-value">{{ job.created_at|date:"d M Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Contact</div>
+                            <div class="hk-meta-value">
+                                <a href="tel:{{ job.contact_number }}">{{ job.contact_number }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="tel:{{ job.contact_number }}" class="btn btn-primary btn-lg w-100 mb-2 hk-cta-btn">
+                <i class="bi bi-telephone"></i> Call Now
+            </a>
+            <a href="{% url 'core:job_list' %}" class="btn btn-outline-secondary btn-lg w-100">
+                <i class="bi bi-arrow-left"></i> Back to Listings
+            </a>
+        </div>
+    </div>
+
+    {% include 'partials/community_widget.html' with obj=job %}
+
+    {% if related_jobs %}
+    <div class="mt-5">
+        <h4 class="hk-related-heading mb-4">More Openings at {{ job.company }}</h4>
+        <div class="row g-4">
+            {% for related in related_jobs %}
+            <div class="col-sm-6 col-lg-4">
+                {% include 'partials/job_card.html' with job=related %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

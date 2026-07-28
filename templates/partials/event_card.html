@@ -1,0 +1,50 @@
+{% comment %}
+Reusable event card. Include with: {% include 'partials/event_card.html' with event=<event_instance> %}
+{% endcomment %}
+{% load hk_extras %}
+<div class="card h-100 hk-card">
+    {% if event.is_featured %}
+    <span class="hk-badge-featured">
+        <i class="bi bi-star-fill"></i> Featured
+    </span>
+    {% endif %}
+    {% if event.has_image %}
+    <img src="{{ event.display_image }}" class="card-img-top hk-card-img" alt="{{ event.title }}" loading="lazy" data-fallback-icon="{{ event.placeholder_icon }}">
+    {% else %}
+    <div class="hk-card-placeholder"><i class="bi {{ event.placeholder_icon }}"></i></div>
+    {% endif %}
+    <div class="card-body d-flex flex-column">
+        <span class="hk-badge-date mb-2 align-self-start">
+            <i class="bi bi-calendar3"></i> {{ event.event_date|date:"d M Y" }}
+        </span>
+        {% if not event.is_upcoming %}
+        <span class="badge bg-secondary mb-2 align-self-start">Past Event</span>
+        {% endif %}
+        <h5 class="card-title">{{ event.title }}</h5>
+        <div class="hk-card-meta-row">
+            <span class="hk-rating">
+                <i class="bi bi-star-fill"></i>
+                {% if event.review_count %}{{ event.avg_rating }} ({{ event.review_count }}){% else %}New{% endif %}
+            </span>
+            <span><i class="bi bi-eye"></i> {{ event.view_count }}</span>
+        </div>
+        <p class="card-text text-muted small mb-3">
+            <i class="bi bi-geo-alt text-primary"></i> {{ event.location|truncatechars:50 }}
+        </p>
+        <a href="{% url 'core:event_detail' event.slug %}" class="btn btn-outline-primary mt-auto">
+            View Details <i class="bi bi-arrow-right"></i>
+        </a>
+        <div class="hk-card-actions">
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'core:toggle_favorite' 'event' event.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></button>
+            </form>
+            {% else %}
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="Sign in to save"><i class="bi bi-heart"></i></a>
+            {% endif %}
+            <a href="{{ event.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="Open in Google Maps"><i class="bi bi-geo"></i></a>
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:event_detail' event.slug %}" data-title="{{ event.title }}" title="Share"><i class="bi bi-share"></i></button>
+        </div>
+    </div>
+</div>

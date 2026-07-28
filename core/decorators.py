@@ -1,0 +1,67 @@
+from functools import wraps
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+
+from .models import Profile, UserRole
+
+
+def staff_required(view_func):
+    """
+    Restricts a view to logged-in staff users only (used for the Excel
+    upload tools and other developer-only pages). Unrelated to the new
+    Google/Supabase-authenticated Super Admin / Admin / User roles.
+    """
+    @login_required(login_url='core:admin_login')
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_staff:
+            messages.error(request, 'You do not have permission to access this page.')
+            return redirect('core:home')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+def onboarding_required(view_func):
+    """
+    Restricts a view to signed-in Google/Supabase users who have completed
+    their profile (and, for the 'user' role, picked an intent). Redirects
+    into the onboarding flow instead of bouncing them out.
+    """
+    @login_required(login_url=settings.GOOGLE_LOGIN_URL)
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        if profile.is_blocked:
+            logout(request)
+            messages.error(request, 'This account has been blocked. Contact support if you think this is a mistake.')
+            return redirect('core:google_login')
+        if not profile.profile_completed:
+            return redirect('core:complete_profile')
+        if profile.role == UserRole.USER and not profile.intent:
+            return redirect('core:choose_intent')
+        request.profile = profile
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+def role_required(*roles):
+    """Restricts a view to one or more Profile roles (e.g. UserRole.SUPER_ADMIN)."""
+    def decorator(view_func):
+        @onboarding_required
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            profile = request.profile
+            if profile.role not in roles:
+                messages.error(request, 'You do not have permission to access this page.')
+                return redirect('core:home')
+            return view_func(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+super_admin_required = role_required(UserRole.SUPER_ADMIN)
+admin_or_super_required = role_required(UserRole.SUPER_ADMIN, UserRole.ADMIN)

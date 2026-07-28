@@ -1,0 +1,63 @@
+{% comment %}
+Reusable job card. Include with: {% include 'partials/job_card.html' with job=<job_instance> %}
+Used identically on job_list.html, the homepage Featured Jobs section, and the
+"related jobs" section on job_detail.html.
+{% endcomment %}
+{% load hk_extras %}
+<div class="card h-100 hk-card">
+    {% if job.is_featured %}
+    <span class="hk-badge-featured">
+        <i class="bi bi-star-fill"></i> Featured
+    </span>
+    {% endif %}
+    {% if job.has_image %}
+    <img src="{{ job.display_image }}" class="card-img-top hk-card-img" alt="{{ job.job_title }}" loading="lazy" data-fallback-icon="{{ job.placeholder_icon }}">
+    {% else %}
+    <div class="hk-card-placeholder"><i class="bi {{ job.placeholder_icon }}"></i></div>
+    {% endif %}
+    <div class="card-body d-flex flex-column">
+        <div class="d-flex align-items-center mb-3">
+            <div class="hk-icon-circle me-3">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+            <div>
+                <h5 class="card-title mb-0">{{ job.job_title }}</h5>
+                <p class="text-muted small mb-0">{{ job.company }}</p>
+            </div>
+        </div>
+        <div class="hk-card-meta-row">
+            <span class="hk-rating">
+                <i class="bi bi-star-fill"></i>
+                {% if job.review_count %}{{ job.avg_rating }} ({{ job.review_count }}){% else %}New{% endif %}
+            </span>
+            <span><i class="bi bi-eye"></i> {{ job.view_count }}</span>
+        </div>
+        <p class="card-text text-muted small mb-1">
+            <i class="bi bi-geo-alt text-primary"></i> {{ job.location|truncatechars:60 }}
+        </p>
+        {% if job.salary %}
+        <p class="card-text fw-bold text-primary mb-3">
+            <i class="bi bi-cash-stack"></i> {{ job.salary }}
+        </p>
+        {% else %}
+        <p class="card-text text-muted small mb-3">
+            <i class="bi bi-dash-circle"></i> Salary not disclosed
+        </p>
+        {% endif %}
+        <a href="{% url 'core:job_detail' job.slug %}" class="btn btn-outline-primary mt-auto">
+            View Details <i class="bi bi-arrow-right"></i>
+        </a>
+        <div class="hk-card-actions">
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'core:toggle_favorite' 'job' job.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></button>
+            </form>
+            {% else %}
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="Sign in to save"><i class="bi bi-heart"></i></a>
+            {% endif %}
+            <a href="{{ job.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="Open in Google Maps"><i class="bi bi-geo"></i></a>
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:job_detail' job.slug %}" data-title="{{ job.job_title }}" title="Share"><i class="bi bi-share"></i></button>
+        </div>
+    </div>
+</div>

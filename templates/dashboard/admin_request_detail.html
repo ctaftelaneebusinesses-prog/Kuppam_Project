@@ -1,0 +1,68 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<h3 class="fw-bold mb-4">Review Admin Request</h3>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card mb-4">
+            <div class="card-header bg-white fw-semibold">Applicant Profile</div>
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <img src="{{ admin_request.user.profile.display_photo }}" class="rounded-circle" width="56" height="56" style="object-fit:cover;" alt="">
+                    <div>
+                        <div class="fw-semibold">{{ admin_request.user.profile.full_name|default:admin_request.user.username }}</div>
+                        <div class="text-muted small">{{ admin_request.user.email }}</div>
+                    </div>
+                </div>
+                <dl class="row mb-0 small">
+                    <dt class="col-sm-4">Phone</dt><dd class="col-sm-8">{{ admin_request.user.profile.phone_number|default:"—" }}</dd>
+                    <dt class="col-sm-4">Address</dt><dd class="col-sm-8">{{ admin_request.user.profile.address|default:"—" }}</dd>
+                    <dt class="col-sm-4">City / State</dt><dd class="col-sm-8">{{ admin_request.user.profile.city }} {{ admin_request.user.profile.state }}</dd>
+                    <dt class="col-sm-4">Pincode</dt><dd class="col-sm-8">{{ admin_request.user.profile.pincode|default:"—" }}</dd>
+                    <dt class="col-sm-4">Submitted</dt><dd class="col-sm-8">{{ admin_request.created_at|date:"d M Y, H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white fw-semibold">Requested Permissions</div>
+            <div class="card-body">
+                {% for category in admin_request.categories.all %}
+                <span class="badge bg-primary-subtle text-primary me-1 mb-1">{{ category.label }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header bg-white fw-semibold">
+                Decision — current status: <span class="badge bg-secondary-subtle text-secondary">{{ admin_request.get_status_display }}</span>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Note (rejection reason / requested changes)</label>
+                        {{ form.note }}
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="action" value="approve" class="btn btn-success">
+                            <i class="bi bi-check-lg"></i> Approve
+                        </button>
+                        <button type="submit" name="action" value="changes_requested" class="btn btn-outline-warning">
+                            <i class="bi bi-pencil"></i> Request Changes
+                        </button>
+                        <button type="submit" name="action" value="reject" class="btn btn-outline-danger">
+                            <i class="bi bi-x-lg"></i> Reject
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

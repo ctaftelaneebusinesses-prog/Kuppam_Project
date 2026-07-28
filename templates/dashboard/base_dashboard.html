@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hk-dashboard d-flex">
+    <aside class="hk-dashboard-sidebar">
+        <div class="p-3">
+            <div class="hk-dash-brand">
+                <i class="bi bi-geo-alt-fill text-primary fs-4"></i>
+                <span class="fw-bold hk-footer-heading" style="color: var(--hk-ink);">Hello Kuppam</span>
+            </div>
+
+            <div class="hk-dash-profile">
+                <img src="{{ user.profile.display_photo }}" alt="{{ user.profile.full_name }}">
+                <div>
+                    <div class="hk-dash-profile-name">{{ user.profile.full_name|default:user.username }}</div>
+                    <div class="hk-dash-profile-role">
+                        {% if request.profile.is_super_admin %}Super Admin{% else %}Content Provider{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="text-uppercase text-muted small fw-bold mb-2 px-1" style="font-size:.68rem; letter-spacing:.05em;">
+                {% if request.profile.is_super_admin %}Super Admin{% else %}Content Provider{% endif %}
+            </h6>
+            <nav class="nav flex-column gap-1">
+                {% if request.profile.is_super_admin %}
+                <a class="nav-link hk-dash-link {% if active_nav == 'overview' %}active{% endif %}" href="{% url 'core:dashboard' %}">
+                    <i class="bi bi-speedometer2"></i> Overview
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'requests' %}active{% endif %}" href="{% url 'core:dashboard_admin_requests' %}">
+                    <i class="bi bi-person-plus"></i> Admin Requests
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'listings' %}active{% endif %}" href="{% url 'core:dashboard_pending_listings' %}">
+                    <i class="bi bi-clipboard-check"></i> Listing Approvals
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'posts' %}active{% endif %}" href="{% url 'core:dashboard_posts' %}">
+                    <i class="bi bi-collection"></i> Posts
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'users' %}active{% endif %}" href="{% url 'core:dashboard_users' %}">
+                    <i class="bi bi-people"></i> Users
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'categories' %}active{% endif %}" href="{% url 'core:dashboard_categories' %}">
+                    <i class="bi bi-tags"></i> Categories
+                </a>
+                <hr class="my-2">
+                {% endif %}
+                <a class="nav-link hk-dash-link {% if active_nav == 'my_listings' %}active{% endif %}" href="{% url 'core:my_listings' %}">
+                    <i class="bi bi-card-list"></i> My Listings
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'favorites' %}active{% endif %}" href="{% url 'core:my_favorites' %}">
+                    <i class="bi bi-heart"></i> My Favorites
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'notifications' %}active{% endif %}" href="{% url 'core:notifications_list' %}">
+                    <i class="bi bi-bell"></i> Notifications
+                    {% if unread_notification_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_notification_count }}</span>{% endif %}
+                </a>
+            </nav>
+        </div>
+    </aside>
+    <main class="hk-dashboard-main flex-grow-1">
+        <div class="container-fluid py-4 px-4">
+            <div class="hk-dash-topbar justify-content-end">
+                <button type="button" class="hk-theme-toggle" id="hkThemeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                    <i class="bi bi-moon-stars" id="hkThemeIcon"></i>
+                </button>
+            </div>
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<script>
+(function () {
+    const root = document.documentElement;
+    const toggle = document.getElementById('hkThemeToggle');
+    const icon = document.getElementById('hkThemeIcon');
+
+    function applyTheme(theme) {
+        root.setAttribute('data-theme', theme);
+        icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+    }
+
+    applyTheme(localStorage.getItem('hkDashboardTheme') || 'light');
+
+    toggle.addEventListener('click', function () {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('hkDashboardTheme', next);
+        applyTheme(next);
+    });
+})();
+</script>
+{% endblock %}
