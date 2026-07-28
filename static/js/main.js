@@ -2,6 +2,30 @@
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Hello Kuppam frontend loaded.');
 
+    // Site-wide light/dark theme toggle (navbar button). The initial theme is
+    // already applied pre-paint by the inline anti-flash script in base.html;
+    // this just wires up the button and keeps localStorage in sync so the
+    // choice persists across every page, including the dashboard.
+    (function () {
+        const root = document.documentElement;
+        const toggle = document.getElementById('hkThemeToggle');
+        const icon = document.getElementById('hkThemeIcon');
+        if (!toggle || !icon) return;
+
+        function paintIcon(theme) {
+            icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+        }
+
+        paintIcon(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+        toggle.addEventListener('click', function () {
+            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('hkTheme', next); } catch (e) {}
+            paintIcon(next);
+        });
+    })();
+
     // Scroll-reveal animations
     if (window.AOS) {
         AOS.init({ duration: 650, easing: 'ease-out-cubic', once: true, offset: 60 });

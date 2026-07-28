@@ -21,9 +21,12 @@
     <div class="hk-hero-overlay"></div>
 
     <div class="container text-center hk-hero-content">
-        <h1 class="fw-bold mb-3" data-aos="fade-up">Welcome to Hello Kuppam</h1>
+        <div class="hk-hero-eyebrow" data-aos="fade-up">
+            <span class="hk-hero-eyebrow-dot"></span> Local Information Portal
+        </div>
+        <h1 class="fw-bold mb-3" data-aos="fade-up" data-aos-delay="50">Everything <span class="hk-gold-word">Kuppam</span>, in one place</h1>
         <p class="lead mb-4 opacity-75" data-aos="fade-up" data-aos-delay="100">
-            Discover businesses, jobs, homes, events and news — everything happening around Kuppam, in one place.
+            Discover businesses, jobs, homes, events and news — verified, updated daily, and built for the people who live here.
         </p>
 
         <form action="{% url 'core:search' %}" method="get" class="hk-search-shell mx-auto" data-aos="fade-up" data-aos-delay="200">
@@ -49,47 +52,48 @@
                     </select>
                 </div>
                 <div class="col-4 col-md-auto p-1">
-                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <button type="submit" class="btn btn-hk-gold btn-lg w-100">
                         <i class="bi bi-search"></i> Search
                     </button>
                 </div>
             </div>
         </form>
 
-        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4 mb-5" data-aos="fade-up" data-aos-delay="300">
             <a href="{% url 'core:business_list' %}" class="hk-quick-pill"><i class="bi bi-shop"></i> Shops</a>
             <a href="{% url 'core:property_list' %}" class="hk-quick-pill"><i class="bi bi-house-door"></i> Real Estate</a>
             <a href="{% url 'core:job_list' %}" class="hk-quick-pill"><i class="bi bi-briefcase"></i> Jobs</a>
             <a href="{% url 'core:restaurant_list' %}" class="hk-quick-pill"><i class="bi bi-cup-hot"></i> Restaurants</a>
             <a href="{% url 'core:event_list' %}" class="hk-quick-pill"><i class="bi bi-calendar-event"></i> Events</a>
         </div>
+
+        <div class="hk-hero-stats" data-aos="fade-up" data-aos-delay="350">
+            <div class="hk-hero-stat-tile">
+                <div class="hk-hero-stat-icon"><i class="bi bi-shop"></i></div>
+                <div class="hk-stat-number" data-count="{{ stats.businesses }}">0</div>
+                <div class="hk-stat-label">Local Businesses</div>
+            </div>
+            <div class="hk-hero-stat-tile">
+                <div class="hk-hero-stat-icon"><i class="bi bi-house-door"></i></div>
+                <div class="hk-stat-number" data-count="{{ stats.properties }}">0</div>
+                <div class="hk-stat-label">Properties Listed</div>
+            </div>
+            <div class="hk-hero-stat-tile">
+                <div class="hk-hero-stat-icon"><i class="bi bi-briefcase"></i></div>
+                <div class="hk-stat-number" data-count="{{ stats.jobs }}">0</div>
+                <div class="hk-stat-label">Open Jobs</div>
+            </div>
+            <div class="hk-hero-stat-tile">
+                <div class="hk-hero-stat-icon"><i class="bi bi-people"></i></div>
+                <div class="hk-stat-number" data-count="{{ stats.users }}">0</div>
+                <div class="hk-stat-label">Community Members</div>
+            </div>
+        </div>
     </div>
 
-    <a href="#stats" class="hk-scroll-cue" aria-label="Scroll down">
+    <a href="#categories" class="hk-scroll-cue" aria-label="Scroll down">
         <i class="bi bi-chevron-down"></i>
     </a>
-</section>
-
-<!-- Stats strip -->
-<section class="container" id="stats">
-    <div class="hk-stats-strip row g-4 text-center" data-aos="fade-up">
-        <div class="col-6 col-md-3">
-            <div class="hk-stat-number" data-count="{{ stats.businesses }}">0</div>
-            <div class="hk-stat-label">Local Businesses</div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="hk-stat-number" data-count="{{ stats.properties }}">0</div>
-            <div class="hk-stat-label">Properties Listed</div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="hk-stat-number" data-count="{{ stats.jobs }}">0</div>
-            <div class="hk-stat-label">Open Jobs</div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="hk-stat-number" data-count="{{ stats.users }}">0</div>
-            <div class="hk-stat-label">Community Members</div>
-        </div>
-    </div>
 </section>
 
 <!-- Categories Section -->

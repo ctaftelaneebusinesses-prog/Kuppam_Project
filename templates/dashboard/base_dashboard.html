@@ -64,34 +64,8 @@
     </aside>
     <main class="hk-dashboard-main flex-grow-1">
         <div class="container-fluid py-4 px-4">
-            <div class="hk-dash-topbar justify-content-end">
-                <button type="button" class="hk-theme-toggle" id="hkThemeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
-                    <i class="bi bi-moon-stars" id="hkThemeIcon"></i>
-                </button>
-            </div>
             {% block dashboard_content %}{% endblock %}
         </div>
     </main>
 </div>
-
-<script>
-(function () {
-    const root = document.documentElement;
-    const toggle = document.getElementById('hkThemeToggle');
-    const icon = document.getElementById('hkThemeIcon');
-
-    function applyTheme(theme) {
-        root.setAttribute('data-theme', theme);
-        icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
-    }
-
-    applyTheme(localStorage.getItem('hkDashboardTheme') || 'light');
-
-    toggle.addEventListener('click', function () {
-        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('hkDashboardTheme', next);
-        applyTheme(next);
-    });
-})();
-</script>
 {% endblock %}

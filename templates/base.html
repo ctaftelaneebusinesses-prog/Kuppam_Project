@@ -3,6 +3,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Anti-flash: applies the saved theme before first paint, so the page
+         never flickers light-then-dark (or vice versa) on load. -->
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('hkTheme');
+                if (t === 'dark' || t === 'light') {
+                    document.documentElement.setAttribute('data-theme', t);
+                }
+            } catch (e) {}
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Hello Kuppam{% endblock %}</title>
 
@@ -44,6 +56,11 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}">Contact</a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <button type="button" class="hk-theme-toggle" id="hkThemeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                            <i class="bi bi-moon-stars" id="hkThemeIcon"></i>
+                        </button>
                     </li>
                     {% if user.is_authenticated %}
                         {% if user.profile.role == 'super_admin' or user.profile.role == 'admin' %}

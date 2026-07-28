@@ -54,6 +54,49 @@
     --hk-shadow-hover: 0 18px 40px rgba(23, 25, 46, .14);
     --hk-gradient: linear-gradient(135deg, #0B3A63 0%, #0F4C81 45%, #5B3DE0 100%);
     --hk-gradient-soft: linear-gradient(135deg, rgba(15,76,129,.08) 0%, rgba(91,61,224,.08) 100%);
+
+    --hk-footer-bg: #171A2B;
+    --hk-footer-border: rgba(255, 255, 255, .08);
+}
+
+/* --- Dark theme tokens ------------------------------------------------------
+   Toggled by setting data-theme="dark" on <html> (see the navbar theme toggle
+   in base.html + main.js). Because every component below is already built on
+   these shared custom properties, redefining them here is enough to retheme
+   navbar, cards, forms, tables and footer in one place — no per-component
+   dark rule needed except where a component uses a literal color instead of
+   a token (those overrides live further down, grouped by component). -------- */
+html[data-theme="dark"] {
+    --bs-primary: #5B9BE8;
+    --bs-primary-rgb: 91, 155, 232;
+    --bs-primary-bg-subtle: rgba(91, 155, 232, .16);
+    --bs-primary-border-subtle: rgba(91, 155, 232, .32);
+    --bs-primary-text-emphasis: #A9CCF3;
+
+    --bs-link-color: #5B9BE8;
+    --bs-link-color-rgb: 91, 155, 232;
+    --bs-link-hover-color: #8AB8EF;
+    --bs-link-hover-color-rgb: 138, 184, 239;
+
+    --bs-warning-bg-subtle: rgba(240, 169, 58, .16);
+    --bs-warning-border-subtle: rgba(240, 169, 58, .32);
+
+    --bs-body-bg: #0F1119;
+    --bs-body-color: #D8DAEA;
+
+    --hk-ink: #EDEEF7;
+    --hk-ink-soft: #9AA0BE;
+    --hk-border-soft: #262A3D;
+    --hk-surface: #171A28;
+
+    --hk-shadow-sm: 0 2px 10px rgba(0, 0, 0, .35);
+    --hk-shadow-md: 0 10px 28px rgba(0, 0, 0, .45);
+    --hk-shadow-hover: 0 18px 40px rgba(0, 0, 0, .55);
+
+    --hk-gradient-soft: linear-gradient(135deg, rgba(91,155,232,.10) 0%, rgba(232,178,61,.10) 100%);
+
+    --hk-footer-bg: #0A0C14;
+    --hk-footer-border: rgba(255, 255, 255, .06);
 }
 
 /* --- Base ------------------------------------------------------------ */
@@ -173,6 +216,38 @@ a {
     -webkit-backdrop-filter: blur(14px) saturate(180%);
     box-shadow: var(--hk-shadow-sm) !important;
     border-bottom: 1px solid var(--hk-border-soft);
+}
+
+/* Plain (non-transparent) navbar used on every page except the homepage —
+   themed directly off the shared tokens so it flips with the rest of the site. */
+.navbar:not(.hk-navbar-transparent) {
+    background-color: var(--hk-surface) !important;
+    border-bottom: 1px solid var(--hk-border-soft);
+}
+
+html[data-theme="dark"] .hk-navbar-solid {
+    background-color: rgba(15, 17, 25, 0.85) !important;
+}
+
+.navbar .hk-theme-toggle {
+    width: 38px;
+    height: 38px;
+}
+
+.hk-navbar-transparent .hk-theme-toggle {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.hk-navbar-transparent .hk-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.hk-navbar-transparent.hk-navbar-solid .hk-theme-toggle {
+    background: var(--hk-surface);
+    border-color: var(--hk-border-soft);
+    color: var(--hk-ink-soft);
 }
 
 /* Once scrolled past the hero, .hk-navbar-solid is added alongside
@@ -417,6 +492,97 @@ a {
 
 .hk-search-shell .vr {
     opacity: .15;
+}
+
+/* --- Gold accent CTA (used sparingly: hero search, primary conversion actions) --- */
+.btn-hk-gold {
+    background: linear-gradient(135deg, var(--hk-gold) 0%, #C4901F 100%);
+    border: none;
+    color: #241A04;
+    font-weight: 700;
+}
+
+.btn-hk-gold:hover,
+.btn-hk-gold:focus {
+    color: #241A04;
+    filter: brightness(1.06);
+}
+
+/* --- Hero eyebrow pill (small uppercase label above the headline) --------- */
+.hk-hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--hk-gold);
+    background: rgba(240, 169, 58, .14);
+    border: 1px solid rgba(240, 169, 58, .3);
+    padding: 6px 16px;
+    border-radius: var(--hk-radius-pill);
+    margin-bottom: 22px;
+}
+
+.hk-hero-eyebrow .hk-hero-eyebrow-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--hk-gold);
+}
+
+.hk-hero-content .hk-gold-word {
+    color: var(--hk-gold);
+}
+
+/* --- Hero stat tiles (bordered, translucent — live inside the dark hero,
+   replacing the old white floating stats-strip card below it) -------------- */
+.hk-hero-stats {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+.hk-hero-stat-tile {
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: var(--bs-border-radius-lg);
+    padding: 20px 10px;
+    text-align: center;
+    transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.hk-hero-stat-tile:hover {
+    background: rgba(255, 255, 255, .09);
+    border-color: rgba(240, 169, 58, .4);
+    transform: translateY(-3px);
+}
+
+.hk-hero-stat-icon {
+    color: var(--hk-gold);
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+}
+
+.hk-hero-stat-tile .hk-stat-number {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #fff;
+    font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+}
+
+.hk-hero-stat-tile .hk-stat-label {
+    color: rgba(255, 255, 255, .6);
+    font-size: .74rem;
+}
+
+@media (max-width: 767.98px) {
+    .hk-hero-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* --- Section headers ------------------------------------------------- */
@@ -886,17 +1052,6 @@ a {
     100% { background-position: 0 50%; }
 }
 
-/* --- Stats strip (homepage) ---------------------------------------------- */
-.hk-stats-strip {
-    background: var(--hk-surface);
-    border-radius: var(--hk-radius-card);
-    box-shadow: var(--hk-shadow-md);
-    padding: 2.25rem 1.5rem;
-    margin-top: -70px;
-    position: relative;
-    z-index: 3;
-}
-
 .hk-stat-number {
     font-family: var(--hk-font-heading);
     font-size: clamp(1.8rem, 3vw, 2.6rem);
@@ -1154,7 +1309,9 @@ a {
 
 /* --- Footer ------------------------------------------------------------------------- */
 footer {
-    background-color: #171A2B !important;
+    background-color: var(--hk-footer-bg) !important;
+    border-top: 1px solid var(--hk-footer-border);
+    transition: background-color .3s ease, border-color .3s ease;
 }
 
 footer a {
@@ -2316,4 +2473,98 @@ html[data-theme="dark"] .pagination .page-link {
 
 html[data-theme="dark"] .pagination .page-link:hover {
     background-color: rgba(var(--bs-primary-rgb), .18);
+}
+
+/* --- Sitewide dark theme: remaining components that use a literal color
+   instead of a token (everything else already flips via the tokens redefined
+   at the top of this file under html[data-theme="dark"]) ------------------- */
+html[data-theme="dark"] .hk-about-service:nth-of-type(even),
+html[data-theme="dark"] .hk-history-section:nth-of-type(even) {
+    background-color: #171A28;
+}
+
+html[data-theme="dark"] .hk-card-icon-btn,
+html[data-theme="dark"] .hk-meta-item,
+html[data-theme="dark"] .hk-description-box,
+html[data-theme="dark"] .hk-engage-stat,
+html[data-theme="dark"] .hk-comment-item,
+html[data-theme="dark"] .hk-review-item {
+    background-color: #1D2032;
+}
+
+html[data-theme="dark"] .hk-meta-item:hover {
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+html[data-theme="dark"] .hk-card-img.hk-img-loading,
+html[data-theme="dark"] .hk-detail-img.hk-img-loading {
+    background: linear-gradient(90deg, #1D2032 25%, #262A3D 37%, #1D2032 63%);
+    background-size: 400% 100%;
+}
+
+html[data-theme="dark"] .hk-skeleton {
+    background-color: #1D2032;
+}
+
+html[data-theme="dark"] .hk-skeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+}
+
+html[data-theme="dark"] .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--hk-ink-soft);
+}
+
+html[data-theme="dark"] .hk-history-toc {
+    border-bottom-color: var(--hk-border-soft);
+}
+
+html[data-theme="dark"] .hk-history-toc a {
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+}
+
+html[data-theme="dark"] .navbar-toggler-icon {
+    filter: invert(1) brightness(1.8);
+}
+
+/* Bootstrap text-color utilities (.text-muted, .text-dark) are used across
+   every template for card titles and secondary copy but aren't theme-aware
+   by default — left alone, they render near-invisible on a dark surface. */
+html[data-theme="dark"] .text-muted {
+    color: var(--hk-ink-soft) !important;
+}
+
+html[data-theme="dark"] .text-dark,
+html[data-theme="dark"] .text-body {
+    color: var(--hk-ink) !important;
+}
+
+html[data-theme="dark"] .text-secondary {
+    color: var(--hk-ink-soft) !important;
+}
+
+html[data-theme="dark"] .bg-white {
+    background-color: var(--hk-surface) !important;
+}
+
+html[data-theme="dark"] .bg-light {
+    background-color: #171A28 !important;
+}
+
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] .border-start,
+html[data-theme="dark"] .border-end {
+    border-color: var(--hk-border-soft) !important;
+}
+
+html[data-theme="dark"] .card {
+    background-color: var(--hk-surface);
+    color: var(--hk-ink);
+}
+
+html[data-theme="dark"] hr {
+    border-color: var(--hk-border-soft);
+    opacity: 1;
 }
