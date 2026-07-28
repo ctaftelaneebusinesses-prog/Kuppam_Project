@@ -6,39 +6,47 @@
 {% block content %}
 
 <!-- Hero -->
-<section class="hk-hero text-white py-5">
-    <div class="container text-center py-4 hk-hero-content">
+<section class="hk-hero hk-section-tight text-white">
+    <div class="container text-center hk-hero-content">
         <div class="hk-icon-circle hk-icon-circle-lg mb-3 mx-auto"><i class="bi bi-geo-alt-fill"></i></div>
-        <h1 class="display-5 fw-bold mb-2">About Hello Kuppam</h1>
+        <h1 class="fw-bold mb-2">About Hello Kuppam</h1>
         <p class="lead mb-0 opacity-75">Your complete local information platform for Kuppam.</p>
         <p class="opacity-75">Connecting people, businesses, and services in one trusted place.</p>
     </div>
 </section>
 
-<!-- Who Are We -->
-<section class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-9 text-center" data-aos="fade-up">
-            <h2 class="fw-bold mb-4">Who Are <span class="text-primary">We?</span></h2>
-            <p class="text-muted mb-3 hk-text-justify">
-                Hello Kuppam is a comprehensive local information platform designed to connect the people
-                of Kuppam with businesses, services, institutions, and opportunities. Our goal is to
-                provide a single, trusted destination where residents, visitors, students, and business
-                owners can easily discover everything Kuppam has to offer.
-            </p>
-            <p class="text-muted mb-0 hk-text-justify">
-                Whether you're searching for a restaurant, hospital, school, property, transport service,
-                or local business, Hello Kuppam helps you find accurate and up-to-date information
-                quickly and conveniently. Finding reliable local information can often be time-consuming —
-                Hello Kuppam brings it all together in one user-friendly platform, connecting the local
-                community while giving businesses and organizations a digital presence.
-            </p>
+<!-- Who Are We: photo + narrative -->
+<section class="hk-about-service">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hk-about-service-media">
+                    <img src="{% static 'images/history/intro-landscape.jpg' %}" alt="Landscape view near Kuppam, Andhra Pradesh" loading="lazy">
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hk-section-kicker">Who We Are</div>
+                <h2 class="mb-4">Built for the people of <span class="text-primary">Kuppam</span></h2>
+                <p class="text-muted mb-3 hk-text-justify">
+                    Hello Kuppam is a comprehensive local information platform designed to connect the people
+                    of Kuppam with businesses, services, institutions, and opportunities. Our goal is to
+                    provide a single, trusted destination where residents, visitors, students, and business
+                    owners can easily discover everything Kuppam has to offer.
+                </p>
+                <p class="text-muted mb-0 hk-text-justify">
+                    Whether you're searching for a restaurant, hospital, school, property, transport service,
+                    or local business, Hello Kuppam helps you find accurate and up-to-date information
+                    quickly and conveniently — bringing it all together in one user-friendly platform that
+                    gives businesses and organizations a digital presence too.
+                </p>
+            </div>
         </div>
     </div>
 </section>
 
 <!-- Mission & Vision -->
-<section class="container pb-5">
+<section class="hk-section hk-section-alt">
+    <div class="container">
     <div class="row g-4">
         <div class="col-md-6" data-aos="fade-right">
             <div class="card hk-detail-panel h-100">
@@ -67,13 +75,16 @@
             </div>
         </div>
     </div>
+    </div>
 </section>
 
 <!-- What We Offer -->
-<section class="container pb-5" id="services">
-    <div class="text-center mb-5" data-aos="fade-up">
-        <h2 class="fw-bold">What We <span class="text-primary">Offer</span></h2>
-        <p class="text-muted mb-0">Every listing includes contact details, location, images, and Google Maps integration.</p>
+<section class="hk-section" id="services">
+    <div class="container">
+    <div class="hk-section-header text-center mb-5" data-aos="fade-up">
+        <div class="hk-section-kicker justify-content-center">What We Offer</div>
+        <h2>Every category, <span class="text-primary">one platform</span></h2>
+        <p>Every listing includes contact details, location, images, and Google Maps integration.</p>
     </div>
     <div class="row g-4" data-aos="fade-up">
         <div class="col-sm-6 col-lg-4">
@@ -185,12 +196,15 @@
             </div>
         </div>
     </div>
+    </div>
 </section>
 
 <!-- Why Choose Hello Kuppam -->
-<section class="container pb-5">
-    <div class="text-center mb-5" data-aos="fade-up">
-        <h2 class="fw-bold">Why Choose <span class="text-primary">Hello Kuppam</span></h2>
+<section class="hk-section hk-section-alt">
+    <div class="container">
+    <div class="hk-section-header text-center mb-5" data-aos="fade-up">
+        <div class="hk-section-kicker justify-content-center">Why Hello Kuppam</div>
+        <h2>Built on trust, made <span class="text-primary">simple</span></h2>
     </div>
     <div class="row g-3" data-aos="fade-up">
         <div class="col-md-6">
@@ -248,19 +262,25 @@
             </div>
         </div>
     </div>
+    </div>
 </section>
 
 <!-- How It Works -->
-<section class="container pb-5">
-    <div class="text-center mb-5" data-aos="fade-up">
-        <h2 class="fw-bold">How Hello Kuppam <span class="text-primary">Works</span></h2>
+<section class="hk-section">
+    <div class="container">
+    <div class="hk-section-header text-center mb-5" data-aos="fade-up">
+        <div class="hk-section-kicker justify-content-center">The Process</div>
+        <h2>How Hello Kuppam <span class="text-primary">works</span></h2>
     </div>
     <div class="row g-4" data-aos="fade-up">
         <div class="col-md-6 col-lg-4">
             <div class="card hk-detail-panel h-100">
                 <div class="card-body p-4">
-                    <div class="hk-icon-circle mb-3"><i class="bi bi-google"></i></div>
-                    <h5 class="fw-bold">1. Sign In</h5>
+                    <div class="hk-icon-circle hk-step-icon mb-3">
+                        <i class="bi bi-google"></i>
+                        <span class="hk-step-number">1</span>
+                    </div>
+                    <h5 class="fw-bold">Sign In</h5>
                     <p class="text-muted mb-0">Sign in using your Google account to get started.</p>
                 </div>
             </div>
@@ -268,8 +288,11 @@
         <div class="col-md-6 col-lg-4">
             <div class="card hk-detail-panel h-100">
                 <div class="card-body p-4">
-                    <div class="hk-icon-circle mb-3"><i class="bi bi-compass"></i></div>
-                    <h5 class="fw-bold">2. Explore or List</h5>
+                    <div class="hk-icon-circle hk-step-icon mb-3">
+                        <i class="bi bi-compass"></i>
+                        <span class="hk-step-number">2</span>
+                    </div>
+                    <h5 class="fw-bold">Explore or List</h5>
                     <p class="text-muted mb-0">Browse local businesses and services, or request permission to publish your own listings.</p>
                 </div>
             </div>
@@ -277,8 +300,11 @@
         <div class="col-md-6 col-lg-4">
             <div class="card hk-detail-panel h-100">
                 <div class="card-body p-4">
-                    <div class="hk-icon-circle mb-3"><i class="bi bi-clipboard-check"></i></div>
-                    <h5 class="fw-bold">3. Review &amp; Approval</h5>
+                    <div class="hk-icon-circle hk-step-icon mb-3">
+                        <i class="bi bi-clipboard-check"></i>
+                        <span class="hk-step-number">3</span>
+                    </div>
+                    <h5 class="fw-bold">Review &amp; Approval</h5>
                     <p class="text-muted mb-0">Content submitted by providers is reviewed by the Super Admin before publication.</p>
                 </div>
             </div>
@@ -286,8 +312,11 @@
         <div class="col-md-6 col-lg-4">
             <div class="card hk-detail-panel h-100">
                 <div class="card-body p-4">
-                    <div class="hk-icon-circle mb-3"><i class="bi bi-broadcast"></i></div>
-                    <h5 class="fw-bold">4. Goes Live</h5>
+                    <div class="hk-icon-circle hk-step-icon mb-3">
+                        <i class="bi bi-broadcast"></i>
+                        <span class="hk-step-number">4</span>
+                    </div>
+                    <h5 class="fw-bold">Goes Live</h5>
                     <p class="text-muted mb-0">Once approved, listings become publicly visible to everyone.</p>
                 </div>
             </div>
@@ -295,20 +324,26 @@
         <div class="col-md-6 col-lg-4">
             <div class="card hk-detail-panel h-100">
                 <div class="card-body p-4">
-                    <div class="hk-icon-circle mb-3"><i class="bi bi-chat-square-heart"></i></div>
-                    <h5 class="fw-bold">5. Engage</h5>
+                    <div class="hk-icon-circle hk-step-icon mb-3">
+                        <i class="bi bi-chat-square-heart"></i>
+                        <span class="hk-step-number">5</span>
+                    </div>
+                    <h5 class="fw-bold">Engage</h5>
                     <p class="text-muted mb-0">Search, view, rate, review, comment on, and share listings with others.</p>
                 </div>
             </div>
         </div>
     </div>
+    </div>
 </section>
 
 <!-- Our Team -->
-<section class="container pb-5">
-    <div class="text-center mb-5" data-aos="fade-up">
-        <h2 class="fw-bold">Our <span class="text-primary">Team</span></h2>
-        <p class="text-muted mb-0">Hello Kuppam is developed by a passionate team dedicated to creating a better digital experience for the people of Kuppam.</p>
+<section class="hk-section hk-section-alt">
+    <div class="container">
+    <div class="hk-section-header text-center mb-5" data-aos="fade-up">
+        <div class="hk-section-kicker justify-content-center">The People Behind It</div>
+        <h2>Our <span class="text-primary">Team</span></h2>
+        <p>Hello Kuppam is developed by a passionate team dedicated to creating a better digital experience for the people of Kuppam.</p>
     </div>
     <div class="row g-4" data-aos="fade-up">
         <div class="col-md-6 col-lg-3">
@@ -348,13 +383,16 @@
             </div>
         </div>
     </div>
+    </div>
 </section>
 
 <!-- Our Commitment -->
-<section class="container pb-5">
+<section class="hk-section">
+    <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-9 text-center" data-aos="fade-up">
-            <h2 class="fw-bold mb-4">Our <span class="text-primary">Commitment</span></h2>
+            <div class="hk-section-kicker justify-content-center">Our Promise</div>
+            <h2 class="mb-4">Our <span class="text-primary">Commitment</span></h2>
             <p class="text-muted mb-0 hk-text-justify">
                 We are committed to providing reliable, verified, and accessible information that benefits
                 residents, businesses, and visitors. We continuously improve the platform by adding new
@@ -362,11 +400,12 @@
             </p>
         </div>
     </div>
+    </div>
 </section>
 
 <!-- CTA -->
-<section class="hk-hero text-white py-5">
-    <div class="container text-center py-3 hk-hero-content" data-aos="fade-up">
+<section class="hk-hero hk-section-tight text-white">
+    <div class="container text-center hk-hero-content" data-aos="fade-up">
         <h2 class="fw-bold mb-2">Join the Hello Kuppam Community</h2>
         <p class="lead opacity-75 mb-4">
             Whether you're a resident looking for local services, a visitor exploring Kuppam, or a
@@ -382,6 +421,7 @@
     <details class="hk-credits">
         <summary>Photo credits</summary>
         <ul class="small">
+            <li>Landscape near Kuppam — KuppamArunKumar, CC BY-SA 4.0</li>
             <li>Government Degree College, Kuppam campus — courtesy of Government Degree College, Kuppam (gdckuppam.edu.in), used here to represent the institution accurately rather than a generic stock photo.</li>
             <li>PES Medical College campus, Kuppam — aerial photo credited to "Kuppam Diaries"; source and licence unconfirmed, used here for informational/editorial purposes rather than a generic stock photo.</li>
         </ul>

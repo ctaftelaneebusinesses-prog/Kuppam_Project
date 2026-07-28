@@ -484,13 +484,16 @@ html[data-theme="dark"] .hk-navbar-solid {
 
 .hk-hero-content h1 {
     color: #fff;
-    font-size: clamp(2.1rem, 4.2vw, 3.4rem);
-    letter-spacing: -0.02em;
+    font-size: var(--hk-text-5xl);
+    font-weight: 700;
+    letter-spacing: var(--hk-tracking-tightest);
+    line-height: var(--hk-leading-tight);
     text-shadow: 0 2px 24px rgba(0, 0, 0, .25);
 }
 
 .hk-hero-content .lead {
-    font-size: clamp(1rem, 1.6vw, 1.3rem);
+    font-size: var(--hk-text-lg);
+    line-height: var(--hk-leading-normal);
 }
 
 /* --- Quick category pills under the hero search ------------------------ */
@@ -651,6 +654,138 @@ html[data-theme="dark"] .hk-navbar-solid {
     .hk-hero-stats {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+/* --- Section rhythm ----------------------------------------------------------
+   Shared vertical breathing room + alternating tone for every marketing
+   section, replacing ad hoc `container py-5` — one token (--hk-section-py)
+   controls the rhythm of the whole page. ------------------------------------ */
+.hk-section {
+    padding-top: var(--hk-section-py);
+    padding-bottom: var(--hk-section-py);
+}
+
+.hk-section-tight {
+    padding-top: calc(var(--hk-section-py) * .55);
+    padding-bottom: calc(var(--hk-section-py) * .55);
+}
+
+.hk-section-alt {
+    background-color: var(--hk-gray-50);
+}
+
+html[data-theme="dark"] .hk-section-alt {
+    background-color: #0E0F16;
+}
+
+/* --- Section header (centered kicker + heading + subtext) -------------------- */
+.hk-section-header {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hk-section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--hk-text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--hk-tracking-widest);
+    color: var(--bs-primary);
+    margin-bottom: .9rem;
+}
+
+.hk-section-kicker::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--bs-primary);
+}
+
+.hk-section-header h2 {
+    font-size: var(--hk-text-3xl);
+    letter-spacing: var(--hk-tracking-tighter);
+    margin-bottom: .85rem;
+}
+
+.hk-section-header p {
+    color: var(--hk-ink-soft);
+    font-size: var(--hk-text-md);
+    line-height: var(--hk-leading-normal);
+    margin-bottom: 0;
+}
+
+/* --- Section header row (icon + heading, "View all" trailing) --------------- */
+.hk-section-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.hk-section-header-row h2 {
+    font-size: var(--hk-text-2xl);
+    letter-spacing: var(--hk-tracking-tight);
+    margin-bottom: 0;
+}
+
+.hk-view-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-weight: 600;
+    font-size: var(--hk-text-sm);
+    color: var(--bs-primary);
+    text-decoration: none;
+    padding: .5rem 1rem;
+    border-radius: var(--hk-radius-pill);
+    border: 1px solid var(--hk-border-soft);
+    transition: gap var(--hk-duration-fast) var(--hk-ease-out),
+                background-color var(--hk-duration-fast) var(--hk-ease-out),
+                border-color var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-view-all-link i {
+    transition: transform var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-view-all-link:hover {
+    color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary-border-subtle);
+    gap: .6rem;
+}
+
+.hk-view-all-link:hover i {
+    transform: translateX(2px);
+}
+
+/* --- Numbered step badge (overlaid on an .hk-icon-circle for sequential
+   "how it works" style flows) -------------------------------------------------- */
+.hk-step-icon {
+    position: relative;
+}
+
+.hk-step-number {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--hk-gradient);
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--hk-elevation-2);
 }
 
 /* --- Section headers ------------------------------------------------- */
@@ -828,13 +963,9 @@ html[data-theme="dark"] .hk-navbar-solid {
     hyphens: auto;
 }
 
-/* --- About page: alternating service showcase (large photo + content) --- */
+/* --- About page: "Who We Are" photo + narrative showcase ------------------ */
 .hk-about-service {
-    padding: 3.25rem 0;
-}
-
-.hk-about-service:nth-of-type(even) {
-    background-color: #F8F9FD;
+    padding: var(--hk-section-py) 0;
 }
 
 .hk-about-service-media {
@@ -2179,7 +2310,10 @@ html[data-theme="dark"] .hk-review-form {
 
 .hk-history-hero-content h1 {
     color: #fff;
-    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-size: var(--hk-text-4xl);
+    font-weight: 700;
+    letter-spacing: var(--hk-tracking-tightest);
+    line-height: var(--hk-leading-tight);
     text-shadow: 0 2px 20px rgba(0,0,0,.3);
 }
 
@@ -2225,12 +2359,12 @@ html[data-theme="dark"] .hk-review-form {
 }
 
 .hk-history-section {
-    padding: 4.5rem 0;
+    padding: calc(var(--hk-section-py) * .8) 0;
     scroll-margin-top: 135px;
 }
 
 .hk-history-section:nth-of-type(even) {
-    background-color: #F8F9FD;
+    background-color: var(--hk-gray-50);
 }
 
 /* Real-photo media panel (replaces the old gradient/icon placeholder) */
@@ -2454,13 +2588,6 @@ html[data-theme="dark"] .hk-review-form {
     }
 }
 
-/* --- Responsive tweaks --------------------------------------------------------------- */
-@media (max-width: 767.98px) {
-    .hk-hero-content h1 {
-        font-size: 2rem;
-    }
-}
-
 /* --- Sitewide form polish (floating labels + validation feedback) -------------------- */
 .form-control,
 .form-select {
@@ -2595,9 +2722,8 @@ html[data-theme="dark"] .pagination .page-link:hover {
 /* --- Sitewide dark theme: remaining components that use a literal color
    instead of a token (everything else already flips via the tokens redefined
    at the top of this file under html[data-theme="dark"]) ------------------- */
-html[data-theme="dark"] .hk-about-service:nth-of-type(even),
 html[data-theme="dark"] .hk-history-section:nth-of-type(even) {
-    background-color: #171A28;
+    background-color: var(--hk-dark-surface-2);
 }
 
 html[data-theme="dark"] .hk-card-icon-btn,

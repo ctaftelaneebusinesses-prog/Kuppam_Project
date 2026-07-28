@@ -97,10 +97,12 @@
 </section>
 
 <!-- Categories Section -->
-<section class="container py-5" id="categories">
-    <div class="text-center mb-5" data-aos="fade-up">
-        <h2 class="fw-bold">Explore Categories</h2>
-        <p class="text-muted">Everything Kuppam has to offer, organized in one place</p>
+<section class="hk-section" id="categories">
+    <div class="container">
+    <div class="hk-section-header text-center mb-5" data-aos="fade-up">
+        <div class="hk-section-kicker justify-content-center">What's Here</div>
+        <h2>Explore Categories</h2>
+        <p>Everything Kuppam has to offer, organized in one place</p>
     </div>
     <div class="row g-4">
         {% for cat in categories %}
@@ -143,17 +145,19 @@
         </div>
         {% endfor %}
     </div>
+    </div>
 </section>
 
 <!-- Featured Businesses Section -->
 {% if featured_businesses %}
-<section class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<section class="hk-section hk-section-alt">
+    <div class="container">
+    <div class="hk-section-header-row" data-aos="fade-up">
         <div class="d-flex align-items-center gap-3">
             <div class="hk-section-icon"><i class="bi bi-shop"></i></div>
-            <h2 class="mb-0">Featured Businesses</h2>
+            <h2>Featured Businesses</h2>
         </div>
-        <a href="{% url 'core:business_list' %}" class="btn btn-outline-primary btn-sm">
+        <a href="{% url 'core:business_list' %}" class="hk-view-all-link">
             View All <i class="bi bi-arrow-right"></i>
         </a>
     </div>
@@ -164,18 +168,20 @@
         </div>
         {% endfor %}
     </div>
+    </div>
 </section>
 {% endif %}
 
 <!-- Featured Properties Section -->
 {% if featured_properties %}
-<section class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<section class="hk-section">
+    <div class="container">
+    <div class="hk-section-header-row" data-aos="fade-up">
         <div class="d-flex align-items-center gap-3">
             <div class="hk-section-icon"><i class="bi bi-house-door"></i></div>
-            <h2 class="mb-0">Featured Properties</h2>
+            <h2>Featured Properties</h2>
         </div>
-        <a href="{% url 'core:property_list' %}" class="btn btn-outline-primary btn-sm">
+        <a href="{% url 'core:property_list' %}" class="hk-view-all-link">
             View All <i class="bi bi-arrow-right"></i>
         </a>
     </div>
@@ -186,18 +192,20 @@
         </div>
         {% endfor %}
     </div>
+    </div>
 </section>
 {% endif %}
 
 <!-- Featured Jobs Section -->
 {% if featured_jobs %}
-<section class="container py-5" id="jobs-preview">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<section class="hk-section hk-section-alt" id="jobs-preview">
+    <div class="container">
+    <div class="hk-section-header-row" data-aos="fade-up">
         <div class="d-flex align-items-center gap-3">
             <div class="hk-section-icon"><i class="bi bi-briefcase"></i></div>
-            <h2 class="mb-0">Featured Jobs</h2>
+            <h2>Featured Jobs</h2>
         </div>
-        <a href="{% url 'core:job_list' %}" class="btn btn-outline-primary btn-sm">
+        <a href="{% url 'core:job_list' %}" class="hk-view-all-link">
             View All <i class="bi bi-arrow-right"></i>
         </a>
     </div>
@@ -208,18 +216,20 @@
         </div>
         {% endfor %}
     </div>
+    </div>
 </section>
 {% endif %}
 
 <!-- Upcoming Events Section -->
 {% if featured_events %}
-<section class="container py-5" id="events-preview">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<section class="hk-section" id="events-preview">
+    <div class="container">
+    <div class="hk-section-header-row" data-aos="fade-up">
         <div class="d-flex align-items-center gap-3">
             <div class="hk-section-icon"><i class="bi bi-calendar-event"></i></div>
-            <h2 class="mb-0">Upcoming Events</h2>
+            <h2>Upcoming Events</h2>
         </div>
-        <a href="{% url 'core:event_list' %}" class="btn btn-outline-primary btn-sm">
+        <a href="{% url 'core:event_list' %}" class="hk-view-all-link">
             View All <i class="bi bi-arrow-right"></i>
         </a>
     </div>
@@ -230,18 +240,20 @@
         </div>
         {% endfor %}
     </div>
+    </div>
 </section>
 {% endif %}
 
 <!-- Latest News Section -->
 {% if featured_news %}
-<section class="container py-5" id="news-preview">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<section class="hk-section hk-section-alt" id="news-preview">
+    <div class="container">
+    <div class="hk-section-header-row" data-aos="fade-up">
         <div class="d-flex align-items-center gap-3">
             <div class="hk-section-icon"><i class="bi bi-newspaper"></i></div>
-            <h2 class="mb-0">Latest News</h2>
+            <h2>Latest News</h2>
         </div>
-        <a href="{% url 'core:news_list' %}" class="btn btn-outline-primary btn-sm">
+        <a href="{% url 'core:news_list' %}" class="hk-view-all-link">
             View All <i class="bi bi-arrow-right"></i>
         </a>
     </div>
@@ -251,6 +263,7 @@
             {% include 'partials/news_card.html' with article=article %}
         </div>
         {% endfor %}
+    </div>
     </div>
 </section>
 {% endif %}
