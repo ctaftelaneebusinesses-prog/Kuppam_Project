@@ -2150,21 +2150,6 @@ html[data-theme="dark"] .hk-review-form {
     border-radius: var(--hk-radius-pill);
 }
 
-/* Illustrative-only panel, used solely for the Future Vision section, which
-   has no real photo to show and is explicitly framed as aspirational. */
-.hk-history-media-illustrative {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--hk-gradient);
-    color: #fff;
-}
-
-.hk-history-media-illustrative i {
-    font-size: 3.75rem;
-    opacity: .9;
-}
-
 .hk-history-icon {
     width: 52px;
     height: 52px;

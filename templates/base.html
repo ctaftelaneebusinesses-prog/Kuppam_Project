@@ -71,29 +71,6 @@
                         </li>
                         {% endif %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-bell"></i>
-                                {% if unread_notification_count %}
-                                <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size:.6rem;">
-                                    {{ unread_notification_count }}
-                                </span>
-                                {% endif %}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
-                                {% for note in recent_notifications %}
-                                <li>
-                                    <a class="dropdown-item small {% if not note.is_read %}fw-semibold{% endif %}" href="{{ note.url|default:'#' }}">
-                                        {{ note.message|truncatechars:60 }}
-                                    </a>
-                                </li>
-                                {% empty %}
-                                <li><span class="dropdown-item-text text-muted small">No notifications yet.</span></li>
-                                {% endfor %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-center small" href="{% url 'core:notifications_list' %}">View all</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="{{ user.profile.display_photo }}" class="rounded-circle" width="26" height="26" style="object-fit:cover;" alt="">
                             </a>
