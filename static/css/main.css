@@ -565,18 +565,28 @@ html[data-theme="dark"] .hk-navbar-solid {
     opacity: .15;
 }
 
-/* --- Gold accent CTA (used sparingly: hero search, primary conversion actions) --- */
+/* --- Gold accent CTA (used sparingly: hero search, primary conversion actions) ---
+   Flat fill + medium weight rather than a dark gradient + bold — reads as part
+   of the search bar it sits in instead of visually shouting over it. --------- */
 .btn-hk-gold {
-    background: linear-gradient(135deg, var(--hk-gold) 0%, #C4901F 100%);
+    background: var(--hk-gold);
     border: none;
-    color: #241A04;
-    font-weight: 700;
+    color: #4A3208;
+    font-weight: 600;
+    letter-spacing: var(--hk-tracking-normal);
 }
 
 .btn-hk-gold:hover,
 .btn-hk-gold:focus {
-    color: #241A04;
-    filter: brightness(1.06);
+    color: #4A3208;
+    background: var(--hk-gold-300);
+}
+
+/* Inside the hero search shell specifically, trim the button back toward the
+   input/select's visual footprint (still btn-lg for matching height). */
+.hk-search-shell .btn-hk-gold {
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
 }
 
 /* --- Hero eyebrow pill (small uppercase label above the headline) --------- */
