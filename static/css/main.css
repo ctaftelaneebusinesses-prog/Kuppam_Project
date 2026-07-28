@@ -332,6 +332,11 @@ html[data-theme="dark"] .hk-navbar-solid {
     min-height: 92vh;
     display: flex;
     align-items: center;
+    box-sizing: border-box;
+    /* Guarantees clearance under the fixed transparent navbar even when the
+       hero's own content (eyebrow + headline + search + stat tiles) is tall
+       enough that vertical centering alone would push its top edge to y=0. */
+    padding: 112px 0 56px;
 }
 
 .hk-hero-slides {
