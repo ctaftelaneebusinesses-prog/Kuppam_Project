@@ -1,0 +1,47 @@
+{% comment %}
+Reusable upcoming-project card. Include with: {% include 'partials/project_card.html' with project=<project_instance> %}
+{% endcomment %}
+<div class="card h-100 hk-card">
+    {% if project.is_featured %}
+    <span class="hk-badge-featured">
+        <i class="bi bi-star-fill"></i> Featured
+    </span>
+    {% endif %}
+    {% if project.has_image %}
+    <img src="{{ project.display_image }}" class="card-img-top hk-card-img" alt="{{ project.title }}" loading="lazy" data-fallback-icon="{{ project.placeholder_icon }}">
+    {% else %}
+    <div class="hk-card-placeholder"><i class="bi {{ project.placeholder_icon }}"></i></div>
+    {% endif %}
+    <div class="card-body d-flex flex-column">
+        <p class="text-muted small mb-2">
+            <i class="bi bi-geo-alt text-primary"></i> {{ project.location }}
+            {% if project.expected_completion %} &middot; <i class="bi bi-calendar3 text-primary"></i> {{ project.expected_completion|date:"M Y" }}{% endif %}
+        </p>
+        <span class="badge mb-2 align-self-start
+            {% if project.project_status == 'completed' %}bg-success
+            {% elif project.project_status == 'ongoing' %}bg-warning text-dark
+            {% else %}bg-secondary{% endif %}">
+            {{ project.get_project_status_display }}
+        </span>
+        <h5 class="card-title">{{ project.title }}</h5>
+        <div class="hk-card-meta-row">
+            <span class="hk-rating"><i class="bi bi-hand-thumbs-up-fill"></i> {{ project.like_count }}</span>
+            <span><i class="bi bi-eye"></i> {{ project.view_count }}</span>
+        </div>
+        <p class="card-text text-muted small mb-3">{{ project.description|default:"No description provided."|truncatewords:18 }}</p>
+        <a href="{% url 'core:project_detail' project.slug %}" class="btn btn-outline-primary mt-auto">
+            Read More <i class="bi bi-arrow-right"></i>
+        </a>
+        <div class="hk-card-actions">
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'core:toggle_favorite' 'project' project.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></button>
+            </form>
+            {% else %}
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="Sign in to save"><i class="bi bi-heart"></i></a>
+            {% endif %}
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:project_detail' project.slug %}" data-title="{{ project.title }}" title="Share"><i class="bi bi-share"></i></button>
+        </div>
+    </div>
+</div>

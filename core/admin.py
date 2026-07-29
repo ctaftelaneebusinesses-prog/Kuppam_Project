@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     AdminCategoryPermission, AdminRequest, Business, Category, Comment, Event, Favorite,
-    Job, Like, LoginHistory, News, Notification, PostImage, Profile, Property, Report, Review, Share,
+    Job, Like, LoginHistory, News, Notification, PostImage, Profile, Project, Property, Report, Review, Share,
 )
 
 
@@ -145,6 +145,29 @@ class NewsAdmin(ImagePreviewMixin, admin.ModelAdmin):
     fieldsets = (
         ('Basic Information', {
             'fields': ('title', 'published_date', 'source', 'content')
+        }),
+        ('Media', {
+            'fields': ('image_preview', 'image', 'image_url'),
+            'description': 'Upload a photo directly, or paste an external Image URL. '
+                            'An uploaded photo always takes priority when both are set.',
+        }),
+        ('Visibility', {
+            'fields': ('is_featured', 'is_active')
+        }),
+    )
+
+
+@admin.register(Project)
+class ProjectAdmin(ImagePreviewMixin, admin.ModelAdmin):
+    list_display = ('image_preview', 'title', 'project_status', 'location', 'expected_completion', 'owner', 'status', 'is_featured', 'is_active', 'created_at')
+    list_filter = ('project_status', 'status', 'is_featured', 'is_active')
+    search_fields = ('title', 'location', 'department', 'description')
+    list_editable = ('is_featured', 'is_active')
+    ordering = ('-is_featured', '-created_at')
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'project_status', 'location', 'expected_completion', 'department', 'description')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),

@@ -62,6 +62,10 @@ urlpatterns = [
     path('news/', views.news_list, name='news_list'),
     path('news/<slug:slug>/', views.news_detail, name='news_detail'),
 
+    # Upcoming Projects
+    path('projects/', views.project_list, name='project_list'),
+    path('projects/<slug:slug>/', views.project_detail, name='project_detail'),
+
     # Community features (generic across all 5 listing types, keyed by model_key/pk)
     path('l/<str:model_key>/<int:pk>/like/', views.toggle_like, name='toggle_like'),
     path('l/<str:model_key>/<int:pk>/favorite/', views.toggle_favorite, name='toggle_favorite'),

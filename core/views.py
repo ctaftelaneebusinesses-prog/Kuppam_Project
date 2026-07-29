@@ -154,7 +154,7 @@ from .forms import (
 from .models import (
     AdminCategoryPermission, AdminRequest, AdminRequestStatus, Business, Category, Comment,
     Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News, Notification,
-    PostImage, Profile, Property, Report, Review, Share, UserRole,
+    PostImage, Profile, Project, Property, Report, Review, Share, UserRole,
 )
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
@@ -166,6 +166,7 @@ LISTING_MODELS = {
     'job': Job,
     'event': Event,
     'news': News,
+    'project': Project,
 }
 
 
@@ -307,7 +308,7 @@ CATEGORIES = [
     },
     {
         'name': 'Education', 'icon': 'bi-mortarboard', 'slug': 'education',
-        'image': 'images/history/education-university.jpg',
+        'image': 'images/services/education.jpg',
         'description': 'Explore schools, colleges, universities, and other educational institutions in Kuppam.',
         'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['education']['categories']).count(),
     },
@@ -322,6 +323,12 @@ CATEGORIES = [
         'image': 'images/services/news.jpg',
         'description': 'Catch up on local announcements, civic updates, and news from around Kuppam.',
         'count_fn': lambda: _public_qs(News).count(),
+    },
+    {
+        'name': 'Upcoming Projects', 'icon': 'bi-cone-striped', 'slug': 'projects',
+        'image': 'images/services/upcoming-projects.jpg',
+        'description': 'Track planned and ongoing civic and infrastructure projects shaping Kuppam.',
+        'count_fn': lambda: _public_qs(Project).count(),
     },
 ]
 
@@ -353,6 +360,8 @@ def home(request):
         or _public_qs(Event).filter(event_date__gte=timezone.localdate()).order_by('event_date')[:6]
     featured_news = _public_qs(News).filter(is_featured=True)[:6] \
         or _public_qs(News).order_by('-created_at')[:6]
+    featured_projects = _public_qs(Project).filter(is_featured=True)[:6] \
+        or _public_qs(Project).order_by('-created_at')[:6]
 
     stats = {
         'businesses': _public_qs(Business).count(),
@@ -369,6 +378,7 @@ def home(request):
         'featured_jobs': featured_jobs,
         'featured_events': featured_events,
         'featured_news': featured_news,
+        'featured_projects': featured_projects,
         'stats': stats,
     }
     return render(request, 'home.html', context)
@@ -387,6 +397,7 @@ SEARCH_CATEGORY_REDIRECT = {
     'hospitals': 'core:hospital_list',
     'education': 'core:education_list',
     'transport': 'core:transport_list',
+    'projects': 'core:project_list',
 }
 
 SEARCH_RESULT_LIMIT = 6
@@ -397,6 +408,7 @@ _SEARCH_FILTERS = {
     'job': lambda q: Q(job_title__icontains=q) | Q(company__icontains=q) | Q(description__icontains=q) | Q(location__icontains=q),
     'event': lambda q: Q(title__icontains=q) | Q(description__icontains=q) | Q(location__icontains=q),
     'news': lambda q: Q(title__icontains=q) | Q(content__icontains=q),
+    'project': lambda q: Q(title__icontains=q) | Q(description__icontains=q) | Q(location__icontains=q),
 }
 
 
@@ -452,6 +464,7 @@ def search(request):
             _section('job', 'Jobs', 'bi-briefcase', _public_qs(Job), 'core:job_list', 'partials/job_card.html', 'job'),
             _section('event', 'Events', 'bi-calendar-event', _public_qs(Event), 'core:event_list', 'partials/event_card.html', 'event'),
             _section('news', 'News', 'bi-newspaper', _public_qs(News), 'core:news_list', 'partials/news_card.html', 'article'),
+            _section('project', 'Upcoming Projects', 'bi-cone-striped', _public_qs(Project), 'core:project_list', 'partials/project_card.html', 'project'),
         ]
         results = [s for s in sections if s['count']]
         total_results = sum(s['count'] for s in sections)
@@ -759,6 +772,51 @@ def news_detail(request, slug):
         **_community_context(request, article),
     }
     return render(request, 'news_detail.html', context)
+
+
+def project_list(request):
+    """
+    Upcoming Projects listing page with search (by title or location) and
+    pagination. Featured/newest projects are shown first (model default
+    ordering).
+    """
+    projects = _public_qs(Project)
+
+    query = request.GET.get('q', '').strip()
+
+    if query:
+        projects = projects.filter(
+            Q(title__icontains=query) | Q(location__icontains=query)
+        )
+
+    paginator = Paginator(projects, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_title': 'Upcoming Projects - Hello Kuppam',
+        'page_obj': page_obj,
+        'query': query,
+        'total_results': projects.count(),
+    }
+    return render(request, 'project_list.html', context)
+
+
+def project_detail(request, slug):
+    """
+    Detail page for a single upcoming project.
+    """
+    project = get_object_or_404(_detail_qs(request, Project), slug=slug)
+    _bump_views(Project, project.pk)
+    related_projects = _public_qs(Project).exclude(pk=project.pk)[:3]
+
+    context = {
+        'page_title': f'{project.title} - Hello Kuppam',
+        'project': project,
+        'related_projects': related_projects,
+        **_community_context(request, project),
+    }
+    return render(request, 'project_detail.html', context)
 
 
 @staff_required

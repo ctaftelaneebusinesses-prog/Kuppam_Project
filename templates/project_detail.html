@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:project_list' %}">Upcoming Projects</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ project.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            {% if project.has_image %}
+            <img src="{{ project.display_image }}" class="img-fluid w-100 hk-detail-img mb-4" alt="{{ project.title }}" data-fallback-icon="{{ project.placeholder_icon }}">
+            {% else %}
+            <div class="hk-detail-placeholder mb-4"><i class="bi {{ project.placeholder_icon }}"></i></div>
+            {% endif %}
+            <p class="text-muted small mb-2">
+                <i class="bi bi-geo-alt text-primary"></i> {{ project.location }}
+                {% if project.expected_completion %} &middot; <i class="bi bi-calendar3 text-primary"></i> Expected {{ project.expected_completion|date:"F Y" }}{% endif %}
+                {% if project.department %} &middot; <i class="bi bi-building text-primary"></i> {{ project.department }}{% endif %}
+            </p>
+            <span class="badge mb-2
+                {% if project.project_status == 'completed' %}bg-success
+                {% elif project.project_status == 'ongoing' %}bg-warning text-dark
+                {% else %}bg-secondary{% endif %}">
+                {{ project.get_project_status_display }}
+            </span>
+            {% if project.is_featured %}
+            <span class="badge bg-warning text-dark mb-2">
+                <i class="bi bi-star-fill"></i> Featured
+            </span>
+            {% endif %}
+            <h1 class="fw-bold mb-4">{{ project.title }}</h1>
+            <div class="hk-description-box mb-4">{{ project.description|default:"No further details have been added for this project yet."|linebreaksbr }}</div>
+
+            <a href="{% url 'core:project_list' %}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrow-left"></i> Back to Upcoming Projects
+            </a>
+
+            {% include 'partials/community_widget.html' with obj=project %}
+        </div>
+
+        <div class="col-lg-4">
+            {% if related_projects %}
+            <h6 class="hk-related-heading mb-3">More Upcoming Projects</h6>
+            {% for related in related_projects %}
+            <div class="mb-3">
+                {% include 'partials/project_card.html' with project=related %}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+</section>
+{% endblock %}

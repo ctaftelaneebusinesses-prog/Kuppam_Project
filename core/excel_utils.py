@@ -19,7 +19,7 @@ from django.core.validators import URLValidator
 from django.db import DataError, IntegrityError, transaction
 from django.utils import timezone
 
-from .models import Business, Property, Job, Event, News
+from .models import Business, Property, Job, Event, News, Project
 
 
 class RowValidationError(Exception):
@@ -352,6 +352,29 @@ def parse_news_row(row):
     return lookup, defaults
 
 
+def parse_project_row(row):
+    title = clean_str(row.get('Title'))
+    if not title:
+        raise RowValidationError('Title is required')
+    location = clean_str(row.get('Location'))
+    if not location:
+        raise RowValidationError('Location is required')
+    status_raw = clean_str(row.get('Status'))
+    project_status = match_choice(status_raw, Project.STATUS_CHOICES, 'Status') if status_raw else 'planned'
+
+    lookup = {'title': title, 'location': location}
+    defaults = {
+        'project_status': project_status,
+        'expected_completion': parse_date(row.get('Expected Completion'), 'Expected Completion', required=False),
+        'department': clean_str(row.get('Department')),
+        'description': clean_str(row.get('Description')),
+        'image_url': validate_url(row.get('Image URL')),
+        'is_featured': parse_bool(row.get('Featured'), default=False),
+        'is_active': parse_bool(row.get('Active'), default=True),
+    }
+    return lookup, defaults
+
+
 # ------------------------------------------------------------------
 # Upload configuration registry — one entry per module.
 # ------------------------------------------------------------------
@@ -531,6 +554,27 @@ UPLOAD_CONFIGS = {
             'Published Date': '2026-07-20',
             'Image URL': 'https://example.com/images/news.jpg',
             'Source': 'Kuppam Municipality',
+            'Featured': 'No',
+            'Active': 'Yes',
+        },
+    },
+    'projects': {
+        'key': 'projects',
+        'label': 'Upcoming Projects',
+        'icon': 'bi-cone-striped',
+        'model': Project,
+        'required_columns': ['Title', 'Location'],
+        'optional_columns': ['Status', 'Expected Completion', 'Department', 'Description', 'Image URL', 'Featured', 'Active'],
+        'parse_row': parse_project_row,
+        'list_url_name': 'core:project_list',
+        'example_row': {
+            'Title': 'Swarna Kuppam Road Upgrade',
+            'Location': 'Internal roads, Kuppam',
+            'Status': 'Ongoing',
+            'Expected Completion': '2027-03-31',
+            'Department': 'Kuppam Municipality',
+            'Description': 'Upgrading internal roads across the constituency under the Swarna Kuppam initiative.',
+            'Image URL': 'https://example.com/images/project.jpg',
             'Featured': 'No',
             'Active': 'Yes',
         },

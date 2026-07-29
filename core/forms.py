@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 
 from .models import (
-    Business, Category, Event, Job, News, Profile, Property,
+    Business, Category, Event, Job, News, Profile, Project, Property,
 )
 
 User = get_user_model()
@@ -269,12 +269,29 @@ class NewsSubmitForm(forms.ModelForm):
         }
 
 
+class ProjectSubmitForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['title', 'project_status', 'location', 'expected_completion', 'department', 'description', 'image', 'image_url']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project Title'}),
+            'project_status': forms.Select(attrs={'class': 'form-select'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Area / Locality'}),
+            'expected_completion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'department': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Executing Department/Agency (optional)'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
+        }
+
+
 LISTING_SUBMIT_FORMS = {
     'business': BusinessSubmitForm,
     'property': PropertySubmitForm,
     'job': JobSubmitForm,
     'event': EventSubmitForm,
     'news': NewsSubmitForm,
+    'project': ProjectSubmitForm,
 }
 
 

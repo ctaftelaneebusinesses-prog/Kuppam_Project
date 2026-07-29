@@ -118,6 +118,7 @@ class Category(models.Model):
         ('job', 'Job'),
         ('event', 'Event'),
         ('news', 'News'),
+        ('project', 'Project'),
     ]
 
     key = models.SlugField(max_length=50, unique=True)
@@ -540,12 +541,74 @@ class News(ListingMixin, models.Model):
     placeholder_icon = 'bi-newspaper'
 
 
+class Project(ListingMixin, models.Model):
+    """An upcoming or ongoing civic/infrastructure project for Kuppam (roads, schemes, public works)."""
+    STATUS_CHOICES = [
+        ('planned', 'Planned'),
+        ('ongoing', 'Ongoing'),
+        ('completed', 'Completed'),
+    ]
+
+    title = models.CharField(max_length=200, verbose_name='Project Title')
+    project_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planned', verbose_name='Status')
+    location = models.CharField(max_length=200, help_text='Area / locality in Kuppam')
+    expected_completion = models.DateField(null=True, blank=True, help_text='Optional expected completion date')
+    department = models.CharField(max_length=150, blank=True, help_text='Optional executing department/agency')
+    description = models.TextField(blank=True, help_text='Optional details about the project')
+    image = models.ImageField(
+        upload_to='projects/', blank=True, null=True,
+        help_text='Upload a photo (takes priority over Image URL below if both are set)'
+    )
+    image_url = models.URLField(max_length=500, blank=True, null=True, verbose_name='Image URL')
+    is_featured = models.BooleanField(default=False, help_text='Show this project on the homepage')
+    is_active = models.BooleanField(default=True, help_text='Uncheck to hide this project from the site')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-is_featured', '-created_at']
+        verbose_name = 'Upcoming Project'
+        verbose_name_plural = 'Upcoming Projects'
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = unique_slug_for(Project, self.title, self.pk)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('core:project_detail', kwargs={'slug': self.slug})
+
+    @property
+    def display_image(self):
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        return 'https://placehold.co/600x400?text=Hello+Kuppam+Project'
+
+    @property
+    def has_image(self):
+        return bool(self.image or self.image_url)
+
+    PLACEHOLDER_ICONS = {
+        'planned': 'bi-cone-striped', 'ongoing': 'bi-cone-striped', 'completed': 'bi-check-circle',
+    }
+
+    @property
+    def placeholder_icon(self):
+        return self.PLACEHOLDER_ICONS.get(self.project_status, 'bi-cone-striped')
+
+
 LISTING_CONTENT_TYPE_LIMIT = (
     models.Q(app_label='core', model='business')
     | models.Q(app_label='core', model='property')
     | models.Q(app_label='core', model='job')
     | models.Q(app_label='core', model='event')
     | models.Q(app_label='core', model='news')
+    | models.Q(app_label='core', model='project')
 )
 
 
