@@ -972,27 +972,178 @@ html[data-theme="dark"] .hk-section-alt {
     transform: translateX(2px);
 }
 
-/* --- Numbered step badge (overlaid on an .hk-icon-circle for sequential
-   "how it works" style flows) -------------------------------------------------- */
-.hk-step-icon {
-    position: relative;
+/* --- "How It Works" connected step timeline (About) --------------------------
+   A staggered roadmap: a glowing indigo→violet→gold line runs down the
+   center on desktop with cards alternating left/right of it, then collapses
+   to a single left-aligned rail with stacked cards on mobile. ---------------- */
+.hk-timeline-heading {
+    font-size: var(--hk-text-4xl);
+    font-weight: 800;
+    margin-bottom: var(--hk-space-2);
 }
 
-.hk-step-number {
+.hk-timeline {
+    position: relative;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: var(--hk-space-2) 0;
+}
+
+.hk-timeline-track {
     position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--hk-gradient);
-    color: #fff;
-    font-size: .68rem;
-    font-weight: 700;
+    top: 0;
+    bottom: 0;
+    left: 24px;
+    width: 2px;
+    border-radius: var(--hk-radius-pill);
+    background: linear-gradient(180deg, var(--hk-violet-400) 0%, var(--hk-violet-500) 45%, var(--hk-gold-400) 100%);
+    box-shadow: 0 0 16px rgba(124, 99, 232, .35);
+    opacity: .55;
+}
+
+.hk-timeline-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    align-items: start;
+    column-gap: var(--hk-space-4);
+    margin-bottom: var(--hk-space-6);
+}
+
+.hk-timeline-step:last-child {
+    margin-bottom: 0;
+}
+
+.hk-timeline-node {
+    grid-column: 1;
+    justify-self: start;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--hk-radius-md);
+    background: #0B0D14;
+    border: 1px solid rgba(255, 255, 255, .1);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--hk-elevation-2);
+    font-size: var(--hk-text-md);
+    font-weight: 900;
+    z-index: 2;
+    box-shadow: 0 0 18px rgba(240, 169, 58, .22), var(--hk-shadow-sm);
+}
+
+.hk-timeline-node span {
+    background: linear-gradient(90deg, var(--hk-gold-300) 0%, var(--hk-gold-400) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hk-timeline-card {
+    grid-column: 2;
+    padding: var(--hk-space-5);
+    border-radius: var(--hk-radius-lg);
+    border: 1px solid var(--hk-border-soft);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, 0) 100%);
+    box-shadow: var(--hk-shadow-sm);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: transform var(--hk-duration-base) var(--hk-ease-out),
+                box-shadow var(--hk-duration-base) var(--hk-ease-out),
+                border-color var(--hk-duration-base) var(--hk-ease-out),
+                background var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-timeline-card:hover {
+    transform: scale(1.02);
+    border-color: var(--hk-violet-400);
+    background: linear-gradient(180deg, rgba(124, 99, 232, .08) 0%, rgba(255, 255, 255, 0) 100%);
+    box-shadow: var(--hk-shadow-hover);
+}
+
+.hk-timeline-card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--hk-space-3);
+    margin-bottom: var(--hk-space-2);
+}
+
+.hk-timeline-card-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: var(--hk-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    border: 1px solid transparent;
+}
+
+.hk-timeline-card-icon--indigo {
+    background-color: var(--hk-violet-bg);
+    color: var(--hk-purple);
+    border-color: rgba(124, 99, 232, .25);
+}
+
+.hk-timeline-card-icon--gold {
+    background-color: var(--hk-gold-bg);
+    color: var(--hk-gold-600);
+    border-color: rgba(240, 169, 58, .3);
+}
+
+.hk-timeline-card-title {
+    font-size: var(--hk-text-lg);
+    font-weight: 700;
+    color: var(--hk-ink);
+    margin-bottom: 0;
+}
+
+.hk-timeline-card-text {
+    color: var(--hk-ink-soft);
+    font-size: var(--hk-text-sm);
+    line-height: var(--hk-leading-normal);
+    margin-bottom: 0;
+}
+
+html[data-theme="dark"] .hk-timeline-card-icon--indigo {
+    color: var(--hk-violet-400);
+}
+
+html[data-theme="dark"] .hk-timeline-card-icon--gold {
+    color: var(--hk-gold-300);
+}
+
+/* Desktop: stagger cards left/right of a centered track. */
+@media (min-width: 992px) {
+    .hk-timeline-track {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .hk-timeline-step {
+        grid-template-columns: 1fr 56px 1fr;
+        column-gap: var(--hk-space-5);
+    }
+
+    .hk-timeline-node {
+        grid-column: 2;
+        justify-self: center;
+    }
+
+    .hk-timeline-step--left .hk-timeline-card {
+        grid-column: 1;
+        justify-self: end;
+        text-align: right;
+    }
+
+    .hk-timeline-step--left .hk-timeline-card-head {
+        flex-direction: row-reverse;
+    }
+
+    .hk-timeline-step--right .hk-timeline-card {
+        grid-column: 3;
+        justify-self: start;
+    }
 }
 
 /* --- Section headers ------------------------------------------------- */
