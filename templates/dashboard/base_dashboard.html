@@ -47,6 +47,10 @@
                 <a class="nav-link hk-dash-link {% if active_nav == 'categories' %}active{% endif %}" href="{% url 'core:dashboard_categories' %}">
                     <i class="bi bi-tags"></i> Categories
                 </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'messages' %}active{% endif %}" href="{% url 'core:dashboard_messages' %}">
+                    <i class="bi bi-envelope"></i> Contact Messages
+                    {% if unread_message_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_message_count }}</span>{% endif %}
+                </a>
                 {% if user.is_staff %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'uploads' %}active{% endif %}" href="{% url 'core:upload_hub' %}">
                     <i class="bi bi-cloud-arrow-up"></i> Uploads

@@ -1690,6 +1690,8 @@ def _super_admin_dashboard(request):
         'total_likes': Like.objects.count(),
         'total_favorites': Favorite.objects.count(),
         'total_shares': Share.objects.count(),
+        'total_messages': ContactMessage.objects.count(),
+        'unread_messages': ContactMessage.objects.filter(is_read=False).count(),
     }
 
     context = {
@@ -1697,6 +1699,7 @@ def _super_admin_dashboard(request):
         'stats': stats,
         'recent_requests': AdminRequest.objects.select_related('user').prefetch_related('categories').order_by('-created_at')[:5],
         'recent_logins': LoginHistory.objects.select_related('user').filter(event_type='login').order_by('-created_at')[:10],
+        'recent_messages': ContactMessage.objects.order_by('-created_at')[:5],
         'active_nav': 'overview',
     }
     return render(request, 'dashboard/super_admin_dashboard.html', context)
@@ -1743,6 +1746,49 @@ def dashboard_user_toggle_suspend(request, user_id):
     profile.save(update_fields=['is_suspended'])
     messages.success(request, f'{profile.user.email} is now {"suspended" if profile.is_suspended else "unsuspended"}.')
     return redirect('core:dashboard_users')
+
+
+@super_admin_required
+def dashboard_messages(request):
+    """
+    Every submission from the public Contact Us form, newest first —
+    Super Admin only. Read/unread mirrors an inbox; nothing here is
+    ever shown to the public.
+    """
+    query = request.GET.get('q', '').strip()
+    contact_messages = ContactMessage.objects.all()
+    if query:
+        contact_messages = contact_messages.filter(
+            Q(name__icontains=query) | Q(email__icontains=query) | Q(subject__icontains=query) | Q(message__icontains=query)
+        )
+
+    status_filter = request.GET.get('status', '').strip()
+    if status_filter == 'unread':
+        contact_messages = contact_messages.filter(is_read=False)
+    elif status_filter == 'read':
+        contact_messages = contact_messages.filter(is_read=True)
+
+    paginator = Paginator(contact_messages, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    context = {
+        'page_title': 'Contact Messages - Hello Kuppam',
+        'page_obj': page_obj,
+        'query': query,
+        'status_filter': status_filter,
+        'unread_count': ContactMessage.objects.filter(is_read=False).count(),
+        'active_nav': 'messages',
+    }
+    return render(request, 'dashboard/messages.html', context)
+
+
+@super_admin_required
+@require_POST
+def dashboard_message_toggle_read(request, pk):
+    message_obj = get_object_or_404(ContactMessage, pk=pk)
+    message_obj.is_read = not message_obj.is_read
+    message_obj.save(update_fields=['is_read'])
+    return redirect(_safe_next(request, reverse('core:dashboard_messages')))
 
 
 @super_admin_required

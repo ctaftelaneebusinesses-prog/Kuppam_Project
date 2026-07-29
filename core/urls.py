@@ -95,6 +95,8 @@ urlpatterns = [
     path('dashboard/admin-requests/', views.dashboard_admin_requests, name='dashboard_admin_requests'),
     path('dashboard/admin-requests/<int:pk>/', views.dashboard_admin_request_detail, name='dashboard_admin_request_detail'),
     path('dashboard/categories/', views.dashboard_categories, name='dashboard_categories'),
+    path('dashboard/messages/', views.dashboard_messages, name='dashboard_messages'),
+    path('dashboard/messages/<int:pk>/toggle-read/', views.dashboard_message_toggle_read, name='dashboard_message_toggle_read'),
     path('dashboard/listings/', views.dashboard_pending_listings, name='dashboard_pending_listings'),
     path('dashboard/listings/<str:model_key>/<int:pk>/review/', views.dashboard_listing_review, name='dashboard_listing_review'),
 

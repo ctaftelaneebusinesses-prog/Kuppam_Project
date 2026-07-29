@@ -22,6 +22,10 @@
     <a href="{% url 'core:dashboard_categories' %}" class="btn btn-outline-primary btn-sm">
         <i class="bi bi-tags"></i> Manage Categories
     </a>
+    <a href="{% url 'core:dashboard_messages' %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-envelope"></i> Contact Messages
+        {% if stats.unread_messages %}<span class="badge bg-danger ms-1">{{ stats.unread_messages }}</span>{% endif %}
+    </a>
 </div>
 
 <div class="hk-dash-section-title" data-aos="fade-up">Community</div>

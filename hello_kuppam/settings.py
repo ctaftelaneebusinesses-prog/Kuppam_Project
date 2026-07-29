@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.supabase_config',
                 'core.context_processors.notifications',
+                'core.context_processors.unread_messages',
             ],
         },
     },
