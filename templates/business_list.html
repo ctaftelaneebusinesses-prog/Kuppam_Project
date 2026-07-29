@@ -56,7 +56,7 @@
         {% if query or selected_category %}
             Showing {{ total_results }} result{{ total_results|pluralize }}
             {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
-            {% if selected_category %} in <strong>{{ selected_category }}</strong>{% endif %}
+            {% if selected_category %} in <strong>{{ selected_category_label }}</strong>{% endif %}
             &mdash; <a href="{% url 'core:business_list' %}">Clear filters <i class="bi bi-x-circle"></i></a>
         {% else %}
             Showing {{ total_results }} business{{ total_results|pluralize:"es" }}

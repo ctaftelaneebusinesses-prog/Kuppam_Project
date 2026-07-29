@@ -225,22 +225,25 @@ def _community_context(request, obj):
 
 
 # Business.category values that have their own dedicated directory page
-# (Restaurants, Hospitals & Healthcare, Education, Transport, Shopping).
-# Every other Business.category value (automobile, hardware, salon,
-# electronics, stationery, jewellery, other, ...) falls back to the general
-# "Businesses" listing — so a listing only ever shows up on the one page
-# that matches its category, never on every page at once.
+# (Restaurants, Hospitals & Healthcare, Education, Transport). Every other
+# Business.category value (retail, grocery, clothing, electronics, hardware,
+# salon, automobile, stationery, jewellery, other, ...) falls back to the
+# general "Businesses" listing — so a listing only ever shows up on the one
+# page that matches its category, never on every page at once. Businesses
+# is deliberately one page: car garages, textile/clothing shops, stationery
+# shops, supermarkets, etc. all show there as filterable sub-category tags
+# (see GENERAL_BUSINESS_CATEGORY_CHOICES + business_list's 'category' filter)
+# rather than each getting a separate top-level page.
 #
 # A directory whose 'categories' has more than one value (Education,
-# Hospitals, Restaurants, Shopping) shows a sub-category filter on its page
-# — e.g. Education is one page/category, with School and College &
-# University as filterable tags within it, not separate top-level pages.
+# Hospitals, Restaurants) shows a sub-category filter on its page — e.g.
+# Education is one page/category, with School and College & University as
+# filterable tags within it, not separate top-level pages.
 DIRECTORY_CATEGORIES = {
     'restaurants': {'categories': ['restaurant', 'bakery'], 'label': 'Restaurants & Food', 'icon': 'bi-cup-hot'},
     'hospitals': {'categories': ['hospital', 'pharmacy'], 'label': 'Hospitals & Healthcare', 'icon': 'bi-hospital'},
     'education': {'categories': ['school', 'college'], 'label': 'Education', 'icon': 'bi-mortarboard'},
     'transport': {'categories': ['transport'], 'label': 'Transport', 'icon': 'bi-bus-front'},
-    'shopping': {'categories': ['retail', 'grocery', 'clothing'], 'label': 'Shopping', 'icon': 'bi-bag-heart'},
 }
 
 #: Union of every category value claimed by a dedicated directory page —
@@ -251,7 +254,10 @@ _DIRECTORY_BUSINESS_CATEGORIES = {
 }
 
 #: Category choices for the general Businesses page's filter dropdown —
-#: only the ones NOT already covered by a dedicated directory page.
+#: every Business sub-category NOT already covered by a dedicated directory
+#: page (car garages, textile/clothing shops, stationery shops, grocery
+#: stores, salons, jewellery, etc.) — all live together on one page, each
+#: tagged with its own sub-category.
 GENERAL_BUSINESS_CATEGORY_CHOICES = [
     (key, label) for key, label in Business.CATEGORY_CHOICES
     if key not in _DIRECTORY_BUSINESS_CATEGORIES
@@ -272,7 +278,7 @@ CATEGORIES = [
     {
         'name': 'Businesses', 'icon': 'bi-shop', 'slug': 'shops',
         'image': 'images/services/shops.jpg',
-        'description': 'Explore automobile services, hardware stores, salons, and other general businesses around Kuppam.',
+        'description': 'Explore car garages, clothing and textile shops, stationery shops, supermarkets, salons, and other local businesses around Kuppam.',
         'count_fn': lambda: _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES).count(),
     },
     {
@@ -304,12 +310,6 @@ CATEGORIES = [
         'image': 'images/history/education-university.jpg',
         'description': 'Explore schools, colleges, universities, and other educational institutions in Kuppam.',
         'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['education']['categories']).count(),
-    },
-    {
-        'name': 'Shopping', 'icon': 'bi-bag-heart', 'slug': 'shopping',
-        'image': 'images/offer/local-businesses.jpg',
-        'description': 'Browse clothing stores, supermarkets, and other shopping destinations around Kuppam.',
-        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['shopping']['categories']).count(),
     },
     {
         'name': 'Transport', 'icon': 'bi-bus-front', 'slug': 'transport',
@@ -378,7 +378,6 @@ SEARCH_CATEGORY_REDIRECT = {
     'restaurants': 'core:restaurant_list',
     'hospitals': 'core:hospital_list',
     'education': 'core:education_list',
-    'shopping': 'core:shopping_list',
     'transport': 'core:transport_list',
 }
 
@@ -464,9 +463,11 @@ def business_list(request):
     """
     General Businesses listing page — every Business record EXCEPT the ones
     covered by a dedicated directory page (Restaurants, Hospitals &
-    Healthcare, Education, Transport, Shopping), so a listing only ever
-    appears on the one page that matches its category.
-    Supports search (by name or category) and pagination.
+    Healthcare, Education, Transport). Car garages, clothing/textile shops,
+    stationery shops, supermarkets, salons, etc. all live on this one page,
+    each tagged with its own sub-category (see `category_choices` in the
+    context) — so a listing only ever appears on the one page that matches
+    its category. Supports search (by name or category) and pagination.
     """
     businesses = _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES)
 
@@ -492,6 +493,7 @@ def business_list(request):
         'page_obj': page_obj,
         'query': query,
         'selected_category': category,
+        'selected_category_label': dict(GENERAL_BUSINESS_CATEGORY_CHOICES).get(category, ''),
         'category_choices': GENERAL_BUSINESS_CATEGORY_CHOICES,
         'total_results': businesses.count(),
     }
