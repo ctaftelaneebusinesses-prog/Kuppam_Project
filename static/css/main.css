@@ -402,13 +402,12 @@ html[data-theme="dark"] .hk-navbar-solid {
 }
 
 /* --- Elite hero canvas ---------------------------------------------------
-   Homepage-only. A flat, deep near-black base (no photography) layered with
-   soft radial ambient glows in the brand's blue/violet family, plus a very
-   faint grid texture for depth — the "premium tech platform" look, scoped
-   to .hk-hero-elite so it never leaks into the compact .hk-hero banner
-   shared by About/Contact/Privacy/Terms. -------------------------------- */
+   Homepage-only. Same brand gradient as the compact .hk-hero banner shared
+   by About/Contact/Privacy/Terms (so the top of every page reads as one
+   consistent color), layered with soft radial ambient glows in the brand's
+   blue/violet family plus a very faint grid texture for extra depth. ------ */
 .hk-hero-elite {
-    background: #020617;
+    background: var(--hk-gradient);
 }
 
 .hk-hero-glow {

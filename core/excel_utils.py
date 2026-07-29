@@ -16,7 +16,7 @@ from dateutil import parser as date_parser
 
 from django.core.exceptions import MultipleObjectsReturned, ValidationError as DjangoValidationError
 from django.core.validators import URLValidator
-from django.db import IntegrityError, transaction
+from django.db import DataError, IntegrityError, transaction
 from django.utils import timezone
 
 from .models import Business, Property, Job, Event, News
@@ -93,7 +93,7 @@ def match_choice(value, choices, field_name):
     raise RowValidationError(f'Invalid {field_name} "{value}". Must be one of: {valid}')
 
 
-def validate_url(value):
+def validate_url(value, max_length=500):
     text = cell_to_str(value)
     if not text:
         return ''
@@ -102,6 +102,11 @@ def validate_url(value):
         validator(text)
     except DjangoValidationError:
         raise RowValidationError(f'"{text}" is not a valid URL')
+    if len(text) > max_length:
+        raise RowValidationError(
+            f'Image URL is too long ({len(text)} characters, max {max_length}); '
+            'please use a shorter direct image link'
+        )
     return text
 
 
@@ -591,6 +596,9 @@ def process_excel_upload(uploaded_file, config):
             continue
         except IntegrityError as exc:
             errors.append(f'Row {row_number}: database error - {exc}')
+            continue
+        except DataError as exc:
+            errors.append(f'Row {row_number}: a field value is too long - {exc}')
             continue
 
         if created:
