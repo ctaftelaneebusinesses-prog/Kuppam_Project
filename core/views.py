@@ -278,7 +278,7 @@ CATEGORIES = [
     },
     {
         'name': 'Businesses', 'icon': 'bi-shop', 'slug': 'shops',
-        'image': 'images/services/shops.jpg',
+        'image': 'images/services/business.jpg',
         'description': 'Explore car garages, clothing and textile shops, stationery shops, supermarkets, salons, and other local businesses around Kuppam.',
         'count_fn': lambda: _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES).count(),
     },
