@@ -290,7 +290,7 @@ CATEGORIES = [
     },
     {
         'name': 'Events', 'icon': 'bi-calendar-event', 'slug': 'events',
-        'image': 'images/history/festival-main.jpg',
+        'image': 'images/services/events.jpg',
         'description': 'Stay updated with upcoming festivals, exhibitions, public events, and local programs.',
         'count_fn': lambda: _public_qs(Event).count(),
     },
