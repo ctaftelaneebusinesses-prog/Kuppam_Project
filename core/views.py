@@ -941,6 +941,7 @@ def history(request):
         {'file': 'images/history/gallery-horsley-blue-mountains.jpg', 'caption': 'Blue mountains, Horsley Hills'},
         {'file': 'images/history/gallery-horsley-rocky.jpg', 'caption': 'Rocky terrain, Horsley Hills'},
         {'file': 'images/history/gallery-horsley-view2.jpg', 'caption': 'View from Horsley Hills'},
+        {'file': 'images/history/gallery-gangamma-jatara.png', 'caption': 'Gangamma Jatara festival, Kuppam'},
         {'file': 'images/history/gallery-lush-fields.jpg', 'caption': 'Lush green fields near the hills', 'wide': True},
         {'file': 'images/history/gallery-horsley-hdr.jpg', 'caption': 'Horsley Hills, wide panorama', 'wide': True},
         {'file': 'images/history/tourism-horsley.jpg', 'caption': 'Horsley Hills, ultra-wide panorama', 'wide': True},

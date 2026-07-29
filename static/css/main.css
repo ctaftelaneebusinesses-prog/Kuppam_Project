@@ -1425,6 +1425,62 @@ html[data-theme="dark"] .hk-section-alt {
     color: var(--bs-primary);
 }
 
+/* --- "Why Hello Kuppam" feature cards ---------------------------------------- */
+.hk-why-card {
+    height: 100%;
+    padding: var(--hk-space-5);
+    background: var(--hk-surface);
+    border: 1px solid var(--hk-border-soft);
+    border-radius: var(--hk-radius-xl);
+    box-shadow: var(--hk-shadow-sm);
+    transition: transform var(--hk-duration-base) var(--hk-ease-out),
+                box-shadow var(--hk-duration-base) var(--hk-ease-out),
+                border-color var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-why-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--hk-shadow-hover);
+    border-color: transparent;
+}
+
+.hk-why-icon {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--hk-radius-md);
+    font-size: 1.35rem;
+    margin-bottom: var(--hk-space-4);
+    transition: transform var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-why-card:hover .hk-why-icon {
+    transform: scale(1.08);
+}
+
+.hk-why-icon--blue    { background-color: var(--bs-primary-bg-subtle); color: var(--bs-primary); }
+.hk-why-icon--violet  { background-color: var(--hk-violet-bg); color: var(--hk-purple); }
+.hk-why-icon--emerald { background-color: var(--hk-emerald-bg); color: var(--hk-emerald); }
+.hk-why-icon--gold    { background-color: var(--hk-gold-bg); color: var(--hk-gold-600); }
+.hk-why-icon--sky     { background-color: var(--hk-sky-bg); color: var(--hk-sky-400); }
+
+.hk-why-card h3 {
+    font-size: var(--hk-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--hk-tracking-tight);
+    color: var(--hk-ink);
+    margin-bottom: var(--hk-space-2);
+}
+
+.hk-why-card p {
+    color: var(--hk-ink-soft);
+    font-size: var(--hk-text-base);
+    line-height: var(--hk-leading-normal);
+    margin-bottom: 0;
+}
+
 /* --- Description box -------------------------------------------------------- */
 .hk-description-box {
     background-color: #F8F9FD;

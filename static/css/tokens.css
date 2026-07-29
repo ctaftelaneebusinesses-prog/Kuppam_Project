@@ -172,10 +172,13 @@
     --bs-focus-ring-color: rgba(15, 76, 129, .2);
 
     --hk-purple: var(--hk-violet-500);
+    --hk-violet-bg: #EFEBFC;
     --hk-emerald: var(--hk-emerald-500);
     --hk-emerald-bg: #E4F7EF;
     --hk-sky: var(--hk-sky-400);
+    --hk-sky-bg: #E4F6FD;
     --hk-gold: var(--hk-gold-400);
+    --hk-gold-bg: #FDF1DD;
 
     --bs-body-font-family: var(--hk-font-sans);
     --bs-body-bg: var(--hk-gray-50);
@@ -224,6 +227,11 @@ html[data-theme="dark"] {
 
     --bs-warning-bg-subtle: rgba(240, 169, 58, .16);
     --bs-warning-border-subtle: rgba(240, 169, 58, .32);
+
+    --hk-violet-bg: rgba(124, 99, 232, .16);
+    --hk-emerald-bg: rgba(47, 196, 136, .16);
+    --hk-sky-bg: rgba(62, 193, 243, .16);
+    --hk-gold-bg: rgba(240, 169, 58, .16);
 
     --bs-body-bg: var(--hk-dark-bg);
     --bs-body-color: #D8DAEA;
