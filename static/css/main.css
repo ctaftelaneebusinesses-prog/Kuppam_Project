@@ -1784,11 +1784,18 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
 .hk-auth-brand {
     flex: 1 1 46%;
     min-width: 0;
-    position: relative;
+    /* Fixed to one viewport height and pinned there (rather than stretching
+       to match the form column) so a tall form — e.g. the 9-field Register
+       tab — can't drag this panel's vertically-centered content down out of
+       view or off the bottom of the page. */
+    position: sticky;
+    top: 76px;
+    height: calc(100vh - 76px);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-self: flex-start;
     padding: var(--hk-space-10) var(--hk-space-8);
     background: var(--hk-gradient);
     color: #fff;
@@ -2820,7 +2827,11 @@ html[data-theme="dark"] .hk-review-form {
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: linear-gradient(180deg, rgba(0,0,0,.82) 0%, rgba(2,6,23,.8) 55%, rgba(15,23,42,.96) 100%);
+    /* Kept light enough that the historical photo underneath actually reads —
+       previously near-opaque black (.82-.96) crushed it to an almost
+       invisible dark silhouette. Still darkens top-to-bottom for the white
+       badge/heading/sub-text contrast. */
+    background: linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(2,6,23,.4) 55%, rgba(15,23,42,.72) 100%);
 }
 
 .hk-history-hero-content {
