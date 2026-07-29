@@ -1024,6 +1024,14 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     padding-bottom: calc(var(--hk-section-py) * .55);
 }
 
+/* Taller variant of the compact gradient banner — About/Contact page
+   headers, where the flat color-to-light-section cutoff reads as abrupt
+   at the default .hk-section-tight padding. Overrides padding-bottom only
+   (source order wins over .hk-section-tight on the shared element). */
+.hk-hero-tall {
+    padding-bottom: calc(var(--hk-section-py) * 1.05);
+}
+
 .hk-section-alt {
     background-color: var(--hk-gray-50);
 }
