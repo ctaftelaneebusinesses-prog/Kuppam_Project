@@ -34,11 +34,15 @@ urlpatterns = [
     path('businesses/', views.business_list, name='business_list'),
     path('businesses/<slug:slug>/', views.business_detail, name='business_detail'),
 
-    # Restaurants / Hospitals / Education / Transport (Business records, filtered by category)
+    # Restaurants / Hospitals & Healthcare / Education / Transport / Shopping
+    # (all Business records, filtered by category — see DIRECTORY_CATEGORIES).
+    # Education is one category page (School + College & University as
+    # filterable sub-tags within it), not two separate top-level pages.
     path('restaurants/', views.directory_list, {'category': 'restaurants'}, name='restaurant_list'),
     path('hospitals/', views.directory_list, {'category': 'hospitals'}, name='hospital_list'),
     path('education/', views.directory_list, {'category': 'education'}, name='education_list'),
     path('transport/', views.directory_list, {'category': 'transport'}, name='transport_list'),
+    path('shopping/', views.directory_list, {'category': 'shopping'}, name='shopping_list'),
 
     # Properties
     path('properties/', views.property_list, name='property_list'),

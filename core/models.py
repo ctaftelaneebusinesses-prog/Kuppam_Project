@@ -254,7 +254,6 @@ class Business(ListingMixin, models.Model):
         ('stationery', 'Stationery & Books'),
         ('jewellery', 'Jewellery'),
         ('hospital', 'Hospital'),
-        ('education', 'Education'),
         ('school', 'School'),
         ('college', 'College'),
         ('transport', 'Transport'),
@@ -309,7 +308,7 @@ class Business(ListingMixin, models.Model):
         'electronics': 'bi-cpu', 'clothing': 'bi-bag-heart', 'pharmacy': 'bi-capsule',
         'hardware': 'bi-tools', 'bakery': 'bi-cake2', 'salon': 'bi-scissors',
         'automobile': 'bi-car-front', 'stationery': 'bi-pencil', 'jewellery': 'bi-gem',
-        'hospital': 'bi-hospital', 'education': 'bi-mortarboard', 'school': 'bi-mortarboard',
+        'hospital': 'bi-hospital', 'school': 'bi-mortarboard',
         'college': 'bi-mortarboard', 'transport': 'bi-bus-front', 'other': 'bi-shop-window',
     }
 

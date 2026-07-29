@@ -200,8 +200,8 @@ def parse_business_row(row):
 def make_directory_row_parser(category_value):
     """
     Builds a row parser for a Business-backed directory category (Restaurants,
-    Hospitals, Education, Transport) with the category fixed — so the Excel
-    file for these doesn't need a Category column at all.
+    Hospitals, Transport) with the category fixed — so the Excel file for
+    these doesn't need a Category column at all.
     """
     def parse_row(row):
         name = clean_str(row.get('Name'))
@@ -215,6 +215,38 @@ def make_directory_row_parser(category_value):
         lookup = {'name': name, 'phone_number': phone}
         defaults = {
             'category': category_value,
+            'address': address,
+            'image_url': validate_url(row.get('Image URL')),
+            'description': clean_str(row.get('Description')),
+            'is_featured': parse_bool(row.get('Featured'), default=False),
+            'is_active': parse_bool(row.get('Active'), default=True),
+        }
+        return lookup, defaults
+    return parse_row
+
+
+def make_subcategory_row_parser(subcategory_choices, default_category):
+    """
+    Builds a row parser for a directory category that groups more than one
+    Business.category value under one page (e.g. Education = School +
+    College & University). The Excel file gets a 'Category' column so each
+    row is tagged with its specific sub-category; blank cells fall back to
+    default_category.
+    """
+    def parse_row(row):
+        name = clean_str(row.get('Name'))
+        if not name:
+            raise RowValidationError('Name is required')
+        address = clean_str(row.get('Address'))
+        if not address:
+            raise RowValidationError('Address is required')
+        phone = clean_phone(row.get('Phone Number'), 'Phone Number')
+        category_raw = clean_str(row.get('Category'))
+        category = match_choice(category_raw, subcategory_choices, 'Category') if category_raw else default_category
+
+        lookup = {'name': name, 'phone_number': phone}
+        defaults = {
+            'category': category,
             'address': address,
             'image_url': validate_url(row.get('Image URL')),
             'description': clean_str(row.get('Description')),
@@ -360,7 +392,7 @@ UPLOAD_CONFIGS = {
     },
     'hospitals': {
         'key': 'hospitals',
-        'label': 'Hospitals',
+        'label': 'Hospitals & Healthcare',
         'icon': 'bi-hospital',
         'model': Business,
         'required_columns': ['Name', 'Address', 'Phone Number'],
@@ -383,15 +415,37 @@ UPLOAD_CONFIGS = {
         'icon': 'bi-mortarboard',
         'model': Business,
         'required_columns': ['Name', 'Address', 'Phone Number'],
-        'optional_columns': ['Image URL', 'Description', 'Featured', 'Active'],
-        'parse_row': make_directory_row_parser('education'),
+        'optional_columns': ['Category', 'Image URL', 'Description', 'Featured', 'Active'],
+        'parse_row': make_subcategory_row_parser(
+            [('school', 'School'), ('college', 'College & University')], default_category='school',
+        ),
         'list_url_name': 'core:education_list',
         'example_row': {
             'Name': 'Kuppam Public School',
+            'Category': 'School',
             'Address': 'School Road, Kuppam',
             'Phone Number': '9876543210',
             'Image URL': 'https://example.com/images/school.jpg',
             'Description': 'CBSE school, classes 1 to 10.',
+            'Featured': 'No',
+            'Active': 'Yes',
+        },
+    },
+    'shopping': {
+        'key': 'shopping',
+        'label': 'Shopping',
+        'icon': 'bi-bag-heart',
+        'model': Business,
+        'required_columns': ['Name', 'Address', 'Phone Number'],
+        'optional_columns': ['Image URL', 'Description', 'Featured', 'Active'],
+        'parse_row': make_directory_row_parser('retail'),
+        'list_url_name': 'core:shopping_list',
+        'example_row': {
+            'Name': 'Sri Lakshmi Shopping Mart',
+            'Address': 'Main Bazaar Road, Kuppam',
+            'Phone Number': '9876543210',
+            'Image URL': 'https://example.com/images/shop.jpg',
+            'Description': 'Clothing, footwear and general shopping store.',
             'Featured': 'No',
             'Active': 'Yes',
         },

@@ -95,7 +95,8 @@
 
                 <a href="{% url 'core:about' %}" class="d-none d-lg-flex align-items-center text-decoration-none ps-lg-2 border-start" title="Powered by CraftLanee">
                     <span class="text-secondary small me-2">Powered by</span>
-                    <img src="{% static 'images/craftlanee-logo-mark.png' %}" alt="CraftLanee" height="18">
+                    <img src="{% static 'images/craftlanee-logo-navbar-dark.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-dark">
+                    <img src="{% static 'images/craftlanee-logo-navbar-new.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-light">
                 </a>
 
                 <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#hkNavDrawer" aria-controls="hkNavDrawer" aria-label="Open menu">
@@ -170,7 +171,8 @@
                 {% endif %}
                 <a href="{% url 'core:about' %}" class="d-flex align-items-center justify-content-center gap-2 text-decoration-none mt-3">
                     <span class="text-secondary small">Powered by</span>
-                    <img src="{% static 'images/craftlanee-logo-mark.png' %}" alt="CraftLanee" height="18">
+                    <img src="{% static 'images/craftlanee-logo-navbar-dark.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-dark">
+                    <img src="{% static 'images/craftlanee-logo-navbar-new.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-light">
                 </a>
             </div>
         </div>
@@ -223,7 +225,7 @@
                     <h6 class="hk-footer-heading">Categories</h6>
                     <ul class="list-unstyled hk-footer-links">
                         <li><a href="{% url 'core:property_list' %}">Real Estate</a></li>
-                        <li><a href="{% url 'core:business_list' %}">Shops</a></li>
+                        <li><a href="{% url 'core:business_list' %}">Businesses</a></li>
                         <li><a href="{% url 'core:job_list' %}">Jobs</a></li>
                         <li><a href="{% url 'core:event_list' %}">Events</a></li>
                         <li><a href="{% url 'core:news_list' %}">News</a></li>

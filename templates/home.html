@@ -60,7 +60,7 @@
         </form>
 
         <div class="d-flex flex-wrap justify-content-center gap-2 mt-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-            <a href="{% url 'core:business_list' %}" class="hk-quick-pill"><i class="bi bi-shop"></i> Shops</a>
+            <a href="{% url 'core:business_list' %}" class="hk-quick-pill"><i class="bi bi-shop"></i> Businesses</a>
             <a href="{% url 'core:property_list' %}" class="hk-quick-pill"><i class="bi bi-house-door"></i> Real Estate</a>
             <a href="{% url 'core:job_list' %}" class="hk-quick-pill"><i class="bi bi-briefcase"></i> Jobs</a>
             <a href="{% url 'core:restaurant_list' %}" class="hk-quick-pill"><i class="bi bi-cup-hot"></i> Restaurants</a>
@@ -122,6 +122,8 @@
             {% url 'core:hospital_list' as cat_url %}
         {% elif cat.slug == 'education' %}
             {% url 'core:education_list' as cat_url %}
+        {% elif cat.slug == 'shopping' %}
+            {% url 'core:shopping_list' as cat_url %}
         {% elif cat.slug == 'transport' %}
             {% url 'core:transport_list' as cat_url %}
         {% endif %}

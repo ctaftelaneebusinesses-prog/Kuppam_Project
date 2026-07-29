@@ -21,7 +21,7 @@
                     <i class="bi bi-funnel"></i> Search {{ directory_label }}
                 </label>
             </div>
-            <div class="col-12 col-md-9">
+            <div class="col-12 col-md-{% if subcategory_choices %}6{% else %}9{% endif %}">
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-search text-primary"></i></span>
                     <input
@@ -34,7 +34,17 @@
                     >
                 </div>
             </div>
-            <div class="col-12 col-md-3">
+            {% if subcategory_choices %}
+            <div class="col-8 col-md-3">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for value, label in subcategory_choices %}
+                    <option value="{{ value }}" {% if selected_subcategory == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-4 col-md-3">
                 <button type="submit" class="btn btn-primary w-100">
                     <i class="bi bi-search"></i> Search
                 </button>
@@ -45,9 +55,10 @@
     <!-- Results count -->
     <div class="hk-results-bar mb-4">
         <i class="bi bi-list-check"></i>
-        {% if query %}
-            Showing {{ total_results }} result{{ total_results|pluralize }} for "<strong>{{ query }}</strong>"
-            &mdash; <a href="{{ request.path }}">Clear search <i class="bi bi-x-circle"></i></a>
+        {% if query or selected_subcategory %}
+            Showing {{ total_results }} result{{ total_results|pluralize }}
+            {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
+            &mdash; <a href="{{ request.path }}">Clear filters <i class="bi bi-x-circle"></i></a>
         {% else %}
             Showing {{ total_results }} listing{{ total_results|pluralize }}
         {% endif %}
@@ -69,12 +80,12 @@
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First page">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="First page">
                         <i class="bi bi-chevron-double-left"></i>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous page">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="Previous page">
                         <i class="bi bi-chevron-left"></i>
                     </a>
                 </li>
@@ -86,12 +97,12 @@
 
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next page">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="Next page">
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last page">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="Last page">
                         <i class="bi bi-chevron-double-right"></i>
                     </a>
                 </li>
@@ -105,11 +116,11 @@
         <i class="bi {{ directory_icon }} display-4 d-block mb-3"></i>
         <p class="fw-bold mb-1">No {{ directory_label|lower }} found</p>
         <p class="text-muted mb-3">
-            {% if query %}No listings match "{{ query }}". Try different keywords.{% else %}There are no listings here yet. Please check back soon.{% endif %}
+            {% if query or selected_subcategory %}No listings match your search/filter. Try different keywords or types.{% else %}There are no listings here yet. Please check back soon.{% endif %}
         </p>
-        {% if query %}
+        {% if query or selected_subcategory %}
         <a href="{{ request.path }}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-counterclockwise"></i> Clear Search
+            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
         </a>
         {% endif %}
     </div>

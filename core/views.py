@@ -224,6 +224,40 @@ def _community_context(request, obj):
     }
 
 
+# Business.category values that have their own dedicated directory page
+# (Restaurants, Hospitals & Healthcare, Education, Transport, Shopping).
+# Every other Business.category value (automobile, hardware, salon,
+# electronics, stationery, jewellery, other, ...) falls back to the general
+# "Businesses" listing — so a listing only ever shows up on the one page
+# that matches its category, never on every page at once.
+#
+# A directory whose 'categories' has more than one value (Education,
+# Hospitals, Restaurants, Shopping) shows a sub-category filter on its page
+# — e.g. Education is one page/category, with School and College &
+# University as filterable tags within it, not separate top-level pages.
+DIRECTORY_CATEGORIES = {
+    'restaurants': {'categories': ['restaurant', 'bakery'], 'label': 'Restaurants & Food', 'icon': 'bi-cup-hot'},
+    'hospitals': {'categories': ['hospital', 'pharmacy'], 'label': 'Hospitals & Healthcare', 'icon': 'bi-hospital'},
+    'education': {'categories': ['school', 'college'], 'label': 'Education', 'icon': 'bi-mortarboard'},
+    'transport': {'categories': ['transport'], 'label': 'Transport', 'icon': 'bi-bus-front'},
+    'shopping': {'categories': ['retail', 'grocery', 'clothing'], 'label': 'Shopping', 'icon': 'bi-bag-heart'},
+}
+
+#: Union of every category value claimed by a dedicated directory page —
+#: the general Businesses page excludes all of these so it only shows
+#: the true leftover/general listings (automobile, hardware, salon, etc).
+_DIRECTORY_BUSINESS_CATEGORIES = {
+    cat for config in DIRECTORY_CATEGORIES.values() for cat in config['categories']
+}
+
+#: Category choices for the general Businesses page's filter dropdown —
+#: only the ones NOT already covered by a dedicated directory page.
+GENERAL_BUSINESS_CATEGORY_CHOICES = [
+    (key, label) for key, label in Business.CATEGORY_CHOICES
+    if key not in _DIRECTORY_BUSINESS_CATEGORIES
+]
+
+
 # Category definitions used across the homepage, search, and (later) listing pages.
 # 'image' is used by the homepage Services cards — always a real, professional
 # photo (never an icon/emoji-style illustration). 'count_fn' computes each
@@ -236,10 +270,10 @@ CATEGORIES = [
         'count_fn': lambda: _public_qs(Property).count(),
     },
     {
-        'name': 'Shops', 'icon': 'bi-shop', 'slug': 'shops',
+        'name': 'Businesses', 'icon': 'bi-shop', 'slug': 'shops',
         'image': 'images/services/shops.jpg',
-        'description': 'Explore clothing stores, electronics, supermarkets, pharmacies, furniture stores, and more.',
-        'count_fn': lambda: _public_qs(Business).count(),
+        'description': 'Explore automobile services, hardware stores, salons, and other general businesses around Kuppam.',
+        'count_fn': lambda: _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES).count(),
     },
     {
         'name': 'Jobs', 'icon': 'bi-briefcase', 'slug': 'jobs',
@@ -257,19 +291,25 @@ CATEGORIES = [
         'name': 'Restaurants', 'icon': 'bi-cup-hot', 'slug': 'restaurants',
         'image': 'images/services/restaurants.jpg',
         'description': 'Discover the best restaurants, cafés, bakeries, and food outlets in Kuppam.',
-        'count_fn': lambda: _public_qs(Business).filter(category='restaurant').count(),
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['restaurants']['categories']).count(),
     },
     {
-        'name': 'Hospitals', 'icon': 'bi-hospital', 'slug': 'hospitals',
+        'name': 'Hospitals & Healthcare', 'icon': 'bi-hospital', 'slug': 'hospitals',
         'image': 'images/services/hospitals.jpg',
         'description': 'Find hospitals, clinics, diagnostic centers, pharmacies, and emergency healthcare services.',
-        'count_fn': lambda: _public_qs(Business).filter(category='hospital').count(),
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['hospitals']['categories']).count(),
     },
     {
         'name': 'Education', 'icon': 'bi-mortarboard', 'slug': 'education',
         'image': 'images/history/education-university.jpg',
-        'description': 'Explore schools, colleges, universities, coaching centers, and educational institutions.',
-        'count_fn': lambda: _public_qs(Business).filter(category='education').count(),
+        'description': 'Explore schools, colleges, universities, and other educational institutions in Kuppam.',
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['education']['categories']).count(),
+    },
+    {
+        'name': 'Shopping', 'icon': 'bi-bag-heart', 'slug': 'shopping',
+        'image': 'images/offer/local-businesses.jpg',
+        'description': 'Browse clothing stores, supermarkets, and other shopping destinations around Kuppam.',
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['shopping']['categories']).count(),
     },
     {
         'name': 'Transport', 'icon': 'bi-bus-front', 'slug': 'transport',
@@ -338,6 +378,7 @@ SEARCH_CATEGORY_REDIRECT = {
     'restaurants': 'core:restaurant_list',
     'hospitals': 'core:hospital_list',
     'education': 'core:education_list',
+    'shopping': 'core:shopping_list',
     'transport': 'core:transport_list',
 }
 
@@ -387,7 +428,19 @@ def search(request):
             }
 
         sections = [
-            _section('business', 'Businesses & Shops', 'bi-shop', _public_qs(Business), 'core:business_list', 'partials/business_card.html', 'business'),
+            _section(
+                'business', 'Businesses', 'bi-shop',
+                _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES),
+                'core:business_list', 'partials/business_card.html', 'business',
+            ),
+        ]
+        for directory_key, config in DIRECTORY_CATEGORIES.items():
+            sections.append(_section(
+                'business', config['label'], config['icon'],
+                _public_qs(Business).filter(category__in=config['categories']),
+                SEARCH_CATEGORY_REDIRECT[directory_key], 'partials/business_card.html', 'business',
+            ))
+        sections += [
             _section('property', 'Properties', 'bi-house-door', _public_qs(Property), 'core:property_list', 'partials/property_card.html', 'property'),
             _section('job', 'Jobs', 'bi-briefcase', _public_qs(Job), 'core:job_list', 'partials/job_card.html', 'job'),
             _section('event', 'Events', 'bi-calendar-event', _public_qs(Event), 'core:event_list', 'partials/event_card.html', 'event'),
@@ -409,10 +462,13 @@ def search(request):
 
 def business_list(request):
     """
-    Businesses & Shops listing page with search (by name or category)
-    and pagination.
+    General Businesses listing page — every Business record EXCEPT the ones
+    covered by a dedicated directory page (Restaurants, Hospitals &
+    Healthcare, Education, Transport, Shopping), so a listing only ever
+    appears on the one page that matches its category.
+    Supports search (by name or category) and pagination.
     """
-    businesses = _public_qs(Business)
+    businesses = _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES)
 
     query = request.GET.get('q', '').strip()
     category = request.GET.get('category', '').strip()
@@ -422,19 +478,21 @@ def business_list(request):
             Q(name__icontains=query) | Q(category__icontains=query)
         )
 
-    if category:
+    if category in dict(GENERAL_BUSINESS_CATEGORY_CHOICES):
         businesses = businesses.filter(category=category)
+    else:
+        category = ''
 
     paginator = Paginator(businesses, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'Businesses & Shops - Hello Kuppam',
+        'page_title': 'Businesses - Hello Kuppam',
         'page_obj': page_obj,
         'query': query,
         'selected_category': category,
-        'category_choices': Business.CATEGORY_CHOICES,
+        'category_choices': GENERAL_BUSINESS_CATEGORY_CHOICES,
         'total_results': businesses.count(),
     }
     return render(request, 'business_list.html', context)
@@ -458,31 +516,37 @@ def business_detail(request, slug):
     return render(request, 'business_detail.html', context)
 
 
-# Categories that don't have their own model — they're Business records
-# filtered by category, reusing business_detail.html for the detail page
-# (same fields: name, address, phone, image, description all apply).
-DIRECTORY_CATEGORIES = {
-    'restaurants': {'category': 'restaurant', 'label': 'Restaurants & Food', 'icon': 'bi-cup-hot'},
-    'hospitals': {'category': 'hospital', 'label': 'Hospitals', 'icon': 'bi-hospital'},
-    'education': {'category': 'education', 'label': 'Education', 'icon': 'bi-mortarboard'},
-    'transport': {'category': 'transport', 'label': 'Transport', 'icon': 'bi-bus-front'},
-}
-
-
 def directory_list(request, category):
     """
-    Listing page for a fixed-category slice of Business records
-    (Restaurants, Hospitals, Education, Transport). Cards link to the
-    regular business_detail page, which already displays the right
+    Listing page for a fixed-category slice of Business records (Restaurants,
+    Hospitals & Healthcare, Education, Transport, Shopping). Cards link to
+    the regular business_detail page, which already displays the right
     category badge and related listings.
+
+    When a directory groups more than one Business.category value together
+    (e.g. Education = School + College & University), the page also shows a
+    sub-category filter so visitors can narrow down to just one tag without
+    that tag needing its own separate top-level page.
     """
     config = DIRECTORY_CATEGORIES.get(category)
     if config is None:
         raise Http404('Unknown directory category')
 
-    businesses = _public_qs(Business).filter(category=config['category'])
+    businesses = _public_qs(Business).filter(category__in=config['categories'])
+
+    subcategory_choices = [
+        (key, label) for key, label in Business.CATEGORY_CHOICES
+        if key in config['categories']
+    ] if len(config['categories']) > 1 else []
 
     query = request.GET.get('q', '').strip()
+    subcategory = request.GET.get('type', '').strip()
+
+    if subcategory in dict(subcategory_choices):
+        businesses = businesses.filter(category=subcategory)
+    else:
+        subcategory = ''
+
     if query:
         businesses = businesses.filter(
             Q(name__icontains=query) | Q(address__icontains=query)
@@ -499,6 +563,8 @@ def directory_list(request, category):
         'total_results': businesses.count(),
         'directory_label': config['label'],
         'directory_icon': config['icon'],
+        'subcategory_choices': subcategory_choices,
+        'selected_subcategory': subcategory,
     }
     return render(request, 'directory_list.html', context)
 
