@@ -2760,6 +2760,7 @@ html[data-theme="dark"] .hk-bulkbar.hk-bulkbar-active {
 .hk-type-job { background: var(--hk-emerald-bg); color: var(--hk-emerald); }
 .hk-type-event { background: #FFEFE0; color: #C2691A; }
 .hk-type-news { background: #FDE4EE; color: #C22C79; }
+.hk-type-project { background: var(--hk-gold-bg); color: var(--hk-gold-600); }
 
 .hk-row-action-btn {
     width: 30px;
@@ -2827,6 +2828,7 @@ html[data-theme="dark"] .hk-type-property { background: rgba(124, 58, 237, .18);
 html[data-theme="dark"] .hk-type-job { background: rgba(15, 163, 107, .18); }
 html[data-theme="dark"] .hk-type-event { background: rgba(194, 105, 26, .2); color: #F0A868; }
 html[data-theme="dark"] .hk-type-news { background: rgba(194, 44, 121, .2); color: #F291C0; }
+html[data-theme="dark"] .hk-type-project { background: var(--hk-gold-bg); color: var(--hk-gold-400); }
 
 html[data-theme="dark"] .hk-dash-link {
     color: #9AA0BE;

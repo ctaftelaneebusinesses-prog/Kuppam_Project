@@ -43,6 +43,7 @@
     <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-briefcase"></i></div><div><div class="hk-stat-value">{{ stats.total_jobs }}</div><div class="hk-stat-label">Jobs</div></div></div></div>
     <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-calendar-event"></i></div><div><div class="hk-stat-value">{{ stats.total_events }}</div><div class="hk-stat-label">Events</div></div></div></div>
     <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-newspaper"></i></div><div><div class="hk-stat-value">{{ stats.total_news }}</div><div class="hk-stat-label">News</div></div></div></div>
+    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-cone-striped"></i></div><div><div class="hk-stat-value">{{ stats.total_projects }}</div><div class="hk-stat-label">Upcoming Projects</div></div></div></div>
 </div>
 
 <!-- Charts -->
@@ -119,11 +120,11 @@ document.addEventListener('DOMContentLoaded', function () {
         new Chart(contentCtx, {
             type: 'bar',
             data: {
-                labels: ['Businesses', 'Properties', 'Jobs', 'Events', 'News'],
+                labels: ['Businesses', 'Properties', 'Jobs', 'Events', 'News', 'Projects'],
                 datasets: [{
                     label: 'Listings',
-                    data: [{{ stats.total_businesses }}, {{ stats.total_properties }}, {{ stats.total_jobs }}, {{ stats.total_events }}, {{ stats.total_news }}],
-                    backgroundColor: ['#0F4C81', '#5B3DE0', '#3EC1F3', '#F0A93A', '#0FA36B'],
+                    data: [{{ stats.total_businesses }}, {{ stats.total_properties }}, {{ stats.total_jobs }}, {{ stats.total_events }}, {{ stats.total_news }}, {{ stats.total_projects }}],
+                    backgroundColor: ['#0F4C81', '#5B3DE0', '#3EC1F3', '#F0A93A', '#0FA36B', '#DC3545'],
                     borderRadius: 8,
                     maxBarThickness: 48,
                 }]

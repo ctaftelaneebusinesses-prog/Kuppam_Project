@@ -1646,6 +1646,7 @@ def _super_admin_dashboard(request):
         'total_jobs': Job.objects.count(),
         'total_events': Event.objects.count(),
         'total_news': News.objects.count(),
+        'total_projects': Project.objects.count(),
         'pending_listings': pending_listings,
         'approved_listings': approved_listings,
         'rejected_listings': rejected_listings,
