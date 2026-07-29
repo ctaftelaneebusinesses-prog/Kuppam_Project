@@ -130,6 +130,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ------------------------------------------------------------------
+# MESSAGES (map Django's default 'error' tag to Bootstrap's 'danger'
+# alert class, used by every messages.error(...) call site-wide)
+# ------------------------------------------------------------------
+from django.contrib.messages import constants as message_constants
+MESSAGE_TAGS = {
+    message_constants.ERROR: 'danger',
+}
+
+# ------------------------------------------------------------------
 # AUTH REDIRECTS (admin dashboard login)
 # ------------------------------------------------------------------
 LOGIN_URL = 'core:admin_login'

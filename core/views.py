@@ -133,8 +133,10 @@ from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
+from django.core.validators import validate_email
 from django.db.models import F, Q
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -153,8 +155,9 @@ from .forms import (
 )
 from .models import (
     AdminCategoryPermission, AdminRequest, AdminRequestStatus, Business, Category, Comment,
-    Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News, Notification,
-    PostImage, Profile, Project, Property, Report, Review, Share, UserRole,
+    ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News,
+    NewsletterSubscriber, Notification, PostImage, Profile, Project, Property, Report, Review,
+    Share, UserRole,
 )
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
@@ -952,8 +955,10 @@ def admin_logout(request):
 
 def contact(request):
     """
-    Contact form. Sends via Django's email backend (console backend
-    in development — prints to terminal instead of a real inbox).
+    Contact form. Saves every submission to the database (visible in the
+    Django admin / a future dashboard inbox), then sends a notification
+    email via Django's email backend (console backend in development —
+    prints to terminal instead of a real inbox).
     """
     if request.method == 'POST':
         form = ContactForm(request.POST)
@@ -963,6 +968,8 @@ def contact(request):
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
 
+            ContactMessage.objects.create(name=name, email=email, subject=subject, message=message)
+
             full_message = f"From: {name} <{email}>\n\n{message}"
 
             send_mail(
@@ -970,7 +977,7 @@ def contact(request):
                 message=full_message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[settings.CONTACT_RECEIVER_EMAIL],
-                fail_silently=False,
+                fail_silently=True,
             )
             messages.success(request, 'Thank you for reaching out! We will get back to you soon.')
             return redirect('core:contact')
@@ -982,6 +989,34 @@ def contact(request):
         'form': form,
     }
     return render(request, 'contact.html', context)
+
+
+@require_POST
+def newsletter_subscribe(request):
+    """
+    Footer 'Stay Updated' email signup, available on every page. Silently
+    treats a re-submitted email as already-subscribed instead of erroring.
+    """
+    email = (request.POST.get('email') or '').strip()
+
+    referer = request.META.get('HTTP_REFERER', '')
+    if referer and url_has_allowed_host_and_scheme(referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        next_url = referer
+    else:
+        next_url = reverse('core:home')
+
+    try:
+        validate_email(email)
+    except ValidationError:
+        messages.error(request, 'Please enter a valid email address.')
+        return redirect(next_url)
+
+    _, created = NewsletterSubscriber.objects.get_or_create(email=email)
+    if created:
+        messages.success(request, "You're subscribed! We'll keep you updated on new listings and news.")
+    else:
+        messages.info(request, "That email is already subscribed.")
+    return redirect(next_url)
 
 
 def about(request):

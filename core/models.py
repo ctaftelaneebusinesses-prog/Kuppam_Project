@@ -777,4 +777,33 @@ class LoginHistory(models.Model):
         return f'{self.user} {self.event_type} @ {self.created_at:%Y-%m-%d %H:%M}'
 
 
+class ContactMessage(models.Model):
+    """A submission from the public Contact Us form."""
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=150)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False, help_text='Mark as read once handled')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.subject} ({self.email})'
+
+
+class NewsletterSubscriber(models.Model):
+    """An email signed up via the footer 'Stay Updated' newsletter form."""
+    email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=True, help_text='Uncheck to treat as unsubscribed')
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-subscribed_at']
+
+    def __str__(self):
+        return self.email
+
+
 from . import signals  # noqa: E402,F401  (registers post_save/post_delete counter updates)

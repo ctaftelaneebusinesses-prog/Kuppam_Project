@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    AdminCategoryPermission, AdminRequest, Business, Category, Comment, Event, Favorite,
-    Job, Like, LoginHistory, News, Notification, PostImage, Profile, Project, Property, Report, Review, Share,
+    AdminCategoryPermission, AdminRequest, Business, Category, Comment, ContactMessage, Event, Favorite,
+    Job, Like, LoginHistory, News, NewsletterSubscriber, Notification, PostImage, Profile, Project, Property,
+    Report, Review, Share,
 )
 
 
@@ -267,6 +268,25 @@ class ReportAdmin(admin.ModelAdmin):
 class PostImageAdmin(admin.ModelAdmin):
     list_display = ('content_type', 'object_id', 'order', 'uploaded_by', 'created_at')
     list_filter = ('content_type',)
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'name', 'email', 'is_read', 'created_at')
+    list_filter = ('is_read',)
+    search_fields = ('name', 'email', 'subject', 'message')
+    list_editable = ('is_read',)
+    ordering = ('-created_at',)
+    readonly_fields = ('name', 'email', 'subject', 'message', 'created_at')
+
+
+@admin.register(NewsletterSubscriber)
+class NewsletterSubscriberAdmin(admin.ModelAdmin):
+    list_display = ('email', 'is_active', 'subscribed_at')
+    list_filter = ('is_active',)
+    search_fields = ('email',)
+    list_editable = ('is_active',)
+    ordering = ('-subscribed_at',)
 
 
 # --- Admin branding -------------------------------------------------------

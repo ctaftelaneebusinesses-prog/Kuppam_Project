@@ -235,8 +235,9 @@
                 <div class="col-lg-4">
                     <h6 class="hk-footer-heading">Stay Updated</h6>
                     <p class="hk-footer-tagline mb-3">Get the latest Kuppam listings and news in your inbox.</p>
-                    <form class="hk-newsletter-form hk-no-loading-state d-flex align-items-center" action="#" method="post" onsubmit="return false;">
-                        <input type="email" class="form-control form-control-sm ms-2" placeholder="Your email address" aria-label="Email for newsletter">
+                    <form class="hk-newsletter-form d-flex align-items-center" action="{% url 'core:newsletter_subscribe' %}" method="post">
+                        {% csrf_token %}
+                        <input type="email" name="email" required class="form-control form-control-sm ms-2" placeholder="Your email address" aria-label="Email for newsletter">
                         <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">
                             <i class="bi bi-send"></i>
                         </button>
