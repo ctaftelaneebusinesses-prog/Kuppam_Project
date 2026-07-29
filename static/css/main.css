@@ -441,12 +441,16 @@ html[data-theme="dark"] .hk-navbar-solid {
     border-radius: var(--hk-radius-pill);
 }
 
+/* Tinted with the same blue/violet brand family as the flat .hk-hero
+   gradient used on every other page's hero — a near-black desaturated navy
+   here would make the photo-carousel homepage hero read as a different
+   color family from the rest of the site's heroes. */
 .hk-hero-overlay {
     position: absolute;
     inset: 0;
     z-index: 1;
     background:
-        linear-gradient(180deg, rgba(11,20,38,.72) 0%, rgba(11,20,38,.6) 30%, rgba(11,20,38,.78) 65%, rgba(11,20,38,.9) 100%),
+        linear-gradient(180deg, rgba(11,58,99,.78) 0%, rgba(15,76,129,.58) 30%, rgba(11,58,99,.78) 65%, rgba(8,43,74,.92) 100%),
         var(--hk-gradient);
     mix-blend-mode: normal;
 }
