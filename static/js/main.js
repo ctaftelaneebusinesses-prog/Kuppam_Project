@@ -31,9 +31,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     })();
 
-    // Scroll-reveal animations
+    // Scroll-reveal animations. aos.css (loaded separately from aos.js) hides
+    // every [data-aos] element at opacity:0 until AOS.init() reveals it on
+    // scroll — so if the CDN script fails (flaky network, ad-blocker,
+    // firewall) while the stylesheet still loads, all that content (card
+    // titles included) stays invisible forever. Fall back to revealing it
+    // immediately rather than leaving it permanently hidden.
     if (window.AOS) {
         AOS.init({ duration: 650, easing: 'ease-out-cubic', once: true, offset: 60 });
+    } else {
+        document.querySelectorAll('[data-aos]').forEach(function (el) {
+            el.classList.add('aos-animate');
+        });
     }
 
     // Navbar: transparent glass over the hero, solid once the user scrolls past it.
@@ -53,23 +62,24 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('scroll', toggleNavbar, { passive: true });
     }
 
-    // Hero slide carousel (fades between themed panels; autoplay, pauses on hover)
-    const heroSlides = document.querySelectorAll('.hk-hero-slide');
-    if (heroSlides.length > 1) {
-        let activeSlide = 0;
-        let heroInterval = setInterval(advanceSlide, 5000);
-        const heroSection = document.querySelector('.hk-hero-fullscreen');
-
-        function advanceSlide() {
-            heroSlides[activeSlide].classList.remove('is-active');
-            activeSlide = (activeSlide + 1) % heroSlides.length;
-            heroSlides[activeSlide].classList.add('is-active');
-        }
-
-        if (heroSection) {
-            heroSection.addEventListener('mouseenter', function () { clearInterval(heroInterval); });
-            heroSection.addEventListener('mouseleave', function () { heroInterval = setInterval(advanceSlide, 5000); });
-        }
+    // Elite hero: ambient glows drift gently toward the cursor (desktop only)
+    // — a subtle parallax cue rather than a literal cursor-follow, so it
+    // reads as "alive" without being distracting.
+    const heroElite = document.querySelector('.hk-hero-elite');
+    if (heroElite && window.matchMedia('(pointer: fine)').matches) {
+        const glows = heroElite.querySelectorAll('.hk-hero-glow');
+        heroElite.addEventListener('mousemove', function (e) {
+            const rect = heroElite.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            glows.forEach(function (glow, i) {
+                const strength = (i + 1) * 10;
+                glow.style.transform = 'translate(' + (x * strength) + 'px, ' + (y * strength) + 'px)';
+            });
+        });
+        heroElite.addEventListener('mouseleave', function () {
+            glows.forEach(function (glow) { glow.style.transform = ''; });
+        });
     }
 
     // Animated counters for the homepage stats strip — counts up once visible

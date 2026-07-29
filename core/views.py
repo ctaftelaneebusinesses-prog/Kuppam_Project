@@ -340,11 +340,19 @@ def home(request):
     """
     Homepage: hero section, search box, category grid, featured businesses.
     """
-    featured_businesses = _public_qs(Business).filter(is_featured=True)[:6]
-    featured_properties = _public_qs(Property).filter(is_featured=True)[:6]
-    featured_jobs = _public_qs(Job).filter(is_featured=True)[:6]
-    featured_events = _public_qs(Event).filter(is_featured=True, event_date__gte=timezone.localdate())[:6]
-    featured_news = _public_qs(News).filter(is_featured=True)[:6]
+    # Fall back to the latest listings whenever nothing has been marked
+    # "Featured" yet, so these sections never render as blank gaps on the
+    # homepage while admins are still curating featured picks.
+    featured_businesses = _public_qs(Business).filter(is_featured=True)[:6] \
+        or _public_qs(Business).order_by('-created_at')[:6]
+    featured_properties = _public_qs(Property).filter(is_featured=True)[:6] \
+        or _public_qs(Property).order_by('-created_at')[:6]
+    featured_jobs = _public_qs(Job).filter(is_featured=True)[:6] \
+        or _public_qs(Job).order_by('-created_at')[:6]
+    featured_events = _public_qs(Event).filter(is_featured=True, event_date__gte=timezone.localdate())[:6] \
+        or _public_qs(Event).filter(event_date__gte=timezone.localdate()).order_by('event_date')[:6]
+    featured_news = _public_qs(News).filter(is_featured=True)[:6] \
+        or _public_qs(News).order_by('-created_at')[:6]
 
     stats = {
         'businesses': _public_qs(Business).count(),

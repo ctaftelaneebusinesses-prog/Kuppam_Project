@@ -57,7 +57,7 @@
        Linear/Vercel approach) rather than a straight inversion of the light
        neutrals, which is what makes dark cards read as "elevated" instead
        of just "gray-on-gray". */
-    --hk-dark-bg:          #0A0B10;
+    --hk-dark-bg:          #020617;
     --hk-dark-surface-1:   #12131B;
     --hk-dark-surface-2:   #191B26;
     --hk-dark-border:      rgba(255, 255, 255, .08);
@@ -252,6 +252,13 @@ html[data-theme="dark"] {
     --hk-shadow-hover: var(--hk-elevation-4);
 
     --hk-gradient-soft: linear-gradient(135deg, rgba(91, 155, 232, .10) 0%, rgba(232, 178, 61, .10) 100%);
+
+    /* Ambient corner glows behind the dark-mode canvas — same indigo/blue
+       family as the homepage's .hk-hero-elite glows, shared site-wide so
+       every page's dark background reads as one continuous premium canvas
+       rather than a flat fill (see body background-image in main.css). */
+    --hk-dark-glow-1: rgba(91, 61, 224, .22);
+    --hk-dark-glow-2: rgba(15, 76, 129, .24);
 
     --hk-footer-bg: #060709;
     --hk-footer-border: rgba(255, 255, 255, .06);

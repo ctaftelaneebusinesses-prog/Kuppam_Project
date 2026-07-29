@@ -8,34 +8,31 @@
 
 {% block content %}
 
-<!-- Hero Section: full-screen themed slide carousel, each slide a real
-     photograph from the Kuppam library (see static/images/history & offer). -->
-<section class="hk-hero hk-hero-fullscreen text-white">
-    <div class="hk-hero-slides">
-        <div class="hk-hero-slide is-active" style="background-image: linear-gradient(135deg, rgba(11,58,99,.55) 0%, rgba(15,76,129,.35) 100%), url('{% static 'images/history/tourism-horsley.jpg' %}');"></div>
-        <div class="hk-hero-slide" style="background-image: linear-gradient(135deg, rgba(15,76,129,.5) 0%, rgba(11,58,99,.35) 100%), url('{% static 'images/history/gallery-lush-fields.jpg' %}');"></div>
-        <div class="hk-hero-slide" style="background-image: linear-gradient(135deg, rgba(91,61,224,.5) 0%, rgba(15,76,129,.35) 100%), url('{% static 'images/offer/local-businesses.jpg' %}');"></div>
-        <div class="hk-hero-slide" style="background-image: linear-gradient(135deg, rgba(11,58,99,.55) 0%, rgba(91,61,224,.3) 100%), url('{% static 'images/history/gallery-university-entrance.png' %}');"></div>
-        <div class="hk-hero-slide" style="background-image: linear-gradient(135deg, rgba(11,58,99,.55) 0%, rgba(62,193,243,.3) 100%), url('{% static 'images/history/gallery-horsley-hdr.jpg' %}');"></div>
-    </div>
-    <div class="hk-hero-overlay"></div>
+<!-- Hero Section: deep dark canvas with ambient glow layers (no photo
+     carousel — a flat, high-contrast "premium tech platform" hero). -->
+<section class="hk-hero hk-hero-fullscreen hk-hero-elite text-white" id="hkHero">
+    <div class="hk-hero-glow hk-hero-glow-a"></div>
+    <div class="hk-hero-glow hk-hero-glow-b"></div>
+    <div class="hk-hero-glow hk-hero-glow-c"></div>
+    <div class="hk-hero-grid-overlay"></div>
 
     <div class="container text-center hk-hero-content">
         <div class="hk-hero-eyebrow" data-aos="fade-up">
             <span class="hk-hero-eyebrow-dot"></span> Local Information Portal
         </div>
-        <h1 class="fw-semibold mb-3" data-aos="fade-up" data-aos-delay="50">Everything <span class="hk-gold-word">Kuppam</span>, in one place</h1>
-        <p class="lead mb-4 opacity-75" data-aos="fade-up" data-aos-delay="100">
+        <h1 class="hk-hero-heading mb-3" data-aos="fade-up" data-aos-delay="50">Everything <span class="hk-gold-word">Kuppam</span>, in one place</h1>
+        <p class="hk-hero-subhead mb-4" data-aos="fade-up" data-aos-delay="100">
             Discover businesses, jobs, homes, events and news — verified, updated daily, and built for the people who live here.
         </p>
 
         <form action="{% url 'core:search' %}" method="get" class="hk-search-shell mx-auto" data-aos="fade-up" data-aos-delay="200">
-            <div class="row g-0 align-items-center justify-content-center">
-                <div class="col-12 col-md-5">
+            <div class="hk-search-shell-row">
+                <div class="hk-search-shell-field hk-search-shell-field-text">
+                    <i class="bi bi-search hk-search-shell-icon"></i>
                     <input
                         type="text"
                         name="q"
-                        class="form-control form-control-lg"
+                        class="form-control"
                         placeholder="Search shops, jobs, restaurants..."
                         required
                         minlength="2"
@@ -43,23 +40,22 @@
                         id="hkSearchInput"
                     >
                 </div>
-                <div class="col-8 col-md-3">
-                    <select name="category" class="form-select form-select-lg">
+                <div class="hk-search-shell-divider"></div>
+                <div class="hk-search-shell-field hk-search-shell-field-select">
+                    <select name="category" class="form-select">
                         <option value="">All Categories</option>
                         {% for cat in categories %}
                         <option value="{{ cat.slug }}">{{ cat.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-4 col-md-auto p-1">
-                    <button type="submit" class="btn btn-hk-gold btn-lg w-100">
-                        <i class="bi bi-search"></i> Search
-                    </button>
-                </div>
+                <button type="submit" class="hk-search-shell-btn">
+                    <i class="bi bi-search"></i> Search
+                </button>
             </div>
         </form>
 
-        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="hk-quick-pill-row" data-aos="fade-up" data-aos-delay="300">
             <a href="{% url 'core:business_list' %}" class="hk-quick-pill"><i class="bi bi-shop"></i> Businesses</a>
             <a href="{% url 'core:property_list' %}" class="hk-quick-pill"><i class="bi bi-house-door"></i> Real Estate</a>
             <a href="{% url 'core:job_list' %}" class="hk-quick-pill"><i class="bi bi-briefcase"></i> Jobs</a>
@@ -67,7 +63,7 @@
             <a href="{% url 'core:event_list' %}" class="hk-quick-pill"><i class="bi bi-calendar-event"></i> Events</a>
         </div>
 
-        <div class="hk-hero-stats" data-aos="fade-up" data-aos-delay="350">
+        <div class="hk-hero-stats hk-hero-stats-bento" data-aos="fade-up" data-aos-delay="350">
             <div class="hk-hero-stat-tile">
                 <div class="hk-hero-stat-icon"><i class="bi bi-shop"></i></div>
                 <div class="hk-stat-number" data-count="{{ stats.businesses }}">0</div>

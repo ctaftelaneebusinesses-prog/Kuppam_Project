@@ -6,12 +6,13 @@
 {% block content %}
 
 <!-- Hero -->
-<section class="hk-history-hero" style="background-image: url('{% static 'images/history/hero-scenic.jpg' %}');">
+<section class="hk-history-hero" id="hkHistoryHero">
+    <div class="hk-history-hero-slides" id="hkHistoryHeroSlides" aria-hidden="true"></div>
     <div class="hk-history-hero-overlay"></div>
     <div class="container text-center hk-history-hero-content">
-        <span class="badge bg-light text-primary mb-3" data-aos="fade-up"><i class="bi bi-clock-history"></i> A Journey Through Time</span>
+        <span class="hk-history-hero-badge" data-aos="fade-up"><i class="bi bi-clock-history"></i> A Journey Through Time</span>
         <h1 class="fw-bold mb-2" data-aos="fade-up" data-aos-delay="100">History of Kuppam</h1>
-        <p class="lead mb-0 opacity-75" data-aos="fade-up" data-aos-delay="200">From ancient roots to a growing educational and agricultural hub in Andhra Pradesh</p>
+        <p class="lead mb-0 hk-history-hero-sub" data-aos="fade-up" data-aos-delay="200">From ancient roots to a growing educational and agricultural hub in Andhra Pradesh</p>
     </div>
     <a href="#timeline" class="hk-history-scroll-cue" aria-label="Scroll down"><i class="bi bi-chevron-down"></i></a>
 </section>
@@ -623,7 +624,40 @@
 
 {% block extra_js %}
 <script>
+// Cinematic cross-fading hero background — swap these for your own historical photos.
+// Any publicly reachable image URL works; keep at least 2 for the crossfade to run.
+const historicalImages = [
+    "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0b/b1/5a/c9/thousand-and-thousands.jpg?w=400&h=300&s=1",
+    "https://explorekuppam.com/storage/destinations/89edb7d2-21b1-4910-8c7c-1e66f1d5231e.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/a/ab/Kuppam_Palace.png",
+];
+
 document.addEventListener('DOMContentLoaded', function () {
+    const hero = document.getElementById('hkHistoryHero');
+    const track = document.getElementById('hkHistoryHeroSlides');
+    const SLIDE_DURATION = 8000; // ms a slide stays on screen before crossfading to the next
+
+    if (hero && track && historicalImages.length) {
+        historicalImages.forEach(function (src, i) {
+            const slide = document.createElement('div');
+            slide.className = 'hk-history-hero-slide ' + (i % 2 ? 'hk-history-hero-slide-pan-b' : 'hk-history-hero-slide-pan-a');
+            slide.style.backgroundImage = 'url("' + src + '")';
+            if (i === 0) slide.classList.add('is-active');
+            track.appendChild(slide);
+        });
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const slides = track.children;
+        if (slides.length > 1 && !reduceMotion) {
+            let index = 0;
+            setInterval(function () {
+                slides[index].classList.remove('is-active');
+                index = (index + 1) % slides.length;
+                slides[index].classList.add('is-active');
+            }, SLIDE_DURATION);
+        }
+    }
+
     const modal = document.getElementById('galleryModal');
     if (modal) {
         modal.addEventListener('show.bs.modal', function (event) {

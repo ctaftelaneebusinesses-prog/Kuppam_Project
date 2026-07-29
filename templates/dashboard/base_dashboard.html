@@ -1,12 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="hk-dashboard d-flex">
-    <aside class="hk-dashboard-sidebar">
-        <div class="p-3">
-            <div class="hk-dash-brand">
-                <i class="bi bi-geo-alt-fill text-primary fs-4"></i>
-                <span class="fw-bold hk-footer-heading" style="color: var(--hk-ink);">Hello Kuppam</span>
+<div class="hk-dashboard">
+    <aside class="hk-dashboard-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="hkDashSidebar">
+        <div class="offcanvas-header d-lg-none">
+            <span class="hk-dash-brand mb-0">
+                <span class="hk-brand-mark"><i class="bi bi-geo-alt-fill"></i></span>
+                Hello Kuppam
+            </span>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#hkDashSidebar" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column p-3">
+            <div class="hk-dash-brand d-none d-lg-flex">
+                <span class="hk-brand-mark"><i class="bi bi-geo-alt-fill"></i></span>
+                Hello Kuppam
             </div>
 
             <div class="hk-dash-profile">
@@ -19,11 +26,9 @@
                 </div>
             </div>
 
-            <h6 class="text-uppercase text-muted small fw-bold mb-2 px-1" style="font-size:.68rem; letter-spacing:.05em;">
-                {% if request.profile.is_super_admin %}Super Admin{% else %}Content Provider{% endif %}
-            </h6>
-            <nav class="nav flex-column gap-1">
+            <nav class="nav flex-column gap-1 flex-grow-1">
                 {% if request.profile.is_super_admin %}
+                <div class="hk-dash-section-title">Administration</div>
                 <a class="nav-link hk-dash-link {% if active_nav == 'overview' %}active{% endif %}" href="{% url 'core:dashboard' %}">
                     <i class="bi bi-speedometer2"></i> Overview
                 </a>
@@ -47,8 +52,9 @@
                     <i class="bi bi-cloud-arrow-up"></i> Uploads
                 </a>
                 {% endif %}
-                <hr class="my-2">
                 {% endif %}
+
+                <div class="hk-dash-section-title">My Account</div>
                 <a class="nav-link hk-dash-link {% if active_nav == 'my_listings' %}active{% endif %}" href="{% url 'core:my_listings' %}">
                     <i class="bi bi-card-list"></i> My Listings
                 </a>
@@ -60,10 +66,25 @@
                     {% if unread_notification_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_notification_count }}</span>{% endif %}
                 </a>
             </nav>
+
+            <div class="hk-dash-sidebar-footer">
+                <a href="{% url 'core:home' %}" class="nav-link hk-dash-link">
+                    <i class="bi bi-box-arrow-left"></i> Back to Site
+                </a>
+            </div>
         </div>
     </aside>
+
     <main class="hk-dashboard-main flex-grow-1">
         <div class="container-fluid py-4 px-4">
+            <div class="hk-dash-mobile-bar d-flex d-lg-none align-items-center gap-3 mb-4">
+                <button type="button" class="hk-theme-toggle" data-bs-toggle="offcanvas" data-bs-target="#hkDashSidebar" aria-controls="hkDashSidebar" aria-label="Open dashboard menu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <span class="fw-bold" style="color: var(--hk-ink);">
+                    {% if request.profile.is_super_admin %}Admin Dashboard{% else %}My Dashboard{% endif %}
+                </span>
+            </div>
             {% block dashboard_content %}{% endblock %}
         </div>
     </main>
