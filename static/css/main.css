@@ -763,6 +763,121 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     }
 }
 
+/* --- Custom category dropdown (hero search bar) ---------------------------
+   Replaces the native <select>: an open option list is OS-rendered chrome
+   that can't be restyled beyond color/background on <option>, which is what
+   produced the unstyled white box over the dark hero. This is a plain
+   div/ul listbox driven by main.js instead, so it inherits the same glass
+   surface as .hk-search-shell. --------------------------------------------- */
+.hk-select {
+    position: relative;
+}
+
+.hk-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-width: 160px;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: .875rem;
+    font-weight: 500;
+    padding: .5rem 0;
+    cursor: pointer;
+}
+
+.hk-select-trigger-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hk-select-chevron {
+    flex: none;
+    font-size: .75rem;
+    color: rgba(216, 218, 234, .5);
+    transition: transform var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-select.is-open .hk-select-chevron {
+    transform: rotate(180deg);
+}
+
+.hk-select-menu {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 10px);
+    width: 240px;
+    max-width: calc(100vw - 48px);
+    max-height: 320px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: rgba(18, 19, 27, .97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: var(--hk-radius-lg);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .5);
+    z-index: var(--hk-z-dropdown);
+    opacity: 0;
+    transform: scale(.96) translateY(-4px);
+    pointer-events: none;
+    transition: opacity var(--hk-duration-fast) var(--hk-ease-out),
+                transform var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-select.is-open .hk-select-menu {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+.hk-select-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: .625rem .875rem;
+    border-radius: var(--hk-radius-sm);
+    color: rgba(216, 218, 234, .85);
+    font-size: .8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--hk-duration-fast) var(--hk-ease-out),
+                color var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-select-option:hover,
+.hk-select-option.is-focused {
+    background: rgba(255, 255, 255, .06);
+    color: #fff;
+}
+
+.hk-select-option.is-active {
+    background: rgba(240, 169, 58, .12);
+    color: var(--hk-gold-400);
+    font-weight: 600;
+}
+
+.hk-select-option-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--hk-gold-400);
+    box-shadow: 0 0 8px 1px rgba(240, 169, 58, .6);
+    flex: none;
+    opacity: 0;
+}
+
+.hk-select-option.is-active .hk-select-option-dot {
+    opacity: 1;
+}
+
 /* --- Hero eyebrow pill (small uppercase label above the headline) --------- */
 .hk-hero-eyebrow {
     position: relative;
@@ -1809,6 +1924,91 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
 
 .hk-meta-value a:hover {
     color: var(--bs-primary);
+}
+
+/* --- Contact page: premium card/input treatment -------------------------
+   Modifiers layered on top of the shared .hk-detail-panel / .hk-meta-item
+   components (used site-wide on business/job/property/event detail pages
+   and dashboards) so this upgrade only applies where contact.html opts in
+   via .hk-contact-*, leaving every other page that reuses the base classes
+   untouched. Glass/gradient treatment is dark-mode only, matching the
+   ambient slate-950 canvas those other pages already share; light mode
+   keeps the plain .hk-detail-panel look. */
+html[data-theme="dark"] .hk-contact-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, transparent 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, .06);
+    box-shadow: var(--hk-elevation-4);
+}
+
+.hk-contact-form .form-control {
+    border-radius: var(--hk-radius-lg);
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+html[data-theme="dark"] .hk-contact-form .form-control {
+    background-color: rgba(2, 6, 23, .6);
+    border-color: rgba(255, 255, 255, .1);
+    color: #F4F5FA;
+}
+
+html[data-theme="dark"] .hk-contact-form .form-control::placeholder {
+    color: #6B7086;
+}
+
+html[data-theme="dark"] .hk-contact-form .form-control:focus {
+    border-color: var(--hk-gold-400);
+    box-shadow: 0 0 0 .18rem rgba(240, 169, 58, .18);
+}
+
+.hk-contact-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: var(--hk-radius-lg);
+    background: linear-gradient(90deg, var(--hk-gold-600) 0%, var(--hk-gold-400) 100%);
+    color: #fff;
+    font-weight: 700;
+    padding: 14px 26px;
+    box-shadow: var(--hk-elevation-3);
+    transition: transform .2s var(--hk-ease-out), filter .2s ease;
+}
+
+.hk-contact-submit-btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    color: #fff;
+}
+
+.hk-contact-submit-btn:active {
+    transform: scale(.99);
+}
+
+.hk-contact-meta-item {
+    transition: border-color .2s ease, background-color .2s ease;
+}
+
+html[data-theme="dark"] .hk-contact-meta-item {
+    background: rgba(255, 255, 255, .02);
+    border: 1px solid rgba(255, 255, 255, .04);
+}
+
+html[data-theme="dark"] .hk-contact-meta-item:hover {
+    border-color: rgba(91, 61, 224, .35);
+    background: rgba(255, 255, 255, .03);
+}
+
+.hk-contact-meta-icon {
+    border-radius: var(--hk-radius-md);
+}
+
+html[data-theme="dark"] .hk-contact-meta-icon {
+    background: rgba(91, 61, 224, .14);
+    color: #9B8CF2;
+    border: 1px solid rgba(91, 61, 224, .3);
 }
 
 /* --- "Why Hello Kuppam" feature cards ---------------------------------------- */

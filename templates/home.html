@@ -42,12 +42,25 @@
                 </div>
                 <div class="hk-search-shell-divider"></div>
                 <div class="hk-search-shell-field hk-search-shell-field-select">
-                    <select name="category" class="form-select">
-                        <option value="">All Categories</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.slug }}">{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="hk-select" id="hkCategorySelect">
+                        <input type="hidden" name="category" class="hk-select-value" value="">
+                        <button type="button" class="hk-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="hk-select-trigger-label">All Categories</span>
+                            <i class="bi bi-chevron-down hk-select-chevron"></i>
+                        </button>
+                        <ul class="hk-select-menu" role="listbox" tabindex="-1">
+                            <li class="hk-select-option is-active" role="option" aria-selected="true" data-value="">
+                                <span>All Categories</span>
+                                <span class="hk-select-option-dot"></span>
+                            </li>
+                            {% for cat in categories %}
+                            <li class="hk-select-option" role="option" aria-selected="false" data-value="{{ cat.slug }}">
+                                <span>{{ cat.name }}</span>
+                                <span class="hk-select-option-dot"></span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
                 <button type="submit" class="hk-search-shell-btn">
                     <i class="bi bi-search"></i> Search
@@ -67,7 +80,7 @@
             <div class="hk-hero-stat-tile">
                 <div class="hk-hero-stat-icon"><i class="bi bi-shop"></i></div>
                 <div class="hk-stat-number" data-count="{{ stats.businesses }}">0</div>
-                <div class="hk-stat-label">Local Businesses</div>
+                <div class="hk-stat-label">Total Businesses</div>
             </div>
             <div class="hk-hero-stat-tile">
                 <div class="hk-hero-stat-icon"><i class="bi bi-house-door"></i></div>

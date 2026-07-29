@@ -22,12 +22,12 @@
 
         <!-- Contact Form -->
         <div class="col-lg-7">
-            <div class="card hk-detail-panel h-100">
+            <div class="card hk-detail-panel hk-contact-card h-100">
                 <div class="card-body p-4 p-md-5">
                     <h4 class="fw-bold mb-1">Send Us a Message</h4>
                     <p class="text-muted mb-4">Fill out the form below and our team will get back to you within 24 hours.</p>
 
-                    <form method="post" novalidate>
+                    <form method="post" novalidate class="hk-contact-form">
                         {% csrf_token %}
 
                         <div class="row g-3">
@@ -64,7 +64,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-lg hk-cta-btn w-100 mt-4">
+                        <button type="submit" class="btn hk-contact-submit-btn w-100 mt-4">
                             <i class="bi bi-send"></i> Send Message
                         </button>
 
@@ -80,40 +80,40 @@
         <div class="col-lg-5">
             <div class="d-flex flex-column gap-4 h-100">
 
-                <div class="card hk-detail-panel">
+                <div class="card hk-detail-panel hk-contact-card">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-3">Contact Information</h5>
                         <div class="d-flex flex-column gap-3">
-                            <div class="hk-meta-item">
-                                <div class="hk-meta-icon"><i class="bi bi-telephone-fill"></i></div>
+                            <div class="hk-meta-item hk-contact-meta-item">
+                                <div class="hk-meta-icon hk-contact-meta-icon"><i class="bi bi-telephone-fill"></i></div>
                                 <div>
                                     <div class="hk-meta-label">Phone</div>
                                     <div class="hk-meta-value"><a href="tel:+916301469575">+91 63014 69575</a></div>
                                 </div>
                             </div>
-                            <div class="hk-meta-item">
-                                <div class="hk-meta-icon"><i class="bi bi-envelope-fill"></i></div>
+                            <div class="hk-meta-item hk-contact-meta-item">
+                                <div class="hk-meta-icon hk-contact-meta-icon"><i class="bi bi-envelope-fill"></i></div>
                                 <div>
                                     <div class="hk-meta-label">Email</div>
                                     <div class="hk-meta-value"><a href="mailto:director@craftlanee.com">director@craftlanee.com</a></div>
                                 </div>
                             </div>
-                            <div class="hk-meta-item">
-                                <div class="hk-meta-icon"><i class="bi bi-globe"></i></div>
+                            <div class="hk-meta-item hk-contact-meta-item">
+                                <div class="hk-meta-icon hk-contact-meta-icon"><i class="bi bi-globe"></i></div>
                                 <div>
                                     <div class="hk-meta-label">Website</div>
                                     <div class="hk-meta-value"><a href="https://www.craftlanee.com" target="_blank" rel="noopener">www.craftlanee.com</a></div>
                                 </div>
                             </div>
-                            <div class="hk-meta-item">
-                                <div class="hk-meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                            <div class="hk-meta-item hk-contact-meta-item">
+                                <div class="hk-meta-icon hk-contact-meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
                                 <div>
                                     <div class="hk-meta-label">Address</div>
                                     <div class="hk-meta-value">Rajiv Colony Circle, 2nd floor, Kuppam, AP - 517425</div>
                                 </div>
                             </div>
-                            <div class="hk-meta-item">
-                                <div class="hk-meta-icon"><i class="bi bi-clock-fill"></i></div>
+                            <div class="hk-meta-item hk-contact-meta-item">
+                                <div class="hk-meta-icon hk-contact-meta-icon"><i class="bi bi-clock-fill"></i></div>
                                 <div>
                                     <div class="hk-meta-label">Working Hours</div>
                                     <div class="hk-meta-value">Mon - Sat, 9:30 AM - 7:00 PM</div>
@@ -139,7 +139,7 @@
                 </div>
 
                 <!-- Map -->
-                <div class="card hk-detail-panel flex-fill overflow-hidden">
+                <div class="card hk-detail-panel hk-contact-card flex-fill overflow-hidden">
                     <iframe
                         src="https://www.google.com/maps?q=Rajiv+Colony+Circle+Kuppam+Andhra+Pradesh+517425&output=embed"
                         width="100%"

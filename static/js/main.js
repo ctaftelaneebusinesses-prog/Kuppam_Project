@@ -204,6 +204,64 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Custom "All Categories" dropdown (hero search bar). Generic over every
+    // .hk-select on the page — trigger toggles the menu, clicking a row
+    // updates the visible label + the hidden form field, and clicking
+    // anywhere outside any open instance closes it.
+    (function () {
+        const selects = document.querySelectorAll('.hk-select');
+        if (!selects.length) return;
+
+        function setOpen(select, trigger, open) {
+            select.classList.toggle('is-open', open);
+            trigger.setAttribute('aria-expanded', String(open));
+        }
+
+        function closeAll(except) {
+            selects.forEach(function (select) {
+                if (select === except) return;
+                setOpen(select, select.querySelector('.hk-select-trigger'), false);
+            });
+        }
+
+        selects.forEach(function (select) {
+            const trigger = select.querySelector('.hk-select-trigger');
+            const label = select.querySelector('.hk-select-trigger-label');
+            const valueInput = select.querySelector('.hk-select-value');
+            const options = select.querySelectorAll('.hk-select-option');
+
+            trigger.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const willOpen = !select.classList.contains('is-open');
+                closeAll(select);
+                setOpen(select, trigger, willOpen);
+            });
+
+            options.forEach(function (option) {
+                option.addEventListener('click', function () {
+                    options.forEach(function (o) {
+                        o.classList.remove('is-active');
+                        o.setAttribute('aria-selected', 'false');
+                    });
+                    option.classList.add('is-active');
+                    option.setAttribute('aria-selected', 'true');
+                    label.textContent = option.querySelector('span').textContent;
+                    if (valueInput) valueInput.value = option.dataset.value || '';
+                    setOpen(select, trigger, false);
+                });
+            });
+
+            select.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    setOpen(select, trigger, false);
+                    trigger.focus();
+                }
+            });
+        });
+
+        document.addEventListener('click', function () { closeAll(null); });
+    })();
+
     // Close the mobile nav drawer after clicking a link inside it
     const navDrawerEl = document.getElementById('hkNavDrawer');
     if (navDrawerEl && window.bootstrap) {
