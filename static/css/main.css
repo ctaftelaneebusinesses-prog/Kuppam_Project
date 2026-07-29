@@ -1749,6 +1749,16 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
     background: linear-gradient(180deg, rgba(240, 169, 58, .10) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
+.hk-bento-card--blue:hover {
+    border-color: var(--bs-primary-border-subtle);
+    background: linear-gradient(180deg, rgba(var(--bs-primary-rgb), .10) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.hk-bento-card--emerald:hover {
+    border-color: var(--hk-emerald-400);
+    background: linear-gradient(180deg, rgba(47, 196, 136, .10) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
 .hk-bento-icon {
     width: 52px;
     height: 52px;
@@ -1778,6 +1788,18 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
     border-color: rgba(240, 169, 58, .3);
 }
 
+.hk-bento-icon--blue {
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+    border-color: var(--bs-primary-border-subtle);
+}
+
+.hk-bento-icon--emerald {
+    background-color: var(--hk-emerald-bg);
+    color: var(--hk-emerald);
+    border-color: rgba(47, 196, 136, .3);
+}
+
 .hk-bento-title {
     font-size: var(--hk-text-xl);
     font-weight: 800;
@@ -1793,6 +1815,17 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
     letter-spacing: .01em;
 }
 
+/* Compact modifiers — 4-up team grid needs tighter type than the 2-up
+   Mission/Vision cards sharing the same .hk-bento-card base. */
+.hk-bento-title--sm {
+    font-size: var(--hk-text-lg);
+    letter-spacing: var(--hk-tracking-wide);
+}
+
+.hk-bento-text--sm {
+    font-size: var(--hk-text-sm);
+}
+
 html[data-theme="dark"] .hk-bento-icon--indigo {
     color: var(--hk-violet-400);
 }
@@ -1801,12 +1834,24 @@ html[data-theme="dark"] .hk-bento-icon--gold {
     color: var(--hk-gold-300);
 }
 
+html[data-theme="dark"] .hk-bento-icon--emerald {
+    color: var(--hk-emerald-400);
+}
+
 html[data-theme="dark"] .hk-bento-card--indigo:hover {
     background: linear-gradient(180deg, rgba(124, 99, 232, .10) 0%, rgba(255, 255, 255, .02) 100%);
 }
 
 html[data-theme="dark"] .hk-bento-card--gold:hover {
     background: linear-gradient(180deg, rgba(240, 169, 58, .10) 0%, rgba(255, 255, 255, .02) 100%);
+}
+
+html[data-theme="dark"] .hk-bento-card--blue:hover {
+    background: linear-gradient(180deg, rgba(var(--bs-primary-rgb), .10) 0%, rgba(255, 255, 255, .02) 100%);
+}
+
+html[data-theme="dark"] .hk-bento-card--emerald:hover {
+    background: linear-gradient(180deg, rgba(47, 196, 136, .10) 0%, rgba(255, 255, 255, .02) 100%);
 }
 
 /* --- Digital Solutions media frame (Home) — glass-bordered image well with
