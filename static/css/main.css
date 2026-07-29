@@ -1716,6 +1716,99 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
     margin-bottom: 0;
 }
 
+/* --- Mission & Vision bento cards (About) — glass dashboard widgets with a
+   per-card accent glow on hover: indigo for Mission, gold for Vision. Shares
+   the site's ambient dark canvas rather than painting its own fill. -------- */
+.hk-bento-card {
+    height: 100%;
+    padding: var(--hk-space-6) var(--hk-space-5);
+    border-radius: var(--hk-radius-xl);
+    border: 1px solid var(--hk-border-soft);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, 0) 100%);
+    box-shadow: var(--hk-shadow-sm);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: transform var(--hk-duration-base) var(--hk-ease-out),
+                box-shadow var(--hk-duration-base) var(--hk-ease-out),
+                border-color var(--hk-duration-base) var(--hk-ease-out),
+                background var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-bento-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--hk-shadow-hover);
+}
+
+.hk-bento-card--indigo:hover {
+    border-color: var(--hk-violet-400);
+    background: linear-gradient(180deg, rgba(124, 99, 232, .10) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.hk-bento-card--gold:hover {
+    border-color: var(--hk-gold-400);
+    background: linear-gradient(180deg, rgba(240, 169, 58, .10) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.hk-bento-icon {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--hk-radius-md);
+    font-size: 1.4rem;
+    margin-bottom: var(--hk-space-4);
+    border: 1px solid transparent;
+    transition: transform var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-bento-card:hover .hk-bento-icon {
+    transform: scale(1.08);
+}
+
+.hk-bento-icon--indigo {
+    background-color: var(--hk-violet-bg);
+    color: var(--hk-purple);
+    border-color: rgba(124, 99, 232, .25);
+}
+
+.hk-bento-icon--gold {
+    background-color: var(--hk-gold-bg);
+    color: var(--hk-gold-600);
+    border-color: rgba(240, 169, 58, .3);
+}
+
+.hk-bento-title {
+    font-size: var(--hk-text-xl);
+    font-weight: 800;
+    letter-spacing: var(--hk-tracking-tight);
+    color: var(--hk-ink);
+    margin-bottom: var(--hk-space-3);
+}
+
+.hk-bento-text {
+    color: var(--hk-ink-soft);
+    font-size: var(--hk-text-base);
+    line-height: var(--hk-leading-normal);
+    letter-spacing: .01em;
+}
+
+html[data-theme="dark"] .hk-bento-icon--indigo {
+    color: var(--hk-violet-400);
+}
+
+html[data-theme="dark"] .hk-bento-icon--gold {
+    color: var(--hk-gold-300);
+}
+
+html[data-theme="dark"] .hk-bento-card--indigo:hover {
+    background: linear-gradient(180deg, rgba(124, 99, 232, .10) 0%, rgba(255, 255, 255, .02) 100%);
+}
+
+html[data-theme="dark"] .hk-bento-card--gold:hover {
+    background: linear-gradient(180deg, rgba(240, 169, 58, .10) 0%, rgba(255, 255, 255, .02) 100%);
+}
+
 /* --- Digital Solutions media frame (Home) — glass-bordered image well with
    a soft lift-on-hover, theme-aware: near-invisible tint in light mode,
    visible glass panel once the dark canvas glows are behind it. ----------- */
