@@ -3,10 +3,13 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<section class="container py-5">
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <div class="hk-section-icon"><i class="bi bi-heart"></i></div>
-        <h3 class="fw-bold mb-0">My Favorites</h3>
+<section class="hk-section-tight">
+    <div class="container">
+    <div class="hk-dash-topbar">
+        <div class="d-flex align-items-center gap-3">
+            <div class="hk-section-icon"><i class="bi bi-heart"></i></div>
+            <h3 class="fw-bold mb-0">My Favorites</h3>
+        </div>
     </div>
 
     {% if items %}
@@ -35,5 +38,6 @@
         </a>
     </div>
     {% endif %}
+    </div>
 </section>
 {% endblock %}

@@ -1213,9 +1213,11 @@ html[data-theme="dark"] .hk-section-alt {
     background: var(--hk-gold-600);
 }
 
-html[data-theme="dark"] .hk-section-kicker--accent,
-html[data-theme="dark"] .hk-section-kicker--accent::before {
+html[data-theme="dark"] .hk-section-kicker--accent {
     color: var(--hk-gold-400);
+}
+
+html[data-theme="dark"] .hk-section-kicker--accent::before {
     background: var(--hk-gold-400);
 }
 
