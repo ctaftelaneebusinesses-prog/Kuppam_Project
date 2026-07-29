@@ -649,7 +649,10 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
    by a hairline divider, gradient pill button. ---------------------------- */
 .hk-search-shell {
     position: relative;
-    z-index: 2;
+    /* One above .hk-hero-stats/.hk-quick-pill-row (both z-index: 2 in the same
+       .hk-hero-content stacking context) — otherwise, being later in the DOM,
+       they'd win the tie and paint over an open .hk-select-menu. */
+    z-index: 3;
     max-width: 720px;
     background: rgba(18, 19, 27, .6);
     backdrop-filter: blur(20px);
@@ -824,6 +827,8 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     max-width: calc(100vw - 48px);
     max-height: 320px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, .18) transparent;
     margin: 0;
     padding: 6px;
     list-style: none;
@@ -845,6 +850,23 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     opacity: 1;
     transform: scale(1) translateY(0);
     pointer-events: auto;
+}
+
+.hk-select-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.hk-select-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.hk-select-menu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, .18);
+    border-radius: var(--hk-radius-pill);
+}
+
+.hk-select-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, .3);
 }
 
 .hk-select-option {
@@ -1961,10 +1983,6 @@ html[data-theme="dark"] .hk-contact-form .form-control {
     background-color: rgba(2, 6, 23, .6);
     border-color: rgba(255, 255, 255, .1);
     color: #F4F5FA;
-}
-
-html[data-theme="dark"] .hk-contact-form .form-control::placeholder {
-    color: #6B7086;
 }
 
 html[data-theme="dark"] .hk-contact-form .form-control:focus {
