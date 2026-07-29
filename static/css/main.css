@@ -1485,6 +1485,149 @@ html[data-theme="dark"] .hk-section-alt {
     background-color: transparent;
 }
 
+/* --- Auth shell (login / sign-in / register) ---------------------------------------
+   Split-pane layout: a gradient brand narrative panel (desktop only) beside
+   an ultra-clean form pane. Fills the viewport below the fixed navbar so it
+   reads as its own full-bleed screen rather than a form dropped mid-page. -- */
+.hk-auth-shell {
+    display: flex;
+    min-height: calc(100vh - 76px);
+}
+
+.hk-auth-brand {
+    flex: 1 1 46%;
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--hk-space-10) var(--hk-space-8);
+    background: var(--hk-gradient);
+    color: #fff;
+}
+
+.hk-auth-brand::before,
+.hk-auth-brand::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+}
+
+.hk-auth-brand::before {
+    width: 380px;
+    height: 380px;
+    top: -140px;
+    right: -100px;
+}
+
+.hk-auth-brand::after {
+    width: 260px;
+    height: 260px;
+    bottom: -140px;
+    left: -60px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.hk-auth-brand-content {
+    position: relative;
+    z-index: 1;
+    max-width: 420px;
+}
+
+.hk-auth-brand-content .hk-brand-mark {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.16);
+    margin-bottom: var(--hk-space-6);
+}
+
+.hk-auth-brand-content h1 {
+    color: #fff;
+    font-size: var(--hk-text-3xl);
+    letter-spacing: var(--hk-tracking-tighter);
+    line-height: var(--hk-leading-tight);
+    margin-bottom: var(--hk-space-3);
+}
+
+.hk-auth-brand-content p.lead {
+    font-size: var(--hk-text-md);
+    color: rgba(255, 255, 255, .8);
+}
+
+.hk-auth-feature-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--hk-space-6) 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--hk-space-4);
+}
+
+.hk-auth-feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    font-size: var(--hk-text-sm);
+    color: rgba(255, 255, 255, .85);
+}
+
+.hk-auth-feature-list i {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .14);
+    color: var(--hk-gold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .8rem;
+    margin-top: 1px;
+}
+
+.hk-auth-form-pane {
+    flex: 1 1 54%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--hk-space-8) var(--hk-space-5);
+    background: var(--bs-body-bg);
+}
+
+.hk-auth-form-card {
+    width: 100%;
+    max-width: 440px;
+}
+
+/* Bootstrap's .nav-justified flex children default to min-width:auto, so on
+   narrow screens two labeled pill tabs can refuse to shrink and force the
+   whole page wider instead of fitting their column — this reclaims normal
+   flex-shrink behavior and truncates gracefully if it's ever truly tight. */
+.hk-auth-form-card .nav-pills.nav-justified .nav-item {
+    min-width: 0;
+}
+
+.hk-auth-form-card .nav-pills .nav-link {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 991.98px) {
+    .hk-auth-brand {
+        display: none;
+    }
+    .hk-auth-form-pane {
+        flex: 1 1 100%;
+    }
+}
+
 /* --- Excel Upload Center ----------------------------------------------------------- */
 .hk-upload-card {
     text-align: center;
@@ -1556,6 +1699,33 @@ footer a:hover {
     font-size: var(--hk-text-sm);
     line-height: var(--hk-leading-normal);
     max-width: 32ch;
+}
+
+.hk-navbar-craftlanee-logo {
+    height: 22px;
+}
+
+/* Two swapped images (dark-text default, light-text for dark backgrounds)
+   since the logo artwork is a raster lockup, not styleable via CSS color.
+   Dark-text is the default (light glass navbar / light drawer surface);
+   swap to light-text over the transparent hero and in dark theme, mirroring
+   the .hk-navbar-transparent / [data-theme="dark"] rules above. */
+.hk-navbar-craftlanee-logo-light {
+    display: none;
+}
+
+.hk-navbar-transparent:not(.hk-navbar-solid) .hk-navbar-craftlanee-logo-dark,
+html[data-theme="dark"] .navbar:not(.hk-navbar-transparent) .hk-navbar-craftlanee-logo-dark,
+html[data-theme="dark"] .hk-navbar-transparent.hk-navbar-solid .hk-navbar-craftlanee-logo-dark,
+html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-dark {
+    display: none;
+}
+
+.hk-navbar-transparent:not(.hk-navbar-solid) .hk-navbar-craftlanee-logo-light,
+html[data-theme="dark"] .navbar:not(.hk-navbar-transparent) .hk-navbar-craftlanee-logo-light,
+html[data-theme="dark"] .hk-navbar-transparent.hk-navbar-solid .hk-navbar-craftlanee-logo-light,
+html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-light {
+    display: inline-block;
 }
 
 .hk-craftlanee-badge {
