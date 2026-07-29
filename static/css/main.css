@@ -1716,6 +1716,133 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
     margin-bottom: 0;
 }
 
+/* --- Digital Solutions media frame (Home) — glass-bordered image well with
+   a soft lift-on-hover, theme-aware: near-invisible tint in light mode,
+   visible glass panel once the dark canvas glows are behind it. ----------- */
+.hk-solutions-media-frame {
+    padding: var(--hk-space-2);
+    border-radius: var(--hk-radius-2xl);
+    border: 1px solid var(--hk-border-soft);
+    background: rgba(255, 255, 255, .03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--hk-shadow-md);
+    transition: transform var(--hk-duration-slow) var(--hk-ease-out),
+                box-shadow var(--hk-duration-slow) var(--hk-ease-out);
+}
+
+.hk-solutions-media-frame:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--hk-shadow-hover);
+}
+
+.hk-solutions-media-frame img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--hk-radius-xl);
+}
+
+html[data-theme="dark"] .hk-solutions-media-frame {
+    background: rgba(255, 255, 255, .04);
+}
+
+/* --- Digital Solutions service cards (Home) — glass micro-cards replacing
+   a plain checklist, gold-tinted icon chip, gold border/glow on hover. ---- */
+.hk-solution-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--hk-space-3);
+    height: 100%;
+    padding: var(--hk-space-4);
+    border-radius: var(--hk-radius-lg);
+    border: 1px solid var(--hk-border-soft);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, 0) 100%);
+    box-shadow: var(--hk-shadow-sm);
+    transition: transform var(--hk-duration-base) var(--hk-ease-out),
+                box-shadow var(--hk-duration-base) var(--hk-ease-out),
+                border-color var(--hk-duration-base) var(--hk-ease-out),
+                background var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-solution-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hk-shadow-hover);
+    border-color: var(--hk-gold-400);
+    background: linear-gradient(180deg, rgba(240, 169, 58, .08) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.hk-solution-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--hk-radius-md);
+    background: var(--hk-gold-bg);
+    color: var(--hk-gold-600);
+    font-size: 1.05rem;
+    transition: transform var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-solution-card:hover .hk-solution-icon {
+    transform: scale(1.08);
+}
+
+.hk-solution-card-title {
+    margin: 0;
+    padding-top: 2px;
+    font-size: var(--hk-text-sm);
+    font-weight: 700;
+    letter-spacing: var(--hk-tracking-tight);
+    line-height: var(--hk-leading-snug);
+    color: var(--hk-ink);
+}
+
+html[data-theme="dark"] .hk-solution-icon {
+    color: var(--hk-gold-300);
+}
+
+html[data-theme="dark"] .hk-solution-card:hover {
+    background: linear-gradient(180deg, rgba(240, 169, 58, .10) 0%, rgba(255, 255, 255, .02) 100%);
+}
+
+/* --- Digital Solutions section divider + industry pills (Home) ---------- */
+.hk-solutions-divider {
+    height: 1px;
+    margin: var(--hk-space-5) 0 var(--hk-space-4);
+    border: none;
+    background: var(--hk-border-soft);
+}
+
+.hk-industry-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: var(--hk-radius-md);
+    background: rgba(255, 255, 255, .02);
+    border: 1px solid var(--hk-border-soft);
+    color: var(--hk-ink-soft);
+    font-size: var(--hk-text-xs);
+    font-weight: 600;
+    box-shadow: var(--hk-elevation-1);
+    transition: background var(--hk-duration-fast) var(--hk-ease-out),
+                border-color var(--hk-duration-fast) var(--hk-ease-out),
+                color var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-industry-pill:hover {
+    background: var(--hk-gold-bg);
+    border-color: var(--hk-gold-400);
+    color: var(--hk-gold-600);
+}
+
+html[data-theme="dark"] .hk-industry-pill:hover {
+    color: var(--hk-gold-300);
+}
+
 /* --- Description box -------------------------------------------------------- */
 .hk-description-box {
     background-color: #F8F9FD;
@@ -2146,7 +2273,13 @@ html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-light {
    Sidebar is a Bootstrap responsive offcanvas (.offcanvas-lg): a static
    260px column at lg+ and a slide-in drawer below it, triggered by the
    hamburger in .hk-dash-mobile-bar — same drawer pattern as the main
-   navbar, just for the dashboard shell. ------------------------------------ */
+   navbar, just for the dashboard shell.
+
+   Dark mode reads the same --hk-dark-bg / --hk-dark-glow-* tokens as the
+   public pages (see tokens.css) instead of a parallel hardcoded palette, so
+   the dashboard's dark canvas is the same continuous surface as Home/About/
+   Contact — the sidebar and cards are translucent glass over it rather than
+   flat opaque panels. ------------------------------------------------------ */
 .hk-dashboard {
     display: flex;
     min-height: calc(100vh - 76px);
@@ -2157,7 +2290,7 @@ html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-light {
     flex-shrink: 0;
     background: var(--hk-surface);
     border-right: 1px solid var(--hk-border-soft);
-    transition: background-color .3s ease, border-color .3s ease;
+    transition: background-color .3s ease, border-color .3s ease, backdrop-filter .3s ease;
 }
 
 .hk-dashboard-sidebar .offcanvas-header {
@@ -2216,14 +2349,14 @@ html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-light {
 
 .hk-dash-link {
     color: var(--hk-ink-soft);
-    border-radius: var(--bs-border-radius);
+    border-radius: var(--hk-radius-md);
     padding: .6rem .8rem;
     display: flex;
     align-items: center;
     gap: .6rem;
     font-weight: 500;
     font-size: .92rem;
-    transition: background-color .15s ease, color .15s ease;
+    transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
 }
 
 .hk-dash-link:hover {
@@ -2269,49 +2402,66 @@ html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-light {
     color: var(--bs-primary);
 }
 
+/* --- Stat cards: bento-grid metric widgets ---------------------------------------------
+   .hk-stat-icon carries a soft translucent color glow behind the glyph
+   instead of a flat outlined box; the accent is picked per metric via a
+   modifier class (indigo/gold/emerald/rose) reusing the existing color
+   primitives from tokens.css rather than introducing new literals. -------- */
 .hk-stat-card {
-    border: none;
-    border-radius: var(--hk-radius-card);
+    position: relative;
+    border: 1px solid var(--hk-border-soft);
+    border-radius: var(--hk-radius-xl);
     background: var(--hk-surface);
     box-shadow: var(--hk-shadow-sm);
-    padding: 1.15rem 1.3rem;
+    padding: 1.25rem 1.35rem;
     height: 100%;
     display: flex;
     align-items: center;
-    gap: 14px;
-    transition: transform .2s ease, box-shadow .2s ease, background-color .3s ease;
+    gap: 16px;
+    overflow: hidden;
+    transition: transform .25s var(--hk-ease-out), box-shadow .25s ease, border-color .25s ease, background-color .3s ease;
 }
 
 .hk-stat-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--hk-shadow-hover);
+    border-color: rgba(var(--bs-primary-rgb), .35);
 }
 
 .hk-stat-card .hk-stat-icon {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    border-radius: var(--bs-border-radius-lg);
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     background: var(--bs-primary-bg-subtle);
     color: var(--bs-primary);
 }
 
+.hk-stat-icon--indigo { background: var(--bs-primary-bg-subtle); color: var(--bs-primary); }
+.hk-stat-icon--gold { background: var(--hk-gold-bg); color: var(--hk-gold-600); }
+.hk-stat-icon--emerald { background: var(--hk-emerald-bg); color: var(--hk-emerald); }
+.hk-stat-icon--rose { background: #FCE9EC; color: var(--hk-red-600); }
+
 .hk-stat-card .hk-stat-value {
     font-family: var(--hk-font-heading);
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--hk-ink);
     line-height: 1.1;
 }
 
 .hk-stat-card .hk-stat-label {
     color: var(--hk-ink-soft);
-    font-size: .78rem;
-    font-weight: 500;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-top: .2rem;
 }
 
 .hk-dash-section-title {
@@ -2357,26 +2507,50 @@ html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-light {
 
 /* --- Dashboard dark mode --------------------------------------------------------------
    Scoped to the dashboard shell only; toggled by adding data-theme="dark" to <html>,
-   persisted in localStorage (see dashboard/base_dashboard.html). ------------------------ */
+   persisted in localStorage (see dashboard/base_dashboard.html). Reuses the same
+   --hk-dark-bg / --hk-dark-glow-* tokens the public pages sit on, so .hk-dashboard-main
+   stays transparent (the ambient ::before glow on <body> shows through) and every
+   panel on top of it is genuine translucent glass, not a flat repaint. ------------------ */
 html[data-theme="dark"] .hk-dashboard-main {
-    background: #12141F;
-}
-
-html[data-theme="dark"] .hk-dashboard-sidebar,
-html[data-theme="dark"] .hk-stat-card,
-html[data-theme="dark"] .hk-chart-card,
-html[data-theme="dark"] .hk-dashboard-main .card {
-    background: #191C2B;
-    border-color: #262A3D;
-    color: #E4E6F1;
+    background: transparent;
 }
 
 html[data-theme="dark"] .hk-dashboard-sidebar {
-    border-right-color: #262A3D;
+    background: rgba(18, 19, 32, .45);
+    border-right-color: rgba(255, 255, 255, .06);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    color: #E4E6F1;
 }
 
+html[data-theme="dark"] .hk-stat-card,
+html[data-theme="dark"] .hk-chart-card,
+html[data-theme="dark"] .hk-dashboard-main .card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, 0));
+    background-color: rgba(255, 255, 255, .02);
+    border-color: rgba(255, 255, 255, .07);
+    color: #E4E6F1;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+html[data-theme="dark"] .hk-stat-card:hover {
+    background-color: rgba(255, 255, 255, .045);
+    border-color: rgba(99, 102, 241, .4);
+    box-shadow: 0 0 24px rgba(99, 102, 241, .18), var(--hk-elevation-4);
+}
+
+html[data-theme="dark"] .hk-stat-icon--indigo { background: rgba(91, 155, 232, .16); color: #8FBBF2; }
+html[data-theme="dark"] .hk-stat-icon--gold { background: rgba(240, 169, 58, .16); color: #F5C570; }
+html[data-theme="dark"] .hk-stat-icon--emerald { background: rgba(47, 196, 136, .16); color: #6BDCAF; }
+html[data-theme="dark"] .hk-stat-icon--rose { background: rgba(224, 66, 107, .16); color: #F291A6; }
+
 html[data-theme="dark"] .hk-dash-brand {
-    border-bottom-color: #262A3D;
+    border-bottom-color: rgba(255, 255, 255, .06);
+}
+
+html[data-theme="dark"] .hk-dash-sidebar-footer {
+    border-top-color: rgba(255, 255, 255, .06);
 }
 
 html[data-theme="dark"] .hk-dashboard-main .table {
@@ -2384,14 +2558,14 @@ html[data-theme="dark"] .hk-dashboard-main .table {
 }
 
 html[data-theme="dark"] .hk-dashboard-main .table thead.table-light th {
-    background-color: #20233590;
+    background-color: rgba(255, 255, 255, .03);
     color: #9AA0BE;
 }
 
 html[data-theme="dark"] .hk-dashboard-main .card-header {
-    background-color: #191C2B !important;
+    background-color: transparent !important;
     color: #E4E6F1;
-    border-bottom-color: #262A3D;
+    border-bottom-color: rgba(255, 255, 255, .07);
 }
 
 html[data-theme="dark"] .hk-stat-card .hk-stat-value,
@@ -2417,10 +2591,10 @@ html[data-theme="dark"] .hk-dashboard-main h6 {
 .hk-dashboard-main .form-select,
 .hk-dashboard-main .form-control {
     border-color: var(--hk-border-soft);
-    border-radius: 10px;
+    border-radius: var(--hk-radius-md);
     font-size: .85rem;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
+    padding-top: .55rem;
+    padding-bottom: .55rem;
 }
 
 .hk-dashboard-main .form-select:focus,
@@ -2430,16 +2604,63 @@ html[data-theme="dark"] .hk-dashboard-main h6 {
 }
 
 .hk-dashboard-main .btn {
-    border-radius: 10px;
+    border-radius: var(--hk-radius-md);
     font-size: .86rem;
 }
 
+/* Consolidated filter strip (replaces the old two-row Bootstrap grid form):
+   one flex row that wraps as needed, so search + every select + the apply
+   button read as a single control instead of a disjointed cluster. */
+.hk-toolbar-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .65rem;
+}
+
+.hk-toolbar-strip .hk-toolbar-search {
+    flex: 1 1 220px;
+    min-width: 180px;
+}
+
+.hk-toolbar-strip .hk-toolbar-field {
+    flex: 0 1 auto;
+    min-width: 132px;
+}
+
+.hk-toolbar-strip .form-select,
+.hk-toolbar-strip .form-control {
+    background-color: var(--hk-surface);
+}
+
+.hk-toolbar-apply-btn {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: var(--hk-radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+html[data-theme="dark"] .hk-toolbar-strip .form-select,
+html[data-theme="dark"] .hk-toolbar-strip .form-control {
+    background-color: rgba(2, 6, 23, .5);
+}
+
+/* --- Bulk action bar: glass pill row with a gradient primary action ------------------- */
 .hk-bulkbar {
     border: 1px solid var(--hk-border-soft);
-    border-radius: var(--hk-radius-card);
+    border-radius: var(--hk-radius-xl);
     background: var(--hk-surface);
-    padding: .8rem 1.1rem;
-    transition: border-color .2s ease, background-color .2s ease;
+    padding: .85rem 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
 }
 
 .hk-bulkbar.hk-bulkbar-active {
@@ -2455,6 +2676,39 @@ html[data-theme="dark"] .hk-dashboard-main h6 {
 
 .hk-bulkbar.hk-bulkbar-active .hk-bulkbar-count {
     color: var(--bs-primary);
+}
+
+.hk-bulkbar-apply-btn {
+    background: linear-gradient(90deg, var(--hk-blue-600), var(--hk-violet-500));
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: .55rem 1.4rem;
+    border-radius: var(--hk-radius-md);
+    box-shadow: var(--hk-shadow-sm);
+    transition: transform .2s var(--hk-ease-out), box-shadow .2s ease, filter .2s ease;
+}
+
+.hk-bulkbar-apply-btn:hover {
+    filter: brightness(1.08);
+    box-shadow: var(--hk-shadow-md);
+}
+
+.hk-bulkbar-apply-btn:active {
+    transform: scale(.98);
+}
+
+html[data-theme="dark"] .hk-bulkbar {
+    background: rgba(255, 255, 255, .02);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, 0));
+    border-color: rgba(255, 255, 255, .07);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+html[data-theme="dark"] .hk-bulkbar.hk-bulkbar-active {
+    background-color: rgba(91, 155, 232, .1);
+    border-color: rgba(91, 155, 232, .4);
 }
 
 .hk-post-thumb {
@@ -2552,15 +2806,6 @@ html[data-theme="dark"] .hk-dashboard-main h6 {
     padding: 1.25rem 1.4rem;
 }
 
-html[data-theme="dark"] .hk-bulkbar {
-    background: #191C2B;
-    border-color: #262A3D;
-}
-
-html[data-theme="dark"] .hk-bulkbar.hk-bulkbar-active {
-    background: rgba(var(--bs-primary-rgb), .16);
-}
-
 html[data-theme="dark"] .hk-dashboard-main .form-select,
 html[data-theme="dark"] .hk-dashboard-main .form-control {
     background-color: #12141F;
@@ -2588,13 +2833,13 @@ html[data-theme="dark"] .hk-dash-link {
 }
 
 html[data-theme="dark"] .hk-dash-link:hover {
-    background: #20233D;
+    background: rgba(255, 255, 255, .06);
     color: #C7D2FE;
 }
 
 html[data-theme="dark"] .hk-theme-toggle {
-    background: #191C2B;
-    border-color: #262A3D;
+    background: rgba(255, 255, 255, .04);
+    border-color: rgba(255, 255, 255, .08);
     color: #E4E6F1;
 }
 
@@ -2713,6 +2958,164 @@ html[data-theme="dark"] .hk-review-form {
 .hk-share-telegram:hover { background: #229ED9; }
 .hk-share-twitter:hover { background: #000; }
 .hk-share-copy:hover { background: var(--bs-primary); }
+
+/* --- Floating WhatsApp action button (site-wide, see base.html) ------------
+   Fixed bottom-right on every page, below the navbar/dropdown/modal z-index
+   band so it never fights the offcanvas drawer or a modal, but stays above
+   ordinary page content. The ping ring and glass tooltip are pure CSS; only
+   the tooltip's auto-show-then-dismiss timing lives in main.js. -------------- */
+.hk-whatsapp-fab-wrap {
+    position: fixed;
+    right: var(--hk-space-5);
+    bottom: var(--hk-space-5);
+    z-index: 1035;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--hk-space-3);
+}
+
+.hk-whatsapp-fab {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--hk-emerald-400), var(--hk-emerald-600));
+    color: #fff;
+    font-size: 1.6rem;
+    text-decoration: none;
+    box-shadow: 0 8px 30px rgba(15, 163, 107, 0.35);
+    transition: transform var(--hk-duration-base) var(--hk-ease-out),
+                box-shadow var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-whatsapp-fab:hover,
+.hk-whatsapp-fab:focus-visible {
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 14px 38px rgba(15, 163, 107, 0.45);
+}
+
+.hk-whatsapp-fab:hover i,
+.hk-whatsapp-fab:focus-visible i {
+    transform: rotate(12deg);
+}
+
+.hk-whatsapp-fab i {
+    position: relative;
+    z-index: 1;
+    transition: transform var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-whatsapp-fab-ping {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--hk-emerald-500);
+    opacity: .35;
+    animation: hk-whatsapp-ping 2.2s cubic-bezier(0, 0, .2, 1) infinite;
+}
+
+@keyframes hk-whatsapp-ping {
+    0%   { transform: scale(1);    opacity: .35; }
+    75%, 100% { transform: scale(1.7); opacity: 0; }
+}
+
+.hk-whatsapp-fab-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--hk-gold-400);
+    border: 2px solid var(--hk-emerald-600);
+    z-index: 2;
+}
+
+/* Glassmorphic chat-preview tooltip */
+.hk-whatsapp-tooltip {
+    max-width: 240px;
+    padding: var(--hk-space-3);
+    border-radius: var(--hk-radius-lg);
+    background: rgba(17, 24, 39, .92);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, .1);
+    color: #fff;
+    box-shadow: var(--hk-elevation-5);
+    font-size: .8rem;
+    font-weight: 500;
+    line-height: 1.45;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity var(--hk-duration-base) var(--hk-ease-out),
+                transform var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-whatsapp-tooltip.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.hk-whatsapp-tooltip-title {
+    font-weight: 700;
+    font-size: .85rem;
+    margin-bottom: 2px;
+}
+
+.hk-whatsapp-tooltip-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    line-height: 1;
+}
+
+.hk-whatsapp-tooltip-close:hover {
+    background: rgba(255, 255, 255, .22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hk-whatsapp-fab-ping {
+        animation: none;
+        display: none;
+    }
+    .hk-whatsapp-fab,
+    .hk-whatsapp-fab i,
+    .hk-whatsapp-tooltip {
+        transition: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hk-whatsapp-fab-wrap {
+        right: var(--hk-space-4);
+        bottom: var(--hk-space-4);
+    }
+    .hk-whatsapp-fab {
+        width: 50px;
+        height: 50px;
+        font-size: 1.4rem;
+    }
+    .hk-whatsapp-tooltip {
+        max-width: calc(100vw - 3.5rem);
+    }
+}
 
 .hk-comment-avatar {
     width: 38px;
@@ -3436,4 +3839,9 @@ html[data-theme="dark"] .card {
 html[data-theme="dark"] hr {
     border-color: var(--hk-border-soft);
     opacity: 1;
+}
+
+html[data-theme="dark"] .hk-whatsapp-tooltip {
+    background: rgba(10, 11, 22, .92);
+    border-color: rgba(255, 255, 255, .08);
 }

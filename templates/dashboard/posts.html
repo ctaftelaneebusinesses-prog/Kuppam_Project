@@ -10,25 +10,23 @@
     </div>
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-collection"></i></div><div><div class="hk-stat-value">{{ counts.total }}</div><div class="hk-stat-label">Total Posts</div></div></div></div>
-    <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:#B8790A;"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ counts.pending }}</div><div class="hk-stat-label">Pending</div></div></div></div>
-    <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--hk-emerald-bg); color:var(--hk-emerald);"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ counts.approved }}</div><div class="hk-stat-label">Approved</div></div></div></div>
-    <div class="col-6 col-md-3"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:#FCE9EC; color:#dc3545;"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ counts.rejected }}</div><div class="hk-stat-label">Rejected</div></div></div></div>
+<div class="row g-3 g-lg-4 mb-4">
+    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-collection"></i></div><div><div class="hk-stat-value">{{ counts.total }}</div><div class="hk-stat-label">Total Posts</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ counts.pending }}</div><div class="hk-stat-label">Pending</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ counts.approved }}</div><div class="hk-stat-label">Approved</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ counts.rejected }}</div><div class="hk-stat-label">Rejected</div></div></div></div>
 </div>
 
-<form method="get" class="card hk-toolbar-card mb-3">
+<form method="get" class="card hk-toolbar-card mb-4">
     <div class="card-body">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-3">
-                <label class="hk-filter-label">Search</label>
+        <div class="hk-toolbar-strip">
+            <div class="hk-toolbar-search">
                 <div class="input-group">
                     <span class="input-group-text bg-transparent border-end-0" style="border-color:var(--hk-border-soft); border-radius:10px 0 0 10px;"><i class="bi bi-search text-muted"></i></span>
                     <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" style="border-radius:0 10px 10px 0;" placeholder="Title, company, location...">
                 </div>
             </div>
-            <div class="col-6 col-md-2">
-                <label class="hk-filter-label">Type</label>
+            <div class="hk-toolbar-field">
                 <select name="model" class="form-select">
                     <option value="">All Types</option>
                     {% for key in model_choices %}
@@ -36,8 +34,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-6 col-md-2">
-                <label class="hk-filter-label">Category</label>
+            <div class="hk-toolbar-field">
                 <select name="category" class="form-select">
                     <option value="">All Categories</option>
                     {% for cat in categories %}
@@ -45,8 +42,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-6 col-md-2">
-                <label class="hk-filter-label">Admin/User</label>
+            <div class="hk-toolbar-field">
                 <select name="owner" class="form-select">
                     <option value="">All Admins</option>
                     {% for owner in owners %}
@@ -54,8 +50,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-6 col-md-2">
-                <label class="hk-filter-label">Status</label>
+            <div class="hk-toolbar-field">
                 <select name="status" class="form-select">
                     <option value="">All Statuses</option>
                     {% for value, label in status_choices %}
@@ -63,13 +58,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-6 col-md-1">
-                <button class="btn btn-primary w-100" type="submit" title="Apply filters"><i class="bi bi-funnel"></i></button>
-            </div>
-        </div>
-        <div class="row g-3 mt-1">
-            <div class="col-6 col-md-3">
-                <label class="hk-filter-label">Sort by</label>
+            <div class="hk-toolbar-field">
                 <select name="sort" class="form-select" onchange="this.form.submit()">
                     <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
                     <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
@@ -77,10 +66,9 @@
                     <option value="most_liked" {% if sort == 'most_liked' %}selected{% endif %}>Most liked</option>
                 </select>
             </div>
+            <button class="btn btn-primary hk-toolbar-apply-btn" type="submit" title="Apply filters"><i class="bi bi-funnel"></i></button>
             {% if query or selected_model or selected_category or selected_owner or status_filter %}
-            <div class="col-6 col-md-2 d-flex align-items-end">
-                <a href="{% url 'core:dashboard_posts' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x-circle"></i> Clear filters</a>
-            </div>
+            <a href="{% url 'core:dashboard_posts' %}" class="btn btn-outline-secondary hk-toolbar-apply-btn" title="Clear filters"><i class="bi bi-x-lg"></i></a>
             {% endif %}
         </div>
     </div>
@@ -90,7 +78,7 @@
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
-    <div class="hk-bulkbar d-flex flex-wrap align-items-center gap-2 mb-3" id="hkBulkbar">
+    <div class="hk-bulkbar mb-3" id="hkBulkbar">
         <select name="bulk_action" id="hkBulkAction" class="form-select w-auto">
             <option value="approve">Approve</option>
             <option value="reject">Reject</option>
@@ -100,8 +88,8 @@
             <option value="unfeature">Unfeature</option>
             <option value="delete">Delete</option>
         </select>
-        <input type="text" name="note" class="form-control w-auto flex-grow-1" placeholder="Reason (used for reject)" style="min-width:220px;">
-        <button type="submit" id="hkBulkApply" class="btn btn-primary"><i class="bi bi-check2-circle"></i> Apply to Selected</button>
+        <input type="text" name="note" class="form-control flex-grow-1" placeholder="Reason (used for reject)" style="min-width:220px;">
+        <button type="submit" id="hkBulkApply" class="btn hk-bulkbar-apply-btn"><i class="bi bi-check2-circle"></i> Apply to Selected</button>
         <span class="hk-bulkbar-count ms-auto" id="hkBulkbarCount">{{ page_obj.paginator.count }} post{{ page_obj.paginator.count|pluralize }}</span>
     </div>
 

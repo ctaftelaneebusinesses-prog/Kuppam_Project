@@ -289,4 +289,51 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
+
+    // Floating WhatsApp button: builds the wa.me link from data attributes
+    // (see base.html) and auto-previews the chat tooltip once per browser
+    // session, so it reads as a live nudge without nagging on every page.
+    (function () {
+        const wrap = document.getElementById('hkWhatsappFab');
+        if (!wrap) return;
+
+        const btn = document.getElementById('hkWhatsappBtn');
+        const tooltip = document.getElementById('hkWhatsappTooltip');
+        const closeBtn = document.getElementById('hkWhatsappTooltipClose');
+        const number = wrap.dataset.waNumber || '';
+        const message = wrap.dataset.waMessage || '';
+        btn.href = 'https://wa.me/' + number + (message ? '?text=' + encodeURIComponent(message) : '');
+
+        let autoHideTimer = null;
+
+        function showTooltip() {
+            tooltip.classList.add('is-visible');
+        }
+        function hideTooltip() {
+            tooltip.classList.remove('is-visible');
+            if (autoHideTimer) {
+                clearTimeout(autoHideTimer);
+                autoHideTimer = null;
+            }
+        }
+
+        wrap.addEventListener('mouseenter', showTooltip);
+        wrap.addEventListener('mouseleave', hideTooltip);
+        btn.addEventListener('focus', showTooltip);
+        btn.addEventListener('blur', hideTooltip);
+        closeBtn.addEventListener('click', function () {
+            hideTooltip();
+            try { sessionStorage.setItem('hkWaTooltipSeen', '1'); } catch (e) {}
+        });
+
+        let seen = false;
+        try { seen = sessionStorage.getItem('hkWaTooltipSeen') === '1'; } catch (e) {}
+        if (!seen) {
+            setTimeout(function () {
+                showTooltip();
+                autoHideTimer = setTimeout(hideTooltip, 6000);
+                try { sessionStorage.setItem('hkWaTooltipSeen', '1'); } catch (e) {}
+            }, 2500);
+        }
+    })();
 });
