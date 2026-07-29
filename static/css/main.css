@@ -551,6 +551,20 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     line-height: var(--hk-leading-normal);
 }
 
+/* h2 inside a hero (e.g. the About page's closing CTA banner) previously had
+   no color rule of its own, so the global `h1,h2,...{ color: var(--hk-ink) }`
+   (line 28) rendered it near-black on the dark hero background regardless of
+   the section's .text-white — this gives it the same white/fluid treatment
+   as .hk-hero-content h1, just one step down in scale. */
+.hk-hero-content h2 {
+    color: #fff;
+    font-size: var(--hk-text-3xl);
+    font-weight: 800;
+    letter-spacing: var(--hk-tracking-tighter);
+    line-height: var(--hk-leading-tight);
+    text-shadow: 0 2px 24px rgba(0, 0, 0, .25);
+}
+
 /* --- Elite hero typography (homepage only) ------------------------------ */
 .hk-hero-heading {
     color: #fff;
@@ -2384,6 +2398,34 @@ html[data-theme="dark"] .hk-industry-pill:hover {
     font-weight: 600;
 }
 
+/* Gold-gradient variant — pairs with .hk-cta-btn (not a replacement for it,
+   so every other .hk-cta-btn usage across the site is unaffected). Same
+   gradient/hover language as .hk-search-shell-btn, for one consistent
+   "premium accent button" across the app. */
+.hk-cta-btn-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: var(--hk-radius-lg);
+    color: #fff;
+    background: linear-gradient(90deg, var(--hk-gold-600) 0%, var(--hk-gold-400) 100%);
+    box-shadow: var(--hk-elevation-3);
+    transition: transform .2s var(--hk-ease-out), filter .2s ease, box-shadow .2s ease;
+}
+
+.hk-cta-btn-gold:hover,
+.hk-cta-btn-gold:focus-visible {
+    color: #fff;
+    filter: brightness(1.08);
+    transform: scale(1.03);
+    box-shadow: 0 0 28px rgba(240, 169, 58, .45), var(--hk-elevation-3);
+}
+
+.hk-cta-btn-gold:active {
+    transform: scale(.98);
+}
+
 /* --- Related / more listings heading ------------------------------------------- */
 .hk-related-heading {
     position: relative;
@@ -4098,9 +4140,37 @@ html[data-theme="dark"] .hk-review-form {
 }
 
 .hk-credits summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     cursor: pointer;
-    font-weight: 600;
-    color: var(--bs-primary);
+    font-weight: 500;
+    color: var(--hk-ink-soft);
+    transition: color var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-credits summary:hover {
+    color: var(--hk-gold-600);
+}
+
+.hk-credits summary::marker,
+.hk-credits summary::-webkit-details-marker {
+    display: none;
+    content: '';
+}
+
+.hk-credits summary::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-credits[open] summary::before {
+    transform: rotate(45deg);
 }
 
 .hk-credits ul {

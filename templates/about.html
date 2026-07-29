@@ -394,14 +394,16 @@
 </section>
 
 <!-- CTA -->
-<section class="hk-hero hk-section-tight text-white">
+<section class="hk-hero hk-hero-elite hk-section-tight text-white">
+    <div class="hk-hero-glow hk-hero-glow-a"></div>
+    <div class="hk-hero-glow hk-hero-glow-b"></div>
     <div class="container text-center hk-hero-content" data-aos="fade-up">
-        <h2 class="fw-bold mb-2">Join the Hello Kuppam Community</h2>
+        <h2 class="mb-3">Join the Hello <span class="hk-text-gradient-gold">Kuppam</span> Community</h2>
         <p class="lead opacity-75 mb-4">
             Whether you're a resident looking for local services, a visitor exploring Kuppam, or a
             business owner wanting to reach more customers — Hello Kuppam is here to connect you.
         </p>
-        <a href="{% url 'core:contact' %}" class="btn btn-light btn-lg hk-cta-btn">
+        <a href="{% url 'core:contact' %}" class="hk-cta-btn hk-cta-btn-gold">
             <i class="bi bi-telephone-fill"></i> Get In Touch
         </a>
     </div>
