@@ -208,24 +208,63 @@ document.addEventListener('DOMContentLoaded', function () {
     // .hk-select on the page — trigger toggles the menu, clicking a row
     // updates the visible label + the hidden form field, and clicking
     // anywhere outside any open instance closes it.
+    //
+    // The menu is "portaled" to <body> while open: every .hk-hero has
+    // overflow:hidden (it clips the ambient glow blobs), and .hk-select
+    // lives inside one, so a same-parent absolutely-positioned menu taller
+    // than the remaining hero space gets hard-clipped at the hero's bottom
+    // edge. Moving it to <body> as position:fixed, placed from the
+    // trigger's actual viewport coordinates, sidesteps that entirely.
     (function () {
         const selects = document.querySelectorAll('.hk-select');
         if (!selects.length) return;
 
-        function setOpen(select, trigger, open) {
-            select.classList.toggle('is-open', open);
-            trigger.setAttribute('aria-expanded', String(open));
+        function positionMenu(select, trigger, menu) {
+            const rect = trigger.getBoundingClientRect();
+            const margin = 8;
+            const maxLeft = window.innerWidth - menu.offsetWidth - margin;
+            menu.style.top = (rect.bottom + margin) + 'px';
+            menu.style.left = Math.max(margin, Math.min(rect.left, maxLeft)) + 'px';
         }
 
+        function setOpen(select, trigger, menu, open) {
+            select.classList.toggle('is-open', open);
+            trigger.setAttribute('aria-expanded', String(open));
+            if (open) {
+                document.body.appendChild(menu);
+                menu.classList.add('is-portaled');
+                positionMenu(select, trigger, menu);
+                // Force layout so the position lands before the opacity/scale
+                // transition starts, then flip the reveal class next frame.
+                menu.getBoundingClientRect();
+                requestAnimationFrame(function () { menu.classList.add('is-open'); });
+            } else {
+                menu.classList.remove('is-open');
+                select.appendChild(menu);
+                menu.classList.remove('is-portaled');
+                menu.style.top = '';
+                menu.style.left = '';
+            }
+        }
+
+        // Each entry keeps its own trigger/menu pair so closeAll never has to
+        // re-query the DOM for a menu that may currently live under <body>
+        // instead of under its .hk-select.
+        const instances = [];
+
         function closeAll(except) {
-            selects.forEach(function (select) {
-                if (select === except) return;
-                setOpen(select, select.querySelector('.hk-select-trigger'), false);
+            instances.forEach(function (inst) {
+                if (inst.select === except) return;
+                if (inst.select.classList.contains('is-open')) {
+                    setOpen(inst.select, inst.trigger, inst.menu, false);
+                }
             });
         }
 
         selects.forEach(function (select) {
             const trigger = select.querySelector('.hk-select-trigger');
+            const menu = select.querySelector('.hk-select-menu');
+            instances.push({ select: select, trigger: trigger, menu: menu });
             const label = select.querySelector('.hk-select-trigger-label');
             const valueInput = select.querySelector('.hk-select-value');
             const options = select.querySelectorAll('.hk-select-option');
@@ -234,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.stopPropagation();
                 const willOpen = !select.classList.contains('is-open');
                 closeAll(select);
-                setOpen(select, trigger, willOpen);
+                setOpen(select, trigger, menu, willOpen);
             });
 
             options.forEach(function (option) {
@@ -247,16 +286,28 @@ document.addEventListener('DOMContentLoaded', function () {
                     option.setAttribute('aria-selected', 'true');
                     label.textContent = option.querySelector('span').textContent;
                     if (valueInput) valueInput.value = option.dataset.value || '';
-                    setOpen(select, trigger, false);
+                    setOpen(select, trigger, menu, false);
                 });
             });
 
             select.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
-                    setOpen(select, trigger, false);
+                    setOpen(select, trigger, menu, false);
                     trigger.focus();
                 }
             });
+
+            menu.addEventListener('click', function (e) { e.stopPropagation(); });
+        });
+
+        // A fixed-position menu is placed once, at open time — it won't track
+        // the trigger through a scroll or a viewport resize, so close it
+        // rather than let it drift out of alignment.
+        window.addEventListener('scroll', function () {
+            if (document.querySelector('.hk-select.is-open')) closeAll(null);
+        }, true);
+        window.addEventListener('resize', function () {
+            if (document.querySelector('.hk-select.is-open')) closeAll(null);
         });
 
         document.addEventListener('click', function () { closeAll(null); });
