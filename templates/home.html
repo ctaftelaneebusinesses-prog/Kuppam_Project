@@ -125,7 +125,9 @@
             <div class="hk-service-card">
                 <a href="{{ cat_url }}" class="text-decoration-none">
                     <div class="hk-service-card-media">
-                        <img src="{% static cat.image %}" alt="{{ cat.name }}" loading="lazy">
+                        <div class="hk-service-card-media-inner">
+                            <img src="{% static cat.image %}" alt="{{ cat.name }}" loading="lazy">
+                        </div>
                         <span class="hk-service-card-count"><i class="bi bi-list-check"></i> {{ cat.count }} Listing{{ cat.count|pluralize }}</span>
                         <div class="hk-service-card-icon"><i class="bi {{ cat.icon }}"></i></div>
                     </div>
@@ -170,18 +172,19 @@
                 <div class="col"><i class="bi bi-check-circle-fill text-primary me-2"></i>Website Maintenance &amp; Support</div>
                 <div class="col"><i class="bi bi-check-circle-fill text-primary me-2"></i>SEO Optimization</div>
                 <div class="col"><i class="bi bi-check-circle-fill text-primary me-2"></i>Website Hosting &amp; Deployment</div>
+                <div class="col"><i class="bi bi-check-circle-fill text-primary me-2"></i>Call Center &amp; BPO Services</div>
             </div>
 
             <h3 class="fw-bold mb-3">Industries We Serve</h3>
             <div class="d-flex flex-wrap gap-2">
-                <span class="badge bg-primary-subtle">Educational Institutions</span>
-                <span class="badge bg-primary-subtle">Healthcare</span>
-                <span class="badge bg-primary-subtle">Real Estate</span>
-                <span class="badge bg-primary-subtle">Retail &amp; E-Commerce</span>
-                <span class="badge bg-primary-subtle">Restaurants &amp; Caf&eacute;s</span>
-                <span class="badge bg-primary-subtle">Manufacturing</span>
-                <span class="badge bg-primary-subtle">Startups</span>
-                <span class="badge bg-primary-subtle">Corporate Businesses</span>
+                <span class="badge bg-primary-subtle text-primary">Educational Institutions</span>
+                <span class="badge bg-primary-subtle text-primary">Healthcare</span>
+                <span class="badge bg-primary-subtle text-primary">Real Estate</span>
+                <span class="badge bg-primary-subtle text-primary">Retail &amp; E-Commerce</span>
+                <span class="badge bg-primary-subtle text-primary">Restaurants &amp; Caf&eacute;s</span>
+                <span class="badge bg-primary-subtle text-primary">Manufacturing</span>
+                <span class="badge bg-primary-subtle text-primary">Startups</span>
+                <span class="badge bg-primary-subtle text-primary">Corporate Businesses</span>
             </div>
         </div>
     </div>
@@ -345,5 +348,14 @@
     </div>
 </section>
 {% endif %}
+
+<div class="container py-4">
+    <details class="hk-credits">
+        <summary>Photo credits</summary>
+        <ul class="small">
+            <li>Website development section photo — Tirza van Dijk / Unsplash, via Wikimedia Commons, CC0 1.0 Public Domain.</li>
+        </ul>
+    </details>
+</div>
 
 {% endblock %}
