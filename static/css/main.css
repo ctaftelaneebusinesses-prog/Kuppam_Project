@@ -2293,6 +2293,18 @@ html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-light {
     transition: background-color .3s ease, border-color .3s ease, backdrop-filter .3s ease;
 }
 
+/* Below lg, Bootstrap's .offcanvas-lg takes over as a fixed slide-in drawer —
+   only pin the sidebar in place for the persistent desktop layout so we don't
+   fight that positioning on mobile. */
+@media (min-width: 992px) {
+    .hk-dashboard-sidebar {
+        position: sticky;
+        top: 76px;
+        height: calc(100vh - 76px);
+        overflow-y: auto;
+    }
+}
+
 .hk-dashboard-sidebar .offcanvas-header {
     border-bottom: 1px solid var(--hk-border-soft);
 }
