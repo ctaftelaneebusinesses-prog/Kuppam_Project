@@ -2603,6 +2603,9 @@ html[data-theme="dark"] .hk-review-form {
 .form-select {
     border-color: var(--hk-border-soft);
     border-radius: var(--bs-border-radius-lg);
+    transition: border-color var(--hk-duration-fast) var(--hk-ease-out),
+                box-shadow var(--hk-duration-fast) var(--hk-ease-out),
+                background-color var(--hk-duration-fast) var(--hk-ease-out);
 }
 
 .form-control:focus,
@@ -2619,7 +2622,17 @@ html[data-theme="dark"] .hk-review-form {
 
 /* Floating label wrapper — every text/email/tel/textarea/select input site-wide.
    The widget's own placeholder is kept (Django forms already set one) but hidden
-   visually so it doesn't double up with the floated label. */
+   visually so it doesn't double up with the floated label. The wrapper itself
+   lifts slightly on :focus-within, not just the control, so the whole field
+   reads as one elevated unit rather than just a border flashing color. -------- */
+.form-floating {
+    transition: transform var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.form-floating:focus-within {
+    transform: translateY(-1px);
+}
+
 .form-floating > .form-control,
 .form-floating > .form-select {
     border-color: var(--hk-border-soft);
@@ -2638,6 +2651,7 @@ html[data-theme="dark"] .hk-review-form {
 
 .form-floating > label {
     color: var(--hk-ink-soft);
+    transition: color var(--hk-duration-fast) var(--hk-ease-out);
 }
 
 .form-floating > textarea.form-control {
@@ -2651,6 +2665,34 @@ html[data-theme="dark"] .hk-review-form {
 .form-floating > .form-select ~ label {
     color: var(--bs-primary);
     opacity: 1;
+}
+
+/* Client-side validation states (main.js adds .was-validated on submit) —
+   token-consistent success/error tints instead of Bootstrap's stock red/green. */
+.was-validated .form-control:valid,
+.was-validated .form-select:valid,
+.was-validated .form-floating > .form-control:valid,
+.was-validated .form-floating > .form-select:valid {
+    border-color: var(--hk-emerald-500);
+    background-image: none;
+}
+
+.was-validated .form-control:valid:focus,
+.was-validated .form-select:valid:focus {
+    box-shadow: 0 0 0 .18rem rgba(15, 163, 107, .16);
+}
+
+.was-validated .form-control:invalid,
+.was-validated .form-select:invalid,
+.was-validated .form-floating > .form-control:invalid,
+.was-validated .form-floating > .form-select:invalid {
+    border-color: var(--hk-red-600);
+    background-image: none;
+}
+
+.was-validated .form-control:invalid:focus,
+.was-validated .form-select:invalid:focus {
+    box-shadow: 0 0 0 .18rem rgba(220, 53, 69, .16);
 }
 
 /* Inline validation — wrap a .form-floating (or any field block) in

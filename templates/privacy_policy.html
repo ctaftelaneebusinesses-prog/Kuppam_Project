@@ -4,8 +4,8 @@
 
 {% block content %}
 
-<section class="hk-hero text-white py-5">
-    <div class="container text-center py-4 hk-hero-content">
+<section class="hk-hero hk-section-tight text-white">
+    <div class="container text-center hk-hero-content">
         <div class="hk-icon-circle hk-icon-circle-lg mx-auto mb-3" style="background-color: rgba(255,255,255,.16); color: #fff;">
             <i class="bi bi-shield-check"></i>
         </div>
@@ -14,7 +14,8 @@
     </div>
 </section>
 
-<section class="container py-5">
+<section class="hk-section-tight">
+    <div class="container">
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
@@ -37,6 +38,7 @@
                 replace with your finalized privacy policy before launch.</p>
             </div>
         </div>
+    </div>
     </div>
 </section>
 {% endblock %}
