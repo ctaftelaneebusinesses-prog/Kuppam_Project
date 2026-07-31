@@ -1651,7 +1651,7 @@ html[data-theme="dark"] .hk-service-card:hover {
     height: 50px;
     border-radius: var(--hk-radius-md);
     background: var(--hk-surface);
-    color: var(--bs-primary);
+    color: var(--hk-brand-orange-500);
     border: 1px solid var(--hk-border-soft);
     box-shadow: var(--hk-shadow-md);
     display: flex;
@@ -1663,17 +1663,19 @@ html[data-theme="dark"] .hk-service-card:hover {
 }
 
 .hk-service-card:hover .hk-service-card-icon {
-    background: var(--hk-gradient);
+    background: var(--hk-brand-gradient);
     color: #fff;
+    border-color: transparent;
     transform: scale(1.1);
 }
 
 html[data-theme="dark"] .hk-service-card-icon {
     background: rgba(18, 19, 27, .92);
-    border-color: rgba(255, 255, 255, .1);
+    border-color: rgba(245, 158, 11, .2);
     color: var(--hk-brand-orange-500);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--hk-shadow-md), 0 0 20px rgba(245, 158, 11, .15);
 }
 
 html[data-theme="dark"] .hk-service-card:hover .hk-service-card-icon {
@@ -4220,6 +4222,106 @@ html[data-theme="dark"] .hk-review-form {
 
 .hk-history-section:nth-of-type(even) {
     background-color: var(--hk-gray-50);
+}
+
+/* --- Introduction section: always-dark showcase banner --------------------
+   A deliberate exception to the rest of the History page's light content
+   sections — this one is a permanent slate-950 canvas (independent of the
+   light/dark toggle), reusing the same .hk-hero-glow ambient blobs as the
+   homepage's .hk-hero-elite so both read as one consistent "premium dark"
+   signature rather than two different treatments. */
+.hk-intro-dark {
+    position: relative;
+    overflow: hidden;
+    background: var(--hk-dark-bg);
+    padding: calc(var(--hk-section-py) * .8) 0;
+    scroll-margin-top: 135px;
+}
+
+.hk-intro-media-frame {
+    position: relative;
+    z-index: 1;
+    padding: .5rem;
+    border-radius: var(--hk-radius-2xl);
+    border: 1px solid rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .02);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--hk-elevation-5);
+    transition: transform .5s var(--hk-ease-out);
+}
+
+.hk-intro-media-frame:hover {
+    transform: translateY(-4px) scale(1.01);
+}
+
+.hk-intro-media {
+    position: relative;
+    border-radius: var(--hk-radius-xl);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+}
+
+.hk-intro-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hk-intro-media-tag {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    z-index: 2;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, .4);
+    border: 1px solid rgba(255, 255, 255, .1);
+    padding: 6px 12px;
+    border-radius: var(--hk-radius-md);
+    font-size: .625rem;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--hk-gray-300);
+}
+
+.hk-intro-icon {
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--hk-radius-md);
+    background: rgba(124, 99, 232, .1);
+    color: var(--hk-violet-400);
+    border: 1px solid rgba(124, 99, 232, .2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    box-shadow: var(--hk-elevation-3);
+}
+
+.hk-intro-title {
+    position: relative;
+    z-index: 1;
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: var(--hk-tracking-tight);
+    color: #fff;
+}
+
+.hk-intro-body {
+    position: relative;
+    z-index: 1;
+    color: var(--hk-gray-400);
+    font-size: var(--hk-text-base);
+    line-height: var(--hk-leading-normal);
+    letter-spacing: .01em;
+}
+
+.hk-intro-body + .hk-intro-body {
+    margin-top: 1rem;
 }
 
 /* Real-photo media panel (replaces the old gradient/icon placeholder) */
