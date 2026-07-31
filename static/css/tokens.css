@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Hello Kuppam — Design Tokens (v2)
+   OneTownCity — Design Tokens (v2)
    Single source of truth for color, type, spacing, radius, shadow and motion.
    Loaded BEFORE main.css. Every component below reads these custom
    properties rather than literal values — retheming happens here, once,
@@ -33,6 +33,18 @@
     --hk-gold-300: #F5C570;
     --hk-gold-400: #F0A93A;
     --hk-gold-600: #C4901F;
+
+    /* Vibrant brand-mark accent (pin icon only) — distinct from the warmer
+       gold used for ratings/badges elsewhere. */
+    --hk-orange: #F2841D;
+
+    /* OneTownCity logotype gradient — the mark, wordmark accent and hero
+       headline all read from this one ramp so the brand identity stays a
+       single, consistent gradient rather than a per-component recolor. */
+    --hk-brand-orange-500: #F97316;
+    --hk-brand-amber-500: #F59E0B;
+    --hk-brand-orange-600: #EA580C;
+    --hk-brand-gradient: linear-gradient(135deg, var(--hk-brand-orange-500) 0%, var(--hk-brand-amber-500) 55%, var(--hk-brand-orange-600) 100%);
 
     --hk-red-400: #EA5F76;
     --hk-red-500: #E0426B;

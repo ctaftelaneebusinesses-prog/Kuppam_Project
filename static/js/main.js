@@ -1,6 +1,6 @@
-// Hello Kuppam - Main JS
+// OneTownCity - Main JS
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('Hello Kuppam frontend loaded.');
+    console.log('OneTownCity frontend loaded.');
 
     // Site-wide light/dark theme toggle. The initial theme is already applied
     // pre-paint by the inline anti-flash script in base.html; this wires up
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             const url = btn.dataset.url;
-            const title = btn.dataset.title || 'Hello Kuppam';
+            const title = btn.dataset.title || 'OneTownCity';
             if (navigator.share) {
                 navigator.share({ title: title, url: url }).catch(function () {});
             } else if (navigator.clipboard) {
@@ -302,9 +302,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // A fixed-position menu is placed once, at open time — it won't track
         // the trigger through a scroll or a viewport resize, so close it
-        // rather than let it drift out of alignment.
-        window.addEventListener('scroll', function () {
-            if (document.querySelector('.hk-select.is-open')) closeAll(null);
+        // rather than let it drift out of alignment. Capture phase is needed
+        // to see scrolls on any scrollable ancestor, but that also catches
+        // the menu's own internal scroll (its option list has overflow-y:
+        // auto) — without the guard below, every wheel tick inside the menu
+        // would close it before it could scroll at all.
+        window.addEventListener('scroll', function (e) {
+            if (!document.querySelector('.hk-select.is-open')) return;
+            if (e.target !== document && e.target.closest && e.target.closest('.hk-select-menu')) return;
+            closeAll(null);
         }, true);
         window.addEventListener('resize', function () {
             if (document.querySelector('.hk-select.is-open')) closeAll(null);

@@ -290,6 +290,6 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
 
 
 # --- Admin branding -------------------------------------------------------
-admin.site.site_header = 'Hello Kuppam Admin'
-admin.site.site_title = 'Hello Kuppam Admin'
+admin.site.site_header = 'OneTownCity Admin'
+admin.site.site_title = 'OneTownCity Admin'
 admin.site.index_title = 'Manage Listings'

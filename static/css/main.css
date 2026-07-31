@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Hello Kuppam — Design System
+   OneTownCity — Design System
    One consistent, soft, premium visual language shared by every module.
 
    Design tokens (color/type/spacing/radius/shadow scales, light + dark) now
@@ -17,8 +17,10 @@ body {
     /* Compensates for the always-fixed navbar (see #hkNavbar below) so no
        page content ever starts underneath it. The homepage hero is the one
        deliberate exception — it wants to render full-bleed behind the glass
-       navbar — so it cancels this via body.hk-has-transparent-hero. */
-    padding-top: 76px;
+       navbar — so it cancels this via body.hk-has-transparent-hero. Reserves
+       the floating island's top inset (16px) + its height (64px) + a small
+       breathing gap before content (16px). */
+    padding-top: 96px;
 }
 
 body.hk-has-transparent-hero {
@@ -91,46 +93,53 @@ a {
    default skin already has. ---------------------------------------------- */
 .navbar {
     position: fixed !important;
-    top: 0 !important;
-    left: 0;
-    right: 0;
+    top: var(--hk-space-4) !important;
+    left: var(--hk-space-4);
+    right: var(--hk-space-4);
+    max-width: 1280px;
+    margin: 0 auto;
+    height: 64px;
     z-index: var(--hk-z-nav);
-    padding-top: var(--hk-space-3);
-    padding-bottom: var(--hk-space-3);
+    padding-top: 0;
+    padding-bottom: 0;
+    border-radius: var(--hk-radius-xl);
+    border: 1px solid transparent;
     transition: background-color var(--hk-duration-base) var(--hk-ease-out),
                 box-shadow var(--hk-duration-base) var(--hk-ease-out),
                 backdrop-filter var(--hk-duration-base) var(--hk-ease-out),
                 border-color var(--hk-duration-base) var(--hk-ease-out);
 }
 
+/* Bootstrap attaches flex layout to .navbar > .container-fluid already;
+   this just lets it fill the island's full inner width/height. */
+.hk-navbar-inner {
+    height: 100%;
+}
+
 .navbar:not(.hk-navbar-transparent) {
     background-color: rgba(255, 255, 255, .72) !important;
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    box-shadow: var(--hk-elevation-1) !important;
-    border-bottom: 1px solid var(--hk-border-soft);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--hk-elevation-4) !important;
+    border-color: var(--hk-border-soft);
 }
 
 html[data-theme="dark"] .navbar:not(.hk-navbar-transparent) {
-    background-color: rgba(10, 11, 16, .72) !important;
+    background-color: rgba(15, 23, 42, .6) !important;
+    border-color: rgba(255, 255, 255, .1);
 }
 
 .hk-navbar-transparent {
     background-color: rgba(255, 255, 255, 0.08) !important;
     backdrop-filter: blur(16px) saturate(160%);
     -webkit-backdrop-filter: blur(16px) saturate(160%);
-    box-shadow: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: var(--hk-elevation-3) !important;
+    border-color: rgba(255, 255, 255, 0.14);
 }
 
 .hk-navbar-transparent .navbar-brand,
 .hk-navbar-transparent .navbar-nav .nav-link {
     color: #fff !important;
-}
-
-.hk-navbar-transparent .navbar-brand .hk-brand-mark {
-    background: rgba(255, 255, 255, .16);
-    color: #fff;
 }
 
 .hk-navbar-transparent .navbar-toggler-icon {
@@ -145,19 +154,38 @@ html[data-theme="dark"] .navbar:not(.hk-navbar-transparent) {
 
 .hk-navbar-solid {
     background-color: rgba(255, 255, 255, 0.72) !important;
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    box-shadow: var(--hk-elevation-1) !important;
-    border-bottom: 1px solid var(--hk-border-soft);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--hk-elevation-4) !important;
+    border-color: var(--hk-border-soft);
 }
 
 html[data-theme="dark"] .hk-navbar-solid {
-    background-color: rgba(10, 11, 16, 0.72) !important;
+    background-color: rgba(15, 23, 42, .6) !important;
+    border-color: rgba(255, 255, 255, .1);
 }
 
 .navbar .hk-theme-toggle {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--hk-radius-md);
+    background: rgba(0, 0, 0, .03);
+    border: 1px solid var(--hk-border-soft);
+}
+
+.navbar .hk-theme-toggle:hover {
+    background: rgba(0, 0, 0, .06);
+}
+
+html[data-theme="dark"] .navbar .hk-theme-toggle {
+    background: rgba(255, 255, 255, .03);
+    border-color: rgba(255, 255, 255, .1);
+    color: var(--hk-ink-soft);
+}
+
+html[data-theme="dark"] .navbar .hk-theme-toggle:hover {
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
 }
 
 .hk-navbar-transparent .hk-theme-toggle {
@@ -189,10 +217,26 @@ html[data-theme="dark"] .hk-navbar-solid {
     color: var(--hk-ink) !important;
 }
 
-.hk-navbar-transparent.hk-navbar-solid .hk-brand-mark {
-    background: var(--hk-gradient);
-    color: #fff;
+.hk-navbar-transparent.hk-navbar-solid .hk-logo-shell {
+    border-color: rgba(15, 23, 42, .07);
+    background: rgba(15, 23, 42, .02);
 }
+
+.hk-navbar-transparent.hk-navbar-solid .hk-logo-shell:hover {
+    border-color: rgba(15, 23, 42, .14);
+    background: rgba(15, 23, 42, .04);
+}
+
+html[data-theme="dark"] .hk-navbar-transparent.hk-navbar-solid .hk-logo-shell {
+    border-color: rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .03);
+}
+
+html[data-theme="dark"] .hk-navbar-transparent.hk-navbar-solid .hk-logo-shell:hover {
+    border-color: rgba(255, 255, 255, .2);
+    background: rgba(255, 255, 255, .05);
+}
+
 
 .hk-navbar-transparent.hk-navbar-solid .navbar-toggler-icon {
     filter: none;
@@ -207,35 +251,89 @@ html[data-theme="dark"] .hk-navbar-solid {
 .navbar-brand {
     display: inline-flex;
     align-items: center;
-    gap: .6rem;
+    gap: .55rem;
     font-family: var(--hk-font-heading);
-    font-size: 1.2rem;
-    font-weight: 700;
     letter-spacing: var(--hk-tracking-tight);
     color: var(--hk-ink) !important;
 }
 
-/* Small gradient logotype mark preceding the wordmark — reads as a real
-   product mark rather than a bare Bootstrap icon glyph. */
+/* No logotype SVG mark anymore — the wordmark is text-only. .hk-brand-mark
+   still wraps the small contextual Bootstrap-icon badges on the auth pages
+   (login.html / signin.html), so the class itself stays. */
 .hk-brand-mark {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     width: 34px;
     height: 34px;
-    border-radius: var(--hk-radius-sm);
-    background: var(--hk-gradient);
-    color: #fff;
-    font-size: 1rem;
-    transition: background-color var(--hk-duration-base) var(--hk-ease-out);
+    transition: opacity var(--hk-duration-base) var(--hk-ease-out);
+}
+
+/* Single wrapper around "One" + "TownCity" — keeps the wordmark one flex
+   item (not two), so .navbar-brand's gap only ever falls between the icon
+   and the text, never inside the brand name itself. */
+.hk-brand-word {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: 1.2rem;
+    letter-spacing: var(--hk-tracking-tighter);
+}
+
+.hk-brand-word-one {
+    font-weight: 500;
+    color: inherit;
+}
+
+/* Premium glass chip around the logo assembly — a subtle inset card inside
+   the navbar island, not a second heavy pill. Light/dark tuned separately
+   since the bare rgba values read very differently on each surface. */
+.hk-logo-shell {
+    padding: .5rem 1rem;
+    border-radius: var(--hk-radius-lg);
+    border: 1px solid rgba(15, 23, 42, .07);
+    background: rgba(15, 23, 42, .02);
+    transition: transform var(--hk-duration-base) var(--hk-ease-out),
+                border-color var(--hk-duration-base) var(--hk-ease-out),
+                background-color var(--hk-duration-base) var(--hk-ease-out);
+}
+
+.hk-logo-shell:hover {
+    transform: scale(1.02);
+    border-color: rgba(15, 23, 42, .14);
+    background: rgba(15, 23, 42, .04);
+}
+
+html[data-theme="dark"] .hk-logo-shell {
+    border-color: rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .03);
+}
+
+html[data-theme="dark"] .hk-logo-shell:hover {
+    border-color: rgba(255, 255, 255, .2);
+    background: rgba(255, 255, 255, .05);
+}
+
+/* The transparent hero navbar sits on a permanently dark backdrop
+   regardless of the site-wide theme toggle, so its shell always uses the
+   dark-surface treatment. */
+.hk-navbar-transparent .hk-logo-shell {
+    border-color: rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .05);
+}
+
+.hk-navbar-transparent .hk-logo-shell:hover {
+    border-color: rgba(255, 255, 255, .24);
+    background: rgba(255, 255, 255, .08);
 }
 
 .navbar-nav .nav-link {
     font-weight: 500;
     font-size: var(--hk-text-sm);
     color: var(--hk-ink-soft) !important;
-    padding: .55rem 1rem !important;
-    border-radius: var(--hk-radius-pill);
+    padding: .4rem .8rem !important;
+    border-radius: var(--hk-radius-md);
+    border: 1px solid transparent;
     transition: color var(--hk-duration-fast) var(--hk-ease-out),
                 background-color var(--hk-duration-fast) var(--hk-ease-out);
     position: relative;
@@ -263,43 +361,83 @@ html[data-theme="dark"] .hk-navbar-solid {
     background-color: rgba(255, 255, 255, 0.16);
 }
 
+/* Dark theme: monochrome white/slate premium look (instead of the blue
+   accent used in light theme) — matches the floating glass island's
+   high-end SaaS chrome rather than a marketing-site nav. */
+html[data-theme="dark"] .navbar-nav .nav-link:hover,
+html[data-theme="dark"] .navbar-nav .nav-link:focus {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, .06);
+}
+
+html[data-theme="dark"] .navbar-nav .nav-link.active {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .05);
+}
+
 .navbar-nav .nav-link.btn {
     padding: .55rem 1.15rem !important;
 }
 
-/* --- Navbar profile dropdown ------------------------------------------------- */
+/* --- Navbar profile dropdown -------------------------------------------------
+   Deliberately skips Bootstrap's .dropdown-toggle class (see base.html) —
+   that class is what draws the default browser-select-style caret. Only
+   data-bs-toggle="dropdown" is needed to wire up the show/hide JS. --------- */
 .hk-navbar-avatar-btn {
     display: inline-flex;
     align-items: center;
-    padding: .3rem !important;
-    border-radius: var(--hk-radius-pill);
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--hk-radius-md);
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--hk-violet-400) 0%, var(--hk-violet-600) 100%);
+    box-shadow: var(--hk-elevation-2);
+    cursor: pointer;
+    transition: transform var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-navbar-avatar-btn:hover {
+    transform: scale(1.05);
 }
 
 .hk-navbar-avatar-btn img {
-    width: 30px;
-    height: 30px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border: 2px solid var(--bs-primary-bg-subtle);
-    transition: border-color var(--hk-duration-fast) var(--hk-ease-out);
 }
 
-.hk-navbar-transparent:not(.hk-navbar-solid) .hk-navbar-avatar-btn img {
-    border-color: rgba(255, 255, 255, .4);
-}
-
-.hk-navbar-avatar-btn:hover img {
-    border-color: var(--bs-primary);
+.hk-navbar-avatar-initial {
+    color: #fff;
+    font-weight: 700;
+    font-size: var(--hk-text-sm);
+    line-height: 1;
 }
 
 .navbar .dropdown-menu {
     border: 1px solid var(--hk-border-soft);
-    border-radius: var(--hk-radius-md);
+    border-radius: var(--hk-radius-lg);
     box-shadow: var(--hk-elevation-4);
     background-color: var(--hk-surface);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     padding: .5rem;
-    margin-top: .6rem !important;
+    margin-top: .5rem !important;
     min-width: 220px;
     animation: hk-scale-in var(--hk-duration-fast) var(--hk-ease-out);
+}
+
+.hk-navbar-profile-label {
+    padding: .4rem .7rem .5rem;
+    font-size: var(--hk-text-xs);
+    font-weight: 700;
+    color: var(--hk-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-tracking-widest);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .navbar .dropdown-item {
@@ -556,6 +694,9 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
 .hk-hero-content .lead {
     font-size: var(--hk-text-lg);
     line-height: var(--hk-leading-normal);
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* h2 inside a hero (e.g. the About page's closing CTA banner) previously had
@@ -982,6 +1123,23 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     color: var(--hk-gold);
 }
 
+/* Full-line gradient text-clip for the homepage headline — falls back to
+   solid white if background-clip: text isn't supported. */
+.hk-hero-heading-gradient {
+    color: #fff;
+    background: var(--hk-brand-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+    .hk-hero-heading-gradient {
+        -webkit-text-fill-color: initial;
+        color: #fff;
+    }
+}
+
 /* --- Hero stat tiles: bento-grid dashboard cards (homepage only) --------- */
 .hk-hero-stats {
     position: relative;
@@ -1061,6 +1219,17 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
    (source order wins over .hk-section-tight on the shared element). */
 .hk-hero-tall {
     padding-bottom: calc(var(--hk-section-py) * 1.05);
+}
+
+/* Page-top hero rendering full-bleed behind the transparent floating navbar
+   (body.hk-has-transparent-hero cancels the usual 96px body padding — see
+   body, above) needs its own top clearance so the hero's content doesn't
+   sit underneath the fixed island. Matches .hk-hero-fullscreen's 104px
+   navbar-clearance padding exactly. Scoped to a modifier, not baked into
+   .hk-hero-elite itself, since that class is also reused mid-page (About's
+   closing CTA banner) where no such clearance is needed. */
+.hk-hero-navbar-clear {
+    padding-top: 104px;
 }
 
 .hk-section-alt {
@@ -1371,27 +1540,52 @@ html[data-theme="dark"] .hk-process-card-icon--gold {
     font-size: 2rem;
 }
 
-/* --- Services section (homepage) — full-featured category cards -------- */
+/* --- Services section (homepage) — full-featured category cards --------
+   Base rules read the same --hk-surface/--hk-border-soft tokens as every
+   other card on the site, so light mode stays consistent with the rest of
+   the app. The html[data-theme="dark"] overrides below are what turn this
+   into the elite glass treatment — an inset image frame, a translucent
+   gradient body, and a brand-orange hover glow — layered on top of the
+   site-wide ambient canvas (see body background-image, above), instead of
+   a parallel dark-only component. */
 .hk-service-card {
-    border: none;
-    border-radius: var(--hk-radius-card);
+    border: 1px solid var(--hk-border-soft);
+    border-radius: var(--hk-radius-xl);
     background: var(--hk-surface);
     overflow: hidden;
     box-shadow: var(--hk-shadow-sm);
-    transition: transform .3s ease, box-shadow .3s ease;
+    transition: transform .5s var(--hk-ease-out), box-shadow .5s var(--hk-ease-out),
+        border-color .5s var(--hk-ease-out), background-color .5s var(--hk-ease-out);
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .hk-service-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     box-shadow: var(--hk-shadow-hover);
+}
+
+html[data-theme="dark"] .hk-service-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, 0) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(255, 255, 255, .06);
+}
+
+html[data-theme="dark"] .hk-service-card:hover {
+    border-color: rgba(242, 132, 29, .25);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, .015) 100%);
 }
 
 .hk-service-card-media {
     position: relative;
     aspect-ratio: 16 / 10;
+    /* Frames the photo with a 12px margin on three sides (none on the
+       bottom seam) so the floating icon below still overlaps the body
+       cleanly — padding on an absolutely-positioned parent is honored by
+       inset:0 children, so no extra markup is needed for the frame. */
+    padding: 12px 12px 0;
 }
 
 /* Clips only the photo (and its hover zoom) — kept separate from
@@ -1399,15 +1593,16 @@ html[data-theme="dark"] .hk-process-card-icon--gold {
    media/body seam without being cropped by this overflow. */
 .hk-service-card-media-inner {
     position: absolute;
-    inset: 0;
+    inset: 12px 12px 0 12px;
     overflow: hidden;
+    border-radius: var(--hk-radius-lg);
 }
 
 .hk-service-card-media-inner img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform .5s ease;
+    transition: transform .6s var(--hk-ease-out);
 }
 
 .hk-service-card:hover .hk-service-card-media-inner img {
@@ -1418,7 +1613,7 @@ html[data-theme="dark"] .hk-process-card-icon--gold {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 55%, rgba(11,20,38,.55) 100%);
+    background: linear-gradient(180deg, transparent 45%, rgba(2, 6, 23, .75) 100%);
 }
 
 /* Icon-display mode: a premium 3D illustration centered on a tinted gradient
@@ -1450,42 +1645,66 @@ html[data-theme="dark"] .hk-process-card-icon--gold {
 .hk-service-card-icon {
     position: absolute;
     bottom: -22px;
-    left: 20px;
-    z-index: 2;
-    width: 54px;
-    height: 54px;
-    border-radius: var(--bs-border-radius-lg);
+    left: 24px;
+    z-index: 3;
+    width: 50px;
+    height: 50px;
+    border-radius: var(--hk-radius-md);
     background: var(--hk-surface);
     color: var(--bs-primary);
+    border: 1px solid var(--hk-border-soft);
     box-shadow: var(--hk-shadow-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4rem;
-    transition: background-color .25s ease, color .25s ease;
+    font-size: 1.35rem;
+    transition: transform .3s var(--hk-ease-out), background-color .3s ease,
+        color .3s ease, border-color .3s ease;
 }
 
 .hk-service-card:hover .hk-service-card-icon {
     background: var(--hk-gradient);
     color: #fff;
+    transform: scale(1.1);
 }
 
+html[data-theme="dark"] .hk-service-card-icon {
+    background: rgba(18, 19, 27, .92);
+    border-color: rgba(255, 255, 255, .1);
+    color: var(--hk-brand-orange-500);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+html[data-theme="dark"] .hk-service-card:hover .hk-service-card-icon {
+    background: var(--hk-brand-gradient);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* Positioned relative to the media box (not the inset frame), then nudged
+   in by the 12px frame padding so it reads as floating inside the photo,
+   matching .hk-service-card-media-inner's own inset. */
 .hk-service-card-count {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 24px;
+    right: 24px;
     z-index: 2;
-    background: rgba(0, 0, 0, .5);
+    background: rgba(0, 0, 0, .45);
     color: #fff;
-    font-size: .72rem;
-    font-weight: 600;
-    padding: 5px 12px;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
     border-radius: var(--hk-radius-pill);
-    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, .14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .hk-service-card-body {
-    padding: 34px 22px 22px;
+    padding: 34px 24px 24px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -1493,21 +1712,46 @@ html[data-theme="dark"] .hk-process-card-icon--gold {
 
 .hk-service-card-body h5 {
     font-weight: 700;
+    letter-spacing: var(--hk-tracking-tight);
     margin-bottom: 8px;
 }
 
 .hk-service-card-body p {
     color: var(--hk-ink-soft);
     font-size: .88rem;
-    line-height: 1.55;
+    line-height: 1.6;
     flex: 1;
+    margin-bottom: 20px;
 }
 
 .hk-service-card-body .btn {
-    align-self: flex-start;
-    border-radius: var(--hk-radius-pill);
-    font-weight: 600;
-    padding: 8px 20px;
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: var(--hk-radius-md);
+    font-weight: 700;
+    font-size: .8rem;
+    letter-spacing: .01em;
+    padding: 12px 20px;
+    background: var(--hk-brand-gradient);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(242, 132, 29, .25);
+    transition: transform .25s var(--hk-ease-out), box-shadow .25s ease, filter .25s ease;
+}
+
+.hk-service-card-body .btn:hover,
+.hk-service-card-body .btn:focus-visible {
+    filter: brightness(1.06);
+    transform: scale(1.02);
+    box-shadow: 0 10px 26px rgba(242, 132, 29, .35);
+    color: #fff;
+}
+
+.hk-service-card-body .btn:active {
+    transform: scale(.98);
 }
 
 /* --- Justified body copy (About page, and anywhere longer paragraphs need
@@ -2082,7 +2326,7 @@ html[data-theme="dark"] .hk-contact-meta-icon {
     border: 1px solid rgba(91, 61, 224, .3);
 }
 
-/* --- "Why Hello Kuppam" feature cards ---------------------------------------- */
+/* --- "Why OneTownCity" feature cards ---------------------------------------- */
 .hk-why-card {
     height: 100%;
     padding: var(--hk-space-5);
@@ -2707,8 +2951,14 @@ footer a:hover {
     color: #fff;
 }
 
-.hk-footer-brand .hk-brand-mark {
-    background: var(--hk-gradient);
+/* Gradient text-clip for the "TownCity" half of the wordmark, and for the
+   hero headline — both read from the same brand gradient token. */
+.hk-brand-accent {
+    background: var(--hk-brand-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 900;
 }
 
 .hk-footer-tagline {
@@ -2718,8 +2968,24 @@ footer a:hover {
     max-width: 32ch;
 }
 
+.hk-navbar-powered {
+    padding-left: var(--hk-space-3);
+    margin-left: var(--hk-space-1);
+    border-left: 1px solid var(--hk-border-soft);
+}
+
+.hk-navbar-powered-text {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--hk-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-tracking-widest);
+    margin-right: var(--hk-space-2);
+    white-space: nowrap;
+}
+
 .hk-navbar-craftlanee-logo {
-    height: 22px;
+    height: 18px;
 }
 
 /* Two swapped images (dark-text default, light-text for dark backgrounds)
@@ -4021,7 +4287,11 @@ html[data-theme="dark"] .hk-review-form {
     color: var(--hk-ink-soft);
 }
 
-/* --- Vertical timeline (chronological quick index) -------------------------------------- */
+/* --- Vertical timeline (chronological quick index) --------------------------------------
+   Base rules stay theme-neutral (same --hk-surface/--hk-ink tokens as every
+   other card); html[data-theme="dark"] overrides below layer on the glass
+   node + gradient-track treatment so it reads as part of the same premium
+   dark canvas as the homepage category cards, without touching the DOM. */
 .hk-timeline {
     position: relative;
     max-width: 900px;
@@ -4038,6 +4308,12 @@ html[data-theme="dark"] .hk-review-form {
     width: 3px;
     border-radius: 3px;
     background: var(--hk-gradient);
+}
+
+html[data-theme="dark"] .hk-timeline::before {
+    width: 2px;
+    background: linear-gradient(180deg, var(--hk-violet-400) 0%, var(--hk-brand-orange-500) 55%, rgba(242, 132, 29, .15) 100%);
+    box-shadow: 0 0 16px rgba(124, 99, 232, .35);
 }
 
 .hk-timeline-item {
@@ -4059,7 +4335,7 @@ html[data-theme="dark"] .hk-review-form {
     width: 56px;
     height: 56px;
     min-width: 56px;
-    border-radius: 50%;
+    border-radius: var(--hk-radius-lg);
     background: var(--hk-surface);
     border: 3px solid var(--bs-primary);
     color: var(--bs-primary);
@@ -4068,7 +4344,7 @@ html[data-theme="dark"] .hk-review-form {
     justify-content: center;
     font-size: 1.3rem;
     box-shadow: var(--hk-shadow-sm);
-    transition: background-color .2s ease, color .2s ease, transform .2s ease;
+    transition: background-color .3s ease, color .3s ease, border-color .3s ease, transform .3s var(--hk-ease-out);
 }
 
 .hk-timeline-item:hover .hk-timeline-icon {
@@ -4077,13 +4353,30 @@ html[data-theme="dark"] .hk-review-form {
     transform: scale(1.08);
 }
 
+html[data-theme="dark"] .hk-timeline-icon {
+    background: rgba(18, 19, 27, .92);
+    border: 1px solid rgba(255, 255, 255, .1);
+    color: var(--hk-brand-orange-500);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 0 20px rgba(99, 102, 241, .15);
+}
+
+html[data-theme="dark"] .hk-timeline-item:hover .hk-timeline-icon {
+    background: rgba(18, 19, 27, .92);
+    color: var(--hk-brand-orange-500);
+    border-color: rgba(242, 132, 29, .4);
+    transform: scale(1.1);
+}
+
 .hk-timeline-body {
     background: var(--hk-surface);
-    border-radius: var(--bs-border-radius-lg);
+    border: 1px solid transparent;
+    border-radius: var(--hk-radius-xl);
     box-shadow: var(--hk-shadow-sm);
-    padding: 14px 18px;
+    padding: 20px 24px;
     flex: 1;
-    transition: box-shadow .2s ease, transform .2s ease;
+    transition: box-shadow .3s ease, transform .3s var(--hk-ease-out), border-color .3s ease, background-color .3s ease;
 }
 
 .hk-timeline-item:hover .hk-timeline-body {
@@ -4091,22 +4384,45 @@ html[data-theme="dark"] .hk-review-form {
     transform: translateX(4px);
 }
 
+html[data-theme="dark"] .hk-timeline-body {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, 0) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(255, 255, 255, .06);
+}
+
+html[data-theme="dark"] .hk-timeline-item:hover .hk-timeline-body {
+    border-color: rgba(255, 255, 255, .15);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, .015) 100%);
+    transform: translateX(4px) translateY(-2px);
+}
+
 .hk-timeline-period {
-    font-size: .72rem;
+    font-size: .68rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .05em;
+    letter-spacing: .12em;
     color: var(--bs-primary);
+    display: block;
+    margin-bottom: 4px;
+}
+
+html[data-theme="dark"] .hk-timeline-period {
+    color: var(--hk-brand-orange-500);
 }
 
 .hk-timeline-title {
-    font-weight: 600;
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: var(--hk-tracking-tight);
     color: var(--hk-ink);
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .hk-timeline-summary {
     font-size: .85rem;
+    line-height: 1.6;
+    letter-spacing: .01em;
     color: var(--hk-ink-soft);
     margin-bottom: 0;
 }

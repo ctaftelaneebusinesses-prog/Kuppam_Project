@@ -25,7 +25,7 @@
 #     Homepage: hero section, search box, category grid.
 #     """
 #     context = {
-#         'page_title': 'Hello Kuppam - Your Local Information Portal',
+#         'page_title': 'OneTownCity - Your Local Information Portal',
 #         'categories': CATEGORIES,
 #     }
 #     return render(request, 'home.html', context)
@@ -47,7 +47,7 @@
 #         ]
 
 #     context = {
-#         'page_title': f'Search Results for "{query}"' if query else 'Search - Hello Kuppam',
+#         'page_title': f'Search Results for "{query}"' if query else 'Search - OneTownCity',
 #         'query': query,
 #         'category': category,
 #         'categories': CATEGORIES,
@@ -78,7 +78,7 @@
 #         form = AdminLoginForm(request)
 
 #     context = {
-#         'page_title': 'Admin Login - Hello Kuppam',
+#         'page_title': 'Admin Login - OneTownCity',
 #         'form': form,
 #     }
 #     return render(request, 'login.html', context)
@@ -107,7 +107,7 @@
 #             full_message = f"From: {name} <{email}>\n\n{message}"
 
 #             send_mail(
-#                 subject=f'[Hello Kuppam Contact] {subject}',
+#                 subject=f'[OneTownCity Contact] {subject}',
 #                 message=full_message,
 #                 from_email=settings.DEFAULT_FROM_EMAIL,
 #                 recipient_list=[settings.CONTACT_RECEIVER_EMAIL],
@@ -119,7 +119,7 @@
 #         form = ContactForm()
 
 #     context = {
-#         'page_title': 'Contact Us - Hello Kuppam',
+#         'page_title': 'Contact Us - OneTownCity',
 #         'form': form,
 #     }
 #     return render(request, 'contact.html', context)
@@ -276,19 +276,19 @@ CATEGORIES = [
     {
         'name': 'Real Estate', 'icon': 'bi-house-door', 'slug': 'real-estate',
         'image': 'images/services/real-estate.jpg',
-        'description': 'Find houses, apartments, plots, villas, rental properties, and commercial spaces available across Kuppam.',
+        'description': 'Find houses, apartments, plots, villas, rental properties, and commercial spaces available in your location.',
         'count_fn': lambda: _public_qs(Property).count(),
     },
     {
         'name': 'Businesses', 'icon': 'bi-shop', 'slug': 'shops',
         'image': 'images/services/business.jpg',
-        'description': 'Explore car garages, clothing and textile shops, stationery shops, supermarkets, salons, and other local businesses around Kuppam.',
+        'description': 'Explore car garages, clothing and textile shops, stationery shops, supermarkets, salons, and other local businesses across the city.',
         'count_fn': lambda: _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES).count(),
     },
     {
         'name': 'Jobs', 'icon': 'bi-briefcase', 'slug': 'jobs',
         'image': 'images/services/jobs.jpg',
-        'description': 'Browse job openings from local shops, offices, and companies hiring across Kuppam.',
+        'description': 'Browse job openings from local shops, offices, and companies hiring across the city.',
         'count_fn': lambda: _public_qs(Job).count(),
     },
     {
@@ -300,7 +300,7 @@ CATEGORIES = [
     {
         'name': 'Restaurants', 'icon': 'bi-cup-hot', 'slug': 'restaurants',
         'image': 'images/services/restaurants.jpg',
-        'description': 'Discover the best restaurants, cafés, bakeries, and food outlets in Kuppam.',
+        'description': 'Discover the best restaurants, cafés, bakeries, and food outlets in your location.',
         'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['restaurants']['categories']).count(),
     },
     {
@@ -312,7 +312,7 @@ CATEGORIES = [
     {
         'name': 'Education', 'icon': 'bi-mortarboard', 'slug': 'education',
         'image': 'images/services/education.jpg',
-        'description': 'Explore schools, colleges, universities, and other educational institutions in Kuppam.',
+        'description': 'Explore schools, colleges, universities, and other educational institutions in your location.',
         'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['education']['categories']).count(),
     },
     {
@@ -324,13 +324,13 @@ CATEGORIES = [
     {
         'name': 'News', 'icon': 'bi-newspaper', 'slug': 'news',
         'image': 'images/services/news.jpg',
-        'description': 'Catch up on local announcements, civic updates, and news from around Kuppam.',
+        'description': 'Catch up on local announcements, civic updates, and news from across the city.',
         'count_fn': lambda: _public_qs(News).count(),
     },
     {
         'name': 'Upcoming Projects', 'icon': 'bi-cone-striped', 'slug': 'projects',
         'image': 'images/services/upcoming-projects.jpg',
-        'description': 'Track planned and ongoing civic and infrastructure projects shaping Kuppam.',
+        'description': 'Track planned and ongoing civic and infrastructure projects shaping your city.',
         'count_fn': lambda: _public_qs(Project).count(),
     },
 ]
@@ -374,7 +374,7 @@ def home(request):
     }
 
     context = {
-        'page_title': 'Hello Kuppam - Your Local Information Portal',
+        'page_title': 'OneTownCity — Visual Local Engine & Discovery Portal',
         'categories': _categories_with_counts(),
         'featured_businesses': featured_businesses,
         'featured_properties': featured_properties,
@@ -473,7 +473,7 @@ def search(request):
         total_results = sum(s['count'] for s in sections)
 
     context = {
-        'page_title': f'Search Results for "{query}"' if query else 'Search - Hello Kuppam',
+        'page_title': f'Search Results for "{query}"' if query else 'Search - OneTownCity',
         'query': query,
         'category': category,
         'categories': CATEGORIES,
@@ -513,7 +513,7 @@ def business_list(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'Businesses - Hello Kuppam',
+        'page_title': 'Businesses - OneTownCity',
         'page_obj': page_obj,
         'query': query,
         'selected_category': category,
@@ -534,7 +534,7 @@ def business_detail(request, slug):
     related_businesses = _public_qs(Business).filter(category=business.category).exclude(pk=business.pk)[:3]
 
     context = {
-        'page_title': f'{business.name} - Hello Kuppam',
+        'page_title': f'{business.name} - OneTownCity',
         'business': business,
         'related_businesses': related_businesses,
         **_community_context(request, business),
@@ -583,7 +583,7 @@ def directory_list(request, category):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': f"{config['label']} - Hello Kuppam",
+        'page_title': f"{config['label']} - OneTownCity",
         'page_obj': page_obj,
         'query': query,
         'total_results': businesses.count(),
@@ -618,7 +618,7 @@ def property_list(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'Properties - Hello Kuppam',
+        'page_title': 'Properties - OneTownCity',
         'page_obj': page_obj,
         'query': query,
         'selected_type': property_type,
@@ -637,7 +637,7 @@ def property_detail(request, slug):
     related_properties = _public_qs(Property).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk)[:3]
 
     context = {
-        'page_title': f'{property_obj.title} - Hello Kuppam',
+        'page_title': f'{property_obj.title} - OneTownCity',
         'property': property_obj,
         'related_properties': related_properties,
         **_community_context(request, property_obj),
@@ -664,7 +664,7 @@ def job_list(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'Jobs - Hello Kuppam',
+        'page_title': 'Jobs - OneTownCity',
         'page_obj': page_obj,
         'query': query,
         'total_results': jobs.count(),
@@ -681,7 +681,7 @@ def job_detail(request, slug):
     related_jobs = _public_qs(Job).filter(company=job.company).exclude(pk=job.pk)[:3]
 
     context = {
-        'page_title': f'{job.job_title} at {job.company} - Hello Kuppam',
+        'page_title': f'{job.job_title} at {job.company} - OneTownCity',
         'job': job,
         'related_jobs': related_jobs,
         **_community_context(request, job),
@@ -708,7 +708,7 @@ def event_list(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'Events - Hello Kuppam',
+        'page_title': 'Events - OneTownCity',
         'page_obj': page_obj,
         'query': query,
         'total_results': events.count(),
@@ -725,7 +725,7 @@ def event_detail(request, slug):
     related_events = _public_qs(Event).exclude(pk=event.pk)[:3]
 
     context = {
-        'page_title': f'{event.title} - Hello Kuppam',
+        'page_title': f'{event.title} - OneTownCity',
         'event': event,
         'related_events': related_events,
         **_community_context(request, event),
@@ -752,7 +752,7 @@ def news_list(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'News - Hello Kuppam',
+        'page_title': 'News - OneTownCity',
         'page_obj': page_obj,
         'query': query,
         'total_results': articles.count(),
@@ -769,7 +769,7 @@ def news_detail(request, slug):
     related_articles = _public_qs(News).exclude(pk=article.pk)[:3]
 
     context = {
-        'page_title': f'{article.title} - Hello Kuppam',
+        'page_title': f'{article.title} - OneTownCity',
         'article': article,
         'related_articles': related_articles,
         **_community_context(request, article),
@@ -797,7 +797,7 @@ def project_list(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'Upcoming Projects - Hello Kuppam',
+        'page_title': 'Upcoming Projects - OneTownCity',
         'page_obj': page_obj,
         'query': query,
         'total_results': projects.count(),
@@ -814,7 +814,7 @@ def project_detail(request, slug):
     related_projects = _public_qs(Project).exclude(pk=project.pk)[:3]
 
     context = {
-        'page_title': f'{project.title} - Hello Kuppam',
+        'page_title': f'{project.title} - OneTownCity',
         'project': project,
         'related_projects': related_projects,
         **_community_context(request, project),
@@ -829,7 +829,7 @@ def upload_hub(request):
     for each module (Businesses, Properties, Jobs, Events, News).
     """
     context = {
-        'page_title': 'Excel Upload Center - Hello Kuppam',
+        'page_title': 'Excel Upload Center - OneTownCity',
         'configs': UPLOAD_CONFIGS.values(),
     }
     return render(request, 'uploads/upload_hub.html', context)
@@ -873,7 +873,7 @@ def upload_view(request, model_key):
         form = ExcelUploadForm()
 
     context = {
-        'page_title': f'Upload {config["label"]} - Hello Kuppam',
+        'page_title': f'Upload {config["label"]} - OneTownCity',
         'form': form,
         'config': config,
         'model_key': model_key,
@@ -935,7 +935,7 @@ def admin_login(request):
         form = AdminLoginForm(request)
 
     context = {
-        'page_title': 'Admin Login - Hello Kuppam',
+        'page_title': 'Admin Login - OneTownCity',
         'form': form,
     }
     return render(request, 'login.html', context)
@@ -973,7 +973,7 @@ def contact(request):
             full_message = f"From: {name} <{email}>\n\n{message}"
 
             send_mail(
-                subject=f'[Hello Kuppam Contact] {subject}',
+                subject=f'[OneTownCity Contact] {subject}',
                 message=full_message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[settings.CONTACT_RECEIVER_EMAIL],
@@ -985,7 +985,7 @@ def contact(request):
         form = ContactForm()
 
     context = {
-        'page_title': 'Contact Us - Hello Kuppam',
+        'page_title': 'Contact Us - OneTownCity',
         'form': form,
     }
     return render(request, 'contact.html', context)
@@ -1021,11 +1021,11 @@ def newsletter_subscribe(request):
 
 def about(request):
     """
-    About Us: Hello Kuppam platform profile (who we are, mission, vision,
+    About Us: OneTownCity platform profile (who we are, mission, vision,
     what we offer, how it works, team, and commitment).
     """
     context = {
-        'page_title': 'About Us - Hello Kuppam',
+        'page_title': 'About Us - OneTownCity',
     }
     return render(request, 'about.html', context)
 
@@ -1048,7 +1048,7 @@ def history(request):
         {'file': 'images/history/tourism-horsley.jpg', 'caption': 'Horsley Hills, ultra-wide panorama', 'wide': True},
     ]
     context = {
-        'page_title': 'History of Kuppam - Hello Kuppam',
+        'page_title': 'History of Kuppam - OneTownCity',
         'gallery_images': gallery_images,
     }
     return render(request, 'history.html', context)
@@ -1056,12 +1056,12 @@ def history(request):
 
 def privacy_policy(request):
     """Static privacy policy page, linked from the footer."""
-    return render(request, 'privacy_policy.html', {'page_title': 'Privacy Policy - Hello Kuppam'})
+    return render(request, 'privacy_policy.html', {'page_title': 'Privacy Policy - OneTownCity'})
 
 
 def terms_of_service(request):
     """Static terms of service page, linked from the footer."""
-    return render(request, 'terms_of_service.html', {'page_title': 'Terms of Service - Hello Kuppam'})
+    return render(request, 'terms_of_service.html', {'page_title': 'Terms of Service - OneTownCity'})
 
 
 # ===========================================================================
@@ -1115,7 +1115,7 @@ def google_login(request):
     if request.user.is_authenticated:
         return redirect('core:home')
     context = {
-        'page_title': 'Sign In - Hello Kuppam',
+        'page_title': 'Sign In - OneTownCity',
         'login_form': PasswordLoginForm(request),
         'register_form': RegisterForm(),
         'active_tab': request.GET.get('tab', 'signin'),
@@ -1141,7 +1141,7 @@ def password_login(request):
 
     messages.error(request, 'Invalid username or password.')
     context = {
-        'page_title': 'Sign In - Hello Kuppam',
+        'page_title': 'Sign In - OneTownCity',
         'login_form': form,
         'register_form': RegisterForm(),
         'active_tab': 'signin',
@@ -1184,7 +1184,7 @@ def register(request):
         return redirect(_post_login_redirect(profile))
 
     context = {
-        'page_title': 'Sign In - Hello Kuppam',
+        'page_title': 'Sign In - OneTownCity',
         'login_form': PasswordLoginForm(request),
         'register_form': form,
         'active_tab': 'register',
@@ -1198,7 +1198,7 @@ def auth_callback_page(request):
     Where Supabase redirects back to after Google auth. The page's JS grabs
     the resulting session and POSTs the access token to auth_callback_api.
     """
-    return render(request, 'auth_callback.html', {'page_title': 'Signing you in... - Hello Kuppam'})
+    return render(request, 'auth_callback.html', {'page_title': 'Signing you in... - OneTownCity'})
 
 
 @require_POST
@@ -1290,7 +1290,7 @@ def complete_profile(request):
         form = ProfileCompletionForm(instance=profile, initial={'full_name': profile.full_name or request.user.get_full_name()})
 
     context = {
-        'page_title': 'Complete Your Profile - Hello Kuppam',
+        'page_title': 'Complete Your Profile - OneTownCity',
         'form': form,
         'email': request.user.email,
     }
@@ -1312,10 +1312,10 @@ def choose_intent(request):
             profile.save(update_fields=['intent'])
             if choice == Intent.UPLOAD:
                 return redirect('core:admin_request_new')
-            messages.success(request, 'Welcome to Hello Kuppam!')
+            messages.success(request, 'Welcome to OneTownCity!')
             return redirect('core:home')
 
-    return render(request, 'choose_intent.html', {'page_title': 'Welcome - Hello Kuppam'})
+    return render(request, 'choose_intent.html', {'page_title': 'Welcome - OneTownCity'})
 
 
 @onboarding_required
@@ -1356,7 +1356,7 @@ def admin_request_new(request):
         form = AdminRequestForm(initial=initial)
 
     context = {
-        'page_title': 'What Do You Want to Manage? - Hello Kuppam',
+        'page_title': 'What Do You Want to Manage? - OneTownCity',
         'form': form,
         'resubmitting': bool(resubmitting),
     }
@@ -1368,7 +1368,7 @@ def admin_request_pending(request):
     if request.profile.role in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
         return redirect('core:my_listings')
     admin_request = AdminRequest.objects.filter(user=request.user).order_by('-created_at').first()
-    context = {'page_title': 'Application Status - Hello Kuppam', 'admin_request': admin_request}
+    context = {'page_title': 'Application Status - OneTownCity', 'admin_request': admin_request}
     return render(request, 'admin_request_pending.html', context)
 
 
@@ -1497,7 +1497,7 @@ def my_favorites(request):
         {'obj': f.content_object, 'label': f.content_object._meta.verbose_name}
         for f in favorites if f.content_object is not None
     ]
-    return render(request, 'favorites.html', {'page_title': 'My Favorites - Hello Kuppam', 'items': items, 'active_nav': 'favorites'})
+    return render(request, 'favorites.html', {'page_title': 'My Favorites - OneTownCity', 'items': items, 'active_nav': 'favorites'})
 
 
 # ===========================================================================
@@ -1508,7 +1508,7 @@ def my_favorites(request):
 def notifications_list(request):
     notification_qs = request.user.notifications.all()
     return render(request, 'notifications.html', {
-        'page_title': 'Notifications - Hello Kuppam',
+        'page_title': 'Notifications - OneTownCity',
         'notification_qs': notification_qs,
     })
 
@@ -1550,7 +1550,7 @@ def my_listings(request):
         permitted_categories = permitted_categories.filter(admin_permissions__admin=request.user)
 
     context = {
-        'page_title': 'My Listings - Hello Kuppam',
+        'page_title': 'My Listings - OneTownCity',
         'items': items,
         'permitted_categories': permitted_categories,
         'active_nav': 'my_listings',
@@ -1588,7 +1588,7 @@ def listing_submit(request, category_key):
             initial['category'] = category.business_subcategory
         form = form_cls(initial=initial)
 
-    context = {'page_title': f'Add {category.label} - Hello Kuppam', 'form': form, 'category': category, 'active_nav': 'my_listings'}
+    context = {'page_title': f'Add {category.label} - OneTownCity', 'form': form, 'category': category, 'active_nav': 'my_listings'}
     return render(request, 'dashboard/listing_submit.html', context)
 
 
@@ -1620,7 +1620,7 @@ def listing_edit(request, model_key, pk):
         form = form_cls(instance=obj)
 
     context = {
-        'page_title': f'Edit {obj} - Hello Kuppam',
+        'page_title': f'Edit {obj} - OneTownCity',
         'form': form,
         'object': obj,
         'model_key': model_key,
@@ -1695,7 +1695,7 @@ def _super_admin_dashboard(request):
     }
 
     context = {
-        'page_title': 'Super Admin Dashboard - Hello Kuppam',
+        'page_title': 'Super Admin Dashboard - OneTownCity',
         'stats': stats,
         'recent_requests': AdminRequest.objects.select_related('user').prefetch_related('categories').order_by('-created_at')[:5],
         'recent_logins': LoginHistory.objects.select_related('user').filter(event_type='login').order_by('-created_at')[:10],
@@ -1718,7 +1718,7 @@ def dashboard_users(request):
         profiles = profiles.filter(role=role_filter)
 
     context = {
-        'page_title': 'Manage Users - Hello Kuppam',
+        'page_title': 'Manage Users - OneTownCity',
         'profiles': profiles,
         'query': query,
         'role_filter': role_filter,
@@ -1772,7 +1772,7 @@ def dashboard_messages(request):
     page_obj = paginator.get_page(request.GET.get('page'))
 
     context = {
-        'page_title': 'Contact Messages - Hello Kuppam',
+        'page_title': 'Contact Messages - OneTownCity',
         'page_obj': page_obj,
         'query': query,
         'status_filter': status_filter,
@@ -1799,7 +1799,7 @@ def dashboard_admin_requests(request):
         requests_qs = requests_qs.filter(status=status_filter)
 
     context = {
-        'page_title': 'Admin Requests - Hello Kuppam',
+        'page_title': 'Admin Requests - OneTownCity',
         'requests': requests_qs,
         'status_filter': status_filter,
         'status_choices': AdminRequestStatus.choices,
@@ -1857,7 +1857,7 @@ def dashboard_admin_request_detail(request, pk):
         form = AdminRequestReviewForm()
 
     context = {
-        'page_title': 'Review Admin Request - Hello Kuppam',
+        'page_title': 'Review Admin Request - OneTownCity',
         'admin_request': admin_request,
         'form': form,
         'active_nav': 'requests',
@@ -1875,7 +1875,7 @@ def dashboard_categories(request):
         return redirect('core:dashboard_categories')
 
     return render(request, 'dashboard/categories.html', {
-        'page_title': 'Manage Categories - Hello Kuppam',
+        'page_title': 'Manage Categories - OneTownCity',
         'categories': Category.objects.all(),
         'active_nav': 'categories',
     })
@@ -1894,7 +1894,7 @@ def dashboard_pending_listings(request):
     items.sort(key=lambda item: item['obj'].created_at, reverse=True)
 
     context = {
-        'page_title': 'Listing Approvals - Hello Kuppam',
+        'page_title': 'Listing Approvals - OneTownCity',
         'items': items,
         'status_filter': status_filter,
         'status_choices': ListingStatus.choices,
@@ -2018,7 +2018,7 @@ def dashboard_posts(request):
         counts['rejected'] += model_cls.objects.filter(status=ListingStatus.REJECTED).count()
 
     context = {
-        'page_title': 'Posts - Hello Kuppam',
+        'page_title': 'Posts - OneTownCity',
         'page_obj': page_obj,
         'query': q,
         'selected_category': category_id,
@@ -2046,7 +2046,7 @@ def dashboard_post_detail(request, model_key, pk):
     gallery_images = PostImage.objects.filter(content_type=ct, object_id=obj.pk).select_related('uploaded_by')
 
     context = {
-        'page_title': f'{obj} - Hello Kuppam',
+        'page_title': f'{obj} - OneTownCity',
         'obj': obj,
         'model_key': model_key,
         'gallery_images': gallery_images,

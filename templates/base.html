@@ -16,11 +16,17 @@
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Hello Kuppam{% endblock %}</title>
+    <title>{% block title %}OneTownCity — Visual Local Engine & Discovery Portal{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Explore your city with absolute clarity. Discover verified real estate, businesses, shopping, and upcoming projects on OneTownCity. View image streams, access Google links instantly, and interact with your community.{% endblock %}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="OneTownCity">
+    <meta property="og:title" content="{% block og_title %}OneTownCity — The Smart City Network{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Explore your city with absolute clarity. Discover verified real estate, businesses, shopping, and upcoming projects on OneTownCity. View image streams, access Google links instantly, and interact with your community.{% endblock %}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -32,12 +38,14 @@
 </head>
 <body class="{% block body_class %}{% endblock %}">
 
-    <!-- Navbar -->
+    <!-- Navbar: floating glass island, fixed + inset from the viewport edges
+         (see .navbar rules in main.css). Uses container-fluid, not .container
+         — the island itself already carries the max-width/centering, so an
+         inner max-width would double-constrain it. -->
     <nav class="navbar navbar-expand-lg navbar-light {% block navbar_class %}{% endblock %}" id="hkNavbar">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'core:home' %}">
-                <span class="hk-brand-mark"><i class="bi bi-geo-alt-fill"></i></span>
-                Hello Kuppam
+        <div class="container-fluid hk-navbar-inner">
+            <a class="navbar-brand hk-logo-shell" href="{% url 'core:home' %}">
+                <span class="hk-brand-word"><span class="hk-brand-word-one">One</span><span class="hk-brand-accent">TownCity</span></span>
             </a>
 
             <!-- Desktop nav (lg and up) -->
@@ -59,7 +67,7 @@
                 </li>
             </ul>
 
-            <div class="d-flex align-items-center gap-2 gap-lg-3">
+            <div class="d-flex align-items-center gap-2">
                 <button type="button" class="hk-theme-toggle d-none d-lg-inline-flex" id="hkThemeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
                     <i class="bi bi-moon-stars" id="hkThemeIcon"></i>
                 </button>
@@ -70,11 +78,19 @@
                         <i class="bi bi-speedometer2"></i>
                     </a>
                     {% endif %}
-                    <div class="dropdown d-none d-lg-block">
-                        <a class="nav-link dropdown-toggle hk-navbar-avatar-btn" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ user.profile.display_photo }}" class="rounded-circle" alt="">
+                    <!-- data-bs-toggle="dropdown" alone drives Bootstrap's dropdown JS;
+                         intentionally NOT using the .dropdown-toggle class, since that's
+                         what was drawing the default browser-style caret next to the avatar. -->
+                    <div class="dropdown d-none d-lg-block hk-navbar-profile">
+                        <a class="hk-navbar-avatar-btn" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if user.profile.profile_photo or user.profile.profile_photo_url %}
+                                <img src="{{ user.profile.display_photo }}" alt="">
+                            {% else %}
+                                <span class="hk-navbar-avatar-initial">{{ user.profile.full_name|default:user.username|slice:":1"|upper }}</span>
+                            {% endif %}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end hk-navbar-profile-menu">
+                            <li class="hk-navbar-profile-label">{{ user.profile.full_name|default:user.username }}</li>
                             <li><a class="dropdown-item" href="{% url 'core:my_favorites' %}"><i class="bi bi-heart"></i> My Favorites</a></li>
                             {% if user.profile.role == 'admin' or user.profile.role == 'super_admin' %}
                             <li><a class="dropdown-item" href="{% url 'core:my_listings' %}"><i class="bi bi-card-list"></i> My Listings</a></li>
@@ -93,8 +109,8 @@
                     </a>
                 {% endif %}
 
-                <a href="{% url 'core:about' %}" class="d-none d-lg-flex align-items-center text-decoration-none ps-lg-2 border-start" title="Powered by CraftLanee">
-                    <span class="text-secondary small me-2">Powered by</span>
+                <a href="{% url 'core:about' %}" class="hk-navbar-powered d-none d-lg-flex align-items-center text-decoration-none" title="Powered by CraftLanee">
+                    <span class="hk-navbar-powered-text">Powered by</span>
                     <img src="{% static 'images/craftlanee-logo-navbar-dark.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-dark">
                     <img src="{% static 'images/craftlanee-logo-navbar-new.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-light">
                 </a>
@@ -109,9 +125,8 @@
     <!-- Mobile navigation drawer -->
     <div class="offcanvas offcanvas-end hk-nav-drawer" tabindex="-1" id="hkNavDrawer">
         <div class="offcanvas-header">
-            <a class="navbar-brand mb-0" href="{% url 'core:home' %}">
-                <span class="hk-brand-mark"><i class="bi bi-geo-alt-fill"></i></span>
-                Hello Kuppam
+            <a class="navbar-brand hk-logo-shell mb-0" href="{% url 'core:home' %}">
+                <span class="hk-brand-word"><span class="hk-brand-word-one">One</span><span class="hk-brand-accent">TownCity</span></span>
             </a>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
@@ -201,8 +216,7 @@
             <div class="row g-5 mb-2">
                 <div class="col-lg-4">
                     <div class="hk-footer-brand mb-3">
-                        <span class="hk-brand-mark"><i class="bi bi-geo-alt-fill"></i></span>
-                        Hello Kuppam
+                        <span class="hk-brand-word"><span class="hk-brand-word-one">One</span><span class="hk-brand-accent">TownCity</span></span>
                     </div>
                     <p class="hk-footer-tagline mb-4">Your trusted local information portal for Kuppam — businesses, jobs, real estate, and everything in between.</p>
                     <div class="d-flex gap-2">
@@ -258,7 +272,7 @@
             </div>
 
             <div class="hk-footer-bottom d-flex flex-column flex-md-row justify-content-center align-items-center gap-2 gap-md-4 small text-secondary hk-footer-legal">
-                <span>&copy; {% now "Y" %} Hello Kuppam. All rights reserved.</span>
+                <span>&copy; {% now "Y" %} OneTownCity. All rights reserved. Powered by CraftLanee.</span>
                 <a href="{% url 'core:privacy_policy' %}">Privacy Policy</a>
                 <a href="{% url 'core:terms_of_service' %}">Terms of Service</a>
             </div>
@@ -267,15 +281,15 @@
 
     <!-- Floating WhatsApp action button (site-wide). Swap the number/message
          via the data attributes below — main.js builds the wa.me link from them. -->
-    <div class="hk-whatsapp-fab-wrap" id="hkWhatsappFab" data-wa-number="916301469575" data-wa-message="Hi Hello Kuppam! I'd like some help finding...">
+    <div class="hk-whatsapp-fab-wrap" id="hkWhatsappFab" data-wa-number="916301469575" data-wa-message="Hi OneTownCity! I'd like some help finding...">
         <div class="hk-whatsapp-tooltip" id="hkWhatsappTooltip" role="status">
             <button type="button" class="hk-whatsapp-tooltip-close" id="hkWhatsappTooltipClose" aria-label="Dismiss">
                 <i class="bi bi-x"></i>
             </button>
-            <div class="hk-whatsapp-tooltip-title">Hello Kuppam</div>
+            <div class="hk-whatsapp-tooltip-title">OneTownCity</div>
             <p class="mb-0">Need help finding a business, job or property in Kuppam? Chat with us on WhatsApp.</p>
         </div>
-        <a href="#" id="hkWhatsappBtn" class="hk-whatsapp-fab" target="_blank" rel="noopener noreferrer" aria-label="Chat with Hello Kuppam on WhatsApp">
+        <a href="#" id="hkWhatsappBtn" class="hk-whatsapp-fab" target="_blank" rel="noopener noreferrer" aria-label="Chat with OneTownCity on WhatsApp">
             <span class="hk-whatsapp-fab-ping" aria-hidden="true"></span>
             <span class="hk-whatsapp-fab-dot" aria-hidden="true"></span>
             <i class="bi bi-whatsapp"></i>

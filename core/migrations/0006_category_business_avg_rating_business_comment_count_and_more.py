@@ -432,7 +432,7 @@ class Migration(migrations.Migration):
                 ('city', models.CharField(blank=True, max_length=100)),
                 ('state', models.CharField(blank=True, max_length=100)),
                 ('pincode', models.CharField(blank=True, max_length=10)),
-                ('intent', models.CharField(blank=True, choices=[('upload', 'I want to Upload My Information'), ('explore', 'I want to Explore Hello Kuppam')], max_length=20)),
+                ('intent', models.CharField(blank=True, choices=[('upload', 'I want to Upload My Information'), ('explore', 'I want to Explore OneTownCity')], max_length=20)),
                 ('profile_completed', models.BooleanField(default=False)),
                 ('is_blocked', models.BooleanField(default=False, help_text='Blocked users cannot sign in')),
                 ('is_suspended', models.BooleanField(default=False, help_text='Suspended admins keep their account but lose listing permissions')),

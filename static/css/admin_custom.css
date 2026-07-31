@@ -1,4 +1,4 @@
-/* Hello Kuppam — Django admin re-theme.
+/* OneTownCity — Django admin re-theme.
    Overrides Django's own admin CSS custom properties (defined in
    admin/css/base.css) rather than fighting its markup, so this stays
    safe across minor Django version bumps. */

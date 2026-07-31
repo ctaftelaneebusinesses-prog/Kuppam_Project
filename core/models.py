@@ -34,14 +34,14 @@ class UserRole(models.TextChoices):
 
 class Intent(models.TextChoices):
     UPLOAD = 'upload', 'I want to Upload My Information'
-    EXPLORE = 'explore', 'I want to Explore Hello Kuppam'
+    EXPLORE = 'explore', 'I want to Explore OneTownCity'
 
 
 class Profile(models.Model):
     """
     Extends Django's auth.User (kept as the identity backbone for both
     Google/Supabase-authenticated visitors and existing Django staff
-    accounts) with Hello Kuppam-specific role and profile data.
+    accounts) with OneTownCity-specific role and profile data.
     """
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     supabase_uid = models.CharField(max_length=100, unique=True, null=True, blank=True)

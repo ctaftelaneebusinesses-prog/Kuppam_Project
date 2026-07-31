@@ -12,7 +12,7 @@ User = get_user_model()
 
 class AdminLoginForm(AuthenticationForm):
     """
-    Staff-only login form for the Hello Kuppam admin area.
+    Staff-only login form for the OneTownCity admin area.
     """
     username = forms.CharField(
         widget=forms.TextInput(attrs={

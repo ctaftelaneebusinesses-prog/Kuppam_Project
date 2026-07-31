@@ -1,5 +1,5 @@
 """
-Excel bulk-upload engine for Hello Kuppam.
+Excel bulk-upload engine for OneTownCity.
 
 Reads .xlsx/.xls files with pandas (openpyxl engine), validates each row,
 and inserts or updates records directly in the Supabase PostgreSQL database
