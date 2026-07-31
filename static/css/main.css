@@ -4224,113 +4224,30 @@ html[data-theme="dark"] .hk-review-form {
     background-color: var(--hk-gray-50);
 }
 
-/* --- Introduction section: always-dark showcase banner --------------------
-   A deliberate exception to the rest of the History page's light content
-   sections — this one is a permanent slate-950 canvas (independent of the
-   light/dark toggle), reusing the same .hk-hero-glow ambient blobs as the
-   homepage's .hk-hero-elite so both read as one consistent "premium dark"
-   signature rather than two different treatments. */
-.hk-intro-dark {
-    position: relative;
-    overflow: hidden;
-    background: var(--hk-dark-bg);
-    padding: calc(var(--hk-section-py) * .8) 0;
-    scroll-margin-top: 135px;
-}
-
-.hk-intro-media-frame {
-    position: relative;
-    z-index: 1;
+/* Premium photo "mat" frame — a light card wrapper around every
+   .hk-history-media panel, shared by all History sections (kept white/light
+   per-page, not the dark showcase treatment used on the homepage hero). */
+.hk-history-frame {
     padding: .5rem;
     border-radius: var(--hk-radius-2xl);
-    border: 1px solid rgba(255, 255, 255, .1);
-    background: rgba(255, 255, 255, .02);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: var(--hk-elevation-5);
-    transition: transform .5s var(--hk-ease-out);
+    border: 1px solid var(--hk-border-soft);
+    background: var(--hk-surface);
+    box-shadow: var(--hk-shadow-md);
+    transition: transform var(--hk-duration-slow) var(--hk-ease-out),
+                box-shadow var(--hk-duration-base) var(--hk-ease-out);
 }
 
-.hk-intro-media-frame:hover {
+.hk-history-frame:hover {
     transform: translateY(-4px) scale(1.01);
-}
-
-.hk-intro-media {
-    position: relative;
-    border-radius: var(--hk-radius-xl);
-    overflow: hidden;
-    aspect-ratio: 4 / 3;
-}
-
-.hk-intro-media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.hk-intro-media-tag {
-    position: absolute;
-    bottom: 14px;
-    left: 14px;
-    z-index: 2;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    background: rgba(0, 0, 0, .4);
-    border: 1px solid rgba(255, 255, 255, .1);
-    padding: 6px 12px;
-    border-radius: var(--hk-radius-md);
-    font-size: .625rem;
-    font-weight: 700;
-    letter-spacing: .15em;
-    text-transform: uppercase;
-    color: var(--hk-gray-300);
-}
-
-.hk-intro-icon {
-    position: relative;
-    z-index: 1;
-    width: 44px;
-    height: 44px;
-    border-radius: var(--hk-radius-md);
-    background: rgba(124, 99, 232, .1);
-    color: var(--hk-violet-400);
-    border: 1px solid rgba(124, 99, 232, .2);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
-    box-shadow: var(--hk-elevation-3);
-}
-
-.hk-intro-title {
-    position: relative;
-    z-index: 1;
-    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
-    font-weight: 800;
-    letter-spacing: var(--hk-tracking-tight);
-    color: #fff;
-}
-
-.hk-intro-body {
-    position: relative;
-    z-index: 1;
-    color: var(--hk-gray-400);
-    font-size: var(--hk-text-base);
-    line-height: var(--hk-leading-normal);
-    letter-spacing: .01em;
-}
-
-.hk-intro-body + .hk-intro-body {
-    margin-top: 1rem;
+    box-shadow: var(--hk-shadow-hover);
 }
 
 /* Real-photo media panel (replaces the old gradient/icon placeholder) */
 .hk-history-media {
     position: relative;
-    border-radius: var(--hk-radius-card);
+    border-radius: var(--hk-radius-xl);
     overflow: hidden;
     aspect-ratio: 4 / 3;
-    box-shadow: var(--hk-shadow-md);
 }
 
 .hk-history-media img {
@@ -4358,14 +4275,17 @@ html[data-theme="dark"] .hk-review-form {
     bottom: 14px;
     left: 14px;
     z-index: 2;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     font-size: .66rem;
     font-weight: 600;
-    letter-spacing: .03em;
+    letter-spacing: .1em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, .85);
-    background: rgba(0, 0, 0, .4);
-    padding: 4px 10px;
-    border-radius: var(--hk-radius-pill);
+    color: rgba(255, 255, 255, .9);
+    background: rgba(0, 0, 0, .45);
+    border: 1px solid rgba(255, 255, 255, .12);
+    padding: 6px 12px;
+    border-radius: var(--hk-radius-md);
 }
 
 .hk-history-icon {
@@ -4375,10 +4295,25 @@ html[data-theme="dark"] .hk-review-form {
     border-radius: var(--bs-border-radius-lg);
     background: var(--bs-primary-bg-subtle);
     color: var(--bs-primary);
+    border: 1px solid var(--bs-primary-border-subtle);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 1.4rem;
+    box-shadow: var(--hk-elevation-2);
+}
+
+/* Typography hierarchy shared by every History section — tighter tracking
+   on headings, wider/calmer rhythm on body copy — applied once here so no
+   individual section's markup needs a special heading/paragraph class. */
+.hk-history-section h2 {
+    font-weight: 800;
+    letter-spacing: var(--hk-tracking-tight);
+}
+
+.hk-history-section p.text-muted {
+    line-height: var(--hk-leading-normal);
+    letter-spacing: .01em;
 }
 
 .hk-history-note {
