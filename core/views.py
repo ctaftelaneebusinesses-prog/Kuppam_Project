@@ -161,8 +161,8 @@ from .forms import (
 from .models import (
     AdminCategoryPermission, AdminRequest, AdminRequestStatus, Business, Category, Comment,
     ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News,
-    NewsletterSubscriber, Notification, PostImage, PostVideo, Profile, Project, Property, Report,
-    Review, Share, SiteSettings, UserRole, unique_slug_for,
+    NewsletterSubscriber, Notification, PostImage, PostVideo, PostView, Profile, Project, Property,
+    Report, Review, Share, SiteSettings, UserRole, unique_slug_for,
 )
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
@@ -235,6 +235,7 @@ def _detail_qs(request, model_cls):
 
 def _bump_views(model_cls, pk):
     model_cls.objects.filter(pk=pk).update(view_count=F('view_count') + 1)
+    PostView.objects.create(content_type=ContentType.objects.get_for_model(model_cls), object_id=pk)
 
 
 def _community_context(request, obj):
@@ -1859,6 +1860,91 @@ def dashboard_profile(request):
     return render(request, 'dashboard/profile.html', context)
 
 
+def _owner_engagement_analytics(own_items):
+    """
+    Real engagement analytics for a Content Provider's own listings, built
+    from the PostView/Like/Comment/Review/Share event tables — every row of
+    those carries its own created_at, unlike the single running
+    view_count/like_count/etc counters on the listing itself, so this is the
+    only honest source for "how many this week" or "views per day over the
+    last two weeks" (as opposed to fabricating numbers). Powers the Overview
+    page's YouTube-style metric cards and timeline/breakdown charts.
+    """
+    now = timezone.now()
+    week_ago = now - timedelta(days=7)
+    two_weeks_ago = now - timedelta(days=14)
+    window_start = (now - timedelta(days=13)).date()
+
+    ct_ids = {}
+    for item in own_items:
+        ct = ContentType.objects.get_for_model(type(item['obj']))
+        ct_ids.setdefault(ct, []).append(item['obj'].pk)
+
+    def event_qs(model_cls):
+        if not ct_ids:
+            return model_cls.objects.none()
+        q = Q()
+        for ct, ids in ct_ids.items():
+            q |= Q(content_type=ct, object_id__in=ids)
+        return model_cls.objects.filter(q)
+
+    views_qs = event_qs(PostView)
+    likes_qs = event_qs(Like)
+    shares_qs = event_qs(Share)
+    reviews_qs = event_qs(Review)
+    comments_qs = event_qs(Comment)
+
+    def window_count(qs_list, start, end=None):
+        total = 0
+        for qs in qs_list:
+            filtered = qs.filter(created_at__gte=start)
+            if end is not None:
+                filtered = filtered.filter(created_at__lt=end)
+            total += filtered.count()
+        return total
+
+    def trend_pct(qs_list):
+        recent = window_count(qs_list, week_ago)
+        prior = window_count(qs_list, two_weeks_ago, week_ago)
+        if prior == 0:
+            return None if recent == 0 else 100.0
+        return round((recent - prior) / prior * 100, 1)
+
+    def daily_series(qs):
+        rows = (
+            qs.filter(created_at__date__gte=window_start)
+            .annotate(day=TruncDate('created_at'))
+            .values('day')
+            .annotate(n=Count('id'))
+        )
+        by_day = {row['day']: row['n'] for row in rows}
+        return [by_day.get(window_start + timedelta(days=i), 0) for i in range(14)]
+
+    daily_engagement = [
+        a + b + c + d for a, b, c, d in zip(
+            daily_series(likes_qs), daily_series(shares_qs),
+            daily_series(reviews_qs), daily_series(comments_qs),
+        )
+    ]
+
+    top_posts = sorted(
+        own_items,
+        key=lambda i: i['obj'].like_count + i['obj'].share_count + i['obj'].review_count,
+        reverse=True,
+    )[:6]
+
+    return {
+        'labels': [(window_start + timedelta(days=i)).strftime('%b %d') for i in range(14)],
+        'daily_views': daily_series(views_qs),
+        'daily_engagement': daily_engagement,
+        'trend_views': trend_pct([views_qs]),
+        'trend_likes': trend_pct([likes_qs]),
+        'trend_shares': trend_pct([shares_qs]),
+        'trend_reviews': trend_pct([reviews_qs, comments_qs]),
+        'top_posts': top_posts,
+    }
+
+
 def _admin_dashboard(request):
     """Content Provider ('Manager') workspace: their own listings' health at
     a glance, plus which categories they're permitted to publish into. Reuses
@@ -1879,12 +1965,15 @@ def _admin_dashboard(request):
         'rejected': sum(1 for i in own_items if i['obj'].status == ListingStatus.REJECTED),
         'total_views': sum(i['obj'].view_count for i in own_items),
         'total_likes': sum(i['obj'].like_count for i in own_items),
+        'total_shares': sum(i['obj'].share_count for i in own_items),
+        'total_reviews': sum(i['obj'].review_count + i['obj'].comment_count for i in own_items),
     }
 
     context = {
         'page_title': 'Manager Workspace - OneTownCity',
         'stats': stats,
-        'recent_items': own_items[:6],
+        'analytics': _owner_engagement_analytics(own_items),
+        'recent_items': own_items[:8],
         'permitted_categories': Category.objects.filter(is_active=True, admin_permissions__admin=request.user),
         'active_nav': 'overview',
     }
