@@ -814,6 +814,24 @@ class Share(models.Model):
         indexes = [models.Index(fields=['content_type', 'object_id'])]
 
 
+class PostView(models.Model):
+    """
+    One timestamped row per listing-detail page view, logged alongside the
+    denormalized `view_count` bump on ListingMixin (see `_bump_views` in
+    views.py). `view_count` alone can't answer "views over time" or "views
+    this week vs last week" since it's a single running counter with no
+    history — this event log is what the Overview analytics timeline/trend
+    badges are built from.
+    """
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=LISTING_CONTENT_TYPE_LIMIT)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=['content_type', 'object_id']), models.Index(fields=['created_at'])]
+
+
 class Report(models.Model):
     STATUS_CHOICES = [('open', 'Open'), ('reviewed', 'Reviewed'), ('dismissed', 'Dismissed')]
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=LISTING_CONTENT_TYPE_LIMIT)

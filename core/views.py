@@ -126,6 +126,7 @@
 
 import json
 import re
+from datetime import timedelta
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -137,7 +138,8 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.validators import validate_email
-from django.db.models import F, ProtectedError, Q
+from django.db.models import Count, F, ProtectedError, Q
+from django.db.models.functions import TruncDate
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
