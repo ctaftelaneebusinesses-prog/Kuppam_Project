@@ -252,6 +252,91 @@ html[data-theme="dark"] .navbar .hk-theme-toggle:hover {
     color: #fff;
 }
 
+/* --- Round icon buttons (sun/moon, palette trigger, language trigger) ×
+   seasonal theme sync — same rationale as the navbar bar itself above, and
+   placed after the html[data-theme="dark"] rules for the same tie-break
+   reason (equal specificity, Rainy Velvet / Nordic Aurora force dark theme
+   alongside their own palette). Icon color is left alone: --hk-ink-soft is
+   already redefined per full palette in tokens.css, so the dark-theme
+   rule's `color: var(--hk-ink-soft)` above picks up each palette's own ink
+   tone for free — only the chip background/border needs a season color. */
+html[data-palette="summer-silk"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
+html[data-palette="summer-silk"] .hk-navbar-solid .hk-theme-toggle {
+    background: rgba(201, 122, 43, .16);
+    border-color: rgba(201, 122, 43, .32);
+}
+
+html[data-palette="summer-silk"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
+html[data-palette="summer-silk"] .hk-navbar-solid .hk-theme-toggle:hover {
+    background: rgba(201, 122, 43, .26);
+}
+
+html[data-palette="rainy-velvet"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
+html[data-palette="rainy-velvet"] .hk-navbar-solid .hk-theme-toggle {
+    background: rgba(111, 168, 220, .16);
+    border-color: rgba(111, 168, 220, .32);
+}
+
+html[data-palette="rainy-velvet"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
+html[data-palette="rainy-velvet"] .hk-navbar-solid .hk-theme-toggle:hover {
+    background: rgba(111, 168, 220, .26);
+}
+
+html[data-palette="nordic-aurora"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
+html[data-palette="nordic-aurora"] .hk-navbar-solid .hk-theme-toggle {
+    background: rgba(79, 216, 160, .16);
+    border-color: rgba(79, 216, 160, .32);
+}
+
+html[data-palette="nordic-aurora"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
+html[data-palette="nordic-aurora"] .hk-navbar-solid .hk-theme-toggle:hover {
+    background: rgba(79, 216, 160, .26);
+}
+
+html[data-palette="autumn"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
+html[data-palette="autumn"] .hk-navbar-solid .hk-theme-toggle {
+    background: rgba(217, 119, 6, .18);
+    border-color: rgba(217, 119, 6, .34);
+}
+
+html[data-palette="autumn"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
+html[data-palette="autumn"] .hk-navbar-solid .hk-theme-toggle:hover {
+    background: rgba(217, 119, 6, .28);
+}
+
+html[data-palette="spring"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
+html[data-palette="spring"] .hk-navbar-solid .hk-theme-toggle {
+    background: rgba(134, 239, 172, .24);
+    border-color: rgba(134, 239, 172, .4);
+}
+
+html[data-palette="spring"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
+html[data-palette="spring"] .hk-navbar-solid .hk-theme-toggle:hover {
+    background: rgba(134, 239, 172, .34);
+}
+
+html[data-palette="winter"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
+html[data-palette="winter"] .hk-navbar-solid .hk-theme-toggle {
+    background: rgba(191, 219, 254, .3);
+    border-color: rgba(191, 219, 254, .46);
+}
+
+html[data-palette="winter"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
+html[data-palette="winter"] .hk-navbar-solid .hk-theme-toggle:hover {
+    background: rgba(191, 219, 254, .4);
+}
+
+html[data-palette="rain"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
+html[data-palette="rain"] .hk-navbar-solid .hk-theme-toggle {
+    background: rgba(96, 165, 250, .18);
+    border-color: rgba(96, 165, 250, .34);
+}
+
+html[data-palette="rain"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
+html[data-palette="rain"] .hk-navbar-solid .hk-theme-toggle:hover {
+    background: rgba(96, 165, 250, .28);
+}
+
 .hk-navbar-transparent .hk-theme-toggle {
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.3);
@@ -294,6 +379,40 @@ html[data-theme="dark"] .navbar .hk-theme-toggle:hover {
     border-radius: 50%;
     background: var(--hk-brand-gradient);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .4);
+    transition: background .3s var(--hk-ease-out);
+}
+
+/* The trigger's own dot was hardcoded to the brand gradient regardless of
+   which palette was active, so it never visually confirmed the selection —
+   same gradients as the dropdown's per-option swatches below (kept in sync
+   deliberately: this dot IS the "currently selected" preview, so it has to
+   read as the same color a visitor just picked from the list). */
+html[data-palette="summer-silk"] .hk-palette-swatch-dot {
+    background: linear-gradient(135deg, #F5E3C4 0%, #E0A94A 55%, #C97A2B 100%);
+}
+
+html[data-palette="rainy-velvet"] .hk-palette-swatch-dot {
+    background: linear-gradient(135deg, #3A4658 0%, #6FA8DC 55%, #1B212B 100%);
+}
+
+html[data-palette="nordic-aurora"] .hk-palette-swatch-dot {
+    background: linear-gradient(135deg, #1E3A2E 0%, #4FD8A0 55%, #16241C 100%);
+}
+
+html[data-palette="winter"] .hk-palette-swatch-dot {
+    background: linear-gradient(135deg, #FFFFFF 0%, #BFDBFE 55%, #60A5FA 100%);
+}
+
+html[data-palette="spring"] .hk-palette-swatch-dot {
+    background: linear-gradient(135deg, #F9A8D4 0%, #86EFAC 55%, #F472B6 100%);
+}
+
+html[data-palette="autumn"] .hk-palette-swatch-dot {
+    background: linear-gradient(135deg, #FBBF24 0%, #D97706 55%, #BE185D 100%);
+}
+
+html[data-palette="rain"] .hk-palette-swatch-dot {
+    background: linear-gradient(135deg, var(--hk-weather-rain-1), var(--hk-weather-rain-2));
 }
 
 .hk-palette-panel {
