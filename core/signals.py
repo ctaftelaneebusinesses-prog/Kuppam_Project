@@ -1,8 +1,10 @@
+from django.core.cache import cache
 from django.db.models import Avg, Count
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from .models import Comment, Favorite, Like, Notification, Review, Share
+from .context_processors import CATEGORY_TREE_CACHE_KEY, SITE_THEME_CACHE_KEY
+from .models import Category, Comment, Favorite, Like, Notification, Review, Share, SiteSettings
 
 
 def _target(instance):
@@ -52,6 +54,17 @@ def on_comment_changed(sender, instance, created=False, **kwargs):
                 message=f'{instance.user.get_username()} commented on your listing "{obj}"',
                 url=obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else '',
             )
+
+
+@receiver(post_save, sender=Category)
+@receiver(post_delete, sender=Category)
+def on_category_changed(sender, instance, **kwargs):
+    cache.delete(CATEGORY_TREE_CACHE_KEY)
+
+
+@receiver(post_save, sender=SiteSettings)
+def on_site_settings_changed(sender, instance, **kwargs):
+    cache.delete(SITE_THEME_CACHE_KEY)
 
 
 @receiver(post_save, sender=Review)

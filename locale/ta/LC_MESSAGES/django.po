@@ -7,23 +7,250 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+msgid ""
+"\"Kuppam\" is widely understood locally to mean a meeting place or confluence — a fitting name\n"
+"                    given the town's position at the tri-junction of three states. It follows a Dravidian-language\n"
+"                    place-naming pattern common across the Telugu- and Tamil-speaking border region."
+msgstr ""
+"\"குப்பம்\" என்பது ஒரு சந்திப்பு இடம் அல்லது சங்கமம் - பொருத்தமான பெயர் என்று பரவலாகப் புரிந்து கொள்ளப்படுகிறது\n"
+"                    மூன்று மாநிலங்களின் முச்சந்தியில் நகரத்தின் நிலை கொடுக்கப்பட்டது. இது ஒரு திராவிட மொழியைப் பின்பற்றுகிறது\n"
+"                    தெலுங்கு மற்றும் தமிழ் மொழி பேசும் எல்லைப் பகுதி முழுவதும் பொதுவான இடப்பெயர் முறை."
+
+msgid "A Growing Education & Trade Hub"
+msgstr "வளர்ந்து வரும் கல்வி மற்றும் வர்த்தக மையம்"
+
+msgid "A Journey Through Time"
+msgstr "காலத்தின் மூலம் ஒரு பயணம்"
+
+msgid "A Smart, Sustainable Kuppam"
+msgstr "ஒரு ஸ்மார்ட், நிலையான குப்பம்"
+
+msgid "A fast, responsive experience on any device."
+msgstr "எந்த சாதனத்திலும் வேகமான, பதிலளிக்கக்கூடிய அனுபவம்."
+
+msgid ""
+"A quick chronological index — tap any era to jump to the full story below"
+msgstr ""
+"விரைவான காலவரிசைக் குறியீடு - கீழே உள்ள முழுக் கதைக்கும் செல்ல எந்த "
+"சகாப்தத்தையும் தட்டவும்"
+
+msgid "About One<span class=\"hk-text-gradient-gold\">TownCity</span>"
+msgstr "ஒரு<span class=\"hk-text-gradient-gold\">டவுன்சிட்டி</span> பற்றி"
+
 msgid "About Us"
 msgstr "எங்களைப் பற்றி"
+
+msgid "Account Role"
+msgstr "கணக்கு பங்கு"
+
+msgid "Account Settings"
+msgstr "கணக்கு அமைப்புகள்"
+
+msgid "Action"
+msgstr "செயல்"
+
+msgid "Actions"
+msgstr "செயல்கள்"
+
+msgid "Activate"
+msgstr "செயல்படுத்து"
+
+msgid "Active"
+msgstr "செயலில்"
+
+msgid "Add Category"
+msgstr "வகையைச் சேர்க்கவும்"
+
+msgid "Add Photos / Videos"
+msgstr "புகைப்படங்கள் / வீடியோக்களை சேர்க்கவும்"
+
+msgid "Add Subcategory"
+msgstr "துணைப்பிரிவைச் சேர்க்கவும்"
+
+msgid "Add a New Listing"
+msgstr "புதிய பட்டியலைச் சேர்க்கவும்"
+
+msgid "Add subcategory"
+msgstr "துணைப்பிரிவைச் சேர்க்கவும்"
+
+msgid "Add your first category to start organizing listings."
+msgstr "பட்டியல்களை ஒழுங்கமைக்க உங்கள் முதல் வகையைச் சேர்க்கவும்."
+
+msgid "Add {{ cat }}"
+msgstr "{{ cat }} சேர்"
 
 msgid "Address"
 msgstr "முகவரி"
 
+msgid "Admin"
+msgstr "நிர்வாகி"
+
+msgid "Admin Dashboard"
+msgstr "நிர்வாக டாஷ்போர்டு"
+
+msgid "Admin Requests"
+msgstr "நிர்வாக கோரிக்கைகள்"
+
+msgid "Admin requests will show up here as they're submitted."
+msgstr ""
+"நிர்வாகி கோரிக்கைகள் சமர்ப்பிக்கப்படும்போது அவை இங்கே காண்பிக்கப்படும்."
+
+msgid "Administration"
+msgstr "நிர்வாகம்"
+
 msgid "Affordable Pricing"
 msgstr "மலிவு விலை"
+
+msgid ""
+"After 1947, the region became part of independent India's evolving state boundaries — first\n"
+"                    Madras State, then the Andhra State formed in 1953, and finally the unified Andhra Pradesh\n"
+"                    created in 1956. Kuppam settled into its present role as a mandal headquarters within Chittoor\n"
+"                    district."
+msgstr ""
+"1947 க்குப் பிறகு, இப்பகுதி சுதந்திர இந்தியாவின் வளர்ச்சியடைந்த மாநில எல்லைகளின் ஒரு பகுதியாக மாறியது - முதலில்\n"
+"                    மதராஸ் மாநிலம், பின்னர் ஆந்திர மாநிலம் 1953 இல் உருவாக்கப்பட்டது, இறுதியாக ஒருங்கிணைந்த ஆந்திரப் பிரதேசம்\n"
+"                    1956 இல் உருவாக்கப்பட்டது. குப்பம் சித்தூரில் ஒரு மண்டல தலைமையகமாக அதன் தற்போதைய பாத்திரத்தில் குடியேறியது.\n"
+"                    மாவட்டம்."
+
+msgid "Agriculture and Economy"
+msgstr "விவசாயம் மற்றும் பொருளாதாரம்"
+
+msgid "All Admins"
+msgstr "அனைத்து நிர்வாகிகள்"
 
 msgid "All Categories"
 msgstr "அனைத்து வகைகள்"
 
+msgid "All Messages"
+msgstr "அனைத்து செய்திகளும்"
+
+msgid "All Roles"
+msgstr "அனைத்து பாத்திரங்களும்"
+
+msgid "All Statuses"
+msgstr "அனைத்து நிலைகள்"
+
+msgid "All Types"
+msgstr "அனைத்து வகைகளும்"
+
+msgid "An Agricultural Economy Matures"
+msgstr "விவசாயப் பொருளாதாரம் முதிர்ச்சியடைகிறது"
+
+msgid "Ancient Era"
+msgstr "பண்டைய சகாப்தம்"
+
+msgid "Ancient History"
+msgstr "பண்டைய வரலாறு"
+
+msgid "Applicant"
+msgstr "விண்ணப்பதாரர்"
+
+msgid "Applicant Profile"
+msgstr "விண்ணப்பதாரர் சுயவிவரம்"
+
+msgid "Apply filters"
+msgstr "வடிப்பான்களைப் பயன்படுத்துங்கள்"
+
+msgid "Apply to Selected"
+msgstr "தேர்ந்தெடுக்கப்பட்டவற்றுக்கு விண்ணப்பிக்கவும்"
+
+msgid "Approve"
+msgstr "ஒப்புதல்"
+
+msgid "Approved"
+msgstr "அங்கீகரிக்கப்பட்டது"
+
+msgid "Approved Listings"
+msgstr "அங்கீகரிக்கப்பட்ட பட்டியல்கள்"
+
+msgid "Approved Requests"
+msgstr "அங்கீகரிக்கப்பட்ட கோரிக்கைகள்"
+
+msgid ""
+"Assists users, resolves issues, and helps maintain a smooth experience "
+"across the platform."
+msgstr ""
+"பயனர்களுக்கு உதவுகிறது, சிக்கல்களைத் தீர்க்கிறது மற்றும் இயங்குதளம் "
+"முழுவதும் மென்மையான அனுபவத்தை பராமரிக்க உதவுகிறது."
+
+msgid "Autumn season"
+msgstr "இலையுதிர் காலம்"
+
+msgid "Avg Rating"
+msgstr "சராசரி மதிப்பீடு"
+
+msgid "Back to Home"
+msgstr "முகப்புக்குத் திரும்பு"
+
+msgid "Back to Manage Users"
+msgstr "பயனர்களை நிர்வகி பக்கத்துக்குத் திரும்பு"
+
 msgid "Back to OneTownCity News"
 msgstr "ஒன்டவுன்சிட்டி செய்திகளுக்குத் திரும்பு"
 
+msgid "Back to Site"
+msgstr "தளத்திற்குத் திரும்பு"
+
+msgid "Become a Content Provider"
+msgstr "உள்ளடக்க வழங்குநராகுங்கள்"
+
+msgid "Better connectivity, digital access, and sustainable growth ahead."
+msgstr "சிறந்த இணைப்பு, டிஜிட்டல் அணுகல் மற்றும் நிலையான வளர்ச்சி."
+
 msgid "Beyond the Directory"
 msgstr "கோப்பகத்திற்கு அப்பால்"
+
+msgid "Block"
+msgstr "தடு"
+
+msgid "Blocked"
+msgstr "தடுக்கப்பட்டது"
+
+msgid "Bootstrap Icons"
+msgstr "பூட்ஸ்ட்ராப் சின்னங்கள்"
+
+msgid "British Colonial Era"
+msgstr "பிரிட்டிஷ் காலனித்துவ காலம்"
+
+msgid "British Colonial Period"
+msgstr "பிரிட்டிஷ் காலனித்துவ காலம்"
+
+msgid "Browse general local businesses and services in Kuppam"
+msgstr ""
+"குப்பத்தில் உள்ள பொதுவான உள்ளூர் வணிகங்கள் மற்றும் சேவைகளைப் பார்க்கவும்"
+
+msgid ""
+"Browse job openings from local shops, offices, and companies hiring across "
+"Kuppam."
+msgstr ""
+"உள்ளூர் கடைகள், அலுவலகங்கள் மற்றும் குப்பம் முழுவதும் பணியமர்த்தும் "
+"நிறுவனங்களின் வேலை வாய்ப்புகளை உலாவுக."
+
+msgid ""
+"Browse local businesses and services, or request permission to publish your "
+"own listings."
+msgstr ""
+"உள்ளூர் வணிகங்கள் மற்றும் சேவைகளை உலாவவும் அல்லது உங்கள் சொந்த பட்டியல்களை "
+"வெளியிட அனுமதி கோரவும்."
+
+msgid "Browse real estate listings — sale, rent, plots & more in Kuppam"
+msgstr ""
+"குப்பத்தில் ரியல் எஸ்டேட் பட்டியல்களை உலாவுக — விற்பனை, வாடகை, மனைகள் "
+"மற்றும் பல"
+
+msgid "Browse {{ label }} listings in Kuppam"
+msgstr "குப்பத்தில் {{ label }} பட்டியல்களை உலாவவும்"
+
+msgid ""
+"Built for the people of <span class=\"hk-text-gradient-gold\">Kuppam</span>"
+msgstr ""
+"<span class=\"hk-text-gradient-gold\">குப்பம்</span> மக்களுக்காக "
+"கட்டப்பட்டது"
+
+msgid "Built on trust, made <span class=\"text-primary\">simple</span>"
+msgstr ""
+"நம்பிக்கையின் அடிப்படையில் கட்டப்பட்டது, <span class=\"text-"
+"primary\">எளிமையாக்கப்பட்டது</span>"
 
 msgid "Built to rank, with secure and scalable architecture."
 msgstr ""
@@ -32,32 +259,167 @@ msgstr ""
 msgid "Business Website Development"
 msgstr "வணிக வலைத்தள மேம்பாடு"
 
+msgid "Business listing pagination"
+msgstr "வணிகப் பட்டியல் பேஜினேஷன்"
+
+msgid "Business subcategory value"
+msgstr "வணிக துணைப்பிரிவு மதிப்பு"
+
 msgid "Businesses"
 msgstr "வணிகங்கள்"
 
 msgid "Call Center & BPO Services"
 msgstr "அழைப்பு மையம் & BPO சேவைகள்"
 
+msgid "Cancel"
+msgstr "ரத்து செய்"
+
+msgid ""
+"Catch up on local announcements, civic updates, and news from around Kuppam."
+msgstr ""
+"குப்பத்தைச் சுற்றியுள்ள உள்ளூர் அறிவிப்புகள், குடிமைப் பற்றிய அறிவிப்புகள் "
+"மற்றும் செய்திகளைப் பற்றி தெரிந்துகொள்ளுங்கள்."
+
 msgid "Categories"
 msgstr "வகைகள்"
+
+msgid ""
+"Categories and subcategories drive navigation, search filters, and listing "
+"forms sitewide."
+msgstr ""
+"வகைகள் மற்றும் துணைப்பிரிவுகள் வழிசெலுத்தல், தேடல் வடிப்பான்கள் மற்றும் "
+"பட்டியல் படிவங்களை தளம் முழுவதும் இயக்குகின்றன."
+
+msgid "Category"
+msgstr "வகை"
+
+msgid "Category:"
+msgstr "வகை:"
 
 msgid "Change language"
 msgstr "மொழியை மாற்றவும்"
 
+msgid "Changes"
+msgstr "மாற்றங்கள்"
+
+msgid "Changes are re-reviewed before appearing on the site."
+msgstr "தளத்தில் தோன்றும் முன் மாற்றங்கள் மீண்டும் மதிப்பாய்வு செய்யப்படும்."
+
 msgid "Chat with OneTownCity on WhatsApp"
 msgstr "ஒன்டவுன்சிட்டியுடன் வாட்ஸ்அப்பில் அரட்டையடிக்கவும்"
+
+msgid ""
+"Chief Minister N. Chandrababu Naidu at a Kuppam development event, July 2025"
+msgstr ""
+"ஜூலை 2025, குப்பம் மேம்பாட்டு நிகழ்ச்சியில் முதல்வர் என். சந்திரபாபு நாயுடு"
+
+msgid "Choose a listing type…"
+msgstr "பட்டியல் வகையைத் தேர்ந்தெடுக்கவும்…"
+
+msgid "Chronological Index"
+msgstr "காலவரிசை அட்டவணை"
+
+msgid "City"
+msgstr "நகரம்"
+
+msgid "City / State"
+msgstr "நகரம் / மாநிலம்"
+
+msgid "Clear Filters"
+msgstr "வடிகட்டிகளை அழி"
+
+msgid "Clear Search"
+msgstr "தேடலை அழிக்கவும்"
+
+msgid "Clear filters"
+msgstr "வடிகட்டிகளை அழிக்கவும்"
+
+msgid "Clear search"
+msgstr "தெளிவான தேடல்"
+
+msgid "Close"
+msgstr "மூடு"
+
+msgid "Colleges"
+msgstr "கல்லூரிகள்"
+
+msgid ""
+"Colonial-era revenue and administrative records from this time offer another rich vein of local\n"
+"                    history worth documenting alongside this page."
+msgstr ""
+"காலனித்துவ காலத்தின் வருவாய் மற்றும் நிர்வாகப் பதிவுகள் இக்காலத்தின் மற்றொரு செழுமையான நரம்பை வழங்குகின்றன\n"
+"                    இந்தப் பக்கத்துடன் ஆவணப்படுத்த வேண்டிய வரலாறு."
+
+msgid "Comments"
+msgstr "கருத்துகள்"
+
+msgid "Comments ({{ count }})"
+msgstr "கருத்துகள் ({{ count }})"
+
+msgid "Community"
+msgstr "சமூகம்"
 
 msgid "Community Members"
 msgstr "சமூக உறுப்பினர்கள்"
 
+msgid "Community academy event at Dravidian University, Kuppam"
+msgstr "குப்பம் திராவிடப் பல்கலைக்கழகத்தில் சமுதாய அகாடமி நிகழ்ச்சி"
+
+msgid ""
+"Community and literacy initiatives, like the Telugu-language book release pictured here, mark\n"
+"                    the kind of grassroots development activity that shaped Kuppam in the decades that followed."
+msgstr ""
+"சமூகம் மற்றும் கல்வியறிவு முயற்சிகள், இங்கே படத்தில் காட்டப்பட்டுள்ள தெலுங்கு மொழி புத்தக வெளியீடு போன்றவை குறிக்கின்றன\n"
+"                    தொடர்ந்து பத்தாண்டுகளில் குப்பத்தை வடிவமைத்த அடிமட்ட வளர்ச்சி செயல்பாடு."
+
+msgid "Community book-release event, Kuppam HP i-community"
+msgstr "சமூக புத்தக வெளியீட்டு விழா, குப்பம் ஹெச்பி ஐ-சமூகம்"
+
+msgid "Community event, Dravidian University"
+msgstr "சமுதாய நிகழ்வு, திராவிடப் பல்கலைக்கழகம்"
+
+msgid "Community learning activity centre in Kuppam"
+msgstr "குப்பத்தில் சமூகக் கற்றல் செயல்பாடு மையம்"
+
+msgid "Connecting people, businesses, and services in one trusted place."
+msgstr "ஒரே நம்பகமான இடத்தில் மக்கள், வணிகங்கள் மற்றும் சேவைகளை இணைக்கிறது."
+
 msgid "Contact"
 msgstr "தொடர்பு கொள்ளவும்"
+
+msgid "Contact Information"
+msgstr "தொடர்பு தகவல்"
+
+msgid "Contact Messages"
+msgstr "தொடர்பு செய்திகள்"
 
 msgid "Contact Us Today"
 msgstr "இன்று எங்களைத் தொடர்பு கொள்ளவும்"
 
+msgid "Contact messages pagination"
+msgstr "தொடர்பு செய்திகள் பக்கமாக்கல்"
+
+msgid "Content Inventory"
+msgstr "உள்ளடக்க சரக்கு"
+
+msgid "Content Provider"
+msgstr "உள்ளடக்க வழங்குநர்"
+
+msgid ""
+"Content submitted by providers is reviewed by the Super Admin before "
+"publication."
+msgstr ""
+"வழங்குநர்கள் சமர்ப்பித்த உள்ளடக்கம் வெளியிடுவதற்கு முன் சூப்பர் நிர்வாகியால்"
+" மதிப்பாய்வு செய்யப்படும்."
+
 msgid "Corporate Businesses"
 msgstr "கார்ப்பரேட் வணிகங்கள்"
+
+msgid "Created"
+msgstr "உருவாக்கப்பட்டது"
+
+msgid "Culture and Traditions"
+msgstr "கலாச்சாரம் மற்றும் மரபுகள்"
 
 msgid "Custom Web Applications"
 msgstr "தனிப்பயன் இணைய பயன்பாடுகள்"
@@ -69,20 +431,150 @@ msgstr ""
 msgid "Dashboard"
 msgstr "டாஷ்போர்டு"
 
+msgid "Dashboard Overview"
+msgstr "டாஷ்போர்டு மேலோட்டம்"
+
+msgid "Deactivate"
+msgstr "செயலிழக்கச் செய்"
+
+msgid "Decision — current status:"
+msgstr "முடிவு - தற்போதைய நிலை:"
+
+msgid "Default Palette"
+msgstr "இயல்புநிலை தட்டு"
+
+msgid "Delete"
+msgstr "நீக்கு"
+
+msgid "Delete Post"
+msgstr "இடுகையை நீக்கு"
+
+msgid "Delete Selected"
+msgstr "தேர்ந்தெடுக்கப்பட்டதை நீக்கு"
+
+msgid "Delete this item? This cannot be undone."
+msgstr "இந்த உருப்படியை நீக்கவா? இதை செயல்தவிர்க்க முடியாது."
+
+msgid "Delete this listing? This cannot be undone."
+msgstr "இந்தப் பட்டியலை நீக்கவா? இதை செயல்தவிர்க்க முடியாது."
+
+msgid "Details"
+msgstr "விவரங்கள்"
+
+msgid "Development Team"
+msgstr "மேம்பாட்டுக் குழு"
+
+msgid "Development of Kuppam"
+msgstr "குப்பம் வளர்ச்சி"
+
+msgid "Device"
+msgstr "சாதனம்"
+
+msgid "Digital Marketing Team"
+msgstr "டிஜிட்டல் மார்க்கெட்டிங் குழு"
+
 msgid "Digital Solutions"
 msgstr "டிஜிட்டல் தீர்வுகள்"
+
+msgid "Disable"
+msgstr "முடக்கு"
+
+msgid "Disable Post"
+msgstr "இடுகையை முடக்கு"
+
+msgid "Disabled"
+msgstr "முடக்கப்பட்டது"
+
+msgid "Discover"
+msgstr "கண்டறியவும்"
+
+msgid ""
+"Discover the best restaurants, cafés, bakeries, and food outlets in Kuppam."
+msgstr ""
+"குப்பத்தில் சிறந்த உணவகங்கள், கஃபேக்கள், பேக்கரிகள் மற்றும் உணவு விற்பனை "
+"நிலையங்களைக் கண்டறியவும்."
 
 msgid "Dismiss"
 msgstr "நிராகரி"
 
+msgid "Dismiss notification"
+msgstr "அறிவிப்பை நிராகரி"
+
+msgid "Draft a New Post"
+msgstr "ஒரு புதிய இடுகையை உருவாக்கவும்"
+
+msgid "Dravidian University Established"
+msgstr "திராவிடப் பல்கலைக்கழகம் நிறுவப்பட்டது"
+
+msgid "Dravidian University central library, Kuppam"
+msgstr "திராவிடப் பல்கலைக்கழக மைய நூலகம், குப்பம்"
+
+msgid "Dravidian University, Kuppam"
+msgstr "திராவிடப் பல்கலைக்கழகம், குப்பம்"
+
+msgid ""
+"During the medieval period, the region came under the influence of the Vijayanagara Empire, and\n"
+"                    from 1026 the Kuppam area itself was ruled directly by the Kambi Nayudu dynasty of Kangundi — 28\n"
+"                    hereditary rulers who governed roughly 360 villages from Kangundi Fort, a line that continued\n"
+"                    uninterrupted until the zamindari system was abolished after independence. Figures such as Raja\n"
+"                    K.J.V. Naidu, pictured here, belonged to this same local ruling family in its final generations."
+msgstr ""
+"இடைக்காலத்தில், இப்பகுதி விஜயநகரப் பேரரசின் செல்வாக்கின் கீழ் வந்தது\n"
+"                    1026 முதல் குப்பம் பகுதியே கங்குண்டியின் கம்பி நாயுடு வம்சத்தால் நேரடியாக ஆளப்பட்டது - 28\n"
+"                    கங்குண்டி கோட்டையிலிருந்து சுமார் 360 கிராமங்களை ஆட்சி செய்த பரம்பரை ஆட்சியாளர்கள், தொடரும்\n"
+"                    சுதந்திரத்திற்குப் பிறகு ஜமீன்தாரி முறை ஒழிக்கப்படும் வரை தடையின்றி. ராஜா போன்ற பிரமுகர்கள்\n"
+"                    கே.ஜே.வி. இங்கே படத்தில் உள்ள நாயுடு, அதன் இறுதி தலைமுறையில் இதே உள்ளூர் ஆளும் குடும்பத்தைச் சேர்ந்தவர்."
+
 msgid "E-Commerce Website Development"
 msgstr "இ-காமர்ஸ் இணையதள மேம்பாடு"
+
+msgid "Early South Indian Dynasties"
+msgstr "ஆரம்பகால தென்னிந்திய வம்சங்கள்"
+
+msgid "Easy Search & Navigation"
+msgstr "எளிதான தேடல் மற்றும் வழிசெலுத்தல்"
+
+msgid "Edit"
+msgstr "திருத்தவும்"
+
+msgid "Edit Listing"
+msgstr "பட்டியலைத் திருத்து"
+
+msgid "Edit Post"
+msgstr "இடுகையைத் திருத்து"
+
+msgid "Edit Profile"
+msgstr "சுயவிவரத்தைத் திருத்து"
+
+msgid "Education"
+msgstr "கல்வி"
+
+msgid "Educational Growth"
+msgstr "கல்வி வளர்ச்சி"
 
 msgid "Educational Institutions"
 msgstr "கல்வி நிறுவனங்கள்"
 
+msgid ""
+"Eight-term MLA leadership and community initiatives shape modern Kuppam."
+msgstr ""
+"எட்டு முறை எம்எல்ஏ தலைமை மற்றும் சமூக முயற்சிகள் நவீன குப்பத்தை "
+"வடிவமைக்கின்றன."
+
+msgid "Email"
+msgstr "மின்னஞ்சல்"
+
+msgid "Email Address"
+msgstr "மின்னஞ்சல் முகவரி"
+
 msgid "Email for newsletter"
 msgstr "செய்திமடலுக்கான மின்னஞ்சல்"
+
+msgid "Enable"
+msgstr "இயக்கு"
+
+msgid "Enable Post"
+msgstr "இடுகையை இயக்கு"
 
 msgid ""
 "End-to-end web development for startups, businesses, educational "
@@ -91,17 +583,66 @@ msgstr ""
 "End-to-end web development for startups, businesses, educational "
 "institutions, and organizations building a strong online presence."
 
+msgid "Enforce for everyone"
+msgstr "அனைவருக்கும் செயல்படுத்தவும்"
+
+msgid "Engage"
+msgstr "ஈடுபடுங்கள்"
+
+msgid "Engagement Breakdown by Post"
+msgstr "அஞ்சல் மூலம் நிச்சயதார்த்த முறிவு"
+
+msgid "Event"
+msgstr "நிகழ்வு"
+
+msgid "Event Date"
+msgstr "நிகழ்வு தேதி"
+
 msgid "Events"
 msgstr "நிகழ்வுகள்"
 
+msgid "Every category, <span class=\"text-primary\">one platform</span>"
+msgstr "ஒவ்வொரு வகையிலும், <span class=\"text-primary\">ஒரு இயங்குதளம்</span>"
+
+msgid ""
+"Every listing includes contact details, location, images, and Google Maps "
+"integration."
+msgstr ""
+"ஒவ்வொரு பட்டியலிலும் தொடர்பு விவரங்கள், இருப்பிடம், படங்கள் மற்றும் Google "
+"Maps ஒருங்கிணைப்பு ஆகியவை அடங்கும்."
+
 msgid "Everything Kuppam has to offer, organized in one place"
 msgstr "குப்பம் வழங்கும் அனைத்தும், ஒரே இடத்தில் ஏற்பாடு செய்யப்பட்டுள்ளன"
+
+msgid "Excel"
+msgstr "எக்செல்"
 
 msgid "Experienced developers, priced for local businesses."
 msgstr "அனுபவம் வாய்ந்த டெவலப்பர்கள், உள்ளூர் வணிகங்களுக்கான விலை."
 
 msgid "Explore Categories"
 msgstr "வகைகளை ஆராயுங்கள்"
+
+msgid "Explore Listings"
+msgstr "பட்டியல்களை ஆராயுங்கள்"
+
+msgid ""
+"Explore car garages, clothing and textile shops, stationery shops, "
+"supermarkets, salons, and other local businesses around Kuppam."
+msgstr ""
+"குப்பத்தைச் சுற்றியுள்ள கார் கேரேஜ்கள், ஆடை மற்றும் ஜவுளிக் கடைகள், ஸ்டேஷனரி"
+" கடைகள், பல்பொருள் அங்காடிகள், சலூன்கள் மற்றும் பிற உள்ளூர் வணிகங்களை "
+"ஆராயுங்கள்."
+
+msgid "Explore or List"
+msgstr "ஆராயுங்கள் அல்லது பட்டியலிடுங்கள்"
+
+msgid ""
+"Explore schools, colleges, universities, and other educational institutions "
+"in Kuppam."
+msgstr ""
+"குப்பத்தில் உள்ள பள்ளிகள், கல்லூரிகள், பல்கலைக்கழகங்கள் மற்றும் பிற கல்வி "
+"நிறுவனங்களை ஆராயுங்கள்."
 
 msgid "Explore {{ name }}"
 msgstr "{{ name }}ஐ ஆராயுங்கள்"
@@ -110,16 +651,126 @@ msgid "Explore, track, and connect with your community on OneTownCity."
 msgstr ""
 "OneTownCity இல் உங்கள் சமூகத்தை ஆராயவும், கண்காணிக்கவும் மற்றும் இணைக்கவும்."
 
+msgid "Explorer"
+msgstr "எக்ஸ்ப்ளோரர்"
+
 msgid "Fast Performance"
 msgstr "வேகமான செயல்திறன்"
 
+msgid "Feature"
+msgstr "அம்சம்"
+
 msgid "Featured"
 msgstr "இடம்பெற்றது"
+
+msgid "Festival celebrations, Kuppam"
+msgstr "விழா கொண்டாட்டங்கள், குப்பம்"
+
+msgid "Festivals"
+msgstr "திருவிழாக்கள்"
+
+msgid ""
+"Fill out the form below and our team will get back to you within 24 hours."
+msgstr ""
+"கீழே உள்ள படிவத்தை நிரப்பவும், எங்கள் குழு 24 மணி நேரத்திற்குள் உங்களைத் "
+"தொடர்பு கொள்ளும்."
+
+msgid "Filter"
+msgstr "வடிகட்டி"
+
+msgid ""
+"Find buses, taxis, auto services, logistics, and transportation facilities."
+msgstr ""
+"பேருந்துகள், டாக்சிகள், ஆட்டோ சேவைகள், தளவாடங்கள் மற்றும் போக்குவரத்து "
+"வசதிகளைக் கண்டறியவும்."
+
+msgid ""
+"Find hospitals, clinics, diagnostic centers, pharmacies, and emergency "
+"healthcare services."
+msgstr ""
+"மருத்துவமனைகள், கிளினிக்குகள், நோயறிதல் மையங்கள், மருந்தகங்கள் மற்றும் "
+"அவசரகால சுகாதார சேவைகளைக் கண்டறியவும்."
+
+msgid ""
+"Find houses, apartments, plots, villas, rental properties, and commercial "
+"spaces available across Kuppam."
+msgstr ""
+"குப்பம் முழுவதும் கிடைக்கும் வீடுகள், அடுக்குமாடி குடியிருப்புகள், மனைகள், "
+"வில்லாக்கள், வாடகை சொத்துக்கள் மற்றும் வணிக இடங்களைக் கண்டறியவும்."
+
+msgid "Find what you need quickly, without the hassle."
+msgstr "தொந்தரவு இல்லாமல், உங்களுக்குத் தேவையானதை விரைவாகக் கண்டறியவும்."
+
+msgid "First page"
+msgstr "முதல் பக்கம்"
+
+msgid "Founder"
+msgstr "நிறுவனர்"
+
+msgid "From"
+msgstr "இருந்து"
+
+msgid ""
+"From ancient roots to a growing educational and agricultural hub in Andhra "
+"Pradesh"
+msgstr ""
+"பண்டைய காலங்களிலிருந்து ஆந்திரப் பிரதேசத்தில் வளர்ந்து வரும் கல்வி மற்றும் "
+"விவசாய மையமாக"
+
+msgid "Full Name"
+msgstr "முழுப் பெயர்"
+
+msgid ""
+"Full attribution and licence terms are available on each image's Wikimedia "
+"Commons file page."
+msgstr ""
+"ஒவ்வொரு படத்தின் விக்கிமீடியா காமன்ஸ் கோப்புப் பக்கத்திலும் முழு பண்புக்கூறு"
+" மற்றும் உரிம விதிமுறைகள் உள்ளன."
+
+msgid "Future Vision"
+msgstr "எதிர்கால பார்வை"
+
+msgid "Gallery"
+msgstr "தொகுப்பு"
+
+msgid "Gallery of Kuppam"
+msgstr "குப்பத்தின் கேலரி"
+
+msgid "Gangamma Jatara, Kuppam"
+msgstr "கங்கம்மா ஜாதரா, குப்பம்"
+
+msgid "Get In Touch"
+msgstr "தொடர்பு கொள்ளுங்கள்"
+
+msgid "Get directions to any listing in a single tap."
+msgstr "எந்தப் பட்டியலுக்கும் ஒரே தட்டலில் திசைகளைப் பெறவும்."
+
+msgid "Get in <span class=\"hk-text-gradient-gold\">Touch</span>"
+msgstr "<span class=\"hk-text-gradient-gold\">Touch</span> இல் பெறவும்"
 
 msgid "Get the latest Kuppam listings and news in your inbox."
 msgstr ""
 "உங்கள் இன்பாக்ஸில் சமீபத்திய குப்பம் பட்டியல்கள் மற்றும் செய்திகளைப் "
 "பெறுங்கள்."
+
+msgid "Goes Live"
+msgstr "நேரலையில் செல்கிறது"
+
+msgid "Google Maps"
+msgstr "கூகுள் மேப்ஸ்"
+
+msgid "Google Maps Integration"
+msgstr "கூகுள் மேப்ஸ் ஒருங்கிணைப்பு"
+
+msgid ""
+"Government Degree College, Kuppam campus — courtesy of Government Degree "
+"College, Kuppam (gdckuppam.edu.in), used here to represent the institution "
+"accurately rather than a generic stock photo."
+msgstr ""
+"அரசு பட்டப்படிப்புக் கல்லூரி, குப்பம் வளாகம் - குப்பத்தில் உள்ள அரசுப் "
+"பட்டயக் கல்லூரியின் மரியாதை (gdckuppam.edu.in), ஒரு பொதுவான ஸ்டாக் "
+"புகைப்படத்தைக் காட்டிலும் நிறுவனத்தை துல்லியமாகப் பிரதிநிதித்துவப்படுத்த "
+"இங்கே பயன்படுத்தப்படுகிறது."
 
 msgid "Healthcare"
 msgstr "சுகாதாரம்"
@@ -127,14 +778,75 @@ msgstr "சுகாதாரம்"
 msgid "Hi OneTownCity! I'd like some help finding..."
 msgstr "வணக்கம் OneTownCity! நான் கண்டுபிடிக்க சில உதவிகளை விரும்புகிறேன்..."
 
+msgid "Higher education reshapes Kuppam into a student destination."
+msgstr "உயர்கல்வி குப்பத்தை மாணவர்களின் இடமாக மாற்றுகிறது."
+
+msgid ""
+"His wife, Nara Bhuvaneswari — Managing Trustee of the NTR Trust and Vice Chairperson of Heritage\n"
+"                    Foods — has made regular visits to schools across the Kuppam constituency, including outreach at\n"
+"                    the Zilla Parishad High School in Kenchanaballa, supporting scholarships, healthcare camps, and\n"
+"                    environmental initiatives such as sapling plantations for local students."
+msgstr ""
+"அவரது மனைவி, நாரா புவனேஸ்வரி - என்டிஆர் அறக்கட்டளையின் நிர்வாக அறங்காவலர் மற்றும் ஹெரிடேஜ் துணைத் தலைவர்\n"
+"                    உணவுகள் - குப்பம் தொகுதி முழுவதும் உள்ள பள்ளிகள், வெளியூர் உள்ளிட்ட பள்ளிகளுக்கு தொடர்ந்து வருகை தந்துள்ளார்\n"
+"                    கெஞ்சனபல்லாவில் உள்ள ஜில்லா பரிஷத் உயர்நிலைப் பள்ளி, உதவித்தொகை, சுகாதார முகாம்கள், மற்றும்\n"
+"                    உள்ளூர் மாணவர்களுக்கான மரக்கன்றுகள் நடுதல் போன்ற சுற்றுச்சூழல் முயற்சிகள்."
+
 msgid "History"
 msgstr "வரலாறு"
+
+msgid "History After Indian Independence"
+msgstr "இந்திய சுதந்திரத்திற்குப் பின் வரலாறு"
+
+msgid "History of Kuppam"
+msgstr "குப்பத்தின் வரலாறு"
 
 msgid "Home"
 msgstr "வீடு"
 
+msgid "Homepage card description"
+msgstr "முகப்பு அட்டை விளக்கம்"
+
+msgid "Homepage card image"
+msgstr "முகப்பு அட்டை படம்"
+
+msgid "Horsley Hills, Chittoor district"
+msgstr "ஹார்ஸ்லி ஹில்ஸ், சித்தூர் மாவட்டம்"
+
+msgid "Hospitals"
+msgstr "மருத்துவமனைகள்"
+
+msgid "Hospitals & Healthcare"
+msgstr "மருத்துவமனைகள் & சுகாதாரம்"
+
+msgid "How OneTownCity <span class=\"text-primary\">works</span>"
+msgstr "OneTownCity <span class=\"text-primary\">எப்படி செயல்படுகிறது</span>"
+
+msgid "IP Address"
+msgstr "ஐபி முகவரி"
+
+msgid "Icon"
+msgstr "ஐகான்"
+
+msgid "In Pictures"
+msgstr "படங்களில்"
+
+msgid "Inactive"
+msgstr "செயலற்றது"
+
+msgid "Independence & Andhra Pradesh"
+msgstr "சுதந்திரம் & ஆந்திரப் பிரதேசம்"
+
 msgid "Industries We Serve"
 msgstr "நாங்கள் சேவை செய்யும் தொழில்கள்"
+
+msgid "Irrigation canal near Kuppam"
+msgstr "குப்பம் அருகே பாசன கால்வாய்"
+
+msgid "It will be reviewed by the Super Admin before it goes live."
+msgstr ""
+"இது நேரலைக்கு வருவதற்கு முன்பு சூப்பர் நிர்வாகியால் மதிப்பாய்வு "
+"செய்யப்படும்."
 
 msgid "Job Description"
 msgstr "வேலை விவரம்"
@@ -142,26 +854,349 @@ msgstr "வேலை விவரம்"
 msgid "Jobs"
 msgstr "வேலைகள்"
 
+msgid ""
+"Join the One <span class=\"hk-text-gradient-gold\">TownCity</span> Community"
+msgstr ""
+"ஒரு <span class=\"hk-text-gradient-gold\">டவுன்சிட்டி</span> சமூகத்தில் "
+"சேரவும்"
+
+msgid "Joined"
+msgstr "சேர்ந்தார்"
+
+msgid "Joined {{ joined }}"
+msgstr "{{ joined }} இல் சேர்ந்தார்"
+
+msgid "Kuppam Area Development Authority"
+msgstr "குப்பம் வட்டார வளர்ச்சி ஆணையம்"
+
+msgid "Kuppam Area Development Authority emblem"
+msgstr "குப்பம் வட்டார வளர்ச்சி ஆணைய சின்னம்"
+
+msgid "Kuppam Railway Station"
+msgstr "குப்பம் ரயில் நிலையம்"
+
+msgid "Kuppam Through the Ages"
+msgstr "காலங்கள் வழியாக குப்பம்"
+
+msgid "Kuppam balances its agricultural roots with modern civic growth."
+msgstr ""
+"குப்பம் அதன் விவசாய வேர்களை நவீன குடிமை வளர்ச்சியுடன் சமநிலைப்படுத்துகிறது."
+
+msgid "Kuppam becomes part of independent India's new state boundaries."
+msgstr ""
+"குப்பம் சுதந்திர இந்தியாவின் புதிய மாநில எல்லைகளின் ஒரு பகுதியாக மாறுகிறது."
+
+msgid "Kuppam community learning centre"
+msgstr "குப்பம் சமுதாயக் கற்றல் மையம்"
+
+msgid "Kuppam constituency map"
+msgstr "குப்பம் தொகுதி வரைபடம்"
+
+msgid "Kuppam development launch, July 2025"
+msgstr "குப்பம் மேம்பாடு துவக்கம், ஜூலை 2025"
+
+msgid "Kuppam i-community, early development era"
+msgstr "குப்பம் ஐ-சமூகம், ஆரம்ப வளர்ச்சி காலம்"
+
+msgid ""
+"Kuppam is a state legislative assembly constituency in Andhra Pradesh, represented for an\n"
+"                    extended period by N. Chandrababu Naidu, who has served as Chief Minister of Andhra Pradesh —\n"
+"                    a long association that has kept Kuppam prominent in state-level development planning, including\n"
+"                    through dedicated bodies like the Kuppam Area Development Authority shown here."
+msgstr ""
+"குப்பம் என்பது ஆந்திரப் பிரதேசத்தில் உள்ள ஒரு மாநில சட்டமன்றத் தொகுதியாகும்\n"
+"                    ஆந்திரப் பிரதேசத்தின் முதலமைச்சராகப் பணியாற்றிய என். சந்திரபாபு நாயுடுவால் நீட்டிக்கப்பட்ட காலம் —\n"
+"                    உள்ளிட்ட மாநில அளவிலான வளர்ச்சித் திட்டங்களில் குப்பத்தை முக்கிய இடத்தைப் பிடித்த ஒரு நீண்ட சங்கம்\n"
+"                    இங்கு காட்டப்பட்டுள்ள குப்பம் பகுதி மேம்பாட்டு ஆணையம் போன்ற அர்ப்பணிப்புள்ள அமைப்புகள் மூலம்."
+
+msgid ""
+"Kuppam is home to Dravidian University, established in 1997 to promote study and research on\n"
+"                    Dravidian languages and culture, along with Kuppam Engineering College and other degree colleges\n"
+"                    that have grown up around it — together turning the town into a destination for students from\n"
+"                    across the tri-state border area."
+msgstr ""
+"குப்பத்தில் திராவிடப் பல்கலைக்கழகம் உள்ளது, இது ஆய்வு மற்றும் ஆராய்ச்சியை மேம்படுத்துவதற்காக 1997 இல் நிறுவப்பட்டது\n"
+"                    திராவிட மொழிகள் மற்றும் கலாச்சாரம், குப்பம் பொறியியல் கல்லூரி மற்றும் பிற பட்டப்படிப்பு கல்லூரிகளுடன்\n"
+"                    அதைச் சுற்றி வளர்ந்தவை - ஒன்றாக நகரத்தை மாணவர்களுக்கான இடமாக மாற்றியது\n"
+"                    மூன்று மாநில எல்லைப் பகுதி முழுவதும்."
+
+msgid "Kuppam railway station"
+msgstr "குப்பம் ரயில் நிலையம்"
+
+msgid ""
+"Kuppam sits at the tri-junction where Andhra Pradesh, Tamil Nadu and Karnataka meet — a mandal\n"
+"                    headquarters in Chittoor district shaped by centuries of Telugu, Tamil and Kannada culture\n"
+"                    converging in one town."
+msgstr ""
+"குப்பம் ஆந்திரா, தமிழ்நாடு மற்றும் கர்நாடகா சந்திக்கும் முச்சந்தியில் அமர்ந்திருக்கிறது - ஒரு மண்டலம்\n"
+"                    சித்தூர் மாவட்டத்தில் உள்ள தலைமையகம் பல நூற்றாண்டுகளாக தெலுங்கு, தமிழ் மற்றும் கன்னட கலாச்சாரத்தால் வடிவமைக்கப்பட்டுள்ளது\n"
+"                    ஒரு ஊரில் கூடுகிறது."
+
+msgid ""
+"Kuppam sits within reach of hill destinations in Chittoor district, including the well-known\n"
+"                    Horsley Hills further north — often called the \"Ooty of Andhra Pradesh\" for its misty\n"
+"                    viewpoints, forests and cool climate. The Dravidian University campus itself has become a\n"
+"                    local landmark worth visiting."
+msgstr ""
+"குப்பம் சித்தூர் மாவட்டத்தில் உள்ள மலை வாசஸ்தலங்கள், நன்கு அறியப்பட்டவை உட்பட\n"
+"                    ஹார்ஸ்லி ஹில்ஸ் மேலும் வடக்கே - பெரும்பாலும் அதன் மூடுபனிக்காக \"ஆந்திரப் பிரதேசத்தின் ஊட்டி\" என்று அழைக்கப்படுகிறது\n"
+"                    காட்சிகள், காடுகள் மற்றும் குளிர் காலநிலை. திராவிடப் பல்கலைக்கழக வளாகமே ஏ\n"
+"                    பார்வையிட வேண்டிய உள்ளூர் மைல்கல்."
+
+msgid ""
+"Kuppam's economy has long rested on agriculture — the area is particularly well known for\n"
+"                    tomato cultivation and trade, alongside mango orchards, groundnuts, mulberry (sericulture), and\n"
+"                    a range of vegetable crops supported by local irrigation canals like the one pictured here."
+msgstr ""
+"குப்பத்தின் பொருளாதாரம் நீண்ட காலமாக விவசாயத்தில் தங்கியுள்ளது - இப்பகுதி குறிப்பாக நன்கு அறியப்பட்டதாகும்\n"
+"                    தக்காளி சாகுபடி மற்றும் வணிகம், மாம்பழத்தோட்டங்கள், நிலக்கடலை, மல்பெரி (பட்டுப்புழு வளர்ப்பு) மற்றும்\n"
+"                    இங்கே படத்தில் உள்ளதைப் போன்ற உள்ளூர் நீர்ப்பாசன கால்வாய்களால் ஆதரிக்கப்படும் காய்கறி பயிர்களின் வரம்பு."
+
+msgid ""
+"Kuppam's growth path is already in motion: an announced industrial investment plan of around\n"
+"                    ₹9,322 crore, the Swarna Kuppam initiative upgrading internal roads across the constituency,\n"
+"                    and new units such as a battery anode material plant and a Mother Dairy processing facility\n"
+"                    expected to bring thousands of local jobs."
+msgstr ""
+"குப்பத்தின் வளர்ச்சிப் பாதை ஏற்கனவே இயக்கத்தில் உள்ளது: சுமார் அறிவிக்கப்பட்ட தொழில் முதலீட்டுத் திட்டம்\n"
+"                    9,322 கோடி ரூபாயில், ஸ்வர்ண குப்பம் திட்டம், தொகுதி முழுவதும் உள் சாலைகளை மேம்படுத்தும் திட்டம்.\n"
+"                    மற்றும் பேட்டரி ஆனோட் பொருள் ஆலை மற்றும் மதர் டெய்ரி செயலாக்க வசதி போன்ற புதிய அலகுகள்\n"
+"                    ஆயிரக்கணக்கான உள்ளூர் வேலைகளை கொண்டு வரும் என்று எதிர்பார்க்கப்படுகிறது."
+
+msgid "Label"
+msgstr "லேபிள்"
+
+msgid "Landscape near Kuppam — KuppamArunKumar, CC BY-SA 4.0"
+msgstr "குப்பம் அருகே நிலப்பரப்பு — KuppamArunKumar, CC BY-SA 4.0"
+
+msgid "Landscape view near Kuppam, Andhra Pradesh"
+msgstr "ஆந்திர மாநிலம் குப்பம் அருகே உள்ள இயற்கை காட்சி"
+
 msgid "Language"
 msgstr "மொழி"
+
+msgid "Last active never"
+msgstr "கடைசியாக செயலில் இல்லை"
+
+msgid "Last active {{ last_active }}"
+msgstr "கடைசியாக செயல்பட்டது {{ last_active }}"
+
+msgid "Last page"
+msgstr "கடைசி பக்கம்"
+
+msgid "Last reviewed by {{ reviewer }} on {{ reviewed_on }}"
+msgstr ""
+"{{ reviewed_on }} அன்று {{ reviewer }} ஆல் கடைசியாக மதிப்பாய்வு "
+"செய்யப்பட்டது"
+
+msgid "Last updated by {{ editor }} on {{ updated_on }}"
+msgstr ""
+"{{ updated_on }} அன்று {{ editor }} ஆல் கடைசியாகப் புதுப்பிக்கப்பட்டது"
+
+msgid "Leads the vision, strategy, and overall development of the platform."
+msgstr "தளத்தின் பார்வை, உத்தி மற்றும் ஒட்டுமொத்த வளர்ச்சிக்கு வழிவகுக்கிறது."
+
+msgid ""
+"Like much of Andhra Pradesh, Kuppam celebrates Sankranti, Ugadi, and Dasara with community\n"
+"                    gatherings, alongside local temple festivals (jatras) that draw residents from surrounding\n"
+"                    villages for processions, fairs, and shared meals."
+msgstr ""
+"ஆந்திராவின் பெரும்பகுதியைப் போலவே, குப்பமும் சங்கராந்தி, உகாதி மற்றும் தசராவை சமூகத்துடன் கொண்டாடுகிறது\n"
+"                    கூட்டங்கள், உள்ளூர் கோவில் திருவிழாக்கள் (ஜாத்ராக்கள்) சுற்றுப்புறங்களில் இருந்து மக்களை ஈர்க்கும்\n"
+"                    ஊர்வலங்கள், கண்காட்சிகள் மற்றும் பகிர்ந்த உணவுகளுக்கான கிராமங்கள்."
+
+msgid "Likes"
+msgstr "விரும்புகிறது"
+
+msgid "Likes / Reactions"
+msgstr "விருப்பங்கள் / எதிர்வினைகள்"
+
+msgid "Listing"
+msgstr "பட்டியல்"
+
+msgid "Listing Approvals"
+msgstr "பட்டியல் ஒப்புதல்கள்"
+
+msgid "Listing pagination"
+msgstr "பட்டியல் பேஜினேஷன்"
+
+msgid "Listings"
+msgstr "பட்டியல்கள்"
+
+msgid "Listings awaiting a decision will show up here."
+msgstr "முடிவுக்காகக் காத்திருக்கும் பட்டியல்கள் இங்கே காண்பிக்கப்படும்."
+
+msgid "Loading…"
+msgstr "ஏற்றுகிறது…"
+
+msgid "Local Landscape View"
+msgstr "உள்ளூர் நிலப்பரப்பு காட்சி"
+
+msgid "Local Nayaka & Zamindari Rule"
+msgstr "உள்ளூர் நாயக்க & ஜமீன்தாரி ஆட்சி"
+
+msgid "Local festival celebration in Kuppam"
+msgstr "குப்பத்தில் உள்ளூர் திருவிழா கொண்டாட்டம்"
+
+msgid ""
+"Local markets built around tomato and produce trading remain a defining part of Kuppam's\n"
+"                    economic identity, even as education and services have added new dimensions to the local economy."
+msgstr ""
+"தக்காளியை சுற்றி கட்டப்பட்ட உள்ளூர் சந்தைகள் மற்றும் உற்பத்தி வர்த்தகம் குப்பத்தின் வரையறுக்கும் பகுதியாக உள்ளது\n"
+"                    பொருளாதார அடையாளம், கல்வி மற்றும் சேவைகள் உள்ளூர் பொருளாதாரத்தில் புதிய பரிமாணங்களை சேர்த்திருந்தாலும் கூட."
+
+msgid ""
+"Local oral histories may offer more specific accounts of the name's origin — an area where\n"
+"                    community knowledge can meaningfully add to this page over time."
+msgstr ""
+"உள்ளூர் வாய்வழி வரலாறுகள் பெயரின் தோற்றம் பற்றிய குறிப்பிட்ட கணக்குகளை வழங்கலாம் - ஒரு பகுதி\n"
+"                    சமூக அறிவு காலப்போக்கில் இந்த பக்கத்தில் அர்த்தமுள்ளதாக சேர்க்க முடியும்."
+
+msgid "Location"
+msgstr "இடம்"
 
 msgid "Logout"
 msgstr "வெளியேறு"
 
+msgid "Madras Presidency & the Railway"
+msgstr "மெட்ராஸ் பிரசிடென்சி & ரயில்வே"
+
+msgid ""
+"Madras Railway expansion later reaches Kuppam, connecting it to the wider "
+"region."
+msgstr ""
+"மெட்ராஸ் ரயில்வே விரிவாக்கம் பின்னர் குப்பத்தை அடைந்து, அதை பரந்த பகுதியுடன்"
+" இணைக்கிறது."
+
+msgid "Manage Categories"
+msgstr "வகைகளை நிர்வகிக்கவும்"
+
+msgid "Manage Users"
+msgstr "பயனர்களை நிர்வகிக்கவும்"
+
+msgid "Manage every listing across all categories from one place."
+msgstr ""
+"அனைத்து வகைகளிலும் உள்ள ஒவ்வொரு பட்டியலையும் ஒரே இடத்தில் இருந்து "
+"நிர்வகிக்கவும்."
+
+msgid "Manager Dashboard"
+msgstr "மேலாளர் டாஷ்போர்டு"
+
+msgid "Manager Workspace"
+msgstr "மேலாளர் பணியிடம்"
+
 msgid "Manufacturing"
 msgstr "உற்பத்தி"
 
-msgid "Mark all read"
+msgid "Map of Kuppam assembly constituency mandals"
+msgstr "குப்பம் சட்டமன்ற தொகுதி மண்டலங்களின் வரைபடம்"
+
+msgid "Mark Read"
+msgstr "மார்க் ரீட்"
+
+msgid "Mark Unread"
+msgstr "படிக்காததைக் குறிக்கவும்"
+
+msgid "Mark all as read"
 msgstr "அனைத்தையும் படித்ததாகக் குறிக்கவும்"
+
+msgid "Mark as Featured"
+msgstr "பிரத்யேகமாகக் குறிக்கவும்"
+
+msgid "Mark read"
+msgstr "மார்க் படித்தேன்"
+
+msgid "Medieval History"
+msgstr "இடைக்கால வரலாறு"
+
+msgid "Medieval Period"
+msgstr "இடைக்கால காலம்"
+
+msgid "Member Since"
+msgstr "உறுப்பினர் முதல்"
+
+msgid "Message"
+msgstr "செய்தி"
+
+msgid "Mission"
+msgstr "பணி"
+
+msgid "Mobile Number"
+msgstr "மொபைல் எண்"
+
+msgid "Mobile-Friendly Design"
+msgstr "மொபைல் நட்பு வடிவமைப்பு"
+
+msgid "Moderation"
+msgstr "நிதானம்"
+
+msgid "Moderation & Engagement"
+msgstr "நிதானம் & ஈடுபாடு"
+
+msgid "Moderation Queue"
+msgstr "அளவீட்டு வரிசை"
 
 msgid "Modern & Responsive"
 msgstr "நவீன & பொறுப்பு"
+
+msgid ""
+"More glimpses of the town, its university, and the hills around it — tap any"
+" photo to enlarge"
+msgstr ""
+"நகரம், அதன் பல்கலைக்கழகம் மற்றும் அதைச் சுற்றியுள்ள மலைகளின் கூடுதல் "
+"காட்சிகள் - பெரிதாக்க எந்தப் படத்தையும் தட்டவும்"
+
+msgid "Most liked"
+msgstr "மிகவும் பிடித்தது"
+
+msgid "Most viewed"
+msgstr "அதிகம் பார்க்கப்பட்டது"
+
+msgid "My Account"
+msgstr "எனது கணக்கு"
+
+msgid "My Dashboard"
+msgstr "எனது டாஷ்போர்டு"
 
 msgid "My Favorites"
 msgstr "எனக்கு பிடித்தவை"
 
 msgid "My Listings"
 msgstr "எனது பட்டியல்கள்"
+
+msgid "My Listings by Status"
+msgstr "நிலையின்படி எனது பட்டியல்கள்"
+
+msgid "My Managed Categories"
+msgstr "எனது நிர்வகிக்கப்பட்ட வகைகள்"
+
+msgid "My Profile"
+msgstr "எனது சுயவிவரம்"
+
+msgid "My Workspace"
+msgstr "எனது பணியிடம்"
+
+msgid "N. Chandrababu Naidu & Nara Bhuvaneswari"
+msgstr "என். சந்திரபாபு நாயுடு & நாரா புவனேஸ்வரி"
+
+msgid "N. Chandrababu Naidu and Nara Bhuvaneswari"
+msgstr "என். சந்திரபாபு நாயுடு மற்றும் நாரா புவனேஸ்வரி"
+
+msgid ""
+"N. Chandrababu Naidu, an eight-term MLA who has represented Kuppam continuously since 1989, is\n"
+"                    closely associated with the town's rise as an education and civic hub — including the founding\n"
+"                    of Dravidian University in 1997, Kuppam Engineering College, and the Kuppam Area Development\n"
+"                    Authority (KADA), which has driven local roads, drinking water, and infrastructure projects over\n"
+"                    the years."
+msgstr ""
+"1989 ஆம் ஆண்டு முதல் தொடர்ந்து குப்பத்தில் இருந்து எட்டு முறை எம்எல்ஏவாக இருந்தவர் என். சந்திரபாபு நாயுடு.\n"
+"                    கல்வி மற்றும் குடிமை மையமாக நகரத்தின் எழுச்சியுடன் நெருங்கிய தொடர்புடையது - நிறுவுதல் உட்பட\n"
+"                    1997 இல் திராவிடப் பல்கலைக்கழகம், குப்பம் பொறியியல் கல்லூரி மற்றும் குப்பம் பகுதி வளர்ச்சி\n"
+"                    ஆணையம் (KADA), உள்ளூர் சாலைகள், குடிநீர் மற்றும் உள்கட்டமைப்பு திட்டங்களை இயக்கியது\n"
+"                    ஆண்டுகள்."
+
+msgid "Name"
+msgstr "பெயர்"
 
 msgid ""
 "Need help finding a business, job or property in Kuppam? Chat with us on "
@@ -173,14 +1208,122 @@ msgstr ""
 msgid "New"
 msgstr "புதியது"
 
+msgid "New Post"
+msgstr "புதிய இடுகை"
+
+msgid "New {{ cat }}"
+msgstr "புதிய {{ cat }}"
+
+msgid "Newest first"
+msgstr "முதலில் புதியது"
+
+msgid "News"
+msgstr "செய்தி"
+
+msgid "Next"
+msgstr "அடுத்து"
+
+msgid "Next page"
+msgstr "அடுத்த பக்கம்"
+
+msgid "No businesses found"
+msgstr "வணிகங்கள் எதுவும் இல்லை"
+
+msgid "No categories granted yet."
+msgstr "எந்த வகைகளும் இன்னும் வழங்கப்படவில்லை."
+
+msgid "No categories yet"
+msgstr "இன்னும் வகைகள் இல்லை"
+
+msgid ""
+"No categories yet — add one from <a href=\"{{ manage_categories_url "
+"}}\">Manage Categories</a> first."
+msgstr ""
+"இன்னும் வகைகள் இல்லை — முதலில் <a href=\"{{ manage_categories_url "
+"}}\">வகைகளை நிர்வகி</a> இலிருந்து ஒன்றைச் சேர்க்கவும்."
+
+msgid "No comments yet."
+msgstr "இதுவரை கருத்துகள் இல்லை."
+
+msgid "No contact messages found."
+msgstr "தொடர்பு செய்திகள் எதுவும் இல்லை."
+
 msgid "No further details have been added for this project yet."
 msgstr "இந்த திட்டத்திற்கான கூடுதல் விவரங்கள் இன்னும் சேர்க்கப்படவில்லை."
 
-msgid "No notifications yet."
-msgstr "இதுவரை எந்த அறிவிப்பும் இல்லை."
+msgid "No gallery images yet."
+msgstr "இதுவரை கேலரி படங்கள் இல்லை."
+
+msgid "No gallery photos or videos yet."
+msgstr "இதுவரை கேலரி படங்கள் அல்லது வீடியோக்கள் இல்லை."
+
+msgid "No gallery videos yet."
+msgstr "இதுவரை கேலரி வீடியோக்கள் இல்லை."
+
+msgid "No listings match your search/filter. Try different keywords or types."
+msgstr ""
+"உங்கள் தேடல்/வடிப்பானுடன் எந்தப் பட்டியல்களும் பொருந்தவில்லை. வெவ்வேறு "
+"முக்கிய வார்த்தைகள் அல்லது வகைகளை முயற்சிக்கவும்."
+
+msgid "No listings yet"
+msgstr "இதுவரை பட்டியல்கள் இல்லை"
+
+msgid "No login activity recorded."
+msgstr "உள்நுழைவு செயல்பாடு எதுவும் பதிவு செய்யப்படவில்லை."
+
+msgid "No login activity yet."
+msgstr "உள்நுழைவு செயல்பாடு இன்னும் இல்லை."
+
+msgid "No messages yet."
+msgstr "இதுவரை செய்திகள் இல்லை."
+
+msgid "No notifications yet"
+msgstr "இதுவரை எந்த அறிவிப்பும் இல்லை"
+
+msgid "No posts match these filters."
+msgstr "இந்த வடிப்பான்களுடன் எந்த இடுகையும் பொருந்தவில்லை."
+
+msgid "No properties found"
+msgstr "பண்புகள் எதுவும் இல்லை"
+
+msgid "No requests found"
+msgstr "கோரிக்கைகள் எதுவும் இல்லை"
+
+msgid "No requests yet."
+msgstr "இதுவரை கோரிக்கைகள் இல்லை."
+
+msgid "No reviews yet."
+msgstr "இதுவரை விமர்சனங்கள் இல்லை."
+
+msgid "No seasonal effect"
+msgstr "பருவகால விளைவு இல்லை"
+
+msgid "No subcategories yet."
+msgstr "இதுவரை துணைப்பிரிவுகள் இல்லை."
+
+msgid "No upcoming projects found"
+msgstr "வரவிருக்கும் திட்டங்கள் எதுவும் இல்லை"
+
+msgid "No users found."
+msgstr "பயனர்கள் யாரும் இல்லை."
+
+msgid "No {{ label }} found"
+msgstr "{{ label }} இல்லை"
+
+msgid "Note (rejection reason / requested changes)"
+msgstr "குறிப்பு (நிராகரிப்பு காரணம் / கோரப்பட்ட மாற்றங்கள்)"
+
+msgid "Nothing to review"
+msgstr "மதிப்பாய்வு செய்ய எதுவும் இல்லை"
 
 msgid "Notifications"
 msgstr "அறிவிப்புகள்"
+
+msgid "Oldest first"
+msgstr "முதலில் பழமையானது"
+
+msgid "Once approved, listings become publicly visible to everyone."
+msgstr "அங்கீகரிக்கப்பட்டதும், பட்டியல்கள் அனைவருக்கும் பொதுவில் தெரியும்."
 
 msgid ""
 "One clean interface for local listings, real estate, and upcoming projects. "
@@ -191,19 +1334,56 @@ msgstr ""
 "சுத்தமான இடைமுகம். பட கேலரிகளைப் பார்க்கவும், Google இணைப்புகளை உடனடியாக "
 "அணுகவும், உண்மையான சமூகக் கருத்தைப் பகிரவும் தட்டவும்."
 
+msgid "OneTownCity Location"
+msgstr "OneTownCity இடம்"
+
 msgid "OneTownCity News"
 msgstr "ஒன்டவுன்சிட்டி செய்திகள்"
+
+msgid ""
+"OneTownCity is a comprehensive local information platform designed to connect the people\n"
+"                    of Kuppam with businesses, services, institutions, and opportunities. Our goal is to\n"
+"                    provide a single, trusted destination where residents, visitors, students, and business\n"
+"                    owners can easily discover everything Kuppam has to offer."
+msgstr ""
+"OneTownCity என்பது மக்களை இணைக்க வடிவமைக்கப்பட்ட ஒரு விரிவான உள்ளூர் தகவல் தளமாகும்\n"
+"                    வணிகங்கள், சேவைகள், நிறுவனங்கள் மற்றும் வாய்ப்புகளுடன் குப்பம். நமது இலக்கு\n"
+"                    குடியிருப்பாளர்கள், பார்வையாளர்கள், மாணவர்கள் மற்றும் வணிகம் உள்ள ஒரு நம்பகமான இலக்கை வழங்குதல்\n"
+"                    குப்பம் வழங்கும் அனைத்தையும் உரிமையாளர்கள் எளிதாகக் கண்டறிய முடியும்."
+
+msgid ""
+"OneTownCity is developed by a passionate team dedicated to creating a better"
+" digital experience for the people of Kuppam."
+msgstr ""
+"ஒன்டவுன்சிட்டி குப்பம் மக்களுக்கு சிறந்த டிஜிட்டல் அனுபவத்தை உருவாக்க "
+"அர்ப்பணிக்கப்பட்ட ஒரு ஆர்வமுள்ள குழுவால் உருவாக்கப்பட்டது."
+
+msgid ""
+"OneTownCity itself — this directory — is part of that present-day story: a local information\n"
+"                    portal built for the town's businesses, students, job-seekers and residents."
+msgstr ""
+"OneTownCity தானே — இந்த அடைவு — அந்த இன்றைய கதையின் ஒரு பகுதி: ஒரு உள்ளூர் தகவல்\n"
+"                    நகரின் வணிகங்கள், மாணவர்கள், வேலை தேடுபவர்கள் மற்றும் குடியிருப்பாளர்களுக்காக கட்டப்பட்ட போர்டல்."
 
 msgid "OneTownCity. All rights reserved. Powered by CraftLanee."
 msgstr ""
 "ஒன்டவுன்சிட்டி. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை. CraftLanee மூலம் "
 "இயக்கப்படுகிறது."
 
+msgid "Ongoing"
+msgstr "நடந்து கொண்டிருக்கிறது"
+
 msgid "Open Jobs"
 msgstr "திறந்த வேலைகள்"
 
+msgid "Open dashboard menu"
+msgstr "டாஷ்போர்டு மெனுவைத் திறக்கவும்"
+
 msgid "Open in Google Maps"
 msgstr "Google வரைபடத்தில் திறக்கவும்"
+
+msgid "Open in Maps"
+msgstr "வரைபடத்தில் திறக்கவும்"
 
 msgid "Open menu"
 msgstr "மெனுவைத் திற"
@@ -211,8 +1391,54 @@ msgstr "மெனுவைத் திற"
 msgid "Optimized for speed with ongoing technical support."
 msgstr "தற்போதைய தொழில்நுட்ப ஆதரவுடன் வேகத்திற்கு உகந்ததாக உள்ளது."
 
+msgid "Order"
+msgstr "ஆர்டர்"
+
+msgid "Origin of the Name \"Kuppam\""
+msgstr "\"குப்பம்\" என்ற பெயரின் தோற்றம்"
+
+msgid "Our <span class=\"text-primary\">Commitment</span>"
+msgstr "எங்கள் <span class=\"text-primary\">உறுதி</span>"
+
+msgid "Our <span class=\"text-primary\">Team</span>"
+msgstr "எங்கள் <span class=\"text-primary\">குழு</span>"
+
+msgid "Our Promise"
+msgstr "எங்கள் வாக்குறுதி"
+
 msgid "Our Services"
 msgstr "எங்கள் சேவைகள்"
+
+msgid ""
+"Over the last few decades, Kuppam has seen sustained investment in roads, drinking water,\n"
+"                    power supply, and public buildings, alongside hands-on community learning initiatives that\n"
+"                    brought interactive science and skill-building facilities to local children and residents."
+msgstr ""
+"கடந்த சில தசாப்தங்களாக, குப்பம் சாலைகள், குடிநீர், ஆகியவற்றில் நீடித்த முதலீடுகளைக் கண்டுள்ளது.\n"
+"                    மின்சாரம் மற்றும் பொது கட்டிடங்கள், சமூகக் கற்றல் முயற்சிகளுடன்\n"
+"                    உள்ளூர் குழந்தைகள் மற்றும் குடியிருப்பாளர்களுக்கு ஊடாடும் அறிவியல் மற்றும் திறன்-கட்டுமான வசதிகளை கொண்டு வந்தது."
+
+msgid "Overview"
+msgstr "கண்ணோட்டம்"
+
+msgid "PDF"
+msgstr "PDF"
+
+msgid ""
+"PES Medical College campus, Kuppam — aerial photo credited to \"Kuppam "
+"Diaries\"; source and licence unconfirmed, used here for "
+"informational/editorial purposes rather than a generic stock photo."
+msgstr ""
+"PES மருத்துவக் கல்லூரி வளாகம், குப்பம் — வான்வழிப் புகைப்படம் \"குப்பம் "
+"டைரிஸ்\"க்கு வரவு; ஆதாரம் மற்றும் உரிமம் உறுதிப்படுத்தப்படவில்லை, பொதுவான "
+"பங்கு புகைப்படத்தை விட தகவல்/தலையங்கம் நோக்கங்களுக்காக இங்கே "
+"பயன்படுத்தப்படுகிறது."
+
+msgid "Page {{ current }} of {{ total }}"
+msgstr "பக்கம் {{ current }} / {{ total }}"
+
+msgid "Page {{ num }} of {{ total }}"
+msgstr "பக்கம் {{ num }} / {{ total }}"
 
 msgid "Palette"
 msgstr "தட்டு"
@@ -220,8 +1446,78 @@ msgstr "தட்டு"
 msgid "Past Event"
 msgstr "கடந்த நிகழ்வு"
 
+msgid "Pending"
+msgstr "நிலுவையில் உள்ளது"
+
+msgid "Pending Admin Requests"
+msgstr "நிர்வாகி கோரிக்கைகள் நிலுவையில் உள்ளன"
+
+msgid "Pending Approvals"
+msgstr "நிலுவையில் உள்ள ஒப்புதல்கள்"
+
+msgid "Pending Review"
+msgstr "மதிப்பாய்வு நிலுவையில் உள்ளது"
+
+msgid "Permitted Categories"
+msgstr "அனுமதிக்கப்பட்ட வகைகள்"
+
 msgid "Phone"
 msgstr "தொலைபேசி"
+
+msgid "Photo"
+msgstr "புகைப்படம்"
+
+msgid "Photo Gallery"
+msgstr "புகைப்பட தொகுப்பு"
+
+msgid "Photo credits"
+msgstr "புகைப்பட வரவுகள்"
+
+msgid "Photo credits (Wikimedia Commons contributors)"
+msgstr "புகைப்பட வரவுகள் (விக்கிமீடியா காமன்ஸ் பங்களிப்பாளர்கள்)"
+
+msgid "Photos (jpg/png/webp, ≤8MB each)"
+msgstr "புகைப்படங்கள் (jpg/png/webp, ஒவ்வொன்றும் ≤8MB)"
+
+msgid "Pick a category above to publish your first one."
+msgstr "உங்கள் முதல் வகையை வெளியிட, மேலே உள்ள வகையைத் தேர்ந்தெடுக்கவும்."
+
+msgid ""
+"Pick a category to publish a standalone post directly — it goes live "
+"immediately, no approval queue."
+msgstr ""
+"ஒரு தனியான இடுகையை நேரடியாக வெளியிட ஒரு வகையைத் தேர்ந்தெடுக்கவும் - அது "
+"உடனடியாக நேரலைக்கு வரும், அனுமதி வரிசை இல்லை."
+
+msgid "Pincode"
+msgstr "பின்கோடு"
+
+msgid "Planned and ongoing civic and infrastructure projects in Kuppam"
+msgstr ""
+"குப்பத்தில் திட்டமிடப்பட்ட மற்றும் நடந்து வரும் குடிமை மற்றும் உள்கட்டமைப்பு"
+" திட்டங்கள்"
+
+msgid "Platform activity at a glance"
+msgstr "ஒரு பார்வையில் இயங்குதள செயல்பாடு"
+
+msgid ""
+"Platforms like OneTownCity aim to support that future by making local businesses, jobs,\n"
+"                    services and civic information easier for everyone in the community to find and use."
+msgstr ""
+"OneTownCity போன்ற தளங்கள் உள்ளூர் வணிகங்கள், வேலைகள், மூலம் அந்த எதிர்காலத்தை ஆதரிப்பதை நோக்கமாகக் கொண்டுள்ளன.\n"
+"                    சேவைகள் மற்றும் குடிமைத் தகவல்களைச் சமூகத்தில் உள்ள அனைவரும் எளிதாகக் கண்டறிந்து பயன்படுத்த முடியும்."
+
+msgid "Political Importance"
+msgstr "அரசியல் முக்கியத்துவம்"
+
+msgid "Post Performance"
+msgstr "பிந்தைய செயல்திறன்"
+
+msgid "Posts"
+msgstr "இடுகைகள்"
+
+msgid "Posts pagination"
+msgstr "இடுகைகள் பேஜினேஷன்"
 
 msgid "Powered by"
 msgstr "மூலம் இயக்கப்படுகிறது"
@@ -229,8 +1525,36 @@ msgstr "மூலம் இயக்கப்படுகிறது"
 msgid "Powered by CraftLanee"
 msgstr "CraftLanee மூலம் இயக்கப்படுகிறது"
 
+msgid "Present"
+msgstr "தற்போது"
+
+msgid "Present-Day Kuppam"
+msgstr "இன்றைய குப்பம்"
+
+msgid "Previous"
+msgstr "முந்தைய"
+
+msgid "Previous page"
+msgstr "முந்தைய பக்கம்"
+
+msgid "Price"
+msgstr "விலை"
+
 msgid "Privacy Policy"
 msgstr "தனியுரிமைக் கொள்கை"
+
+msgid "Profile Photo"
+msgstr "சுயவிவரப் புகைப்படம்"
+
+msgid "Projects listing pagination"
+msgstr "திட்டப்பணிகள் பட்டியலிடுதல்"
+
+msgid ""
+"Promotes OneTownCity, increases community engagement, and helps local "
+"businesses reach more people."
+msgstr ""
+"OneTownCity ஐ ஊக்குவிக்கிறது, சமூக ஈடுபாட்டை அதிகரிக்கிறது மற்றும் உள்ளூர் "
+"வணிகங்கள் அதிகமான மக்களைச் சென்றடைய உதவுகிறது."
 
 msgid "Properties"
 msgstr "பண்புகள்"
@@ -238,8 +1562,41 @@ msgstr "பண்புகள்"
 msgid "Properties Listed"
 msgstr "பட்டியலிடப்பட்ட பண்புகள்"
 
+msgid "Property listing pagination"
+msgstr "சொத்து பட்டியல் பேஜினேஷன்"
+
+msgid "Publish"
+msgstr "வெளியிடு"
+
+msgid "Published"
+msgstr "வெளியிடப்பட்டது"
+
+msgid "Published immediately as Super Admin — no approval step."
+msgstr "சூப்பர் நிர்வாகியாக உடனடியாக வெளியிடப்பட்டது - ஒப்புதல் படி இல்லை."
+
+msgid "Publishes Into"
+msgstr "வெளியிடுகிறது"
+
+msgid "Publishes into"
+msgstr "இல் வெளியிடுகிறது"
+
 msgid "Quick Links"
 msgstr "விரைவு இணைப்புகள்"
+
+msgid "Rainy season"
+msgstr "மழைக்காலம்"
+
+msgid "Raja K.J.V. Naidu of Kuppam"
+msgstr "ராஜா கே.ஜே.வி. குப்பத்தைச் சேர்ந்த நாயுடு"
+
+msgid "Raja K.J.V. Naidu of Kuppam, historical portrait"
+msgstr "ராஜா கே.ஜே.வி. குப்பம் நாயுடு, வரலாற்று ஓவியம்"
+
+msgid "Rating"
+msgstr "மதிப்பீடு"
+
+msgid "Read"
+msgstr "படிக்கவும்"
 
 msgid "Read More"
 msgstr "மேலும் படிக்க"
@@ -250,6 +1607,60 @@ msgstr "உங்கள் டிஜிட்டல் இருப்பை உ
 msgid "Real Estate"
 msgstr "ரியல் எஸ்டேட்"
 
+msgid "Real feedback from the local community."
+msgstr "உள்ளூர் சமூகத்தின் உண்மையான கருத்து."
+
+msgid "Reason (used for reject)"
+msgstr "காரணம் (நிராகரிக்கப் பயன்படுகிறது)"
+
+msgid "Reason / requested changes (for reject or changes-requested)"
+msgstr ""
+"காரணம் / கோரப்பட்ட மாற்றங்கள் (நிராகரிப்பதற்கு அல்லது மாற்றங்களைக் "
+"கோருவதற்கு)"
+
+msgid "Received"
+msgstr "பெற்றது"
+
+msgid "Recent Activity"
+msgstr "சமீபத்திய செயல்பாடு"
+
+msgid "Recent Admin Requests"
+msgstr "சமீபத்திய நிர்வாக கோரிக்கைகள்"
+
+msgid "Recent Contact Messages"
+msgstr "சமீபத்திய தொடர்பு செய்திகள்"
+
+msgid "Recent Login Activity"
+msgstr "சமீபத்திய உள்நுழைவு செயல்பாடு"
+
+msgid "Recent Logins"
+msgstr "சமீபத்திய உள்நுழைவுகள்"
+
+msgid "Reject"
+msgstr "நிராகரிக்கவும்"
+
+msgid "Rejected"
+msgstr "நிராகரிக்கப்பட்டது"
+
+msgid "Rejected Listings"
+msgstr "நிராகரிக்கப்பட்ட பட்டியல்கள்"
+
+msgid "Request Changes"
+msgstr "மாற்றங்களைக் கோருங்கள்"
+
+msgid "Requested Categories"
+msgstr "கோரப்பட்ட வகைகள்"
+
+msgid "Requested Permissions"
+msgstr "கோரப்பட்ட அனுமதிகள்"
+
+msgid ""
+"Responsible for designing, developing, testing, and maintaining the website "
+"and its features."
+msgstr ""
+"இணையதளம் மற்றும் அதன் அம்சங்களை வடிவமைத்தல், மேம்படுத்துதல், சோதனை செய்தல் "
+"மற்றும் பராமரித்தல் ஆகியவற்றுக்கு பொறுப்பு."
+
 msgid "Restaurants"
 msgstr "உணவகங்கள்"
 
@@ -259,20 +1670,81 @@ msgstr "உணவகங்கள் & கஃபேக்கள்"
 msgid "Retail & E-Commerce"
 msgstr "சில்லறை & மின் வணிகம்"
 
+msgid "Review"
+msgstr "மதிப்பாய்வு"
+
+msgid "Review & Approval"
+msgstr "மதிப்பாய்வு & ஒப்புதல்"
+
+msgid "Review Admin Request"
+msgstr "நிர்வாக கோரிக்கையை மதிப்பாய்வு செய்யவும்"
+
+msgid "Review Pending Listings"
+msgstr "நிலுவையில் உள்ள பட்டியல்களை மதிப்பாய்வு செய்யவும்"
+
+msgid "Reviews"
+msgstr "விமர்சனங்கள்"
+
+msgid "Reviews & Ratings"
+msgstr "மதிப்புரைகள் & மதிப்பீடுகள்"
+
+msgid "Reviews ({{ count }})"
+msgstr "மதிப்புரைகள் ({{ count }})"
+
+msgid "Reviews / Comments"
+msgstr "விமர்சனங்கள் / கருத்துகள்"
+
+msgid ""
+"Ringed by hills and blessed with a mild climate, it has grown from a farming centre into a hub\n"
+"                    for higher education and produce trade — anchored by its university and engineering colleges —\n"
+"                    while holding on to a close-knit, small-town character and steadily improving road connectivity."
+msgstr ""
+"மலைகளால் வளையப்பட்டு, மிதமான காலநிலையால் ஆசீர்வதிக்கப்பட்டது, இது ஒரு விவசாய மையத்திலிருந்து ஒரு மையமாக வளர்ந்துள்ளது.\n"
+"                    உயர் கல்வி மற்றும் உற்பத்தி வர்த்தகத்திற்காக - அதன் பல்கலைக்கழகம் மற்றும் பொறியியல் கல்லூரிகளால் நங்கூரமிடப்பட்டது -\n"
+"                    ஒரு நெருக்கமான, சிறிய நகரத் தன்மையைப் பிடித்துக்கொண்டு சாலை இணைப்பை சீராக மேம்படுத்தும் போது."
+
+msgid "Role"
+msgstr "பங்கு"
+
 msgid "SEO Optimization"
 msgstr "எஸ்சிஓ உகப்பாக்கம்"
 
 msgid "SEO-Friendly"
 msgstr "எஸ்சிஓ நட்பு"
 
+msgid "Salary"
+msgstr "சம்பளம்"
+
 msgid "Salary not disclosed"
 msgstr "சம்பளம் வெளியிடப்படவில்லை"
+
+msgid ""
+"Satavahana, Pallava, Chola and Vijayanagara influence shape the wider "
+"region."
+msgstr ""
+"சாதவாகனம், பல்லவர், சோழர் மற்றும் விஜயநகர செல்வாக்கு பரந்த பகுதியை "
+"வடிவமைக்கிறது."
+
+msgid "Save Category"
+msgstr "வகையைச் சேமிக்கவும்"
+
+msgid "Save Changes"
+msgstr "மாற்றங்களைச் சேமிக்கவும்"
+
+msgid "Save Site Theme"
+msgstr "தள தீம் சேமிக்கவும்"
 
 msgid "Save to favorites"
 msgstr "பிடித்தவைகளில் சேமிக்கவும்"
 
+msgid "Saved Favorites"
+msgstr "சேமிக்கப்பட்ட பிடித்தவை"
+
 msgid "School & College Management Systems"
 msgstr "பள்ளி மற்றும் கல்லூரி மேலாண்மை அமைப்புகள்"
+
+msgid "Schools"
+msgstr "பள்ளிகள்"
 
 msgid "Scroll down"
 msgstr "கீழே உருட்டவும்"
@@ -280,35 +1752,229 @@ msgstr "கீழே உருட்டவும்"
 msgid "Search"
 msgstr "தேடு"
 
+msgid "Search & Filter"
+msgstr "தேடி & வடிகட்டவும்"
+
+msgid "Search Projects"
+msgstr "தேடல் திட்டங்கள்"
+
+msgid "Search by business name..."
+msgstr "வணிகப் பெயரால் தேடவும்..."
+
+msgid "Search by name or address..."
+msgstr "பெயர் அல்லது முகவரி மூலம் தேடவும்..."
+
+msgid "Search by name, email, subject, message"
+msgstr "பெயர், மின்னஞ்சல், பொருள், செய்தி மூலம் தேடவும்"
+
+msgid "Search by name, email, username"
+msgstr "பெயர், மின்னஞ்சல், பயனர் பெயர் மூலம் தேடவும்"
+
+msgid "Search by title or location..."
+msgstr "தலைப்பு அல்லது இருப்பிடத்தின் அடிப்படையில் தேடவும்..."
+
+msgid "Search projects by title or location..."
+msgstr "தலைப்பு அல்லது இருப்பிடத்தின் அடிப்படையில் திட்டங்களைத் தேடுங்கள்..."
+
 msgid "Search shops, jobs, restaurants..."
 msgstr "கடைகள், வேலைகள், உணவகங்களைத் தேடுங்கள்..."
+
+msgid "Search {{ label }}"
+msgstr "{{ label }} தேடு"
+
+msgid ""
+"Search, view, rate, review, comment on, and share listings with others."
+msgstr ""
+"தேடவும், பார்க்கவும், மதிப்பிடவும், மதிப்பாய்வு செய்யவும், கருத்து "
+"தெரிவிக்கவும் மற்றும் மற்றவர்களுடன் பட்டியல்களைப் பகிரவும்."
+
+msgid "Seasonal Theme"
+msgstr "பருவகால தீம்"
+
+msgid "Seasonal background theme"
+msgstr "பருவகால பின்னணி தீம்"
+
+msgid "Secure Google Sign-In"
+msgstr "பாதுகாப்பான Google உள்நுழைவு"
+
+msgid ""
+"See the Gallery section below for more scenic views of the hills and "
+"surrounding countryside."
+msgstr ""
+"மலைகள் மற்றும் சுற்றியுள்ள கிராமப்புறங்களின் அழகிய காட்சிகளுக்கு கீழே உள்ள "
+"கேலரி பகுதியைப் பார்க்கவும்."
+
+msgid "Select users to apply bulk actions"
+msgstr "மொத்த செயல்களைப் பயன்படுத்த பயனர்களைத் தேர்ந்தெடுக்கவும்"
+
+msgid "Send Message"
+msgstr "செய்தி அனுப்பு"
+
+msgid "Send Us a Message"
+msgstr "எங்களுக்கு ஒரு செய்தி அனுப்பவும்"
 
 msgid "Services"
 msgstr "சேவைகள்"
 
+msgid "Set as cover"
+msgstr "அட்டையாக அமைக்கவும்"
+
+msgid ""
+"Set the default look every visitor sees. Your own browser's theme switcher "
+"still lets you preview any palette locally, on top of this."
+msgstr ""
+"ஒவ்வொரு பார்வையாளரும் பார்க்கும் இயல்புநிலை தோற்றத்தை அமைக்கவும். உங்கள் "
+"சொந்த உலாவியின் தீம் மாற்றியானது, இதற்கு மேல் உள்ள எந்தத் தட்டுகளையும் "
+"முன்னோட்டமிட உங்களை அனுமதிக்கிறது."
+
 msgid "Share"
 msgstr "பகிரவும்"
+
+msgid "Shares"
+msgstr "பங்குகள்"
+
+msgid "Short blurb shown on the homepage service card"
+msgstr "முகப்புப் பக்கச் சேவை அட்டையில் காட்டப்படும் சுருக்கமான தெளிவு"
 
 msgid "Sign In"
 msgstr "உள்நுழையவும்"
 
+msgid "Sign Out"
+msgstr "வெளியேறு"
+
+msgid "Sign in safely and manage your listings with ease."
+msgstr "பாதுகாப்பாக உள்நுழைந்து உங்கள் பட்டியல்களை எளிதாக நிர்வகிக்கவும்."
+
 msgid "Sign in to save"
 msgstr "சேமிக்க உள்நுழையவும்"
+
+msgid "Sign in using your Google account to get started."
+msgstr "தொடங்குவதற்கு உங்கள் Google கணக்கைப் பயன்படுத்தி உள்நுழையவும்."
+
+msgid "Site Theme"
+msgstr "தள தீம்"
+
+msgid ""
+"Sitting at the meeting point of three states, Kuppam reflects a blend of Telugu, Tamil and\n"
+"                    Kannada customs, language, and cuisine. Village temple traditions such as the Gangamma Jatara\n"
+"                    pictured here, weekly markets, and extended-family community life continue to shape everyday\n"
+"                    culture in and around the town."
+msgstr ""
+"மூன்று மாநிலங்கள் சந்திக்கும் இடத்தில் அமர்ந்து, குப்பம் தெலுங்கு, தமிழ் மற்றும் ஒரு கலவையை பிரதிபலிக்கிறது\n"
+"                    கன்னட பழக்கவழக்கங்கள், மொழி மற்றும் உணவு வகைகள். கங்கம்மா ஜாதரா போன்ற கிராம கோவில் மரபுகள்\n"
+"                    இங்கே படத்தில், வாராந்திர சந்தைகள் மற்றும் நீட்டிக்கப்பட்ட குடும்ப சமூக வாழ்க்கை ஆகியவை தினமும் வடிவமைக்கப்படுகின்றன\n"
+"                    நகரம் மற்றும் சுற்றியுள்ள கலாச்சாரம்."
+
+msgid "Snow (Christmas)"
+msgstr "பனி (கிறிஸ்துமஸ்)"
+
+msgid "Source"
+msgstr "ஆதாரம்"
+
+msgid "Spring season"
+msgstr "வசந்த காலம்"
+
+msgid "Sri Subrahmanya Swamy Temple, Kuppam"
+msgstr "ஸ்ரீ சுப்ரமணிய சுவாமி கோவில், குப்பம்"
+
+msgid "Sri Subrahmanya Swamy temple deity, Kuppam"
+msgstr "ஸ்ரீ சுப்ரமணிய சுவாமி கோவில், குப்பம்"
+
+msgid "Staff"
+msgstr "பணியாளர்கள்"
 
 msgid "Startups"
 msgstr "தொடக்கங்கள்"
 
+msgid "State"
+msgstr "மாநிலம்"
+
+msgid "Stats"
+msgstr "புள்ளிவிவரங்கள்"
+
+msgid "Status"
+msgstr "நிலை"
+
 msgid "Stay Updated"
 msgstr "புதுப்பித்த நிலையில் இருங்கள்"
+
+msgid ""
+"Stay updated with upcoming festivals, exhibitions, public events, and local "
+"programs."
+msgstr ""
+"வரவிருக்கும் திருவிழாக்கள், கண்காட்சிகள், பொது நிகழ்வுகள் மற்றும் உள்ளூர் "
+"நிகழ்ச்சிகள் குறித்து புதுப்பித்த நிலையில் இருங்கள்."
+
+msgid "Subcategory"
+msgstr "துணைப்பிரிவு"
+
+msgid "Subject"
+msgstr "பொருள்"
+
+msgid "Submit for Review"
+msgstr "மதிப்பாய்விற்கு சமர்ப்பிக்கவும்"
+
+msgid "Submitted"
+msgstr "சமர்ப்பிக்கப்பட்டது"
+
+msgid "Submitted by"
+msgstr "மூலம் சமர்ப்பிக்கப்பட்டது"
+
+msgid "Super Admin"
+msgstr "சூப்பர் அட்மின்"
+
+msgid "Support Team"
+msgstr "ஆதரவு குழு"
+
+msgid "Suspend"
+msgstr "சஸ்பெண்ட்"
+
+msgid "Suspended"
+msgstr "இடைநிறுத்தப்பட்டது"
 
 msgid "Switch theme palette"
 msgstr "தீம் தட்டுகளை மாற்றவும்"
 
+msgid "Tap the heart on any listing to save it here for later."
+msgstr "எந்தப் பட்டியலையும் பிறகு இங்கே சேமிக்க, இதயத்தைத் தட்டவும்."
+
 msgid "Terms of Service"
 msgstr "சேவை விதிமுறைகள்"
 
+msgid ""
+"The Kambi Nayudu dynasty rules from Kangundi Fort for nearly a millennium."
+msgstr ""
+"கம்பி நாயுடு வம்சம் கங்குண்டி கோட்டையில் இருந்து ஏறக்குறைய ஒரு மில்லினியம் "
+"ஆண்டது."
+
 msgid "The One-Stop City Engine"
 msgstr "ஒரு நிறுத்த நகர இயந்திரம்"
+
+msgid "The People Behind It"
+msgstr "அதன் பின்னால் உள்ள மக்கள்"
+
+msgid "The Process"
+msgstr "செயல்முறை"
+
+msgid ""
+"The Sri Subrahmanya Swamy temple at Gudivanka, within the Kuppam area, carries that long\n"
+"                    temple-building tradition forward — still an active hilltop place of worship that draws\n"
+"                    devotees from across the Andhra Pradesh–Karnataka border during the Aadi Krithika season."
+msgstr ""
+"குப்பம் பகுதியில் உள்ள குடிவாங்காவில் உள்ள ஸ்ரீ சுப்ரமணிய ஸ்வாமி கோவிலில் இவ்வளவு நீளம் உள்ளது\n"
+"                    கோவில் கட்டும் பாரம்பரியம் முன்னோக்கி - இன்னும் ஒரு சுறுசுறுப்பான மலை உச்சியில் இருக்கும் வழிபாட்டுத் தலம்\n"
+"                    ஆடி கிருத்திகை சீசனில் ஆந்திரா-கர்நாடக எல்லையில் இருந்து பக்தர்கள்."
+
+msgid ""
+"The wider Rayalaseema and southern Andhra region — of which Chittoor district and Kuppam are\n"
+"                    part — has been shaped over centuries by successive South Indian dynasties, including the\n"
+"                    Satavahanas, Pallavas, Cholas, and later the Vijayanagara Empire, each leaving behind temple\n"
+"                    architecture, irrigation tanks, and inscriptions across the region."
+msgstr ""
+"பரந்த ராயலசீமா மற்றும் தெற்கு ஆந்திரப் பகுதி - இதில் சித்தூர் மாவட்டம் மற்றும் குப்பம்\n"
+"                    பகுதி - பல நூற்றாண்டுகளாக தொடர்ச்சியான தென்னிந்திய வம்சங்களால் வடிவமைக்கப்பட்டுள்ளது\n"
+"                    சாதவாகனர்கள், பல்லவர்கள், சோழர்கள், பின்னர் விஜயநகரப் பேரரசு, ஒவ்வொருவரும் கோயிலை விட்டு வெளியேறினர்\n"
+"                    இப்பகுதி முழுவதும் கட்டிடக்கலை, நீர்ப்பாசன தொட்டிகள் மற்றும் கல்வெட்டுகள்."
 
 msgid "Theme"
 msgstr "தீம்"
@@ -316,17 +1982,251 @@ msgstr "தீம்"
 msgid "Theme Palette"
 msgstr "தீம் தட்டு"
 
+msgid "There are no listings here yet. Please check back soon."
+msgstr ""
+"இதுவரை இங்கு பட்டியல்கள் எதுவும் இல்லை. விரைவில் மீண்டும் பார்க்கவும்."
+
+msgid ""
+"These centuries laid much of the agrarian and temple-centred village structure that\n"
+"                    characterises the Kuppam area to this day."
+msgstr ""
+"இந்த நூற்றாண்டுகள் விவசாய மற்றும் கோயில்களை மையமாகக் கொண்ட கிராமக் கட்டமைப்பின் பெரும்பகுதியை அமைத்தன\n"
+"                    இன்று வரை குப்பம் பகுதியின் சிறப்பியல்பு."
+
+msgid ""
+"These festival calendars are a good example of content best filled in further with specifics\n"
+"                    from local temple committees and residents."
+msgstr ""
+"இந்த விழாக் காலெண்டர்கள், குறிப்பிட்ட விவரங்களுடன் சிறப்பாக நிரப்பப்பட்ட உள்ளடக்கத்திற்கு சிறந்த எடுத்துக்காட்டு\n"
+"                    உள்ளூர் கோவில் கமிட்டிகள் மற்றும் குடியிருப்பாளர்களிடமிருந்து."
+
+msgid ""
+"This cultural mix is one of Kuppam's more distinctive traits compared to towns further inside\n"
+"                    any single state."
+msgstr ""
+"இந்த கலாச்சார கலவையானது குப்பத்தின் மேலும் உள்ள நகரங்களுடன் ஒப்பிடும் போது மிகவும் தனித்துவமான பண்புகளில் ஒன்றாகும்\n"
+"                    எந்த ஒரு மாநிலம்."
+
+msgid ""
+"This growth in higher education has been one of the most visible drivers of Kuppam's modern\n"
+"                    development, bringing a steady student population and associated local economy."
+msgstr ""
+"உயர்கல்வியின் இந்த வளர்ச்சியானது குப்பத்தின் நவீனத்துவத்தின் மிகவும் புலப்படும் இயக்கிகளில் ஒன்றாகும்\n"
+"                    வளர்ச்சி, ஒரு நிலையான மாணவர் மக்கள்தொகை மற்றும் தொடர்புடைய உள்ளூர் பொருளாதாரம் கொண்டு."
+
+msgid ""
+"This section focuses on Kuppam's administrative and electoral significance rather than on\n"
+"                    individual political narratives."
+msgstr ""
+"இந்த பிரிவு குப்பத்தின் நிர்வாக மற்றும் தேர்தல் முக்கியத்துவத்தை மையமாக வைத்து கவனம் செலுத்துகிறது\n"
+"                    தனிப்பட்ட அரசியல் கதைகள்."
+
+msgid ""
+"This steady, incremental development is a recurring theme in the town's recent history rather\n"
+"                    than any single turning point."
+msgstr ""
+"இந்த நிலையான, அதிகரிக்கும் வளர்ச்சி நகரத்தின் சமீபத்திய வரலாற்றில் ஒரு தொடர்ச்சியான தீம்\n"
+"                    எந்த ஒரு திருப்புமுனையையும் விட."
+
+msgid "This user hasn't published anything."
+msgstr "இந்தப் பயனர் எதையும் வெளியிடவில்லை."
+
+msgid ""
+"This website is designed &amp; maintained by <strong>CraftLanee</strong> &mdash;\n"
+"                    Websites, Branding, Digital Marketing &amp; AI Solutions."
+msgstr ""
+"இந்த இணையதளம் வடிவமைக்கப்பட்டுள்ளது &amp; <strong>CraftLanee</strong> &mdash;\n"
+"                    இணையதளங்கள், பிராண்டிங், டிஜிட்டல் மார்க்கெட்டிங் & ஆம்ப்; AI தீர்வுகள்."
+
+msgid "Tirupati Gangamma Jatara celebration, Kuppam"
+msgstr "திருப்பதி கங்கம்மா ஜாதரா விழா, குப்பம்"
+
+msgid "Title"
+msgstr "தலைப்பு"
+
+msgid "Title, company, location..."
+msgstr "தலைப்பு, நிறுவனம், இடம்..."
+
+msgid ""
+"To become the most trusted digital information platform for Kuppam, helping\n"
+"                    residents, visitors, and businesses stay connected while supporting the town's\n"
+"                    digital growth and development."
+msgstr ""
+"குப்பத்திற்கு மிகவும் நம்பகமான டிஜிட்டல் தகவல் தளமாக மாற, உதவுகிறது\n"
+"                    குடியிருப்பாளர்கள், பார்வையாளர்கள் மற்றும் வணிகங்கள் நகரத்தை ஆதரிக்கும் போது இணைந்திருக்கும்\n"
+"                    டிஜிட்டல் வளர்ச்சி மற்றும் வளர்ச்சி."
+
+msgid ""
+"To build a trusted digital platform that connects people with verified local\n"
+"                    information, promotes local businesses, supports community growth, and makes\n"
+"                    discovering services in Kuppam simple, fast, and reliable."
+msgstr ""
+"சரிபார்க்கப்பட்ட உள்ளூர் மக்களுடன் மக்களை இணைக்கும் நம்பகமான டிஜிட்டல் தளத்தை உருவாக்க\n"
+"                    தகவல், உள்ளூர் வணிகங்களை ஊக்குவிக்கிறது, சமூக வளர்ச்சியை ஆதரிக்கிறது மற்றும் உருவாக்குகிறது\n"
+"                    குப்பத்தில் எளிய, வேகமான மற்றும் நம்பகமான சேவைகளைக் கண்டறிதல்."
+
+msgid "Today"
+msgstr "இன்று"
+
+msgid ""
+"Today, Kuppam functions as a mandal headquarters with an active town centre, produce markets,\n"
+"                    schools and colleges, and steadily improving road and civic infrastructure — while still\n"
+"                    keeping its identity as an agricultural trading town for the surrounding villages."
+msgstr ""
+"இன்று, குப்பம் ஒரு மண்டல தலைமையகமாக செயல்படும் நகர மையமாக செயல்படுகிறது, உற்பத்தி சந்தைகள்,\n"
+"                    பள்ளிகள் மற்றும் கல்லூரிகள், மற்றும் சாலை மற்றும் குடிமை உள்கட்டமைப்பை சீராக மேம்படுத்துதல் - இன்னும் இருக்கும் போது\n"
+"                    சுற்றியுள்ள கிராமங்களுக்கு விவசாய வணிக நகரமாக அதன் அடையாளத்தை வைத்திருக்கிறது."
+
+msgid ""
+"Together, their long association with Kuppam is one of the more visible threads running through\n"
+"                    the town's modern development story."
+msgstr ""
+"ஒன்றாக, குப்பத்துடனான அவர்களின் நீண்ட தொடர்பு, மிகவும் புலப்படும் நூல்களில் ஒன்றாகும்\n"
+"                    நகரத்தின் நவீன வளர்ச்சியின் கதை."
+
 msgid "Toggle dark mode"
 msgstr "இருண்ட பயன்முறையை மாற்றவும்"
+
+msgid "Tomato, mango and mulberry farming anchor the local economy."
+msgstr ""
+"தக்காளி, மாம்பழம் மற்றும் மல்பெரி விவசாயம் உள்ளூர் பொருளாதாரத்தை "
+"உயர்த்துகிறது."
+
+msgid "Tomorrow"
+msgstr "நாளை"
+
+msgid "Total"
+msgstr "மொத்தம்"
+
+msgid "Total Admins"
+msgstr "மொத்த நிர்வாகிகள்"
 
 msgid "Total Businesses"
 msgstr "மொத்த வணிகங்கள்"
 
+msgid "Total Comments"
+msgstr "மொத்த கருத்துகள்"
+
+msgid "Total Favorites"
+msgstr "மொத்தப் பிடித்தவை"
+
+msgid "Total Likes"
+msgstr "மொத்த விருப்பங்கள்"
+
+msgid "Total Listings"
+msgstr "மொத்த பட்டியல்கள்"
+
+msgid "Total Posts"
+msgstr "மொத்த இடுகைகள்"
+
+msgid "Total Reviews"
+msgstr "மொத்த மதிப்புரைகள்"
+
+msgid "Total Shares"
+msgstr "மொத்த பங்குகள்"
+
+msgid "Total Users"
+msgstr "மொத்த பயனர்கள்"
+
+msgid "Total Views"
+msgstr "மொத்த பார்வைகள்"
+
+msgid "Tourism and Famous Places"
+msgstr "சுற்றுலா மற்றும் பிரபலமான இடங்கள்"
+
+msgid ""
+"Track planned and ongoing civic and infrastructure projects shaping your "
+"city."
+msgstr ""
+"உங்கள் நகரத்தை வடிவமைக்கும் திட்டமிடப்பட்ட மற்றும் நடந்து கொண்டிருக்கும் "
+"குடிமை மற்றும் உள்கட்டமைப்பு திட்டங்களைக் கண்காணிக்கவும்."
+
+msgid "Transport"
+msgstr "போக்குவரத்து"
+
+msgid "Trusted, reviewed local listings you can rely on."
+msgstr ""
+"நம்பகமான, மதிப்பாய்வு செய்யப்பட்ட உள்ளூர் பட்டியல்களை நீங்கள் நம்பலாம்."
+
+msgid "Try adjusting your search or filters."
+msgstr "உங்கள் தேடல் அல்லது வடிப்பான்களை சரிசெய்ய முயற்சிக்கவும்."
+
+msgid "Try adjusting your search."
+msgstr "உங்கள் தேடலை சரிசெய்ய முயற்சிக்கவும்."
+
+msgid "Type"
+msgstr "வகை"
+
 msgid "UI/UX Design"
 msgstr "UI/UX வடிவமைப்பு"
 
+msgid "Unblock"
+msgstr "தடைநீக்கு"
+
+msgid ""
+"Under British rule, the area was administered as part of the Madras Presidency, with the\n"
+"                    Kangundi zamindari continuing under colonial oversight until independence. Kuppam's own railway\n"
+"                    station came later — it opened in 1958, after independence, on what is now the Chennai–Bangalore\n"
+"                    line — extending the same Madras Railway network the British had been building across this part\n"
+"                    of Chittoor district since the 19th century, and finally connecting the town itself to wider\n"
+"                    trade and administrative networks."
+msgstr ""
+"பிரிட்டிஷ் ஆட்சியின் கீழ், இப்பகுதி மெட்ராஸ் பிரசிடென்சியின் ஒரு பகுதியாக நிர்வகிக்கப்பட்டது\n"
+"                    கங்குண்டி ஜமீன்தாரி சுதந்திரம் வரை காலனித்துவ மேற்பார்வையில் தொடர்ந்தது. குப்பத்தின் சொந்த ரயில்வே\n"
+"                    ஸ்டேஷன் பின்னர் வந்தது - இது 1958 இல், சுதந்திரத்திற்குப் பிறகு, இப்போது சென்னை-பெங்களூருவில் திறக்கப்பட்டது\n"
+"                    பாதை - பிரிட்டிஷார் கட்டிய அதே மெட்ராஸ் இரயில்வே வலையமைப்பை இந்தப் பகுதி முழுவதும் விரிவுபடுத்துகிறது\n"
+"                    19 ஆம் நூற்றாண்டிலிருந்து சித்தூர் மாவட்டத்தில் இருந்து, இறுதியாக நகரத்தை அகலமாக இணைக்கிறது\n"
+"                    வர்த்தக மற்றும் நிர்வாக நெட்வொர்க்குகள்."
+
+msgid "Unfeature"
+msgstr "அம்சம் இல்லாதது"
+
+msgid "Unread"
+msgstr "படிக்காதது"
+
+msgid "Unread Messages"
+msgstr "படிக்காத செய்திகள்"
+
+msgid "Unread Notifications"
+msgstr "படிக்காத அறிவிப்புகள்"
+
+msgid "Unsuspend"
+msgstr "இடைநீக்கம்"
+
 msgid "Upcoming Projects"
 msgstr "வரவிருக்கும் திட்டங்கள்"
+
+msgid "Upload"
+msgstr "பதிவேற்றவும்"
+
+msgid "Uploaded by"
+msgstr "பதிவேற்றியது"
+
+msgid "Uploads"
+msgstr "பதிவேற்றங்கள்"
+
+msgid "Use \"Add a New Listing\" above to publish your first one."
+msgstr ""
+"உங்கள் முதல் பட்டியலை வெளியிட, மேலே உள்ள \"புதிய பட்டியலைச் சேர்\" என்பதைப் "
+"பயன்படுத்தவும்."
+
+msgid "User"
+msgstr "பயனர்"
+
+msgid "Users"
+msgstr "பயனர்கள்"
+
+msgid "Verified Information"
+msgstr "சரிபார்க்கப்பட்ட தகவல்"
+
+msgid "Video Gallery"
+msgstr "வீடியோ தொகுப்பு"
+
+msgid "Videos (mp4/webm/mov, ≤50MB each)"
+msgstr "வீடியோக்கள் (mp4/webm/mov, ஒவ்வொன்றும் ≤50MB)"
+
+msgid "View"
+msgstr "காண்க"
 
 msgid "View All"
 msgstr "அனைத்தையும் பார்க்கவும்"
@@ -334,8 +2234,65 @@ msgstr "அனைத்தையும் பார்க்கவும்"
 msgid "View Details"
 msgstr "விவரங்களைக் காண்க"
 
-msgid "View all notifications"
-msgstr "அனைத்து அறிவிப்புகளையும் பார்க்கவும்"
+msgid "View all"
+msgstr "அனைத்தையும் பார்க்கவும்"
+
+msgid "View all my listings"
+msgstr "எனது எல்லா பட்டியல்களையும் பார்க்கவும்"
+
+msgid "View and update your account details"
+msgstr "உங்கள் கணக்கு விவரங்களைப் பார்த்து புதுப்பிக்கவும்"
+
+msgid "View from Horsley Hills, near Kuppam"
+msgstr "குப்பம் அருகே உள்ள ஹார்ஸ்லி ஹில்ஸின் காட்சி"
+
+msgid "View listing"
+msgstr "பட்டியலைக் காண்க"
+
+msgid "View profile"
+msgstr "சுயவிவரத்தைக் காண்க"
+
+msgid "View, filter, and moderate every registered account."
+msgstr ""
+"பதிவுசெய்யப்பட்ட ஒவ்வொரு கணக்கையும் பார்க்கவும், வடிகட்டவும் மற்றும் "
+"மதிப்பிடவும்."
+
+msgid "Views"
+msgstr "காட்சிகள்"
+
+msgid "Views & Engagement Over Time"
+msgstr "காலப்போக்கில் பார்வைகள் & ஈடுபாடு"
+
+msgid "Views / Impressions"
+msgstr "காட்சிகள் / பதிவுகள்"
+
+msgid "Vision"
+msgstr "பார்வை"
+
+msgid "Visit CraftLanee"
+msgstr "CraftLanee ஐப் பார்வையிடவும்"
+
+msgid ""
+"We are committed to providing reliable, verified, and accessible information that benefits\n"
+"                residents, businesses, and visitors. We continuously improve the platform by adding new\n"
+"                features, expanding local coverage, and listening to community feedback."
+msgstr ""
+"பயனளிக்கும் நம்பகமான, சரிபார்க்கப்பட்ட மற்றும் அணுகக்கூடிய தகவல்களை வழங்க நாங்கள் கடமைப்பட்டுள்ளோம்\n"
+"                குடியிருப்பாளர்கள், வணிகங்கள் மற்றும் பார்வையாளர்கள். புதியவற்றைச் சேர்ப்பதன் மூலம் நாங்கள் தொடர்ந்து தளத்தை மேம்படுத்துகிறோம்\n"
+"                அம்சங்கள், உள்ளூர் கவரேஜை விரிவுபடுத்துதல் மற்றும் சமூகத்தின் கருத்துக்களைக் கேட்பது."
+
+msgid ""
+"We'd love to hear from you — questions, feedback, or partnership ideas, all "
+"welcome."
+msgstr ""
+"உங்களிடமிருந்து கேட்க விரும்புகிறோம் — கேள்விகள், கருத்துகள் அல்லது "
+"கூட்டாண்மை யோசனைகள், அனைத்தும் வரவேற்கப்படுகின்றன."
+
+msgid "We'll let you know here when there's something new."
+msgstr "புதிதாக ஏதாவது இருந்தால் உங்களுக்கு இங்கே தெரிவிப்போம்."
+
+msgid "Website"
+msgstr "இணையதளம்"
 
 msgid "Website Development &"
 msgstr "இணையதள மேம்பாடு &"
@@ -349,11 +2306,73 @@ msgstr "இணையதள பராமரிப்பு & ஆதரவு"
 msgid "Website development and digital solutions"
 msgstr "இணையதள மேம்பாடு மற்றும் டிஜிட்டல் தீர்வுகள்"
 
+msgid "What We Offer"
+msgstr "நாங்கள் என்ன வழங்குகிறோம்"
+
 msgid "What's Here"
 msgstr "இங்கே என்ன இருக்கிறது"
 
+msgid "When"
+msgstr "எப்போது"
+
+msgid ""
+"When on, visitors can't override this with their own theme switcher — it's "
+"locked to the default above for every session."
+msgstr ""
+"ஆன் செய்யும்போது, ​​பார்வையாளர்கள் தங்கள் சொந்த தீம் மாற்றி மூலம் இதை "
+"மேலெழுத முடியாது - இது ஒவ்வொரு அமர்வுக்கும் மேலே உள்ள இயல்புநிலையில் "
+"பூட்டப்பட்டிருக்கும்."
+
+msgid ""
+"Whether you're a resident looking for local services, a visitor exploring Kuppam, or a\n"
+"            business owner wanting to reach more customers — OneTownCity is here to connect you."
+msgstr ""
+"நீங்கள் உள்ளூர் சேவைகளைத் தேடும் குடியிருப்பாளராக இருந்தாலும், குப்பத்தை சுற்றிப் பார்க்கும் பார்வையாளர்களாக இருந்தாலும் அல்லது ஏ\n"
+"            வணிக உரிமையாளர் அதிக வாடிக்கையாளர்களை அடைய விரும்புகிறார் - உங்களை இணைக்க OneTownCity இங்கே உள்ளது."
+
+msgid ""
+"Whether you're searching for a restaurant, hospital, school, property, transport service,\n"
+"                    or local business, OneTownCity helps you find accurate and up-to-date information\n"
+"                    quickly and conveniently — bringing it all together in one user-friendly platform that\n"
+"                    gives businesses and organizations a digital presence too."
+msgstr ""
+"நீங்கள் உணவகம், மருத்துவமனை, பள்ளி, சொத்து, போக்குவரத்து சேவை ஆகியவற்றைத் தேடினாலும்,\n"
+"                    அல்லது உள்ளூர் வணிகம், OneTownCity துல்லியமான மற்றும் புதுப்பித்த தகவலைக் கண்டறிய உதவுகிறது\n"
+"                    விரைவாகவும் வசதியாகவும் - ஒரு பயனர் நட்பு மேடையில் அனைத்தையும் ஒன்றாகக் கொண்டுவருகிறது\n"
+"                    வணிகங்களுக்கும் நிறுவனங்களுக்கும் டிஜிட்டல் இருப்பை வழங்குகிறது."
+
+msgid "Who We Are"
+msgstr "நாம் யார்"
+
+msgid "Why OneTownCity"
+msgstr "ஏன் ஒன் டவுன்சிட்டி"
+
+msgid "Working Hours"
+msgstr "வேலை நேரம்"
+
+msgid "You don't have any approved categories yet."
+msgstr "உங்களிடம் இதுவரை அங்கீகரிக்கப்பட்ட வகைகள் எதுவும் இல்லை."
+
+msgid "You haven't added any listings yet"
+msgstr "நீங்கள் இதுவரை எந்தப் பட்டியலையும் சேர்க்கவில்லை"
+
+msgid "You haven't saved any favorites yet"
+msgstr "நீங்கள் இன்னும் பிடித்தவை எதையும் சேமிக்கவில்லை"
+
+msgid "Your OneTownCity activity, at a glance"
+msgstr "உங்கள் OneTownCity செயல்பாடு, ஒரே பார்வையில்"
+
+msgid "Your complete local information platform for Kuppam."
+msgstr "குப்பத்திற்கான உங்கள் முழுமையான உள்ளூர் தகவல் தளம்."
+
 msgid "Your email address"
 msgstr "உங்கள் மின்னஞ்சல் முகவரி"
+
+msgid "Your information is kept private and never shared."
+msgstr "உங்கள் தகவல் தனிப்பட்டதாக வைக்கப்படும் மற்றும் பகிரப்படவே இல்லை."
+
+msgid "Your listings, at a glance"
+msgstr "உங்கள் பட்டியல்கள், ஒரு பார்வையில்"
 
 msgid ""
 "Your trusted local information portal for Kuppam — businesses, jobs, real "
@@ -362,5 +2381,29 @@ msgstr ""
 "குப்பத்திற்கான உங்கள் நம்பகமான உள்ளூர் தகவல் போர்டல் — வணிகங்கள், வேலைகள், "
 "ரியல் எஸ்டேட் மற்றும் இடையில் உள்ள அனைத்தும்."
 
-msgid "ago"
-msgstr "முன்பு"
+msgid "e.g. Restaurants"
+msgstr "எ.கா. உணவகங்கள்"
+
+msgid "e.g. restaurant"
+msgstr "எ.கா. உணவகம்"
+
+msgid "for \"<strong>{{ query }}</strong>\""
+msgstr "\"<strong>{{ query }}</strong>\"க்கு"
+
+msgid "in <strong>{{ label }}</strong>"
+msgstr "<strong>{{ label }}</strong> இல்"
+
+msgid "in <strong>{{ t }}</strong>"
+msgstr "<strong>{{ t }}</strong> இல்"
+
+msgid "optional"
+msgstr "விருப்பமானது"
+
+msgid "top-level only"
+msgstr "உயர் மட்டத்தில் மட்டுமே"
+
+msgid "top-level only, static path"
+msgstr "மேல்-நிலை மட்டுமே, நிலையான பாதை"
+
+msgid "{{ trend }}% vs last week"
+msgstr "{{ trend }}% எதிராக கடந்த வாரம்"

@@ -9,6 +9,7 @@ Pillow==11.0.0
 dj-database-url==2.3.0
 gunicorn==23.0.0
 whitenoise==6.8.2
+django-redis==5.4.0
 deep-translator==1.11.4
 reportlab==4.2.5
 polib==1.2.0

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -8,12 +9,12 @@
     <div class="hk-dash-topbar">
         <div class="d-flex align-items-center gap-3">
             <div class="hk-section-icon"><i class="bi bi-bell"></i></div>
-            <h3 class="fw-bold mb-0">Notifications</h3>
+            <h3 class="fw-bold mb-0">{% trans "Notifications" %}</h3>
         </div>
         {% if notification_qs %}
         <form method="post" action="{% url 'core:notifications_mark_all_read' %}">
             {% csrf_token %}
-            <button class="btn btn-sm btn-outline-secondary">Mark all as read</button>
+            <button class="btn btn-sm btn-outline-secondary">{% trans "Mark all as read" %}</button>
         </form>
         {% endif %}
     </div>
@@ -33,7 +34,7 @@
                 {% if not note.is_read %}
                 <form method="post" action="{% url 'core:notification_mark_read' note.pk %}">
                     {% csrf_token %}
-                    <button class="btn btn-sm btn-light">Mark read</button>
+                    <button class="btn btn-sm btn-light">{% trans "Mark read" %}</button>
                 </form>
                 {% endif %}
             </div>
@@ -43,8 +44,8 @@
     {% else %}
     <div class="alert alert-info text-center py-5 hk-empty-state">
         <i class="bi bi-bell display-4 d-block mb-3"></i>
-        <p class="fw-bold mb-1">No notifications yet</p>
-        <p class="text-muted mb-0">We'll let you know here when there's something new.</p>
+        <p class="fw-bold mb-1">{% trans "No notifications yet" %}</p>
+        <p class="text-muted mb-0">{% trans "We'll let you know here when there's something new." %}</p>
     </div>
     {% endif %}
     </div>

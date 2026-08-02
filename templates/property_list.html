@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block body_attrs %}data-category-bg="realestate"{% endblock %}
@@ -9,8 +10,8 @@
     <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
         <div class="hk-section-icon"><i class="bi bi-house-door"></i></div>
         <div>
-            <h2 class="fw-bold mb-0">Properties</h2>
-            <p class="text-muted mb-0">Browse real estate listings — sale, rent, plots &amp; more in Kuppam</p>
+            <h2 class="fw-bold mb-0">{% trans "Properties" %}</h2>
+            <p class="text-muted mb-0">{% trans "Browse real estate listings — sale, rent, plots & more in Kuppam" %}</p>
         </div>
     </div>
 
@@ -19,7 +20,7 @@
         <form method="get" class="row g-2 align-items-end">
             <div class="col-12">
                 <label class="form-label" for="property-search-input">
-                    <i class="bi bi-funnel"></i> Search &amp; Filter
+                    <i class="bi bi-funnel"></i> {% trans "Search & Filter" %}
                 </label>
             </div>
             <div class="col-12 col-md-6">
@@ -30,14 +31,14 @@
                         id="property-search-input"
                         name="q"
                         class="form-control"
-                        placeholder="Search by title or location..."
+                        placeholder="{% trans 'Search by title or location...' %}"
                         value="{{ query }}"
                     >
                 </div>
             </div>
             <div class="col-8 col-md-4">
                 <select name="type" class="form-select">
-                    <option value="">All Types</option>
+                    <option value="">{% trans "All Types" %}</option>
                     {% for value, label in type_choices %}
                     <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
@@ -45,7 +46,7 @@
             </div>
             <div class="col-4 col-md-2">
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Filter
+                    <i class="bi bi-search"></i> {% trans "Filter" %}
                 </button>
             </div>
         </form>
@@ -55,12 +56,12 @@
     <div class="hk-results-bar mb-4">
         <i class="bi bi-list-check"></i>
         {% if query or selected_type %}
-            Showing {{ total_results }} result{{ total_results|pluralize }}
-            {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
-            {% if selected_type %} in <strong>{{ selected_type }}</strong>{% endif %}
-            &mdash; <a href="{% url 'core:property_list' %}">Clear filters <i class="bi bi-x-circle"></i></a>
+            {% blocktrans count counter=total_results %}Showing {{ counter }} result{% plural %}Showing {{ counter }} results{% endblocktrans %}
+            {% if query %} {% blocktrans %}for "<strong>{{ query }}</strong>"{% endblocktrans %}{% endif %}
+            {% if selected_type %} {% blocktrans with t=selected_type %}in <strong>{{ t }}</strong>{% endblocktrans %}{% endif %}
+            &mdash; <a href="{% url 'core:property_list' %}">{% trans "Clear filters" %} <i class="bi bi-x-circle"></i></a>
         {% else %}
-            Showing {{ total_results }} propert{{ total_results|pluralize:"y,ies" }}
+            {% blocktrans count counter=total_results %}Showing {{ counter }} property{% plural %}Showing {{ counter }} properties{% endblocktrans %}
         {% endif %}
     </div>
 
@@ -76,33 +77,33 @@
 
     <!-- Pagination -->
     {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="mt-5" aria-label="Property listing pagination">
+    <nav class="mt-5" aria-label="{% trans 'Property listing pagination' %}">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="First page">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="{% trans 'First page' %}">
                         <i class="bi bi-chevron-double-left"></i>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Previous page">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="{% trans 'Previous page' %}">
                         <i class="bi bi-chevron-left"></i>
                     </a>
                 </li>
             {% endif %}
 
             <li class="page-item active">
-                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <span class="page-link">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</span>
             </li>
 
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Next page">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="{% trans 'Next page' %}">
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Last page">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="{% trans 'Last page' %}">
                         <i class="bi bi-chevron-double-right"></i>
                     </a>
                 </li>
@@ -114,11 +115,11 @@
     {% else %}
     <div class="alert alert-info text-center py-5 hk-empty-state">
         <i class="bi bi-house display-4 d-block mb-3"></i>
-        <p class="fw-bold mb-1">No properties found</p>
-        <p class="text-muted mb-3">Try adjusting your search or filters.</p>
+        <p class="fw-bold mb-1">{% trans "No properties found" %}</p>
+        <p class="text-muted mb-3">{% trans "Try adjusting your search or filters." %}</p>
         {% if query or selected_type %}
         <a href="{% url 'core:property_list' %}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+            <i class="bi bi-arrow-counterclockwise"></i> {% trans "Clear Filters" %}
         </a>
         {% endif %}
     </div>

@@ -3557,6 +3557,18 @@ html[data-theme="dark"] .hk-contact-meta-icon {
     font-size: var(--hk-text-sm);
 }
 
+/* Team member name, sitting between the role heading (.hk-bento-title--sm)
+   and the role description (.hk-bento-text--sm) on the "Our Team" cards —
+   same high-contrast ink as the heading (not the muted body color) so it
+   reads as a secondary anchor, one step down from the role title. */
+.hk-bento-name {
+    font-size: var(--hk-text-base);
+    font-weight: 700;
+    color: var(--hk-ink);
+    letter-spacing: .01em;
+    margin-bottom: var(--hk-space-3);
+}
+
 html[data-theme="dark"] .hk-bento-icon--indigo {
     color: var(--hk-violet-400);
 }

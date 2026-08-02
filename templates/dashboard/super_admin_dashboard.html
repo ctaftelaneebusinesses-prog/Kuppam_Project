@@ -67,7 +67,7 @@
     </div>
 </div>
 
-<div class="hk-dash-section-title" data-aos="fade-up">{% trans "Moderation &amp; Engagement" %}</div>
+<div class="hk-dash-section-title" data-aos="fade-up">{% trans "Moderation & Engagement" %}</div>
 <div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
     <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_listings }}</div><div class="hk-stat-label">{% trans "Pending Approvals" %}</div></div></div>
     <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_listings }}</div><div class="hk-stat-label">{% trans "Approved Listings" %}</div></div></div>
@@ -140,7 +140,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
 <script src="{% static 'js/dashboard-charts.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

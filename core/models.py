@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -198,6 +199,43 @@ class Category(models.Model):
             return self._SEARCH_REDIRECT_KEYS.get(self.listing_model, '')
         return self.key if self.key in ('restaurants', 'hospitals', 'education', 'transport') else 'shops'
 
+    #: Named URL for each of the 4 dedicated business directory pages —
+    #: these filter on more than one Business.category value (e.g. Education
+    #: = school + college), so a single `?category=` query param can't
+    #: represent them the way it can for a plain business_subcategory.
+    _BUSINESS_DIRECTORY_URL_NAMES = {
+        'restaurants': 'core:restaurant_list', 'hospitals': 'core:hospital_list',
+        'education': 'core:education_list', 'transport': 'core:transport_list',
+    }
+    _LIST_URL_NAMES = {
+        'property': 'core:property_list', 'job': 'core:job_list', 'event': 'core:event_list',
+        'news': 'core:news_list', 'project': 'core:project_list',
+    }
+
+    @property
+    def list_url(self):
+        """
+        Public listings page this category should link to, for the footer
+        and header nav "Categories" menus. Reuses the same routing as the
+        homepage search bar (see search_redirect_key / SEARCH_CATEGORY_
+        REDIRECT in views.py) instead of each template hand-rolling its own
+        `{% if listing_model == ... %}` chain — that duplication is exactly
+        what let Education silently fall back to the unfiltered /businesses/
+        page: its own business_subcategory is blank (it spans two Business.
+        category values, school + college), so a naive
+        `?category={{ cat.business_subcategory }}` check just skipped the
+        filter instead of routing to the dedicated education_list page.
+        """
+        from django.urls import reverse
+        if self.listing_model == 'business':
+            url_name = self._BUSINESS_DIRECTORY_URL_NAMES.get(self.key, 'core:business_list')
+            url = reverse(url_name)
+            if url_name == 'core:business_list' and self.business_subcategory:
+                url += f'?category={self.business_subcategory}'
+            return url
+        url_name = self._LIST_URL_NAMES.get(self.listing_model)
+        return reverse(url_name) if url_name else '#'
+
     #: Which model + field each listing_model counts/filters against. Business,
     #: Property and Project have a real choice field a business_subcategory
     #: value can match against; Job/Event/News don't have an equivalent split,
@@ -222,7 +260,20 @@ class Category(models.Model):
         a category with none set (the broad "catch-all" card, e.g.
         Businesses) counts everything NOT claimed by any other active
         category sharing its listing_model.
+
+        Cached for a short window — the homepage renders one of these per
+        top-level category (measured: ~13 extra queries on a page that was
+        otherwise only ~17), and a listing count is fine being up to 2
+        minutes stale in exchange for not re-running this on every visitor.
         """
+        cache_key = f'core:category_listing_count:{self.pk}'
+        count = cache.get(cache_key)
+        if count is None:
+            count = self._compute_listing_count()
+            cache.set(cache_key, count, 120)
+        return count
+
+    def _compute_listing_count(self):
         model_name, field_name = self._LISTING_COUNT_MAP.get(self.listing_model, (None, None))
         if not model_name:
             return 0
@@ -1017,7 +1068,7 @@ class SiteSettings(models.Model):
 
 
 # ---------------------------------------------------------------------------
-# Dynamic-content translation cache (Telugu/Hindi/Tamil UI language support)
+# Dynamic-content translation cache (Telugu/Hindi/Tamil/Kannada UI language support)
 # ---------------------------------------------------------------------------
 
 class TranslationCache(models.Model):

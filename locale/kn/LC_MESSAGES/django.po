@@ -1,0 +1,2385 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OneTownCity\n"
+"Language: kn\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid ""
+"\"Kuppam\" is widely understood locally to mean a meeting place or confluence — a fitting name\n"
+"                    given the town's position at the tri-junction of three states. It follows a Dravidian-language\n"
+"                    place-naming pattern common across the Telugu- and Tamil-speaking border region."
+msgstr ""
+"\"ಕುಪ್ಪಂ\" ಅನ್ನು ಸ್ಥಳೀಯವಾಗಿ ಸಭೆಯ ಸ್ಥಳ ಅಥವಾ ಸಂಗಮ ಎಂದು ಅರ್ಥೈಸಲಾಗುತ್ತದೆ - ಸೂಕ್ತವಾದ ಹೆಸರು\n"
+"                    ಮೂರು ರಾಜ್ಯಗಳ ಟ್ರೈ-ಜಂಕ್ಷನ್‌ನಲ್ಲಿ ಪಟ್ಟಣದ ಸ್ಥಾನವನ್ನು ನೀಡಲಾಗಿದೆ. ಇದು ದ್ರಾವಿಡ-ಭಾಷೆಯನ್ನು ಅನುಸರಿಸುತ್ತದೆ\n"
+"                    ತೆಲುಗು ಮತ್ತು ತಮಿಳು-ಮಾತನಾಡುವ ಗಡಿ ಪ್ರದೇಶದಾದ್ಯಂತ ಸ್ಥಳ-ಹೆಸರಿನ ಮಾದರಿ ಸಾಮಾನ್ಯವಾಗಿದೆ."
+
+msgid "A Growing Education & Trade Hub"
+msgstr "ಬೆಳೆಯುತ್ತಿರುವ ಶಿಕ್ಷಣ ಮತ್ತು ವ್ಯಾಪಾರ ಕೇಂದ್ರ"
+
+msgid "A Journey Through Time"
+msgstr "ಎ ಜರ್ನಿ ಥ್ರೂ ಟೈಮ್"
+
+msgid "A Smart, Sustainable Kuppam"
+msgstr "ಒಂದು ಸ್ಮಾರ್ಟ್, ಸುಸ್ಥಿರ ಕುಪ್ಪಂ"
+
+msgid "A fast, responsive experience on any device."
+msgstr "ಯಾವುದೇ ಸಾಧನದಲ್ಲಿ ವೇಗವಾದ, ಸ್ಪಂದಿಸುವ ಅನುಭವ."
+
+msgid ""
+"A quick chronological index — tap any era to jump to the full story below"
+msgstr ""
+"ತ್ವರಿತ ಕಾಲಾನುಕ್ರಮದ ಸೂಚ್ಯಂಕ - ಕೆಳಗಿನ ಪೂರ್ಣ ಕಥೆಗೆ ಹೋಗಲು ಯಾವುದೇ ಯುಗವನ್ನು ಟ್ಯಾಪ್"
+" ಮಾಡಿ"
+
+msgid "About One<span class=\"hk-text-gradient-gold\">TownCity</span>"
+msgstr "One<span class=\"hk-text-gradient-gold\">TownCity</span> ಕುರಿತು"
+
+msgid "About Us"
+msgstr "ನಮ್ಮ ಬಗ್ಗೆ"
+
+msgid "Account Role"
+msgstr "ಖಾತೆ ಪಾತ್ರ"
+
+msgid "Account Settings"
+msgstr "ಖಾತೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"
+
+msgid "Action"
+msgstr "ಕ್ರಿಯೆ"
+
+msgid "Actions"
+msgstr "ಕ್ರಿಯೆಗಳು"
+
+msgid "Activate"
+msgstr "ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Active"
+msgstr "ಸಕ್ರಿಯ"
+
+msgid "Add Category"
+msgstr "ವರ್ಗವನ್ನು ಸೇರಿಸಿ"
+
+msgid "Add Photos / Videos"
+msgstr "ಫೋಟೋಗಳು / ವೀಡಿಯೊಗಳನ್ನು ಸೇರಿಸಿ"
+
+msgid "Add Subcategory"
+msgstr "ಉಪವರ್ಗವನ್ನು ಸೇರಿಸಿ"
+
+msgid "Add a New Listing"
+msgstr "ಹೊಸ ಪಟ್ಟಿಯನ್ನು ಸೇರಿಸಿ"
+
+msgid "Add subcategory"
+msgstr "ಉಪವರ್ಗವನ್ನು ಸೇರಿಸಿ"
+
+msgid "Add your first category to start organizing listings."
+msgstr "ಪಟ್ಟಿಗಳನ್ನು ಸಂಘಟಿಸಲು ಪ್ರಾರಂಭಿಸಲು ನಿಮ್ಮ ಮೊದಲ ವರ್ಗವನ್ನು ಸೇರಿಸಿ."
+
+msgid "Add {{ cat }}"
+msgstr "{{ cat }} ಸೇರಿಸಿ"
+
+msgid "Address"
+msgstr "ವಿಳಾಸ"
+
+msgid "Admin"
+msgstr "ನಿರ್ವಾಹಕ"
+
+msgid "Admin Dashboard"
+msgstr "ನಿರ್ವಾಹಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+
+msgid "Admin Requests"
+msgstr "ನಿರ್ವಾಹಕರ ವಿನಂತಿಗಳು"
+
+msgid "Admin requests will show up here as they're submitted."
+msgstr "ನಿರ್ವಾಹಕ ವಿನಂತಿಗಳನ್ನು ಸಲ್ಲಿಸಿದಂತೆ ಇಲ್ಲಿ ತೋರಿಸಲಾಗುತ್ತದೆ."
+
+msgid "Administration"
+msgstr "ಆಡಳಿತ"
+
+msgid "Affordable Pricing"
+msgstr "ಕೈಗೆಟುಕುವ ಬೆಲೆ"
+
+msgid ""
+"After 1947, the region became part of independent India's evolving state boundaries — first\n"
+"                    Madras State, then the Andhra State formed in 1953, and finally the unified Andhra Pradesh\n"
+"                    created in 1956. Kuppam settled into its present role as a mandal headquarters within Chittoor\n"
+"                    district."
+msgstr ""
+"1947 ರ ನಂತರ, ಈ ಪ್ರದೇಶವು ಸ್ವತಂತ್ರ ಭಾರತದ ವಿಕಸನಗೊಳ್ಳುತ್ತಿರುವ ರಾಜ್ಯ ಗಡಿಗಳ ಭಾಗವಾಯಿತು - ಮೊದಲನೆಯದು\n"
+"                    ಮದ್ರಾಸ್ ರಾಜ್ಯ, ನಂತರ 1953 ರಲ್ಲಿ ರಚನೆಯಾದ ಆಂಧ್ರ ರಾಜ್ಯ, ಮತ್ತು ಅಂತಿಮವಾಗಿ ಏಕೀಕೃತ ಆಂಧ್ರ ಪ್ರದೇಶ\n"
+"                    1956 ರಲ್ಲಿ ರಚಿಸಲಾಯಿತು. ಕುಪ್ಪಂ ಚಿತ್ತೂರಿನೊಳಗೆ ಮಂಡಲ ಕೇಂದ್ರವಾಗಿ ತನ್ನ ಪ್ರಸ್ತುತ ಪಾತ್ರದಲ್ಲಿ ನೆಲೆಸಿದೆ.\n"
+"                    ಜಿಲ್ಲೆ."
+
+msgid "Agriculture and Economy"
+msgstr "ಕೃಷಿ ಮತ್ತು ಆರ್ಥಿಕತೆ"
+
+msgid "All Admins"
+msgstr "ಎಲ್ಲಾ ನಿರ್ವಾಹಕರು"
+
+msgid "All Categories"
+msgstr "ಎಲ್ಲಾ ವರ್ಗಗಳು"
+
+msgid "All Messages"
+msgstr "ಎಲ್ಲಾ ಸಂದೇಶಗಳು"
+
+msgid "All Roles"
+msgstr "ಎಲ್ಲಾ ಪಾತ್ರಗಳು"
+
+msgid "All Statuses"
+msgstr "ಎಲ್ಲಾ ಸ್ಥಿತಿಗಳು"
+
+msgid "All Types"
+msgstr "ಎಲ್ಲಾ ವಿಧಗಳು"
+
+msgid "An Agricultural Economy Matures"
+msgstr "ಕೃಷಿ ಆರ್ಥಿಕತೆ ಪಕ್ವವಾಗುತ್ತದೆ"
+
+msgid "Ancient Era"
+msgstr "ಪ್ರಾಚೀನ ಯುಗ"
+
+msgid "Ancient History"
+msgstr "ಪ್ರಾಚೀನ ಇತಿಹಾಸ"
+
+msgid "Applicant"
+msgstr "ಅರ್ಜಿದಾರ"
+
+msgid "Applicant Profile"
+msgstr "ಅರ್ಜಿದಾರರ ವಿವರ"
+
+msgid "Apply filters"
+msgstr "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಅನ್ವಯಿಸಿ"
+
+msgid "Apply to Selected"
+msgstr "ಆಯ್ಕೆಮಾಡಿದವರಿಗೆ ಅನ್ವಯಿಸಿ"
+
+msgid "Approve"
+msgstr "ಅನುಮೋದಿಸಿ"
+
+msgid "Approved"
+msgstr "ಅನುಮೋದಿಸಲಾಗಿದೆ"
+
+msgid "Approved Listings"
+msgstr "ಅನುಮೋದಿತ ಪಟ್ಟಿಗಳು"
+
+msgid "Approved Requests"
+msgstr "ಅನುಮೋದಿತ ವಿನಂತಿಗಳು"
+
+msgid ""
+"Assists users, resolves issues, and helps maintain a smooth experience "
+"across the platform."
+msgstr ""
+"ಬಳಕೆದಾರರಿಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ, ಸಮಸ್ಯೆಗಳನ್ನು ಪರಿಹರಿಸುತ್ತದೆ ಮತ್ತು "
+"ಪ್ಲಾಟ್‌ಫಾರ್ಮ್‌ನಾದ್ಯಂತ ಸುಗಮ ಅನುಭವವನ್ನು ಕಾಪಾಡಿಕೊಳ್ಳಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ."
+
+msgid "Autumn season"
+msgstr "ಶರತ್ಕಾಲದ ಋತು"
+
+msgid "Avg Rating"
+msgstr "ಸರಾಸರಿ ರೇಟಿಂಗ್"
+
+msgid "Back to Home"
+msgstr "ಮನೆಗೆ ಹಿಂತಿರುಗಿ"
+
+msgid "Back to Manage Users"
+msgstr "ಬಳಕೆದಾರರನ್ನು ನಿರ್ವಹಿಸಿ ಗೆ ಹಿಂತಿರುಗಿ"
+
+msgid "Back to OneTownCity News"
+msgstr "OneTownCity News ಗೆ ಹಿಂತಿರುಗಿ"
+
+msgid "Back to Site"
+msgstr "ಸೈಟ್‌ಗೆ ಹಿಂತಿರುಗಿ"
+
+msgid "Become a Content Provider"
+msgstr "ಕಂಟೆಂಟ್ ಪ್ರೊವೈಡರ್ ಆಗಿ"
+
+msgid "Better connectivity, digital access, and sustainable growth ahead."
+msgstr "ಉತ್ತಮ ಸಂಪರ್ಕ, ಡಿಜಿಟಲ್ ಪ್ರವೇಶ ಮತ್ತು ಮುಂದೆ ಸುಸ್ಥಿರ ಬೆಳವಣಿಗೆ."
+
+msgid "Beyond the Directory"
+msgstr "ಡೈರೆಕ್ಟರಿಯನ್ನು ಮೀರಿ"
+
+msgid "Block"
+msgstr "ನಿರ್ಬಂಧಿಸಿ"
+
+msgid "Blocked"
+msgstr "ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ"
+
+msgid "Bootstrap Icons"
+msgstr "ಬೂಟ್‌ಸ್ಟ್ರ್ಯಾಪ್ ಚಿಹ್ನೆಗಳು"
+
+msgid "British Colonial Era"
+msgstr "ಬ್ರಿಟಿಷ್ ವಸಾಹತುಶಾಹಿ ಯುಗ"
+
+msgid "British Colonial Period"
+msgstr "ಬ್ರಿಟಿಷ್ ವಸಾಹತುಶಾಹಿ ಅವಧಿ"
+
+msgid "Browse general local businesses and services in Kuppam"
+msgstr "ಕುಪ್ಪಂನಲ್ಲಿ ಸಾಮಾನ್ಯ ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳು ಮತ್ತು ಸೇವೆಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"
+
+msgid ""
+"Browse job openings from local shops, offices, and companies hiring across "
+"Kuppam."
+msgstr ""
+"ಕುಪ್ಪಂನಾದ್ಯಂತ ಸ್ಥಳೀಯ ಅಂಗಡಿಗಳು, ಕಛೇರಿಗಳು ಮತ್ತು ಕಂಪನಿಗಳಿಂದ ಉದ್ಯೋಗಾವಕಾಶಗಳನ್ನು "
+"ಬ್ರೌಸ್ ಮಾಡಿ."
+
+msgid ""
+"Browse local businesses and services, or request permission to publish your "
+"own listings."
+msgstr ""
+"ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳು ಮತ್ತು ಸೇವೆಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ ಅಥವಾ ನಿಮ್ಮ ಸ್ವಂತ ಪಟ್ಟಿಗಳನ್ನು "
+"ಪ್ರಕಟಿಸಲು ಅನುಮತಿಯನ್ನು ವಿನಂತಿಸಿ."
+
+msgid "Browse real estate listings — sale, rent, plots & more in Kuppam"
+msgstr ""
+"ಕುಪ್ಪಂನಲ್ಲಿ ರಿಯಲ್ ಎಸ್ಟೇಟ್ ಪಟ್ಟಿಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ - ಮಾರಾಟ, ಬಾಡಿಗೆ, "
+"ಪ್ಲಾಟ್‌ಗಳು ಮತ್ತು ಇನ್ನಷ್ಟು"
+
+msgid "Browse {{ label }} listings in Kuppam"
+msgstr "ಕುಪ್ಪಂನಲ್ಲಿ {{ label }} ಪಟ್ಟಿಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"
+
+msgid ""
+"Built for the people of <span class=\"hk-text-gradient-gold\">Kuppam</span>"
+msgstr ""
+"<span class=\"hk-text-gradient-gold\">ಕುಪ್ಪಂ</span> ಜನರಿಗಾಗಿ ನಿರ್ಮಿಸಲಾಗಿದೆ"
+
+msgid "Built on trust, made <span class=\"text-primary\">simple</span>"
+msgstr ""
+"ನಂಬಿಕೆಯ ಮೇಲೆ ನಿರ್ಮಿಸಲಾಗಿದೆ, <span class=\"text-primary\">ಸರಳ</span> "
+"ಮಾಡಲಾಗಿದೆ"
+
+msgid "Built to rank, with secure and scalable architecture."
+msgstr "ಸುರಕ್ಷಿತ ಮತ್ತು ಸ್ಕೇಲೆಬಲ್ ಆರ್ಕಿಟೆಕ್ಚರ್‌ನೊಂದಿಗೆ ಶ್ರೇಣಿಗೆ ನಿರ್ಮಿಸಲಾಗಿದೆ."
+
+msgid "Business Website Development"
+msgstr "ವ್ಯಾಪಾರ ವೆಬ್ಸೈಟ್ ಅಭಿವೃದ್ಧಿ"
+
+msgid "Business listing pagination"
+msgstr "ವ್ಯಾಪಾರ ಪಟ್ಟಿ ಪುಟ ವಿನ್ಯಾಸ"
+
+msgid "Business subcategory value"
+msgstr "ವ್ಯಾಪಾರ ಉಪವರ್ಗದ ಮೌಲ್ಯ"
+
+msgid "Businesses"
+msgstr "ವ್ಯಾಪಾರಗಳು"
+
+msgid "Call Center & BPO Services"
+msgstr "ಕಾಲ್ ಸೆಂಟರ್ ಮತ್ತು BPO ಸೇವೆಗಳು"
+
+msgid "Cancel"
+msgstr "ರದ್ದುಮಾಡು"
+
+msgid ""
+"Catch up on local announcements, civic updates, and news from around Kuppam."
+msgstr ""
+"ಕುಪ್ಪಂ ಸುತ್ತಮುತ್ತಲಿನ ಸ್ಥಳೀಯ ಪ್ರಕಟಣೆಗಳು, ನಾಗರಿಕ ನವೀಕರಣಗಳು ಮತ್ತು ಸುದ್ದಿಗಳನ್ನು "
+"ತಿಳಿದುಕೊಳ್ಳಿ."
+
+msgid "Categories"
+msgstr "ವರ್ಗಗಳು"
+
+msgid ""
+"Categories and subcategories drive navigation, search filters, and listing "
+"forms sitewide."
+msgstr ""
+"ವರ್ಗಗಳು ಮತ್ತು ಉಪವರ್ಗಗಳು ನ್ಯಾವಿಗೇಷನ್, ಹುಡುಕಾಟ ಫಿಲ್ಟರ್‌ಗಳು ಮತ್ತು ಸೈಟ್‌ವೈಡ್ "
+"ಫಾರ್ಮ್‌ಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡುತ್ತವೆ."
+
+msgid "Category"
+msgstr "ವರ್ಗ"
+
+msgid "Category:"
+msgstr "ವರ್ಗ:"
+
+msgid "Change language"
+msgstr "ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸಿ"
+
+msgid "Changes"
+msgstr "ಬದಲಾವಣೆಗಳು"
+
+msgid "Changes are re-reviewed before appearing on the site."
+msgstr "ಸೈಟ್‌ನಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುವ ಮೊದಲು ಬದಲಾವಣೆಗಳನ್ನು ಮರುಪರಿಶೀಲಿಸಲಾಗುತ್ತದೆ."
+
+msgid "Chat with OneTownCity on WhatsApp"
+msgstr "WhatsApp ನಲ್ಲಿ OneTownCity ಜೊತೆಗೆ ಚಾಟ್ ಮಾಡಿ"
+
+msgid ""
+"Chief Minister N. Chandrababu Naidu at a Kuppam development event, July 2025"
+msgstr ""
+"ಜುಲೈ 2025 ರ ಕುಪ್ಪಂ ಅಭಿವೃದ್ಧಿ ಕಾರ್ಯಕ್ರಮದಲ್ಲಿ ಮುಖ್ಯಮಂತ್ರಿ ಎನ್. ಚಂದ್ರಬಾಬು "
+"ನಾಯ್ಡು"
+
+msgid "Choose a listing type…"
+msgstr "ಪಟ್ಟಿಯ ಪ್ರಕಾರವನ್ನು ಆಯ್ಕೆಮಾಡಿ..."
+
+msgid "Chronological Index"
+msgstr "ಕಾಲಾನುಕ್ರಮದ ಸೂಚ್ಯಂಕ"
+
+msgid "City"
+msgstr "ನಗರ"
+
+msgid "City / State"
+msgstr "ನಗರ / ರಾಜ್ಯ"
+
+msgid "Clear Filters"
+msgstr "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ"
+
+msgid "Clear Search"
+msgstr "ಹುಡುಕಾಟವನ್ನು ತೆರವುಗೊಳಿಸಿ"
+
+msgid "Clear filters"
+msgstr "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ"
+
+msgid "Clear search"
+msgstr "ಹುಡುಕಾಟವನ್ನು ತೆರವುಗೊಳಿಸಿ"
+
+msgid "Close"
+msgstr "ಮುಚ್ಚಿ"
+
+msgid "Colleges"
+msgstr "ಕಾಲೇಜುಗಳು"
+
+msgid ""
+"Colonial-era revenue and administrative records from this time offer another rich vein of local\n"
+"                    history worth documenting alongside this page."
+msgstr ""
+"ವಸಾಹತುಶಾಹಿ ಯುಗದ ಆದಾಯ ಮತ್ತು ಈ ಸಮಯದಿಂದ ಆಡಳಿತಾತ್ಮಕ ದಾಖಲೆಗಳು ಸ್ಥಳೀಯ ಮತ್ತೊಂದು ಶ್ರೀಮಂತ ಧಾಟಿಯನ್ನು ನೀಡುತ್ತವೆ\n"
+"                    ಈ ಪುಟದ ಜೊತೆಗೆ ದಾಖಲಿಸಲು ಯೋಗ್ಯವಾದ ಇತಿಹಾಸ."
+
+msgid "Comments"
+msgstr "ಕಾಮೆಂಟ್‌ಗಳು"
+
+msgid "Comments ({{ count }})"
+msgstr "ಕಾಮೆಂಟ್‌ಗಳು ({{ count }})"
+
+msgid "Community"
+msgstr "ಸಮುದಾಯ"
+
+msgid "Community Members"
+msgstr "ಸಮುದಾಯ ಸದಸ್ಯರು"
+
+msgid "Community academy event at Dravidian University, Kuppam"
+msgstr "ಕುಪ್ಪಂನ ದ್ರಾವಿಡ ವಿಶ್ವವಿದ್ಯಾಲಯದಲ್ಲಿ ಸಮುದಾಯ ಅಕಾಡೆಮಿ ಕಾರ್ಯಕ್ರಮ"
+
+msgid ""
+"Community and literacy initiatives, like the Telugu-language book release pictured here, mark\n"
+"                    the kind of grassroots development activity that shaped Kuppam in the decades that followed."
+msgstr ""
+"ಇಲ್ಲಿ ಚಿತ್ರಿಸಲಾದ ತೆಲುಗು ಭಾಷೆಯ ಪುಸ್ತಕ ಬಿಡುಗಡೆಯಂತಹ ಸಮುದಾಯ ಮತ್ತು ಸಾಕ್ಷರತಾ ಉಪಕ್ರಮಗಳನ್ನು ಗುರುತಿಸಿ\n"
+"                    ನಂತರದ ದಶಕಗಳಲ್ಲಿ ಕುಪ್ಪಂ ಅನ್ನು ರೂಪಿಸಿದ ತಳಮಟ್ಟದ ಅಭಿವೃದ್ಧಿ ಚಟುವಟಿಕೆ."
+
+msgid "Community book-release event, Kuppam HP i-community"
+msgstr "ಸಮುದಾಯ ಪುಸ್ತಕ-ಬಿಡುಗಡೆ ಕಾರ್ಯಕ್ರಮ, ಕುಪ್ಪಂ ಎಚ್‌ಪಿ ಐ-ಸಮುದಾಯ"
+
+msgid "Community event, Dravidian University"
+msgstr "ಸಮುದಾಯ ಕಾರ್ಯಕ್ರಮ, ದ್ರಾವಿಡ ವಿಶ್ವವಿದ್ಯಾಲಯ"
+
+msgid "Community learning activity centre in Kuppam"
+msgstr "ಕುಪ್ಪಂನಲ್ಲಿ ಸಮುದಾಯ ಕಲಿಕಾ ಚಟುವಟಿಕೆ ಕೇಂದ್ರ"
+
+msgid "Connecting people, businesses, and services in one trusted place."
+msgstr ""
+"ಒಂದು ವಿಶ್ವಾಸಾರ್ಹ ಸ್ಥಳದಲ್ಲಿ ಜನರು, ವ್ಯಾಪಾರಗಳು ಮತ್ತು ಸೇವೆಗಳನ್ನು "
+"ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ."
+
+msgid "Contact"
+msgstr "ಸಂಪರ್ಕಿಸಿ"
+
+msgid "Contact Information"
+msgstr "ಸಂಪರ್ಕ ಮಾಹಿತಿ"
+
+msgid "Contact Messages"
+msgstr "ಸಂಪರ್ಕ ಸಂದೇಶಗಳು"
+
+msgid "Contact Us Today"
+msgstr "ಇಂದು ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ"
+
+msgid "Contact messages pagination"
+msgstr "ಸಂಪರ್ಕ ಸಂದೇಶಗಳ ಪುಟ ವಿನ್ಯಾಸ"
+
+msgid "Content Inventory"
+msgstr "ವಿಷಯ ದಾಸ್ತಾನು"
+
+msgid "Content Provider"
+msgstr "ವಿಷಯ ಒದಗಿಸುವವರು"
+
+msgid ""
+"Content submitted by providers is reviewed by the Super Admin before "
+"publication."
+msgstr ""
+"ಪೂರೈಕೆದಾರರು ಸಲ್ಲಿಸಿದ ವಿಷಯವನ್ನು ಪ್ರಕಟಣೆಯ ಮೊದಲು ಸೂಪರ್ ನಿರ್ವಾಹಕರು "
+"ಪರಿಶೀಲಿಸುತ್ತಾರೆ."
+
+msgid "Corporate Businesses"
+msgstr "ಕಾರ್ಪೊರೇಟ್ ವ್ಯವಹಾರಗಳು"
+
+msgid "Created"
+msgstr "ರಚಿಸಲಾಗಿದೆ"
+
+msgid "Culture and Traditions"
+msgstr "ಸಂಸ್ಕೃತಿ ಮತ್ತು ಸಂಪ್ರದಾಯಗಳು"
+
+msgid "Custom Web Applications"
+msgstr "ಕಸ್ಟಮ್ ವೆಬ್ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"
+
+msgid "Custom-built designs that look great on every device."
+msgstr "ಪ್ರತಿ ಸಾಧನದಲ್ಲಿ ಉತ್ತಮವಾಗಿ ಕಾಣುವ ಕಸ್ಟಮ್-ನಿರ್ಮಿತ ವಿನ್ಯಾಸಗಳು."
+
+msgid "Dashboard"
+msgstr "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+
+msgid "Dashboard Overview"
+msgstr "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಅವಲೋಕನ"
+
+msgid "Deactivate"
+msgstr "ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Decision — current status:"
+msgstr "ನಿರ್ಧಾರ - ಪ್ರಸ್ತುತ ಸ್ಥಿತಿ:"
+
+msgid "Default Palette"
+msgstr "ಡೀಫಾಲ್ಟ್ ಪ್ಯಾಲೆಟ್"
+
+msgid "Delete"
+msgstr "ಅಳಿಸಿ"
+
+msgid "Delete Post"
+msgstr "ಪೋಸ್ಟ್ ಅಳಿಸಿ"
+
+msgid "Delete Selected"
+msgstr "ಆಯ್ಕೆ ಮಾಡಿರುವುದನ್ನು ಅಳಿಸಿ"
+
+msgid "Delete this item? This cannot be undone."
+msgstr "ಈ ಐಟಂ ಅನ್ನು ಅಳಿಸುವುದೇ? ಇದನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗುವುದಿಲ್ಲ."
+
+msgid "Delete this listing? This cannot be undone."
+msgstr "ಈ ಪಟ್ಟಿಯನ್ನು ಅಳಿಸುವುದೇ? ಇದನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗುವುದಿಲ್ಲ."
+
+msgid "Details"
+msgstr "ವಿವರಗಳು"
+
+msgid "Development Team"
+msgstr "ಅಭಿವೃದ್ಧಿ ತಂಡ"
+
+msgid "Development of Kuppam"
+msgstr "ಕುಪ್ಪಂ ಅಭಿವೃದ್ಧಿ"
+
+msgid "Device"
+msgstr "ಸಾಧನ"
+
+msgid "Digital Marketing Team"
+msgstr "ಡಿಜಿಟಲ್ ಮಾರ್ಕೆಟಿಂಗ್ ತಂಡ"
+
+msgid "Digital Solutions"
+msgstr "ಡಿಜಿಟಲ್ ಪರಿಹಾರಗಳು"
+
+msgid "Disable"
+msgstr "ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Disable Post"
+msgstr "ಪೋಸ್ಟ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Disabled"
+msgstr "ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"
+
+msgid "Discover"
+msgstr "ಅನ್ವೇಷಿಸಿ"
+
+msgid ""
+"Discover the best restaurants, cafés, bakeries, and food outlets in Kuppam."
+msgstr ""
+"ಕುಪ್ಪಂನಲ್ಲಿರುವ ಅತ್ಯುತ್ತಮ ರೆಸ್ಟೋರೆಂಟ್‌ಗಳು, ಕೆಫೆಗಳು, ಬೇಕರಿಗಳು ಮತ್ತು ಆಹಾರ "
+"ಮಳಿಗೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ."
+
+msgid "Dismiss"
+msgstr "ವಜಾಗೊಳಿಸಿ"
+
+msgid "Dismiss notification"
+msgstr "ಅಧಿಸೂಚನೆಯನ್ನು ವಜಾಗೊಳಿಸಿ"
+
+msgid "Draft a New Post"
+msgstr "ಹೊಸ ಪೋಸ್ಟ್ ಅನ್ನು ರಚಿಸಿ"
+
+msgid "Dravidian University Established"
+msgstr "ದ್ರಾವಿಡ ವಿಶ್ವವಿದ್ಯಾಲಯವನ್ನು ಸ್ಥಾಪಿಸಲಾಗಿದೆ"
+
+msgid "Dravidian University central library, Kuppam"
+msgstr "ದ್ರಾವಿಡ ವಿಶ್ವವಿದ್ಯಾಲಯದ ಕೇಂದ್ರ ಗ್ರಂಥಾಲಯ, ಕುಪ್ಪಂ"
+
+msgid "Dravidian University, Kuppam"
+msgstr "ದ್ರಾವಿಡ ವಿಶ್ವವಿದ್ಯಾಲಯ, ಕುಪ್ಪಂ"
+
+msgid ""
+"During the medieval period, the region came under the influence of the Vijayanagara Empire, and\n"
+"                    from 1026 the Kuppam area itself was ruled directly by the Kambi Nayudu dynasty of Kangundi — 28\n"
+"                    hereditary rulers who governed roughly 360 villages from Kangundi Fort, a line that continued\n"
+"                    uninterrupted until the zamindari system was abolished after independence. Figures such as Raja\n"
+"                    K.J.V. Naidu, pictured here, belonged to this same local ruling family in its final generations."
+msgstr ""
+"ಮಧ್ಯಕಾಲೀನ ಅವಧಿಯಲ್ಲಿ, ಈ ಪ್ರದೇಶವು ವಿಜಯನಗರ ಸಾಮ್ರಾಜ್ಯದ ಪ್ರಭಾವಕ್ಕೆ ಒಳಗಾಯಿತು, ಮತ್ತು\n"
+"                    1026 ರಿಂದ ಕುಪ್ಪಂ ಪ್ರದೇಶವನ್ನು ಕಂಗುಂಡಿಯ ಕಂಬಿ ನಾಯುಡು ರಾಜವಂಶವು ನೇರವಾಗಿ ಆಳಿತು - 28\n"
+"                    ಕಂಗುಂಡಿ ಕೋಟೆಯಿಂದ ಸರಿಸುಮಾರು 360 ಹಳ್ಳಿಗಳನ್ನು ಆಳಿದ ಅನುವಂಶಿಕ ಆಡಳಿತಗಾರರು, ಈ ಸಾಲು ಮುಂದುವರೆಯಿತು\n"
+"                    ಸ್ವಾತಂತ್ರ್ಯದ ನಂತರ ಜಮೀನ್ದಾರಿ ಪದ್ಧತಿಯನ್ನು ರದ್ದುಪಡಿಸುವವರೆಗೂ ಅಡೆತಡೆಯಿಲ್ಲದೆ. ರಾಜ ಮುಂತಾದವರು\n"
+"                    ಕೆ.ಜೆ.ವಿ. ನಾಯ್ಡು, ಇಲ್ಲಿ ಚಿತ್ರಿಸಲಾಗಿದೆ, ಅದರ ಕೊನೆಯ ತಲೆಮಾರುಗಳಲ್ಲಿ ಇದೇ ಸ್ಥಳೀಯ ಆಡಳಿತ ಕುಟುಂಬಕ್ಕೆ ಸೇರಿದವರು."
+
+msgid "E-Commerce Website Development"
+msgstr "ಇ-ಕಾಮರ್ಸ್ ವೆಬ್‌ಸೈಟ್ ಅಭಿವೃದ್ಧಿ"
+
+msgid "Early South Indian Dynasties"
+msgstr "ಆರಂಭಿಕ ದಕ್ಷಿಣ ಭಾರತೀಯ ರಾಜವಂಶಗಳು"
+
+msgid "Easy Search & Navigation"
+msgstr "ಸುಲಭ ಹುಡುಕಾಟ ಮತ್ತು ನ್ಯಾವಿಗೇಷನ್"
+
+msgid "Edit"
+msgstr "ಸಂಪಾದಿಸು"
+
+msgid "Edit Listing"
+msgstr "ಪಟ್ಟಿಯನ್ನು ಸಂಪಾದಿಸಿ"
+
+msgid "Edit Post"
+msgstr "ಪೋಸ್ಟ್ ಸಂಪಾದಿಸಿ"
+
+msgid "Edit Profile"
+msgstr "ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ"
+
+msgid "Education"
+msgstr "ಶಿಕ್ಷಣ"
+
+msgid "Educational Growth"
+msgstr "ಶೈಕ್ಷಣಿಕ ಬೆಳವಣಿಗೆ"
+
+msgid "Educational Institutions"
+msgstr "ಶಿಕ್ಷಣ ಸಂಸ್ಥೆಗಳು"
+
+msgid ""
+"Eight-term MLA leadership and community initiatives shape modern Kuppam."
+msgstr ""
+"ಎಂಟು ಅವಧಿಯ ಶಾಸಕರ ನಾಯಕತ್ವ ಮತ್ತು ಸಮುದಾಯದ ಉಪಕ್ರಮಗಳು ಆಧುನಿಕ ಕುಪ್ಪಂ ಅನ್ನು "
+"ರೂಪಿಸುತ್ತವೆ."
+
+msgid "Email"
+msgstr "ಇಮೇಲ್"
+
+msgid "Email Address"
+msgstr "ಇಮೇಲ್ ವಿಳಾಸ"
+
+msgid "Email for newsletter"
+msgstr "ಸುದ್ದಿಪತ್ರಕ್ಕಾಗಿ ಇಮೇಲ್"
+
+msgid "Enable"
+msgstr "ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Enable Post"
+msgstr "ಪೋಸ್ಟ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid ""
+"End-to-end web development for startups, businesses, educational "
+"institutions, and organizations building a strong online presence."
+msgstr ""
+"ಸ್ಟಾರ್ಟ್‌ಅಪ್‌ಗಳು, ವ್ಯವಹಾರಗಳು, ಶೈಕ್ಷಣಿಕ ಸಂಸ್ಥೆಗಳು ಮತ್ತು ಸಂಸ್ಥೆಗಳಿಗೆ "
+"ಎಂಡ್‌-ಟು-ಎಂಡ್ ವೆಬ್ ಡೆವಲಪ್‌ಮೆಂಟ್ ಪ್ರಬಲ ಆನ್‌ಲೈನ್ ಉಪಸ್ಥಿತಿಯನ್ನು ನಿರ್ಮಿಸುತ್ತದೆ."
+
+msgid "Enforce for everyone"
+msgstr "ಎಲ್ಲರಿಗೂ ಜಾರಿಗೊಳಿಸಿ"
+
+msgid "Engage"
+msgstr "ತೊಡಗಿಸಿಕೊಳ್ಳಿ"
+
+msgid "Engagement Breakdown by Post"
+msgstr "ಪೋಸ್ಟ್ ಮೂಲಕ ಎಂಗೇಜ್‌ಮೆಂಟ್ ಬ್ರೇಕ್‌ಡೌನ್"
+
+msgid "Event"
+msgstr "ಈವೆಂಟ್"
+
+msgid "Event Date"
+msgstr "ಈವೆಂಟ್ ದಿನಾಂಕ"
+
+msgid "Events"
+msgstr "ಘಟನೆಗಳು"
+
+msgid "Every category, <span class=\"text-primary\">one platform</span>"
+msgstr "ಪ್ರತಿ ವರ್ಗ, <span class=\"text-primary\">ಒಂದು ವೇದಿಕೆ</span>"
+
+msgid ""
+"Every listing includes contact details, location, images, and Google Maps "
+"integration."
+msgstr ""
+"ಪ್ರತಿಯೊಂದು ಪಟ್ಟಿಯು ಸಂಪರ್ಕ ವಿವರಗಳು, ಸ್ಥಳ, ಚಿತ್ರಗಳು ಮತ್ತು Google ನಕ್ಷೆಗಳ "
+"ಏಕೀಕರಣವನ್ನು ಒಳಗೊಂಡಿರುತ್ತದೆ."
+
+msgid "Everything Kuppam has to offer, organized in one place"
+msgstr "ಕುಪ್ಪಂ ನೀಡುವ ಎಲ್ಲವನ್ನೂ ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ಆಯೋಜಿಸಲಾಗಿದೆ"
+
+msgid "Excel"
+msgstr "ಎಕ್ಸೆಲ್"
+
+msgid "Experienced developers, priced for local businesses."
+msgstr "ಅನುಭವಿ ಡೆವಲಪರ್‌ಗಳು, ಸ್ಥಳೀಯ ವ್ಯವಹಾರಗಳಿಗೆ ಬೆಲೆ."
+
+msgid "Explore Categories"
+msgstr "ವರ್ಗಗಳನ್ನು ಅನ್ವೇಷಿಸಿ"
+
+msgid "Explore Listings"
+msgstr "ಪಟ್ಟಿಗಳನ್ನು ಅನ್ವೇಷಿಸಿ"
+
+msgid ""
+"Explore car garages, clothing and textile shops, stationery shops, "
+"supermarkets, salons, and other local businesses around Kuppam."
+msgstr ""
+"ಕುಪ್ಪಂ ಸುತ್ತಮುತ್ತಲಿನ ಕಾರ್ ಗ್ಯಾರೇಜ್‌ಗಳು, ಬಟ್ಟೆ ಮತ್ತು ಜವಳಿ ಅಂಗಡಿಗಳು, ಸ್ಟೇಷನರಿ "
+"ಅಂಗಡಿಗಳು, ಸೂಪರ್‌ಮಾರ್ಕೆಟ್‌ಗಳು, ಸಲೂನ್‌ಗಳು ಮತ್ತು ಇತರ ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳನ್ನು "
+"ಅನ್ವೇಷಿಸಿ."
+
+msgid "Explore or List"
+msgstr "ಅನ್ವೇಷಿಸಿ ಅಥವಾ ಪಟ್ಟಿ ಮಾಡಿ"
+
+msgid ""
+"Explore schools, colleges, universities, and other educational institutions "
+"in Kuppam."
+msgstr ""
+"ಕುಪ್ಪಂನಲ್ಲಿರುವ ಶಾಲೆಗಳು, ಕಾಲೇಜುಗಳು, ವಿಶ್ವವಿದ್ಯಾಲಯಗಳು ಮತ್ತು ಇತರ ಶಿಕ್ಷಣ "
+"ಸಂಸ್ಥೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ."
+
+msgid "Explore {{ name }}"
+msgstr "{{ name }} ಅನ್ವೇಷಿಸಿ"
+
+msgid "Explore, track, and connect with your community on OneTownCity."
+msgstr ""
+"OneTownCity ನಲ್ಲಿ ನಿಮ್ಮ ಸಮುದಾಯವನ್ನು ಅನ್ವೇಷಿಸಿ, ಟ್ರ್ಯಾಕ್ ಮಾಡಿ ಮತ್ತು ಸಂಪರ್ಕ "
+"ಸಾಧಿಸಿ."
+
+msgid "Explorer"
+msgstr "ಅನ್ವೇಷಕ"
+
+msgid "Fast Performance"
+msgstr "ವೇಗದ ಕಾರ್ಯಕ್ಷಮತೆ"
+
+msgid "Feature"
+msgstr "ವೈಶಿಷ್ಟ್ಯ"
+
+msgid "Featured"
+msgstr "ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಲಾಗಿದೆ"
+
+msgid "Festival celebrations, Kuppam"
+msgstr "ಉತ್ಸವ ಆಚರಣೆಗಳು, ಕುಪ್ಪಂ"
+
+msgid "Festivals"
+msgstr "ಹಬ್ಬಗಳು"
+
+msgid ""
+"Fill out the form below and our team will get back to you within 24 hours."
+msgstr ""
+"ಕೆಳಗಿನ ಫಾರ್ಮ್ ಅನ್ನು ಭರ್ತಿ ಮಾಡಿ ಮತ್ತು ನಮ್ಮ ತಂಡವು 24 ಗಂಟೆಗಳ ಒಳಗೆ ನಿಮ್ಮನ್ನು "
+"ಸಂಪರ್ಕಿಸುತ್ತದೆ."
+
+msgid "Filter"
+msgstr "ಫಿಲ್ಟರ್"
+
+msgid ""
+"Find buses, taxis, auto services, logistics, and transportation facilities."
+msgstr ""
+"ಬಸ್ಸುಗಳು, ಟ್ಯಾಕ್ಸಿಗಳು, ಆಟೋ ಸೇವೆಗಳು, ಲಾಜಿಸ್ಟಿಕ್ಸ್ ಮತ್ತು ಸಾರಿಗೆ ಸೌಲಭ್ಯಗಳನ್ನು "
+"ಹುಡುಕಿ."
+
+msgid ""
+"Find hospitals, clinics, diagnostic centers, pharmacies, and emergency "
+"healthcare services."
+msgstr ""
+"ಆಸ್ಪತ್ರೆಗಳು, ಚಿಕಿತ್ಸಾಲಯಗಳು, ರೋಗನಿರ್ಣಯ ಕೇಂದ್ರಗಳು, ಔಷಧಾಲಯಗಳು ಮತ್ತು ತುರ್ತು "
+"ಆರೋಗ್ಯ ಸೇವೆಗಳನ್ನು ಹುಡುಕಿ."
+
+msgid ""
+"Find houses, apartments, plots, villas, rental properties, and commercial "
+"spaces available across Kuppam."
+msgstr ""
+"ಕುಪ್ಪಂನಾದ್ಯಂತ ಲಭ್ಯವಿರುವ ಮನೆಗಳು, ಅಪಾರ್ಟ್‌ಮೆಂಟ್‌ಗಳು, ಪ್ಲಾಟ್‌ಗಳು, ವಿಲ್ಲಾಗಳು, "
+"ಬಾಡಿಗೆ ಆಸ್ತಿಗಳು ಮತ್ತು ವಾಣಿಜ್ಯ ಸ್ಥಳಗಳನ್ನು ಹುಡುಕಿ."
+
+msgid "Find what you need quickly, without the hassle."
+msgstr "ತೊಂದರೆಯಿಲ್ಲದೆ ನಿಮಗೆ ಬೇಕಾದುದನ್ನು ತ್ವರಿತವಾಗಿ ಹುಡುಕಿ."
+
+msgid "First page"
+msgstr "ಮೊದಲ ಪುಟ"
+
+msgid "Founder"
+msgstr "ಸ್ಥಾಪಕ"
+
+msgid "From"
+msgstr "ಇಂದ"
+
+msgid ""
+"From ancient roots to a growing educational and agricultural hub in Andhra "
+"Pradesh"
+msgstr ""
+"ಪ್ರಾಚೀನ ಬೇರುಗಳಿಂದ ಆಂಧ್ರಪ್ರದೇಶದಲ್ಲಿ ಬೆಳೆಯುತ್ತಿರುವ ಶೈಕ್ಷಣಿಕ ಮತ್ತು ಕೃಷಿ "
+"ಕೇಂದ್ರಕ್ಕೆ"
+
+msgid "Full Name"
+msgstr "ಪೂರ್ಣ ಹೆಸರು"
+
+msgid ""
+"Full attribution and licence terms are available on each image's Wikimedia "
+"Commons file page."
+msgstr ""
+"ಪ್ರತಿ ಚಿತ್ರದ ವಿಕಿಮೀಡಿಯಾ ಕಾಮನ್ಸ್ ಫೈಲ್ ಪುಟದಲ್ಲಿ ಪೂರ್ಣ ಗುಣಲಕ್ಷಣ ಮತ್ತು ಪರವಾನಗಿ "
+"ನಿಯಮಗಳು ಲಭ್ಯವಿವೆ."
+
+msgid "Future Vision"
+msgstr "ಭವಿಷ್ಯದ ದೃಷ್ಟಿ"
+
+msgid "Gallery"
+msgstr "ಗ್ಯಾಲರಿ"
+
+msgid "Gallery of Kuppam"
+msgstr "ಗ್ಯಾಲರಿ ಆಫ್ ಕುಪ್ಪಂ"
+
+msgid "Gangamma Jatara, Kuppam"
+msgstr "ಗಂಗಮ್ಮ ಜಾತ್ರೆ, ಕುಪ್ಪಂ"
+
+msgid "Get In Touch"
+msgstr "ಸಂಪರ್ಕದಲ್ಲಿರಿ"
+
+msgid "Get directions to any listing in a single tap."
+msgstr "ಒಂದೇ ಟ್ಯಾಪ್‌ನಲ್ಲಿ ಯಾವುದೇ ಪಟ್ಟಿಗೆ ನಿರ್ದೇಶನಗಳನ್ನು ಪಡೆಯಿರಿ."
+
+msgid "Get in <span class=\"hk-text-gradient-gold\">Touch</span>"
+msgstr "<span class=\"hk-text-gradient-gold\">ಟಚ್</span> ನಲ್ಲಿ ಪಡೆಯಿರಿ"
+
+msgid "Get the latest Kuppam listings and news in your inbox."
+msgstr ""
+"ನಿಮ್ಮ ಇನ್‌ಬಾಕ್ಸ್‌ನಲ್ಲಿ ಇತ್ತೀಚಿನ ಕುಪ್ಪಂ ಪಟ್ಟಿಗಳು ಮತ್ತು ಸುದ್ದಿಗಳನ್ನು ಪಡೆಯಿರಿ."
+
+msgid "Goes Live"
+msgstr "ಲೈವ್ ಆಗುತ್ತದೆ"
+
+msgid "Google Maps"
+msgstr "ಗೂಗಲ್ ನಕ್ಷೆಗಳು"
+
+msgid "Google Maps Integration"
+msgstr "ಗೂಗಲ್ ನಕ್ಷೆಗಳ ಏಕೀಕರಣ"
+
+msgid ""
+"Government Degree College, Kuppam campus — courtesy of Government Degree "
+"College, Kuppam (gdckuppam.edu.in), used here to represent the institution "
+"accurately rather than a generic stock photo."
+msgstr ""
+"ಸರ್ಕಾರಿ ಪದವಿ ಕಾಲೇಜು, ಕುಪ್ಪಂ ಕ್ಯಾಂಪಸ್ - ಸರ್ಕಾರಿ ಪದವಿ ಕಾಲೇಜು, ಕುಪ್ಪಂ "
+"(gdckuppam.edu.in) ನ ಸೌಜನ್ಯ, ಇಲ್ಲಿ ಸಾಮಾನ್ಯ ಸ್ಟಾಕ್ ಫೋಟೋಗಿಂತ ಹೆಚ್ಚಾಗಿ "
+"ಸಂಸ್ಥೆಯನ್ನು ಪ್ರತಿನಿಧಿಸಲು ಬಳಸಲಾಗಿದೆ."
+
+msgid "Healthcare"
+msgstr "ಆರೋಗ್ಯ ರಕ್ಷಣೆ"
+
+msgid "Hi OneTownCity! I'd like some help finding..."
+msgstr "ನಮಸ್ಕಾರ OneTownCity! ನಾನು ಹುಡುಕಲು ಸ್ವಲ್ಪ ಸಹಾಯವನ್ನು ಬಯಸುತ್ತೇನೆ..."
+
+msgid "Higher education reshapes Kuppam into a student destination."
+msgstr "ಉನ್ನತ ಶಿಕ್ಷಣವು ಕುಪ್ಪಂ ಅನ್ನು ವಿದ್ಯಾರ್ಥಿಗಳ ತಾಣವಾಗಿ ಮರುರೂಪಿಸುತ್ತದೆ."
+
+msgid ""
+"His wife, Nara Bhuvaneswari — Managing Trustee of the NTR Trust and Vice Chairperson of Heritage\n"
+"                    Foods — has made regular visits to schools across the Kuppam constituency, including outreach at\n"
+"                    the Zilla Parishad High School in Kenchanaballa, supporting scholarships, healthcare camps, and\n"
+"                    environmental initiatives such as sapling plantations for local students."
+msgstr ""
+"ಅವರ ಪತ್ನಿ, ನಾರಾ ಭುವನೇಶ್ವರಿ - ಎನ್‌ಟಿಆರ್ ಟ್ರಸ್ಟ್‌ನ ಮ್ಯಾನೇಜಿಂಗ್ ಟ್ರಸ್ಟಿ ಮತ್ತು ಹೆರಿಟೇಜ್‌ನ ಉಪಾಧ್ಯಕ್ಷ\n"
+"                    ಫುಡ್ಸ್ - ಕುಪ್ಪಂ ಕ್ಷೇತ್ರದಾದ್ಯಂತ ಶಾಲೆಗಳಿಗೆ ನಿಯಮಿತವಾಗಿ ಭೇಟಿ ನೀಡಿದ್ದಾರೆ, ಇದರಲ್ಲಿ ಔಟ್ರೀಚ್ ಸೇರಿದಂತೆ\n"
+"                    ಕೆಂಚನಬಳ್ಳದಲ್ಲಿರುವ ಜಿಲ್ಲಾ ಪರಿಷತ್ ಪ್ರೌಢಶಾಲೆ, ವಿದ್ಯಾರ್ಥಿವೇತನ, ಆರೋಗ್ಯ ಶಿಬಿರಗಳನ್ನು ಬೆಂಬಲಿಸುವುದು ಮತ್ತು\n"
+"                    ಸ್ಥಳೀಯ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಸಸಿ ನೆಡುವಿಕೆಗಳಂತಹ ಪರಿಸರ ಉಪಕ್ರಮಗಳು."
+
+msgid "History"
+msgstr "ಇತಿಹಾಸ"
+
+msgid "History After Indian Independence"
+msgstr "ಭಾರತೀಯ ಸ್ವಾತಂತ್ರ್ಯದ ನಂತರದ ಇತಿಹಾಸ"
+
+msgid "History of Kuppam"
+msgstr "ಕುಪ್ಪಂ ಇತಿಹಾಸ"
+
+msgid "Home"
+msgstr "ಮುಖಪುಟ"
+
+msgid "Homepage card description"
+msgstr "ಮುಖಪುಟ ಕಾರ್ಡ್ ವಿವರಣೆ"
+
+msgid "Homepage card image"
+msgstr "ಮುಖಪುಟ ಕಾರ್ಡ್ ಚಿತ್ರ"
+
+msgid "Horsley Hills, Chittoor district"
+msgstr "ಹಾರ್ಸ್ಲಿ ಹಿಲ್ಸ್, ಚಿತ್ತೂರು ಜಿಲ್ಲೆ"
+
+msgid "Hospitals"
+msgstr "ಆಸ್ಪತ್ರೆಗಳು"
+
+msgid "Hospitals & Healthcare"
+msgstr "ಆಸ್ಪತ್ರೆಗಳು ಮತ್ತು ಆರೋಗ್ಯ"
+
+msgid "How OneTownCity <span class=\"text-primary\">works</span>"
+msgstr "OneTownCity <span class=\"text-primary\">ಕೆಲಸ ಹೇಗೆ</span>"
+
+msgid "IP Address"
+msgstr "IP ವಿಳಾಸ"
+
+msgid "Icon"
+msgstr "ಐಕಾನ್"
+
+msgid "In Pictures"
+msgstr "ಚಿತ್ರಗಳಲ್ಲಿ"
+
+msgid "Inactive"
+msgstr "ನಿಷ್ಕ್ರಿಯ"
+
+msgid "Independence & Andhra Pradesh"
+msgstr "ಸ್ವಾತಂತ್ರ್ಯ ಮತ್ತು ಆಂಧ್ರ ಪ್ರದೇಶ"
+
+msgid "Industries We Serve"
+msgstr "ನಾವು ಸೇವೆ ಸಲ್ಲಿಸುವ ಕೈಗಾರಿಕೆಗಳು"
+
+msgid "Irrigation canal near Kuppam"
+msgstr "ಕುಪ್ಪಂ ಬಳಿ ನೀರಾವರಿ ಕಾಲುವೆ"
+
+msgid "It will be reviewed by the Super Admin before it goes live."
+msgstr "ಇದು ಲೈವ್ ಆಗುವ ಮೊದಲು ಅದನ್ನು ಸೂಪರ್ ನಿರ್ವಾಹಕರು ಪರಿಶೀಲಿಸುತ್ತಾರೆ."
+
+msgid "Job Description"
+msgstr "ಉದ್ಯೋಗ ವಿವರಣೆ"
+
+msgid "Jobs"
+msgstr "ಉದ್ಯೋಗಗಳು"
+
+msgid ""
+"Join the One <span class=\"hk-text-gradient-gold\">TownCity</span> Community"
+msgstr ""
+"ಒಂದು <span class=\"hk-text-gradient-gold\">TownCity</span> ಸಮುದಾಯಕ್ಕೆ ಸೇರಿ"
+
+msgid "Joined"
+msgstr "ಸೇರಿದರು"
+
+msgid "Joined {{ joined }}"
+msgstr "{{ joined }} ಸೇರಿದ್ದಾರೆ"
+
+msgid "Kuppam Area Development Authority"
+msgstr "ಕುಪ್ಪಂ ಪ್ರದೇಶಾಭಿವೃದ್ಧಿ ಪ್ರಾಧಿಕಾರ"
+
+msgid "Kuppam Area Development Authority emblem"
+msgstr "ಕುಪ್ಪಂ ಪ್ರದೇಶಾಭಿವೃದ್ಧಿ ಪ್ರಾಧಿಕಾರದ ಲಾಂಛನ"
+
+msgid "Kuppam Railway Station"
+msgstr "ಕುಪ್ಪಂ ರೈಲು ನಿಲ್ದಾಣ"
+
+msgid "Kuppam Through the Ages"
+msgstr "ಯುಗಗಳ ಮೂಲಕ ಕುಪ್ಪಂ"
+
+msgid "Kuppam balances its agricultural roots with modern civic growth."
+msgstr ""
+"ಕುಪ್ಪಂ ತನ್ನ ಕೃಷಿ ಬೇರುಗಳನ್ನು ಆಧುನಿಕ ನಾಗರಿಕ ಬೆಳವಣಿಗೆಯೊಂದಿಗೆ ಸಮತೋಲನಗೊಳಿಸುತ್ತದೆ."
+
+msgid "Kuppam becomes part of independent India's new state boundaries."
+msgstr "ಕುಪ್ಪಂ ಸ್ವತಂತ್ರ ಭಾರತದ ಹೊಸ ರಾಜ್ಯ ಗಡಿಗಳ ಭಾಗವಾಗುತ್ತದೆ."
+
+msgid "Kuppam community learning centre"
+msgstr "ಕುಪ್ಪಂ ಸಮುದಾಯ ಕಲಿಕಾ ಕೇಂದ್ರ"
+
+msgid "Kuppam constituency map"
+msgstr "ಕುಪ್ಪಂ ಕ್ಷೇತ್ರದ ನಕ್ಷೆ"
+
+msgid "Kuppam development launch, July 2025"
+msgstr "ಕುಪ್ಪಂ ಅಭಿವೃದ್ಧಿ ಪ್ರಾರಂಭ, ಜುಲೈ 2025"
+
+msgid "Kuppam i-community, early development era"
+msgstr "ಕುಪ್ಪಂ ಐ-ಸಮುದಾಯ, ಆರಂಭಿಕ ಅಭಿವೃದ್ಧಿ ಯುಗ"
+
+msgid ""
+"Kuppam is a state legislative assembly constituency in Andhra Pradesh, represented for an\n"
+"                    extended period by N. Chandrababu Naidu, who has served as Chief Minister of Andhra Pradesh —\n"
+"                    a long association that has kept Kuppam prominent in state-level development planning, including\n"
+"                    through dedicated bodies like the Kuppam Area Development Authority shown here."
+msgstr ""
+"ಕುಪ್ಪಂ ಆಂಧ್ರಪ್ರದೇಶದ ಒಂದು ರಾಜ್ಯ ವಿಧಾನಸಭಾ ಕ್ಷೇತ್ರವಾಗಿದ್ದು, ಇದನ್ನು ಪ್ರತಿನಿಧಿಸಲಾಗಿದೆ\n"
+"                    ಆಂಧ್ರಪ್ರದೇಶದ ಮುಖ್ಯಮಂತ್ರಿಯಾಗಿ ಸೇವೆ ಸಲ್ಲಿಸಿದ ಎನ್. ಚಂದ್ರಬಾಬು ನಾಯ್ಡುರಿಂದ ಅವಧಿಯನ್ನು ವಿಸ್ತರಿಸಲಾಗಿದೆ -\n"
+"                    ಸೇರಿದಂತೆ ರಾಜ್ಯ ಮಟ್ಟದ ಅಭಿವೃದ್ಧಿ ಯೋಜನೆಗಳಲ್ಲಿ ಕುಪ್ಪಂ ಅನ್ನು ಪ್ರಮುಖವಾಗಿ ಇಟ್ಟುಕೊಂಡಿರುವ ಸುದೀರ್ಘ ಸಂಘ\n"
+"                    ಇಲ್ಲಿ ತೋರಿಸಿರುವ ಕುಪ್ಪಂ ಪ್ರದೇಶಾಭಿವೃದ್ಧಿ ಪ್ರಾಧಿಕಾರದಂತಹ ಮೀಸಲಾದ ಸಂಸ್ಥೆಗಳ ಮೂಲಕ."
+
+msgid ""
+"Kuppam is home to Dravidian University, established in 1997 to promote study and research on\n"
+"                    Dravidian languages and culture, along with Kuppam Engineering College and other degree colleges\n"
+"                    that have grown up around it — together turning the town into a destination for students from\n"
+"                    across the tri-state border area."
+msgstr ""
+"ಕುಪ್ಪಂ ದ್ರಾವಿಡ ವಿಶ್ವವಿದ್ಯಾನಿಲಯಕ್ಕೆ ನೆಲೆಯಾಗಿದೆ, ಇದನ್ನು ಅಧ್ಯಯನ ಮತ್ತು ಸಂಶೋಧನೆಯನ್ನು ಉತ್ತೇಜಿಸಲು 1997 ರಲ್ಲಿ ಸ್ಥಾಪಿಸಲಾಯಿತು\n"
+"                    ಕುಪ್ಪಂ ಇಂಜಿನಿಯರಿಂಗ್ ಕಾಲೇಜು ಮತ್ತು ಇತರ ಪದವಿ ಕಾಲೇಜುಗಳೊಂದಿಗೆ ದ್ರಾವಿಡ ಭಾಷೆಗಳು ಮತ್ತು ಸಂಸ್ಕೃತಿ\n"
+"                    ಅದರ ಸುತ್ತಲೂ ಬೆಳೆದಿದೆ - ಒಟ್ಟಾಗಿ ಪಟ್ಟಣವನ್ನು ವಿದ್ಯಾರ್ಥಿಗಳ ತಾಣವಾಗಿ ಪರಿವರ್ತಿಸುತ್ತದೆ\n"
+"                    ತ್ರಿ-ರಾಜ್ಯ ಗಡಿ ಪ್ರದೇಶದಾದ್ಯಂತ."
+
+msgid "Kuppam railway station"
+msgstr "ಕುಪ್ಪಂ ರೈಲು ನಿಲ್ದಾಣ"
+
+msgid ""
+"Kuppam sits at the tri-junction where Andhra Pradesh, Tamil Nadu and Karnataka meet — a mandal\n"
+"                    headquarters in Chittoor district shaped by centuries of Telugu, Tamil and Kannada culture\n"
+"                    converging in one town."
+msgstr ""
+"ಕುಪ್ಪಂ ಆಂಧ್ರಪ್ರದೇಶ, ತಮಿಳುನಾಡು ಮತ್ತು ಕರ್ನಾಟಕ ಸಂಧಿಸುವ ಟ್ರೈ-ಜಂಕ್ಷನ್‌ನಲ್ಲಿ ಕುಳಿತುಕೊಳ್ಳುತ್ತದೆ - ಒಂದು ಮಂಡಲ\n"
+"                    ಶತಮಾನಗಳ ತೆಲುಗು, ತಮಿಳು ಮತ್ತು ಕನ್ನಡ ಸಂಸ್ಕೃತಿಯಿಂದ ರೂಪುಗೊಂಡ ಚಿತ್ತೂರು ಜಿಲ್ಲೆಯ ಪ್ರಧಾನ ಕಛೇರಿ\n"
+"                    ಒಂದು ಪಟ್ಟಣದಲ್ಲಿ ಒಮ್ಮುಖವಾಗುವುದು."
+
+msgid ""
+"Kuppam sits within reach of hill destinations in Chittoor district, including the well-known\n"
+"                    Horsley Hills further north — often called the \"Ooty of Andhra Pradesh\" for its misty\n"
+"                    viewpoints, forests and cool climate. The Dravidian University campus itself has become a\n"
+"                    local landmark worth visiting."
+msgstr ""
+"ಕುಪ್ಪಂ ಚಿತ್ತೂರು ಜಿಲ್ಲೆಯ ಗುಡ್ಡಗಾಡು ಪ್ರದೇಶಗಳ ವ್ಯಾಪ್ತಿಯೊಳಗೆ ನೆಲೆಸಿದೆ\n"
+"                    ಹಾರ್ಸ್ಲಿ ಹಿಲ್ಸ್ ಮತ್ತಷ್ಟು ಉತ್ತರಕ್ಕೆ - ಸಾಮಾನ್ಯವಾಗಿ \"ಆಂಧ್ರಪ್ರದೇಶದ ಊಟಿ\" ಎಂದು ಕರೆಯಲ್ಪಡುತ್ತದೆ\n"
+"                    ದೃಷ್ಟಿಕೋನಗಳು, ಕಾಡುಗಳು ಮತ್ತು ತಂಪಾದ ವಾತಾವರಣ. ದ್ರಾವಿಡ ವಿಶ್ವವಿದ್ಯಾಲಯದ ಆವರಣವೇ ಏ\n"
+"                    ಭೇಟಿ ನೀಡಲು ಯೋಗ್ಯವಾದ ಸ್ಥಳೀಯ ಹೆಗ್ಗುರುತು."
+
+msgid ""
+"Kuppam's economy has long rested on agriculture — the area is particularly well known for\n"
+"                    tomato cultivation and trade, alongside mango orchards, groundnuts, mulberry (sericulture), and\n"
+"                    a range of vegetable crops supported by local irrigation canals like the one pictured here."
+msgstr ""
+"ಕುಪ್ಪಂನ ಆರ್ಥಿಕತೆಯು ಕೃಷಿಯ ಮೇಲೆ ದೀರ್ಘಕಾಲ ನಿಂತಿದೆ - ಈ ಪ್ರದೇಶವು ವಿಶೇಷವಾಗಿ ಹೆಸರುವಾಸಿಯಾಗಿದೆ\n"
+"                    ಟೊಮೆಟೊ ಕೃಷಿ ಮತ್ತು ವ್ಯಾಪಾರ, ಜೊತೆಗೆ ಮಾವಿನ ತೋಟಗಳು, ನೆಲಗಡಲೆ, ಹಿಪ್ಪುನೇರಳೆ (ರೇಷ್ಮೆ ಕೃಷಿ), ಮತ್ತು\n"
+"                    ಇಲ್ಲಿ ಚಿತ್ರಿಸಿರುವಂತೆ ಸ್ಥಳೀಯ ನೀರಾವರಿ ಕಾಲುವೆಗಳಿಂದ ಬೆಂಬಲಿತವಾದ ತರಕಾರಿ ಬೆಳೆಗಳ ಶ್ರೇಣಿ."
+
+msgid ""
+"Kuppam's growth path is already in motion: an announced industrial investment plan of around\n"
+"                    ₹9,322 crore, the Swarna Kuppam initiative upgrading internal roads across the constituency,\n"
+"                    and new units such as a battery anode material plant and a Mother Dairy processing facility\n"
+"                    expected to bring thousands of local jobs."
+msgstr ""
+"ಕುಪ್ಪಂನ ಬೆಳವಣಿಗೆಯ ಹಾದಿಯು ಈಗಾಗಲೇ ಚಲನೆಯಲ್ಲಿದೆ: ಸುಮಾರು ಘೋಷಿತ ಕೈಗಾರಿಕಾ ಹೂಡಿಕೆ ಯೋಜನೆ\n"
+"                    ಸ್ವರ್ಣ ಕುಪ್ಪಂ ಕ್ಷೇತ್ರದ ಆಂತರಿಕ ರಸ್ತೆಗಳನ್ನು ಮೇಲ್ದರ್ಜೆಗೇರಿಸಲು ₹ 9,322 ಕೋಟಿ,\n"
+"                    ಮತ್ತು ಬ್ಯಾಟರಿ ಆನೋಡ್ ವಸ್ತು ಘಟಕ ಮತ್ತು ಮದರ್ ಡೈರಿ ಸಂಸ್ಕರಣಾ ಸೌಲಭ್ಯದಂತಹ ಹೊಸ ಘಟಕಗಳು\n"
+"                    ಸಾವಿರಾರು ಸ್ಥಳೀಯ ಉದ್ಯೋಗಗಳನ್ನು ತರುವ ನಿರೀಕ್ಷೆಯಿದೆ."
+
+msgid "Label"
+msgstr "ಲೇಬಲ್"
+
+msgid "Landscape near Kuppam — KuppamArunKumar, CC BY-SA 4.0"
+msgstr "ಕುಪ್ಪಂ ಬಳಿಯ ಭೂದೃಶ್ಯ - ಕುಪ್ಪಂ ಅರುಣ್‌ಕುಮಾರ್, CC BY-SA 4.0"
+
+msgid "Landscape view near Kuppam, Andhra Pradesh"
+msgstr "ಆಂಧ್ರಪ್ರದೇಶದ ಕುಪ್ಪಂ ಬಳಿಯ ಭೂದೃಶ್ಯದ ನೋಟ"
+
+msgid "Language"
+msgstr "ಭಾಷೆ"
+
+msgid "Last active never"
+msgstr "ಕೊನೆಯದಾಗಿ ಸಕ್ರಿಯವಾಗಿಲ್ಲ"
+
+msgid "Last active {{ last_active }}"
+msgstr "ಕೊನೆಯ ಸಕ್ರಿಯ {{ last_active }}"
+
+msgid "Last page"
+msgstr "ಕೊನೆಯ ಪುಟ"
+
+msgid "Last reviewed by {{ reviewer }} on {{ reviewed_on }}"
+msgstr "{{ reviewer }} ರಿಂದ {{ reviewed_on }} ರಂದು ಕೊನೆಯದಾಗಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ"
+
+msgid "Last updated by {{ editor }} on {{ updated_on }}"
+msgstr "{{ updated_on }} ರಂದು {{ editor }} ರಿಂದ ಕೊನೆಯದಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ"
+
+msgid "Leads the vision, strategy, and overall development of the platform."
+msgstr "ವೇದಿಕೆಯ ದೃಷ್ಟಿ, ಕಾರ್ಯತಂತ್ರ ಮತ್ತು ಒಟ್ಟಾರೆ ಅಭಿವೃದ್ಧಿಗೆ ಕಾರಣವಾಗುತ್ತದೆ."
+
+msgid ""
+"Like much of Andhra Pradesh, Kuppam celebrates Sankranti, Ugadi, and Dasara with community\n"
+"                    gatherings, alongside local temple festivals (jatras) that draw residents from surrounding\n"
+"                    villages for processions, fairs, and shared meals."
+msgstr ""
+"ಆಂಧ್ರಪ್ರದೇಶದ ಹೆಚ್ಚಿನ ಭಾಗದಂತೆ, ಕುಪ್ಪಂ ಸಂಕ್ರಾಂತಿ, ಯುಗಾದಿ ಮತ್ತು ದಸರಾವನ್ನು ಸಮುದಾಯದೊಂದಿಗೆ ಆಚರಿಸುತ್ತದೆ\n"
+"                    ಸುತ್ತಮುತ್ತಲಿನ ನಿವಾಸಿಗಳನ್ನು ಸೆಳೆಯುವ ಸ್ಥಳೀಯ ದೇವಸ್ಥಾನದ ಉತ್ಸವಗಳ (ಜಾತ್ರಾ) ಜೊತೆಗೆ ಸಭೆಗಳು\n"
+"                    ಮೆರವಣಿಗೆಗಳು, ಜಾತ್ರೆಗಳು ಮತ್ತು ಹಂಚಿನ ಊಟಕ್ಕಾಗಿ ಹಳ್ಳಿಗಳು."
+
+msgid "Likes"
+msgstr "ಇಷ್ಟಗಳು"
+
+msgid "Likes / Reactions"
+msgstr "ಇಷ್ಟಗಳು / ಪ್ರತಿಕ್ರಿಯೆಗಳು"
+
+msgid "Listing"
+msgstr "ಪಟ್ಟಿ ಮಾಡುವುದು"
+
+msgid "Listing Approvals"
+msgstr "ಪಟ್ಟಿ ಅನುಮೋದನೆಗಳು"
+
+msgid "Listing pagination"
+msgstr "ಪಟ್ಟಿ ಪುಟ ವಿನ್ಯಾಸ"
+
+msgid "Listings"
+msgstr "ಪಟ್ಟಿಗಳು"
+
+msgid "Listings awaiting a decision will show up here."
+msgstr "ನಿರ್ಧಾರಕ್ಕಾಗಿ ಕಾಯುತ್ತಿರುವ ಪಟ್ಟಿಗಳನ್ನು ಇಲ್ಲಿ ತೋರಿಸಲಾಗುತ್ತದೆ."
+
+msgid "Loading…"
+msgstr "ಲೋಡ್ ಆಗುತ್ತಿದೆ..."
+
+msgid "Local Landscape View"
+msgstr "ಸ್ಥಳೀಯ ಭೂದೃಶ್ಯ ನೋಟ"
+
+msgid "Local Nayaka & Zamindari Rule"
+msgstr "ಸ್ಥಳೀಯ ನಾಯಕ & ಜಮೀನ್ದಾರಿ ನಿಯಮ"
+
+msgid "Local festival celebration in Kuppam"
+msgstr "ಕುಪ್ಪಂನಲ್ಲಿ ಸ್ಥಳೀಯ ಹಬ್ಬ ಆಚರಣೆ"
+
+msgid ""
+"Local markets built around tomato and produce trading remain a defining part of Kuppam's\n"
+"                    economic identity, even as education and services have added new dimensions to the local economy."
+msgstr ""
+"ಟೊಮೇಟೊ ಮತ್ತು ಉತ್ಪನ್ನಗಳ ಸುತ್ತಲೂ ನಿರ್ಮಿಸಲಾದ ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆಗಳು ಕುಪ್ಪಂನ ನಿರ್ಣಾಯಕ ಭಾಗವಾಗಿ ಉಳಿದಿವೆ\n"
+"                    ಶಿಕ್ಷಣ ಮತ್ತು ಸೇವೆಗಳು ಸ್ಥಳೀಯ ಆರ್ಥಿಕತೆಗೆ ಹೊಸ ಆಯಾಮಗಳನ್ನು ಸೇರಿಸಿದಂತೆಯೇ ಆರ್ಥಿಕ ಗುರುತು."
+
+msgid ""
+"Local oral histories may offer more specific accounts of the name's origin — an area where\n"
+"                    community knowledge can meaningfully add to this page over time."
+msgstr ""
+"ಸ್ಥಳೀಯ ಮೌಖಿಕ ಇತಿಹಾಸಗಳು ಹೆಸರಿನ ಮೂಲದ ಬಗ್ಗೆ ಹೆಚ್ಚು ನಿರ್ದಿಷ್ಟ ಖಾತೆಗಳನ್ನು ನೀಡಬಹುದು - ಒಂದು ಪ್ರದೇಶ\n"
+"                    ಸಮುದಾಯ ಜ್ಞಾನವು ಕಾಲಾನಂತರದಲ್ಲಿ ಈ ಪುಟಕ್ಕೆ ಅರ್ಥಪೂರ್ಣವಾಗಿ ಸೇರಿಸಬಹುದು."
+
+msgid "Location"
+msgstr "ಸ್ಥಳ"
+
+msgid "Logout"
+msgstr "ಲಾಗ್ಔಟ್"
+
+msgid "Madras Presidency & the Railway"
+msgstr "ಮದ್ರಾಸ್ ಪ್ರೆಸಿಡೆನ್ಸಿ ಮತ್ತು ರೈಲ್ವೆ"
+
+msgid ""
+"Madras Railway expansion later reaches Kuppam, connecting it to the wider "
+"region."
+msgstr ""
+"ಮದ್ರಾಸ್ ರೈಲ್ವೆ ವಿಸ್ತರಣೆಯು ನಂತರ ಕುಪ್ಪಂ ಅನ್ನು ತಲುಪುತ್ತದೆ, ಇದು ವಿಶಾಲ ಪ್ರದೇಶಕ್ಕೆ"
+" ಸಂಪರ್ಕ ಕಲ್ಪಿಸುತ್ತದೆ."
+
+msgid "Manage Categories"
+msgstr "ವರ್ಗಗಳನ್ನು ನಿರ್ವಹಿಸಿ"
+
+msgid "Manage Users"
+msgstr "ಬಳಕೆದಾರರನ್ನು ನಿರ್ವಹಿಸಿ"
+
+msgid "Manage every listing across all categories from one place."
+msgstr "ಒಂದೇ ಸ್ಥಳದಿಂದ ಎಲ್ಲಾ ವರ್ಗಗಳಾದ್ಯಂತ ಪ್ರತಿ ಪಟ್ಟಿಯನ್ನು ನಿರ್ವಹಿಸಿ."
+
+msgid "Manager Dashboard"
+msgstr "ಮ್ಯಾನೇಜರ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+
+msgid "Manager Workspace"
+msgstr "ಮ್ಯಾನೇಜರ್ ಕಾರ್ಯಕ್ಷೇತ್ರ"
+
+msgid "Manufacturing"
+msgstr "ತಯಾರಿಕೆ"
+
+msgid "Map of Kuppam assembly constituency mandals"
+msgstr "ಕುಪ್ಪಂ ವಿಧಾನಸಭಾ ಕ್ಷೇತ್ರದ ಮಂಡಲಗಳ ನಕ್ಷೆ"
+
+msgid "Mark Read"
+msgstr "ಮಾರ್ಕ್ ಓದಿ"
+
+msgid "Mark Unread"
+msgstr "ಓದದಿರುವುದನ್ನು ಗುರುತಿಸಿ"
+
+msgid "Mark all as read"
+msgstr "ಎಲ್ಲವನ್ನೂ ಓದಿದೆ ಎಂದು ಗುರುತಿಸಿ"
+
+msgid "Mark as Featured"
+msgstr "ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದಂತೆ ಗುರುತಿಸಿ"
+
+msgid "Mark read"
+msgstr "ಮಾರ್ಕ್ ಓದಿದೆ"
+
+msgid "Medieval History"
+msgstr "ಮಧ್ಯಕಾಲೀನ ಇತಿಹಾಸ"
+
+msgid "Medieval Period"
+msgstr "ಮಧ್ಯಕಾಲೀನ ಅವಧಿ"
+
+msgid "Member Since"
+msgstr "ರಿಂದ ಸದಸ್ಯ"
+
+msgid "Message"
+msgstr "ಸಂದೇಶ"
+
+msgid "Mission"
+msgstr "ಮಿಷನ್"
+
+msgid "Mobile Number"
+msgstr "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ"
+
+msgid "Mobile-Friendly Design"
+msgstr "ಮೊಬೈಲ್ ಸ್ನೇಹಿ ವಿನ್ಯಾಸ"
+
+msgid "Moderation"
+msgstr "ಮಿತಗೊಳಿಸುವಿಕೆ"
+
+msgid "Moderation & Engagement"
+msgstr "ಮಾಡರೇಶನ್ ಮತ್ತು ಎಂಗೇಜ್‌ಮೆಂಟ್"
+
+msgid "Moderation Queue"
+msgstr "ಮಾಡರೇಶನ್ ಕ್ಯೂ"
+
+msgid "Modern & Responsive"
+msgstr "ಆಧುನಿಕ ಮತ್ತು ರೆಸ್ಪಾನ್ಸಿವ್"
+
+msgid ""
+"More glimpses of the town, its university, and the hills around it — tap any"
+" photo to enlarge"
+msgstr ""
+"ಪಟ್ಟಣ, ಅದರ ವಿಶ್ವವಿದ್ಯಾನಿಲಯ ಮತ್ತು ಅದರ ಸುತ್ತಲಿನ ಬೆಟ್ಟಗಳ ಹೆಚ್ಚಿನ ನೋಟಗಳು - "
+"ದೊಡ್ಡದಾಗಿಸಲು ಯಾವುದೇ ಫೋಟೋವನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ"
+
+msgid "Most liked"
+msgstr "ಹೆಚ್ಚು ಇಷ್ಟವಾಯಿತು"
+
+msgid "Most viewed"
+msgstr "ಹೆಚ್ಚು ವೀಕ್ಷಿಸಲಾಗಿದೆ"
+
+msgid "My Account"
+msgstr "ನನ್ನ ಖಾತೆ"
+
+msgid "My Dashboard"
+msgstr "ನನ್ನ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+
+msgid "My Favorites"
+msgstr "ನನ್ನ ಮೆಚ್ಚಿನವುಗಳು"
+
+msgid "My Listings"
+msgstr "ನನ್ನ ಪಟ್ಟಿಗಳು"
+
+msgid "My Listings by Status"
+msgstr "ಸ್ಥಿತಿಯ ಮೂಲಕ ನನ್ನ ಪಟ್ಟಿಗಳು"
+
+msgid "My Managed Categories"
+msgstr "ನನ್ನ ನಿರ್ವಹಿಸಿದ ವರ್ಗಗಳು"
+
+msgid "My Profile"
+msgstr "ನನ್ನ ಪ್ರೊಫೈಲ್"
+
+msgid "My Workspace"
+msgstr "ನನ್ನ ಕಾರ್ಯಕ್ಷೇತ್ರ"
+
+msgid "N. Chandrababu Naidu & Nara Bhuvaneswari"
+msgstr "N. Chandrababu Naidu & Nara Bhuvaneswari"
+
+msgid "N. Chandrababu Naidu and Nara Bhuvaneswari"
+msgstr "N. Chandrababu Naidu and Nara Bhuvaneswari"
+
+msgid ""
+"N. Chandrababu Naidu, an eight-term MLA who has represented Kuppam continuously since 1989, is\n"
+"                    closely associated with the town's rise as an education and civic hub — including the founding\n"
+"                    of Dravidian University in 1997, Kuppam Engineering College, and the Kuppam Area Development\n"
+"                    Authority (KADA), which has driven local roads, drinking water, and infrastructure projects over\n"
+"                    the years."
+msgstr ""
+"1989 ರಿಂದ ನಿರಂತರವಾಗಿ ಕುಪ್ಪಂ ಅನ್ನು ಪ್ರತಿನಿಧಿಸಿರುವ ಎನ್. ಚಂದ್ರಬಾಬು ನಾಯ್ಡು ಅವರು ಎಂಟು ಬಾರಿ ಶಾಸಕರಾಗಿದ್ದಾರೆ.\n"
+"                    ಶಿಕ್ಷಣ ಮತ್ತು ನಾಗರಿಕ ಕೇಂದ್ರವಾಗಿ ಪಟ್ಟಣದ ಏರಿಕೆಯೊಂದಿಗೆ ನಿಕಟ ಸಂಬಂಧ ಹೊಂದಿದೆ - ಸ್ಥಾಪನೆ ಸೇರಿದಂತೆ\n"
+"                    1997 ರಲ್ಲಿ ದ್ರಾವಿಡ ವಿಶ್ವವಿದ್ಯಾನಿಲಯ, ಕುಪ್ಪಂ ಇಂಜಿನಿಯರಿಂಗ್ ಕಾಲೇಜು, ಮತ್ತು ಕುಪ್ಪಂ ಪ್ರದೇಶ ಅಭಿವೃದ್ಧಿ\n"
+"                    ಸ್ಥಳೀಯ ರಸ್ತೆಗಳು, ಕುಡಿಯುವ ನೀರು ಮತ್ತು ಮೂಲಸೌಕರ್ಯ ಯೋಜನೆಗಳಿಗೆ ಚಾಲನೆ ನೀಡಿದ ಪ್ರಾಧಿಕಾರ (ಕಾಡಾ),\n"
+"                    ವರ್ಷಗಳು."
+
+msgid "Name"
+msgstr "ಹೆಸರು"
+
+msgid ""
+"Need help finding a business, job or property in Kuppam? Chat with us on "
+"WhatsApp."
+msgstr ""
+"ಕುಪ್ಪಂನಲ್ಲಿ ವ್ಯಾಪಾರ, ಉದ್ಯೋಗ ಅಥವಾ ಆಸ್ತಿಯನ್ನು ಹುಡುಕಲು ಸಹಾಯ ಬೇಕೇ? WhatsApp "
+"ನಲ್ಲಿ ನಮ್ಮೊಂದಿಗೆ ಚಾಟ್ ಮಾಡಿ."
+
+msgid "New"
+msgstr "ಹೊಸದು"
+
+msgid "New Post"
+msgstr "ಹೊಸ ಪೋಸ್ಟ್"
+
+msgid "New {{ cat }}"
+msgstr "ಹೊಸ {{ cat }}"
+
+msgid "Newest first"
+msgstr "ಮೊದಲು ಹೊಸತು"
+
+msgid "News"
+msgstr "ಸುದ್ದಿ"
+
+msgid "Next"
+msgstr "ಮುಂದೆ"
+
+msgid "Next page"
+msgstr "ಮುಂದಿನ ಪುಟ"
+
+msgid "No businesses found"
+msgstr "ಯಾವುದೇ ವ್ಯವಹಾರಗಳು ಕಂಡುಬಂದಿಲ್ಲ"
+
+msgid "No categories granted yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ವರ್ಗಗಳನ್ನು ನೀಡಲಾಗಿಲ್ಲ."
+
+msgid "No categories yet"
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ವರ್ಗಗಳಿಲ್ಲ"
+
+msgid ""
+"No categories yet — add one from <a href=\"{{ manage_categories_url "
+"}}\">Manage Categories</a> first."
+msgstr ""
+"ಇನ್ನೂ ಯಾವುದೇ ವರ್ಗಗಳಿಲ್ಲ - ಮೊದಲು <a href=\"{{ manage_categories_url "
+"}}\">ವರ್ಗಗಳನ್ನು ನಿರ್ವಹಿಸಿ</a> ನಿಂದ ಒಂದನ್ನು ಸೇರಿಸಿ."
+
+msgid "No comments yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಕಾಮೆಂಟ್‌ಗಳಿಲ್ಲ."
+
+msgid "No contact messages found."
+msgstr "ಯಾವುದೇ ಸಂಪರ್ಕ ಸಂದೇಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ."
+
+msgid "No further details have been added for this project yet."
+msgstr "ಈ ಯೋಜನೆಗೆ ಇನ್ನೂ ಹೆಚ್ಚಿನ ವಿವರಗಳನ್ನು ಸೇರಿಸಲಾಗಿಲ್ಲ."
+
+msgid "No gallery images yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಗ್ಯಾಲರಿ ಚಿತ್ರಗಳಿಲ್ಲ."
+
+msgid "No gallery photos or videos yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಗ್ಯಾಲರಿ ಫೋಟೋಗಳು ಅಥವಾ ವೀಡಿಯೊಗಳಿಲ್ಲ."
+
+msgid "No gallery videos yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಗ್ಯಾಲರಿ ವೀಡಿಯೊಗಳಿಲ್ಲ."
+
+msgid "No listings match your search/filter. Try different keywords or types."
+msgstr ""
+"ಯಾವುದೇ ಪಟ್ಟಿಗಳು ನಿಮ್ಮ ಹುಡುಕಾಟ/ಫಿಲ್ಟರ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ. ವಿಭಿನ್ನ "
+"ಕೀವರ್ಡ್‌ಗಳು ಅಥವಾ ಪ್ರಕಾರಗಳನ್ನು ಪ್ರಯತ್ನಿಸಿ."
+
+msgid "No listings yet"
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಪಟ್ಟಿಗಳಿಲ್ಲ"
+
+msgid "No login activity recorded."
+msgstr "ಯಾವುದೇ ಲಾಗಿನ್ ಚಟುವಟಿಕೆಯನ್ನು ದಾಖಲಿಸಲಾಗಿಲ್ಲ."
+
+msgid "No login activity yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಲಾಗಿನ್ ಚಟುವಟಿಕೆ ಇಲ್ಲ."
+
+msgid "No messages yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಸಂದೇಶಗಳಿಲ್ಲ."
+
+msgid "No notifications yet"
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ"
+
+msgid "No posts match these filters."
+msgstr "ಯಾವುದೇ ಪೋಸ್ಟ್‌ಗಳು ಈ ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ."
+
+msgid "No properties found"
+msgstr "ಯಾವುದೇ ಗುಣಲಕ್ಷಣಗಳು ಕಂಡುಬಂದಿಲ್ಲ"
+
+msgid "No requests found"
+msgstr "ಯಾವುದೇ ವಿನಂತಿಗಳು ಕಂಡುಬಂದಿಲ್ಲ"
+
+msgid "No requests yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ವಿನಂತಿಗಳಿಲ್ಲ."
+
+msgid "No reviews yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ವಿಮರ್ಶೆಗಳಿಲ್ಲ."
+
+msgid "No seasonal effect"
+msgstr "ಋತುಮಾನದ ಪರಿಣಾಮವಿಲ್ಲ"
+
+msgid "No subcategories yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಉಪವರ್ಗಗಳಿಲ್ಲ."
+
+msgid "No upcoming projects found"
+msgstr "ಯಾವುದೇ ಮುಂಬರುವ ಯೋಜನೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ"
+
+msgid "No users found."
+msgstr "ಯಾವುದೇ ಬಳಕೆದಾರರು ಕಂಡುಬಂದಿಲ್ಲ."
+
+msgid "No {{ label }} found"
+msgstr "ಯಾವುದೇ {{ label }} ಕಂಡುಬಂದಿಲ್ಲ"
+
+msgid "Note (rejection reason / requested changes)"
+msgstr "ಗಮನಿಸಿ (ನಿರಾಕರಣೆ ಕಾರಣ / ವಿನಂತಿಸಿದ ಬದಲಾವಣೆಗಳು)"
+
+msgid "Nothing to review"
+msgstr "ಪರಿಶೀಲಿಸಲು ಏನೂ ಇಲ್ಲ"
+
+msgid "Notifications"
+msgstr "ಅಧಿಸೂಚನೆಗಳು"
+
+msgid "Oldest first"
+msgstr "ಮೊದಲನೆಯದು ಹಳೆಯದು"
+
+msgid "Once approved, listings become publicly visible to everyone."
+msgstr "ಒಮ್ಮೆ ಅನುಮೋದಿಸಿದ ನಂತರ, ಪಟ್ಟಿಗಳು ಎಲ್ಲರಿಗೂ ಸಾರ್ವಜನಿಕವಾಗಿ ಗೋಚರಿಸುತ್ತವೆ."
+
+msgid ""
+"One clean interface for local listings, real estate, and upcoming projects. "
+"Tap to view image galleries, access Google links instantly, and share real "
+"community feedback."
+msgstr ""
+"ಸ್ಥಳೀಯ ಪಟ್ಟಿಗಳು, ರಿಯಲ್ ಎಸ್ಟೇಟ್ ಮತ್ತು ಮುಂಬರುವ ಯೋಜನೆಗಳಿಗಾಗಿ ಒಂದು ಕ್ಲೀನ್ "
+"ಇಂಟರ್ಫೇಸ್. ಚಿತ್ರ ಗ್ಯಾಲರಿಗಳನ್ನು ವೀಕ್ಷಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ, ತಕ್ಷಣವೇ Google "
+"ಲಿಂಕ್‌ಗಳನ್ನು ಪ್ರವೇಶಿಸಿ ಮತ್ತು ನೈಜ ಸಮುದಾಯ ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಹಂಚಿಕೊಳ್ಳಿ."
+
+msgid "OneTownCity Location"
+msgstr "OneTownCity ಸ್ಥಳ"
+
+msgid "OneTownCity News"
+msgstr "OneTownCity News"
+
+msgid ""
+"OneTownCity is a comprehensive local information platform designed to connect the people\n"
+"                    of Kuppam with businesses, services, institutions, and opportunities. Our goal is to\n"
+"                    provide a single, trusted destination where residents, visitors, students, and business\n"
+"                    owners can easily discover everything Kuppam has to offer."
+msgstr ""
+"OneTownCity ಜನರನ್ನು ಸಂಪರ್ಕಿಸಲು ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ಸಮಗ್ರ ಸ್ಥಳೀಯ ಮಾಹಿತಿ ವೇದಿಕೆಯಾಗಿದೆ\n"
+"                    ವ್ಯಾಪಾರಗಳು, ಸೇವೆಗಳು, ಸಂಸ್ಥೆಗಳು ಮತ್ತು ಅವಕಾಶಗಳೊಂದಿಗೆ ಕುಪ್ಪಂ. ನಮ್ಮ ಗುರಿಯಾಗಿದೆ\n"
+"                    ನಿವಾಸಿಗಳು, ಸಂದರ್ಶಕರು, ವಿದ್ಯಾರ್ಥಿಗಳು ಮತ್ತು ವ್ಯಾಪಾರ ಮಾಡುವ ಏಕೈಕ, ವಿಶ್ವಾಸಾರ್ಹ ಗಮ್ಯಸ್ಥಾನವನ್ನು ಒದಗಿಸಿ\n"
+"                    ಕುಪ್ಪಂ ಒದಗಿಸುವ ಎಲ್ಲವನ್ನೂ ಮಾಲೀಕರು ಸುಲಭವಾಗಿ ಕಂಡುಹಿಡಿಯಬಹುದು."
+
+msgid ""
+"OneTownCity is developed by a passionate team dedicated to creating a better"
+" digital experience for the people of Kuppam."
+msgstr ""
+"ಒನ್‌ಟೌನ್‌ಸಿಟಿಯನ್ನು ಕುಪ್ಪಂನ ಜನರಿಗೆ ಉತ್ತಮ ಡಿಜಿಟಲ್ ಅನುಭವವನ್ನು ಸೃಷ್ಟಿಸಲು "
+"ಮೀಸಲಾಗಿರುವ ಭಾವೋದ್ರಿಕ್ತ ತಂಡವು ಅಭಿವೃದ್ಧಿಪಡಿಸಿದೆ."
+
+msgid ""
+"OneTownCity itself — this directory — is part of that present-day story: a local information\n"
+"                    portal built for the town's businesses, students, job-seekers and residents."
+msgstr ""
+"OneTownCity ಸ್ವತಃ — ಈ ಡೈರೆಕ್ಟರಿ — ಆ ಇಂದಿನ ಕಥೆಯ ಭಾಗವಾಗಿದೆ: ಒಂದು ಸ್ಥಳೀಯ ಮಾಹಿತಿ\n"
+"                    ಪಟ್ಟಣದ ವ್ಯಾಪಾರಗಳು, ವಿದ್ಯಾರ್ಥಿಗಳು, ಉದ್ಯೋಗಾಕಾಂಕ್ಷಿಗಳು ಮತ್ತು ನಿವಾಸಿಗಳಿಗೆ ಪೋರ್ಟಲ್ ನಿರ್ಮಿಸಲಾಗಿದೆ."
+
+msgid "OneTownCity. All rights reserved. Powered by CraftLanee."
+msgstr ""
+"ಒನ್‌ಟೌನ್‌ಸಿಟಿ. ಎಲ್ಲಾ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ. CraftLanee ನಿಂದ "
+"ನಡೆಸಲ್ಪಡುತ್ತಿದೆ."
+
+msgid "Ongoing"
+msgstr "ಚಾಲ್ತಿಯಲ್ಲಿದೆ"
+
+msgid "Open Jobs"
+msgstr "ಉದ್ಯೋಗಗಳನ್ನು ತೆರೆಯಿರಿ"
+
+msgid "Open dashboard menu"
+msgstr "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಮೆನು ತೆರೆಯಿರಿ"
+
+msgid "Open in Google Maps"
+msgstr "Google Maps ನಲ್ಲಿ ತೆರೆಯಿರಿ"
+
+msgid "Open in Maps"
+msgstr "ನಕ್ಷೆಗಳಲ್ಲಿ ತೆರೆಯಿರಿ"
+
+msgid "Open menu"
+msgstr "ಮೆನು ತೆರೆಯಿರಿ"
+
+msgid "Optimized for speed with ongoing technical support."
+msgstr "ನಡೆಯುತ್ತಿರುವ ತಾಂತ್ರಿಕ ಬೆಂಬಲದೊಂದಿಗೆ ವೇಗವನ್ನು ಹೊಂದುವಂತೆ ಮಾಡಲಾಗಿದೆ."
+
+msgid "Order"
+msgstr "ಆದೇಶ"
+
+msgid "Origin of the Name \"Kuppam\""
+msgstr "\"ಕುಪ್ಪಂ\" ಹೆಸರಿನ ಮೂಲ"
+
+msgid "Our <span class=\"text-primary\">Commitment</span>"
+msgstr "ನಮ್ಮ <span class=\"text-primary\">ಬದ್ಧತೆ</span>"
+
+msgid "Our <span class=\"text-primary\">Team</span>"
+msgstr "ನಮ್ಮ <span class=\"text-primary\">ತಂಡ</span>"
+
+msgid "Our Promise"
+msgstr "ನಮ್ಮ ಭರವಸೆ"
+
+msgid "Our Services"
+msgstr "ನಮ್ಮ ಸೇವೆಗಳು"
+
+msgid ""
+"Over the last few decades, Kuppam has seen sustained investment in roads, drinking water,\n"
+"                    power supply, and public buildings, alongside hands-on community learning initiatives that\n"
+"                    brought interactive science and skill-building facilities to local children and residents."
+msgstr ""
+"ಕಳೆದ ಕೆಲವು ದಶಕಗಳಲ್ಲಿ, ಕುಪ್ಪಂ ರಸ್ತೆಗಳು, ಕುಡಿಯುವ ನೀರು, ನಿರಂತರ ಹೂಡಿಕೆಯನ್ನು ಕಂಡಿದೆ.\n"
+"                    ವಿದ್ಯುತ್ ಸರಬರಾಜು, ಮತ್ತು ಸಾರ್ವಜನಿಕ ಕಟ್ಟಡಗಳು, ಜೊತೆಗೆ ಸಮುದಾಯ ಕಲಿಕೆಯ ಉಪಕ್ರಮಗಳು\n"
+"                    ಸ್ಥಳೀಯ ಮಕ್ಕಳು ಮತ್ತು ನಿವಾಸಿಗಳಿಗೆ ಸಂವಾದಾತ್ಮಕ ವಿಜ್ಞಾನ ಮತ್ತು ಕೌಶಲ್ಯ-ನಿರ್ಮಾಣ ಸೌಲಭ್ಯಗಳನ್ನು ತಂದರು."
+
+msgid "Overview"
+msgstr "ಅವಲೋಕನ"
+
+msgid "PDF"
+msgstr "PDF"
+
+msgid ""
+"PES Medical College campus, Kuppam — aerial photo credited to \"Kuppam "
+"Diaries\"; source and licence unconfirmed, used here for "
+"informational/editorial purposes rather than a generic stock photo."
+msgstr ""
+"PES ವೈದ್ಯಕೀಯ ಕಾಲೇಜು ಆವರಣ, ಕುಪ್ಪಂ — ವೈಮಾನಿಕ ಫೋಟೋ \"ಕುಪ್ಪಂ ಡೈರೀಸ್\" ಗೆ ಮನ್ನಣೆ;"
+" ಮೂಲ ಮತ್ತು ಪರವಾನಗಿಯನ್ನು ದೃಢೀಕರಿಸಲಾಗಿಲ್ಲ, ಸಾಮಾನ್ಯ ಸ್ಟಾಕ್ ಫೋಟೋ ಬದಲಿಗೆ "
+"ಮಾಹಿತಿ/ಸಂಪಾದಕೀಯ ಉದ್ದೇಶಗಳಿಗಾಗಿ ಇಲ್ಲಿ ಬಳಸಲಾಗಿದೆ."
+
+msgid "Page {{ current }} of {{ total }}"
+msgstr "{{ total }} ರಲ್ಲಿ {{ current }} ಪುಟ"
+
+msgid "Page {{ num }} of {{ total }}"
+msgstr "{{ total }} ರಲ್ಲಿ {{ num }} ಪುಟ"
+
+msgid "Palette"
+msgstr "ಪ್ಯಾಲೆಟ್"
+
+msgid "Past Event"
+msgstr "ಹಿಂದಿನ ಈವೆಂಟ್"
+
+msgid "Pending"
+msgstr "ಬಾಕಿಯಿದೆ"
+
+msgid "Pending Admin Requests"
+msgstr "ಬಾಕಿ ಉಳಿದಿರುವ ನಿರ್ವಾಹಕ ವಿನಂತಿಗಳು"
+
+msgid "Pending Approvals"
+msgstr "ಬಾಕಿ ಉಳಿದಿರುವ ಅನುಮೋದನೆಗಳು"
+
+msgid "Pending Review"
+msgstr "ಬಾಕಿ ಉಳಿದಿರುವ ಪರಿಶೀಲನೆ"
+
+msgid "Permitted Categories"
+msgstr "ಅನುಮತಿಸಲಾದ ವರ್ಗಗಳು"
+
+msgid "Phone"
+msgstr "ಫೋನ್"
+
+msgid "Photo"
+msgstr "ಫೋಟೋ"
+
+msgid "Photo Gallery"
+msgstr "ಫೋಟೋ ಗ್ಯಾಲರಿ"
+
+msgid "Photo credits"
+msgstr "ಫೋಟೋ ಕ್ರೆಡಿಟ್‌ಗಳು"
+
+msgid "Photo credits (Wikimedia Commons contributors)"
+msgstr "ಫೋಟೋ ಕ್ರೆಡಿಟ್‌ಗಳು (ವಿಕಿಮೀಡಿಯಾ ಕಾಮನ್ಸ್ ಕೊಡುಗೆದಾರರು)"
+
+msgid "Photos (jpg/png/webp, ≤8MB each)"
+msgstr "ಫೋಟೋಗಳು (jpg/png/webp, ಪ್ರತಿ ≤8MB)"
+
+msgid "Pick a category above to publish your first one."
+msgstr "ನಿಮ್ಮ ಮೊದಲನೆಯದನ್ನು ಪ್ರಕಟಿಸಲು ಮೇಲಿನ ವರ್ಗವನ್ನು ಆರಿಸಿ."
+
+msgid ""
+"Pick a category to publish a standalone post directly — it goes live "
+"immediately, no approval queue."
+msgstr ""
+"ಸ್ವತಂತ್ರ ಪೋಸ್ಟ್ ಅನ್ನು ನೇರವಾಗಿ ಪ್ರಕಟಿಸಲು ವರ್ಗವನ್ನು ಆರಿಸಿ - ಅದು ತಕ್ಷಣವೇ ಲೈವ್ "
+"ಆಗುತ್ತದೆ, ಯಾವುದೇ ಅನುಮೋದನೆ ಸರದಿಯಿಲ್ಲ."
+
+msgid "Pincode"
+msgstr "ಪಿನ್‌ಕೋಡ್"
+
+msgid "Planned and ongoing civic and infrastructure projects in Kuppam"
+msgstr "ಕುಪ್ಪಂನಲ್ಲಿ ಯೋಜಿತ ಮತ್ತು ನಡೆಯುತ್ತಿರುವ ನಾಗರಿಕ ಮತ್ತು ಮೂಲಸೌಕರ್ಯ ಯೋಜನೆಗಳು"
+
+msgid "Platform activity at a glance"
+msgstr "ಒಂದು ನೋಟದಲ್ಲಿ ವೇದಿಕೆಯ ಚಟುವಟಿಕೆ"
+
+msgid ""
+"Platforms like OneTownCity aim to support that future by making local businesses, jobs,\n"
+"                    services and civic information easier for everyone in the community to find and use."
+msgstr ""
+"ಒನ್‌ಟೌನ್‌ಸಿಟಿಯಂತಹ ಪ್ಲಾಟ್‌ಫಾರ್ಮ್‌ಗಳು ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳು, ಉದ್ಯೋಗಗಳನ್ನು ಮಾಡುವ ಮೂಲಕ ಭವಿಷ್ಯವನ್ನು ಬೆಂಬಲಿಸುವ ಗುರಿಯನ್ನು ಹೊಂದಿವೆ.\n"
+"                    ಸೇವೆಗಳು ಮತ್ತು ನಾಗರಿಕ ಮಾಹಿತಿಯು ಸಮುದಾಯದಲ್ಲಿರುವ ಪ್ರತಿಯೊಬ್ಬರಿಗೂ ಹುಡುಕಲು ಮತ್ತು ಬಳಸಲು ಸುಲಭವಾಗಿದೆ."
+
+msgid "Political Importance"
+msgstr "ರಾಜಕೀಯ ಪ್ರಾಮುಖ್ಯತೆ"
+
+msgid "Post Performance"
+msgstr "ನಂತರದ ಪ್ರದರ್ಶನ"
+
+msgid "Posts"
+msgstr "ಪೋಸ್ಟ್‌ಗಳು"
+
+msgid "Posts pagination"
+msgstr "ಪೋಸ್ಟ್‌ಗಳ ಪುಟ ವಿನ್ಯಾಸ"
+
+msgid "Powered by"
+msgstr "ನಡೆಸಲ್ಪಡುತ್ತಿದೆ"
+
+msgid "Powered by CraftLanee"
+msgstr "CraftLanee ನಿಂದ ನಡೆಸಲ್ಪಡುತ್ತಿದೆ"
+
+msgid "Present"
+msgstr "ಪ್ರಸ್ತುತ"
+
+msgid "Present-Day Kuppam"
+msgstr "ಇಂದಿನ ಕುಪ್ಪಂ"
+
+msgid "Previous"
+msgstr "ಹಿಂದಿನ"
+
+msgid "Previous page"
+msgstr "ಹಿಂದಿನ ಪುಟ"
+
+msgid "Price"
+msgstr "ಬೆಲೆ"
+
+msgid "Privacy Policy"
+msgstr "ಗೌಪ್ಯತೆ ನೀತಿ"
+
+msgid "Profile Photo"
+msgstr "ಪ್ರೊಫೈಲ್ ಫೋಟೋ"
+
+msgid "Projects listing pagination"
+msgstr "ಯೋಜನೆಗಳ ಪಟ್ಟಿ ವಿನ್ಯಾಸ"
+
+msgid ""
+"Promotes OneTownCity, increases community engagement, and helps local "
+"businesses reach more people."
+msgstr ""
+"OneTownCity ಅನ್ನು ಉತ್ತೇಜಿಸುತ್ತದೆ, ಸಮುದಾಯದ ನಿಶ್ಚಿತಾರ್ಥವನ್ನು ಹೆಚ್ಚಿಸುತ್ತದೆ "
+"ಮತ್ತು ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳು ಹೆಚ್ಚು ಜನರನ್ನು ತಲುಪಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ."
+
+msgid "Properties"
+msgstr "ಗುಣಲಕ್ಷಣಗಳು"
+
+msgid "Properties Listed"
+msgstr "ಗುಣಲಕ್ಷಣಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಲಾಗಿದೆ"
+
+msgid "Property listing pagination"
+msgstr "ಆಸ್ತಿ ಪಟ್ಟಿ ಪುಟ ವಿನ್ಯಾಸ"
+
+msgid "Publish"
+msgstr "ಪ್ರಕಟಿಸಿ"
+
+msgid "Published"
+msgstr "ಪ್ರಕಟಿಸಲಾಗಿದೆ"
+
+msgid "Published immediately as Super Admin — no approval step."
+msgstr "ಸೂಪರ್ ನಿರ್ವಾಹಕರಾಗಿ ತಕ್ಷಣವೇ ಪ್ರಕಟಿಸಲಾಗಿದೆ - ಯಾವುದೇ ಅನುಮೋದನೆಯ ಹಂತವಿಲ್ಲ."
+
+msgid "Publishes Into"
+msgstr "ಆಗಿ ಪ್ರಕಟಿಸುತ್ತದೆ"
+
+msgid "Publishes into"
+msgstr "ನಲ್ಲಿ ಪ್ರಕಟಿಸುತ್ತದೆ"
+
+msgid "Quick Links"
+msgstr "ತ್ವರಿತ ಲಿಂಕ್‌ಗಳು"
+
+msgid "Rainy season"
+msgstr "ಮಳೆಗಾಲ"
+
+msgid "Raja K.J.V. Naidu of Kuppam"
+msgstr "ರಾಜಾ ಕೆ.ಜೆ.ವಿ. ಕುಪ್ಪಂನ ನಾಯ್ಡು"
+
+msgid "Raja K.J.V. Naidu of Kuppam, historical portrait"
+msgstr "ರಾಜಾ ಕೆ.ಜೆ.ವಿ. ಕುಪ್ಪಂನ ನಾಯ್ಡು, ಐತಿಹಾಸಿಕ ಭಾವಚಿತ್ರ"
+
+msgid "Rating"
+msgstr "ರೇಟಿಂಗ್"
+
+msgid "Read"
+msgstr "ಓದು"
+
+msgid "Read More"
+msgstr "ಮುಂದೆ ಓದಿ"
+
+msgid "Ready to build your digital presence?"
+msgstr "ನಿಮ್ಮ ಡಿಜಿಟಲ್ ಉಪಸ್ಥಿತಿಯನ್ನು ನಿರ್ಮಿಸಲು ಸಿದ್ಧರಿದ್ದೀರಾ?"
+
+msgid "Real Estate"
+msgstr "ರಿಯಲ್ ಎಸ್ಟೇಟ್"
+
+msgid "Real feedback from the local community."
+msgstr "ಸ್ಥಳೀಯ ಸಮುದಾಯದಿಂದ ನಿಜವಾದ ಪ್ರತಿಕ್ರಿಯೆ."
+
+msgid "Reason (used for reject)"
+msgstr "ಕಾರಣ (ತಿರಸ್ಕರಿಸಲು ಬಳಸಲಾಗುತ್ತದೆ)"
+
+msgid "Reason / requested changes (for reject or changes-requested)"
+msgstr ""
+"ಕಾರಣ / ವಿನಂತಿಸಿದ ಬದಲಾವಣೆಗಳು (ತಿರಸ್ಕರಿಸಲು ಅಥವಾ ಬದಲಾವಣೆಗಳಿಗೆ ವಿನಂತಿಸಲಾಗಿದೆ)"
+
+msgid "Received"
+msgstr "ಸ್ವೀಕರಿಸಲಾಗಿದೆ"
+
+msgid "Recent Activity"
+msgstr "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ"
+
+msgid "Recent Admin Requests"
+msgstr "ಇತ್ತೀಚಿನ ನಿರ್ವಾಹಕ ವಿನಂತಿಗಳು"
+
+msgid "Recent Contact Messages"
+msgstr "ಇತ್ತೀಚಿನ ಸಂಪರ್ಕ ಸಂದೇಶಗಳು"
+
+msgid "Recent Login Activity"
+msgstr "ಇತ್ತೀಚಿನ ಲಾಗಿನ್ ಚಟುವಟಿಕೆ"
+
+msgid "Recent Logins"
+msgstr "ಇತ್ತೀಚಿನ ಲಾಗಿನ್‌ಗಳು"
+
+msgid "Reject"
+msgstr "ತಿರಸ್ಕರಿಸಿ"
+
+msgid "Rejected"
+msgstr "ತಿರಸ್ಕರಿಸಲಾಗಿದೆ"
+
+msgid "Rejected Listings"
+msgstr "ತಿರಸ್ಕರಿಸಿದ ಪಟ್ಟಿಗಳು"
+
+msgid "Request Changes"
+msgstr "ಬದಲಾವಣೆಗಳನ್ನು ವಿನಂತಿಸಿ"
+
+msgid "Requested Categories"
+msgstr "ವಿನಂತಿಸಿದ ವರ್ಗಗಳು"
+
+msgid "Requested Permissions"
+msgstr "ಅನುಮತಿಗಳನ್ನು ಕೋರಲಾಗಿದೆ"
+
+msgid ""
+"Responsible for designing, developing, testing, and maintaining the website "
+"and its features."
+msgstr ""
+"ವೆಬ್‌ಸೈಟ್ ಮತ್ತು ಅದರ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ವಿನ್ಯಾಸಗೊಳಿಸಲು, ಅಭಿವೃದ್ಧಿಪಡಿಸಲು, "
+"ಪರೀಕ್ಷಿಸಲು ಮತ್ತು ನಿರ್ವಹಿಸುವ ಜವಾಬ್ದಾರಿ."
+
+msgid "Restaurants"
+msgstr "ಉಪಹಾರಗೃಹಗಳು"
+
+msgid "Restaurants & Cafés"
+msgstr "ರೆಸ್ಟೋರೆಂಟ್‌ಗಳು ಮತ್ತು ಕೆಫೆಗಳು"
+
+msgid "Retail & E-Commerce"
+msgstr "ಚಿಲ್ಲರೆ & ಇ-ಕಾಮರ್ಸ್"
+
+msgid "Review"
+msgstr "ವಿಮರ್ಶೆ"
+
+msgid "Review & Approval"
+msgstr "ವಿಮರ್ಶೆ ಮತ್ತು ಅನುಮೋದನೆ"
+
+msgid "Review Admin Request"
+msgstr "ನಿರ್ವಾಹಕರ ವಿನಂತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ"
+
+msgid "Review Pending Listings"
+msgstr "ಬಾಕಿ ಇರುವ ಪಟ್ಟಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ"
+
+msgid "Reviews"
+msgstr "ವಿಮರ್ಶೆಗಳು"
+
+msgid "Reviews & Ratings"
+msgstr "ವಿಮರ್ಶೆಗಳು ಮತ್ತು ರೇಟಿಂಗ್‌ಗಳು"
+
+msgid "Reviews ({{ count }})"
+msgstr "ವಿಮರ್ಶೆಗಳು ({{ count }})"
+
+msgid "Reviews / Comments"
+msgstr "ವಿಮರ್ಶೆಗಳು / ಕಾಮೆಂಟ್‌ಗಳು"
+
+msgid ""
+"Ringed by hills and blessed with a mild climate, it has grown from a farming centre into a hub\n"
+"                    for higher education and produce trade — anchored by its university and engineering colleges —\n"
+"                    while holding on to a close-knit, small-town character and steadily improving road connectivity."
+msgstr ""
+"ಬೆಟ್ಟಗಳಿಂದ ಸುತ್ತುವರಿಯಲ್ಪಟ್ಟಿದೆ ಮತ್ತು ಸೌಮ್ಯವಾದ ಹವಾಮಾನದಿಂದ ಆಶೀರ್ವದಿಸಲ್ಪಟ್ಟಿದೆ, ಇದು ಕೃಷಿ ಕೇಂದ್ರದಿಂದ ಕೇಂದ್ರವಾಗಿ ಬೆಳೆದಿದೆ\n"
+"                    ಉನ್ನತ ಶಿಕ್ಷಣ ಮತ್ತು ಉತ್ಪನ್ನ ವ್ಯಾಪಾರಕ್ಕಾಗಿ - ಅದರ ವಿಶ್ವವಿದ್ಯಾನಿಲಯ ಮತ್ತು ಎಂಜಿನಿಯರಿಂಗ್ ಕಾಲೇಜುಗಳಿಂದ ಲಂಗರು ಹಾಕಲಾಗಿದೆ -\n"
+"                    ನಿಕಟ-ಹೆಣೆದ, ಸಣ್ಣ-ಪಟ್ಟಣದ ಪಾತ್ರವನ್ನು ಹಿಡಿದಿಟ್ಟುಕೊಳ್ಳುವಾಗ ಮತ್ತು ರಸ್ತೆ ಸಂಪರ್ಕವನ್ನು ಸ್ಥಿರವಾಗಿ ಸುಧಾರಿಸುತ್ತದೆ."
+
+msgid "Role"
+msgstr "ಪಾತ್ರ"
+
+msgid "SEO Optimization"
+msgstr "ಎಸ್ಇಒ ಆಪ್ಟಿಮೈಸೇಶನ್"
+
+msgid "SEO-Friendly"
+msgstr "ಎಸ್ಇಒ ಸ್ನೇಹಿ"
+
+msgid "Salary"
+msgstr "ಸಂಬಳ"
+
+msgid "Salary not disclosed"
+msgstr "ವೇತನವನ್ನು ಬಹಿರಂಗಪಡಿಸಲಾಗಿಲ್ಲ"
+
+msgid ""
+"Satavahana, Pallava, Chola and Vijayanagara influence shape the wider "
+"region."
+msgstr ""
+"ಶಾತವಾಹನ, ಪಲ್ಲವ, ಚೋಳ ಮತ್ತು ವಿಜಯನಗರ ಪ್ರಭಾವವು ವಿಶಾಲ ಪ್ರದೇಶವನ್ನು ರೂಪಿಸುತ್ತದೆ."
+
+msgid "Save Category"
+msgstr "ವರ್ಗವನ್ನು ಉಳಿಸಿ"
+
+msgid "Save Changes"
+msgstr "ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ"
+
+msgid "Save Site Theme"
+msgstr "ಸೈಟ್ ಥೀಮ್ ಉಳಿಸಿ"
+
+msgid "Save to favorites"
+msgstr "ಮೆಚ್ಚಿನವುಗಳಿಗೆ ಉಳಿಸಿ"
+
+msgid "Saved Favorites"
+msgstr "ಮೆಚ್ಚಿನವುಗಳನ್ನು ಉಳಿಸಲಾಗಿದೆ"
+
+msgid "School & College Management Systems"
+msgstr "ಶಾಲೆ ಮತ್ತು ಕಾಲೇಜು ನಿರ್ವಹಣಾ ವ್ಯವಸ್ಥೆಗಳು"
+
+msgid "Schools"
+msgstr "ಶಾಲೆಗಳು"
+
+msgid "Scroll down"
+msgstr "ಕೆಳಗೆ ಸ್ಕ್ರಾಲ್ ಮಾಡಿ"
+
+msgid "Search"
+msgstr "ಹುಡುಕು"
+
+msgid "Search & Filter"
+msgstr "ಹುಡುಕಾಟ ಮತ್ತು ಫಿಲ್ಟರ್"
+
+msgid "Search Projects"
+msgstr "ಯೋಜನೆಗಳನ್ನು ಹುಡುಕಿ"
+
+msgid "Search by business name..."
+msgstr "ವ್ಯಾಪಾರದ ಹೆಸರಿನ ಮೂಲಕ ಹುಡುಕಿ..."
+
+msgid "Search by name or address..."
+msgstr "ಹೆಸರು ಅಥವಾ ವಿಳಾಸದ ಮೂಲಕ ಹುಡುಕಿ..."
+
+msgid "Search by name, email, subject, message"
+msgstr "ಹೆಸರು, ಇಮೇಲ್, ವಿಷಯ, ಸಂದೇಶದ ಮೂಲಕ ಹುಡುಕಿ"
+
+msgid "Search by name, email, username"
+msgstr "ಹೆಸರು, ಇಮೇಲ್, ಬಳಕೆದಾರಹೆಸರು ಮೂಲಕ ಹುಡುಕಿ"
+
+msgid "Search by title or location..."
+msgstr "ಶೀರ್ಷಿಕೆ ಅಥವಾ ಸ್ಥಳದ ಮೂಲಕ ಹುಡುಕಿ..."
+
+msgid "Search projects by title or location..."
+msgstr "ಶೀರ್ಷಿಕೆ ಅಥವಾ ಸ್ಥಳದ ಮೂಲಕ ಯೋಜನೆಗಳನ್ನು ಹುಡುಕಿ..."
+
+msgid "Search shops, jobs, restaurants..."
+msgstr "ಅಂಗಡಿಗಳು, ಉದ್ಯೋಗಗಳು, ರೆಸ್ಟೋರೆಂಟ್‌ಗಳನ್ನು ಹುಡುಕಿ..."
+
+msgid "Search {{ label }}"
+msgstr "{{ label }} ಹುಡುಕಿ"
+
+msgid ""
+"Search, view, rate, review, comment on, and share listings with others."
+msgstr ""
+"ಪಟ್ಟಿಗಳನ್ನು ಹುಡುಕಿ, ವೀಕ್ಷಿಸಿ, ರೇಟ್ ಮಾಡಿ, ವಿಮರ್ಶೆ ಮಾಡಿ, ಕಾಮೆಂಟ್ ಮಾಡಿ ಮತ್ತು "
+"ಇತರರೊಂದಿಗೆ ಪಟ್ಟಿಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ."
+
+msgid "Seasonal Theme"
+msgstr "ಕಾಲೋಚಿತ ಥೀಮ್"
+
+msgid "Seasonal background theme"
+msgstr "ಕಾಲೋಚಿತ ಹಿನ್ನೆಲೆ ಥೀಮ್"
+
+msgid "Secure Google Sign-In"
+msgstr "ಸುರಕ್ಷಿತ Google ಸೈನ್-ಇನ್"
+
+msgid ""
+"See the Gallery section below for more scenic views of the hills and "
+"surrounding countryside."
+msgstr ""
+"ಬೆಟ್ಟಗಳು ಮತ್ತು ಸುತ್ತಮುತ್ತಲಿನ ಗ್ರಾಮಾಂತರದ ಹೆಚ್ಚು ರಮಣೀಯ ನೋಟಗಳಿಗಾಗಿ ಕೆಳಗಿನ "
+"ಗ್ಯಾಲರಿ ವಿಭಾಗವನ್ನು ನೋಡಿ."
+
+msgid "Select users to apply bulk actions"
+msgstr "ಬೃಹತ್ ಕ್ರಿಯೆಗಳನ್ನು ಅನ್ವಯಿಸಲು ಬಳಕೆದಾರರನ್ನು ಆಯ್ಕೆಮಾಡಿ"
+
+msgid "Send Message"
+msgstr "ಸಂದೇಶ ಕಳುಹಿಸಿ"
+
+msgid "Send Us a Message"
+msgstr "ನಮಗೆ ಸಂದೇಶವನ್ನು ಕಳುಹಿಸಿ"
+
+msgid "Services"
+msgstr "ಸೇವೆಗಳು"
+
+msgid "Set as cover"
+msgstr "ಕವರ್ ಆಗಿ ಹೊಂದಿಸಿ"
+
+msgid ""
+"Set the default look every visitor sees. Your own browser's theme switcher "
+"still lets you preview any palette locally, on top of this."
+msgstr ""
+"ಪ್ರತಿ ಸಂದರ್ಶಕರು ನೋಡುವ ಡೀಫಾಲ್ಟ್ ನೋಟವನ್ನು ಹೊಂದಿಸಿ. ನಿಮ್ಮ ಸ್ವಂತ ಬ್ರೌಸರ್‌ನ ಥೀಮ್ "
+"ಸ್ವಿಚರ್ ಇನ್ನೂ ಯಾವುದೇ ಪ್ಯಾಲೆಟ್ ಅನ್ನು ಸ್ಥಳೀಯವಾಗಿ ಪೂರ್ವವೀಕ್ಷಿಸಲು ನಿಮಗೆ "
+"ಅನುಮತಿಸುತ್ತದೆ."
+
+msgid "Share"
+msgstr "ಹಂಚಿಕೊಳ್ಳಿ"
+
+msgid "Shares"
+msgstr "ಷೇರುಗಳು"
+
+msgid "Short blurb shown on the homepage service card"
+msgstr "ಮುಖಪುಟ ಸೇವಾ ಕಾರ್ಡ್‌ನಲ್ಲಿ ತೋರಿಸಿರುವ ಚಿಕ್ಕ ಬ್ಲರ್ಬ್"
+
+msgid "Sign In"
+msgstr "ಸೈನ್ ಇನ್ ಮಾಡಿ"
+
+msgid "Sign Out"
+msgstr "ಸೈನ್ ಔಟ್"
+
+msgid "Sign in safely and manage your listings with ease."
+msgstr ""
+"ಸುರಕ್ಷಿತವಾಗಿ ಸೈನ್ ಇನ್ ಮಾಡಿ ಮತ್ತು ನಿಮ್ಮ ಪಟ್ಟಿಗಳನ್ನು ಸುಲಭವಾಗಿ ನಿರ್ವಹಿಸಿ."
+
+msgid "Sign in to save"
+msgstr "ಉಳಿಸಲು ಸೈನ್ ಇನ್ ಮಾಡಿ"
+
+msgid "Sign in using your Google account to get started."
+msgstr "ಪ್ರಾರಂಭಿಸಲು ನಿಮ್ಮ Google ಖಾತೆಯನ್ನು ಬಳಸಿಕೊಂಡು ಸೈನ್ ಇನ್ ಮಾಡಿ."
+
+msgid "Site Theme"
+msgstr "ಸೈಟ್ ಥೀಮ್"
+
+msgid ""
+"Sitting at the meeting point of three states, Kuppam reflects a blend of Telugu, Tamil and\n"
+"                    Kannada customs, language, and cuisine. Village temple traditions such as the Gangamma Jatara\n"
+"                    pictured here, weekly markets, and extended-family community life continue to shape everyday\n"
+"                    culture in and around the town."
+msgstr ""
+"ಮೂರು ರಾಜ್ಯಗಳ ಸಭೆಯ ಸ್ಥಳದಲ್ಲಿ ಕುಳಿತಿರುವ ಕುಪ್ಪಂ ತೆಲುಗು, ತಮಿಳು ಮತ್ತು ಮಿಶ್ರಣವನ್ನು ಪ್ರತಿಬಿಂಬಿಸುತ್ತದೆ\n"
+"                    ಕನ್ನಡದ ಪದ್ಧತಿಗಳು, ಭಾಷೆ ಮತ್ತು ಪಾಕಪದ್ಧತಿ. ಗಂಗಮ್ಮ ಜಾತ್ರೆಯಂತಹ ಗ್ರಾಮ ದೇವಾಲಯ ಸಂಪ್ರದಾಯಗಳು\n"
+"                    ಇಲ್ಲಿ ಚಿತ್ರಿಸಲಾಗಿದೆ, ಸಾಪ್ತಾಹಿಕ ಮಾರುಕಟ್ಟೆಗಳು ಮತ್ತು ವಿಸ್ತೃತ-ಕುಟುಂಬ ಸಮುದಾಯದ ಜೀವನವು ಪ್ರತಿದಿನವೂ ರೂಪುಗೊಳ್ಳುತ್ತಲೇ ಇರುತ್ತದೆ\n"
+"                    ಪಟ್ಟಣದಲ್ಲಿ ಮತ್ತು ಸುತ್ತಮುತ್ತಲಿನ ಸಂಸ್ಕೃತಿ."
+
+msgid "Snow (Christmas)"
+msgstr "ಹಿಮ (ಕ್ರಿಸ್ಮಸ್)"
+
+msgid "Source"
+msgstr "ಮೂಲ"
+
+msgid "Spring season"
+msgstr "ವಸಂತ ಋತು"
+
+msgid "Sri Subrahmanya Swamy Temple, Kuppam"
+msgstr "ಶ್ರೀ ಸುಬ್ರಹ್ಮಣ್ಯ ಸ್ವಾಮಿ ದೇವಸ್ಥಾನ, ಕುಪ್ಪಂ"
+
+msgid "Sri Subrahmanya Swamy temple deity, Kuppam"
+msgstr "ಶ್ರೀ ಸುಬ್ರಹ್ಮಣ್ಯ ಸ್ವಾಮಿ ದೇವಸ್ಥಾನದ ದೇವರು, ಕುಪ್ಪಂ"
+
+msgid "Staff"
+msgstr "ಸಿಬ್ಬಂದಿ"
+
+msgid "Startups"
+msgstr "ಸ್ಟಾರ್ಟ್ಅಪ್ಗಳು"
+
+msgid "State"
+msgstr "ರಾಜ್ಯ"
+
+msgid "Stats"
+msgstr "ಅಂಕಿಅಂಶಗಳು"
+
+msgid "Status"
+msgstr "ಸ್ಥಿತಿ"
+
+msgid "Stay Updated"
+msgstr "ನವೀಕೃತವಾಗಿರಿ"
+
+msgid ""
+"Stay updated with upcoming festivals, exhibitions, public events, and local "
+"programs."
+msgstr ""
+"ಮುಂಬರುವ ಹಬ್ಬಗಳು, ಪ್ರದರ್ಶನಗಳು, ಸಾರ್ವಜನಿಕ ಕಾರ್ಯಕ್ರಮಗಳು ಮತ್ತು ಸ್ಥಳೀಯ "
+"ಕಾರ್ಯಕ್ರಮಗಳೊಂದಿಗೆ ನವೀಕೃತವಾಗಿರಿ."
+
+msgid "Subcategory"
+msgstr "ಉಪವರ್ಗ"
+
+msgid "Subject"
+msgstr "ವಿಷಯ"
+
+msgid "Submit for Review"
+msgstr "ಪರಿಶೀಲನೆಗಾಗಿ ಸಲ್ಲಿಸಿ"
+
+msgid "Submitted"
+msgstr "ಸಲ್ಲಿಸಲಾಗಿದೆ"
+
+msgid "Submitted by"
+msgstr "ಮೂಲಕ ಸಲ್ಲಿಸಲಾಗಿದೆ"
+
+msgid "Super Admin"
+msgstr "ಸೂಪರ್ ಅಡ್ಮಿನ್"
+
+msgid "Support Team"
+msgstr "ಬೆಂಬಲ ತಂಡ"
+
+msgid "Suspend"
+msgstr "ಅಮಾನತುಗೊಳಿಸಿ"
+
+msgid "Suspended"
+msgstr "ಅಮಾನತುಗೊಳಿಸಲಾಗಿದೆ"
+
+msgid "Switch theme palette"
+msgstr "ಥೀಮ್ ಪ್ಯಾಲೆಟ್ ಅನ್ನು ಬದಲಿಸಿ"
+
+msgid "Tap the heart on any listing to save it here for later."
+msgstr "ಯಾವುದೇ ಪಟ್ಟಿಯನ್ನು ನಂತರ ಇಲ್ಲಿ ಉಳಿಸಲು ಹೃದಯವನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ."
+
+msgid "Terms of Service"
+msgstr "ಸೇವಾ ನಿಯಮಗಳು"
+
+msgid ""
+"The Kambi Nayudu dynasty rules from Kangundi Fort for nearly a millennium."
+msgstr ""
+"ಕಂಬಿನಾಯುಡು ರಾಜವಂಶವು ಸುಮಾರು ಒಂದು ಸಹಸ್ರಮಾನದವರೆಗೆ ಕಂಗುಂಡಿ ಕೋಟೆಯಿಂದ ಆಳ್ವಿಕೆ "
+"ನಡೆಸಿತು."
+
+msgid "The One-Stop City Engine"
+msgstr "ಒನ್-ಸ್ಟಾಪ್ ಸಿಟಿ ಎಂಜಿನ್"
+
+msgid "The People Behind It"
+msgstr "ಇದರ ಹಿಂದಿನ ಜನರು"
+
+msgid "The Process"
+msgstr "ಪ್ರಕ್ರಿಯೆ"
+
+msgid ""
+"The Sri Subrahmanya Swamy temple at Gudivanka, within the Kuppam area, carries that long\n"
+"                    temple-building tradition forward — still an active hilltop place of worship that draws\n"
+"                    devotees from across the Andhra Pradesh–Karnataka border during the Aadi Krithika season."
+msgstr ""
+"ಕುಪ್ಪಂ ಪ್ರದೇಶದ ಗುಡಿವಂಕದಲ್ಲಿರುವ ಶ್ರೀ ಸುಬ್ರಹ್ಮಣ್ಯ ಸ್ವಾಮಿ ದೇವಸ್ಥಾನವು ಅಷ್ಟು ಉದ್ದವನ್ನು ಹೊಂದಿದೆ\n"
+"                    ದೇವಾಲಯ-ಕಟ್ಟಡದ ಸಂಪ್ರದಾಯವು ಮುಂದಕ್ಕೆ - ಇನ್ನೂ ಸಕ್ರಿಯವಾದ ಬೆಟ್ಟದ ಮೇಲಿನ ಪೂಜಾ ಸ್ಥಳವನ್ನು ಸೆಳೆಯುತ್ತದೆ\n"
+"                    ಆದಿ ಕೃತಿಕಾ ಋತುವಿನಲ್ಲಿ ಆಂಧ್ರಪ್ರದೇಶ-ಕರ್ನಾಟಕ ಗಡಿಯುದ್ದಕ್ಕೂ ಭಕ್ತರು."
+
+msgid ""
+"The wider Rayalaseema and southern Andhra region — of which Chittoor district and Kuppam are\n"
+"                    part — has been shaped over centuries by successive South Indian dynasties, including the\n"
+"                    Satavahanas, Pallavas, Cholas, and later the Vijayanagara Empire, each leaving behind temple\n"
+"                    architecture, irrigation tanks, and inscriptions across the region."
+msgstr ""
+"ವಿಶಾಲವಾದ ರಾಯಲಸೀಮಾ ಮತ್ತು ದಕ್ಷಿಣ ಆಂಧ್ರ ಪ್ರದೇಶ - ಇವುಗಳಲ್ಲಿ ಚಿತ್ತೂರು ಜಿಲ್ಲೆ ಮತ್ತು ಕುಪ್ಪಂ\n"
+"                    ಭಾಗ - ಸೇರಿದಂತೆ ಸತತ ದಕ್ಷಿಣ ಭಾರತದ ರಾಜವಂಶಗಳಿಂದ ಶತಮಾನಗಳಿಂದ ರೂಪುಗೊಂಡಿದೆ\n"
+"                    ಶಾತವಾಹನರು, ಪಲ್ಲವರು, ಚೋಳರು ಮತ್ತು ನಂತರ ವಿಜಯನಗರ ಸಾಮ್ರಾಜ್ಯ, ಪ್ರತಿಯೊಂದೂ ದೇವಾಲಯವನ್ನು ಬಿಟ್ಟುಬಿಟ್ಟಿತು\n"
+"                    ಪ್ರದೇಶದಾದ್ಯಂತ ವಾಸ್ತುಶಿಲ್ಪ, ನೀರಾವರಿ ತೊಟ್ಟಿಗಳು ಮತ್ತು ಶಾಸನಗಳು."
+
+msgid "Theme"
+msgstr "ಥೀಮ್"
+
+msgid "Theme Palette"
+msgstr "ಥೀಮ್ ಪ್ಯಾಲೆಟ್"
+
+msgid "There are no listings here yet. Please check back soon."
+msgstr "ಇಲ್ಲಿ ಇನ್ನೂ ಯಾವುದೇ ಪಟ್ಟಿಗಳಿಲ್ಲ. ದಯವಿಟ್ಟು ಶೀಘ್ರದಲ್ಲೇ ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ."
+
+msgid ""
+"These centuries laid much of the agrarian and temple-centred village structure that\n"
+"                    characterises the Kuppam area to this day."
+msgstr ""
+"ಈ ಶತಮಾನಗಳು ಹೆಚ್ಚಿನ ಕೃಷಿ ಮತ್ತು ದೇವಾಲಯ-ಕೇಂದ್ರಿತ ಗ್ರಾಮ ರಚನೆಯನ್ನು ಹಾಕಿದವು\n"
+"                    ಇಂದಿಗೂ ಕುಪ್ಪಂ ಪ್ರದೇಶವನ್ನು ನಿರೂಪಿಸುತ್ತದೆ."
+
+msgid ""
+"These festival calendars are a good example of content best filled in further with specifics\n"
+"                    from local temple committees and residents."
+msgstr ""
+"ಈ ಹಬ್ಬದ ಕ್ಯಾಲೆಂಡರ್‌ಗಳು ನಿರ್ದಿಷ್ಟ ವಿಷಯಗಳೊಂದಿಗೆ ಉತ್ತಮವಾಗಿ ತುಂಬಿದ ವಿಷಯಕ್ಕೆ ಉತ್ತಮ ಉದಾಹರಣೆಯಾಗಿದೆ\n"
+"                    ಸ್ಥಳೀಯ ದೇವಸ್ಥಾನ ಸಮಿತಿಗಳು ಮತ್ತು ನಿವಾಸಿಗಳಿಂದ."
+
+msgid ""
+"This cultural mix is one of Kuppam's more distinctive traits compared to towns further inside\n"
+"                    any single state."
+msgstr ""
+"ಈ ಸಾಂಸ್ಕೃತಿಕ ಮಿಶ್ರಣವು ಕುಪ್ಪಂನ ಹೆಚ್ಚು ವಿಶಿಷ್ಟ ಲಕ್ಷಣಗಳಲ್ಲಿ ಒಂದಾಗಿದೆ\n"
+"                    ಯಾವುದೇ ಒಂದೇ ರಾಜ್ಯ."
+
+msgid ""
+"This growth in higher education has been one of the most visible drivers of Kuppam's modern\n"
+"                    development, bringing a steady student population and associated local economy."
+msgstr ""
+"ಉನ್ನತ ಶಿಕ್ಷಣದಲ್ಲಿನ ಈ ಬೆಳವಣಿಗೆಯು ಕುಪ್ಪಂನ ಆಧುನಿಕತೆಯ ಅತ್ಯಂತ ಗೋಚರಿಸುವ ಚಾಲಕಗಳಲ್ಲಿ ಒಂದಾಗಿದೆ\n"
+"                    ಅಭಿವೃದ್ಧಿ, ಸ್ಥಿರವಾದ ವಿದ್ಯಾರ್ಥಿ ಜನಸಂಖ್ಯೆ ಮತ್ತು ಸಂಬಂಧಿತ ಸ್ಥಳೀಯ ಆರ್ಥಿಕತೆಯನ್ನು ತರುವುದು."
+
+msgid ""
+"This section focuses on Kuppam's administrative and electoral significance rather than on\n"
+"                    individual political narratives."
+msgstr ""
+"ಈ ವಿಭಾಗವು ಕುಪ್ಪಂನ ಆಡಳಿತಾತ್ಮಕ ಮತ್ತು ಚುನಾವಣಾ ಪ್ರಾಮುಖ್ಯತೆಯ ಮೇಲೆ ಕೇಂದ್ರೀಕರಿಸುತ್ತದೆ\n"
+"                    ವೈಯಕ್ತಿಕ ರಾಜಕೀಯ ನಿರೂಪಣೆಗಳು."
+
+msgid ""
+"This steady, incremental development is a recurring theme in the town's recent history rather\n"
+"                    than any single turning point."
+msgstr ""
+"ಈ ಸ್ಥಿರ, ಹೆಚ್ಚುತ್ತಿರುವ ಅಭಿವೃದ್ಧಿಯು ಪಟ್ಟಣದ ಇತ್ತೀಚಿನ ಇತಿಹಾಸದಲ್ಲಿ ಮರುಕಳಿಸುವ ವಿಷಯವಾಗಿದೆ\n"
+"                    ಯಾವುದೇ ಒಂದು ಟರ್ನಿಂಗ್ ಪಾಯಿಂಟ್‌ಗಿಂತ."
+
+msgid "This user hasn't published anything."
+msgstr "ಈ ಬಳಕೆದಾರರು ಏನನ್ನೂ ಪ್ರಕಟಿಸಿಲ್ಲ."
+
+msgid ""
+"This website is designed &amp; maintained by <strong>CraftLanee</strong> &mdash;\n"
+"                    Websites, Branding, Digital Marketing &amp; AI Solutions."
+msgstr ""
+"ಈ ವೆಬ್‌ಸೈಟ್ ಅನ್ನು ವಿನ್ಯಾಸಗೊಳಿಸಲಾಗಿದೆ &amp; <strong>CraftLanee</strong> ನಿರ್ವಹಿಸುತ್ತದೆ &mdash;\n"
+"                    ವೆಬ್‌ಸೈಟ್‌ಗಳು, ಬ್ರ್ಯಾಂಡಿಂಗ್, ಡಿಜಿಟಲ್ ಮಾರ್ಕೆಟಿಂಗ್ &amp; AI ಪರಿಹಾರಗಳು."
+
+msgid "Tirupati Gangamma Jatara celebration, Kuppam"
+msgstr "ತಿರುಪತಿ ಗಂಗಮ್ಮ ಜಾತ್ರೆ ಆಚರಣೆ, ಕುಪ್ಪಂ"
+
+msgid "Title"
+msgstr "ಶೀರ್ಷಿಕೆ"
+
+msgid "Title, company, location..."
+msgstr "ಶೀರ್ಷಿಕೆ, ಕಂಪನಿ, ಸ್ಥಳ..."
+
+msgid ""
+"To become the most trusted digital information platform for Kuppam, helping\n"
+"                    residents, visitors, and businesses stay connected while supporting the town's\n"
+"                    digital growth and development."
+msgstr ""
+"ಕುಪ್ಪಂಗೆ ಅತ್ಯಂತ ವಿಶ್ವಾಸಾರ್ಹ ಡಿಜಿಟಲ್ ಮಾಹಿತಿ ವೇದಿಕೆಯಾಗಲು, ಸಹಾಯ\n"
+"                    ನಿವಾಸಿಗಳು, ಸಂದರ್ಶಕರು ಮತ್ತು ವ್ಯಾಪಾರಗಳು ಪಟ್ಟಣದ ಬೆಂಬಲದೊಂದಿಗೆ ಸಂಪರ್ಕದಲ್ಲಿರುತ್ತವೆ\n"
+"                    ಡಿಜಿಟಲ್ ಬೆಳವಣಿಗೆ ಮತ್ತು ಅಭಿವೃದ್ಧಿ."
+
+msgid ""
+"To build a trusted digital platform that connects people with verified local\n"
+"                    information, promotes local businesses, supports community growth, and makes\n"
+"                    discovering services in Kuppam simple, fast, and reliable."
+msgstr ""
+"ಪರಿಶೀಲಿಸಿದ ಸ್ಥಳೀಯರೊಂದಿಗೆ ಜನರನ್ನು ಸಂಪರ್ಕಿಸುವ ವಿಶ್ವಾಸಾರ್ಹ ಡಿಜಿಟಲ್ ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಅನ್ನು ನಿರ್ಮಿಸಲು\n"
+"                    ಮಾಹಿತಿ, ಸ್ಥಳೀಯ ವ್ಯವಹಾರಗಳನ್ನು ಉತ್ತೇಜಿಸುತ್ತದೆ, ಸಮುದಾಯದ ಬೆಳವಣಿಗೆಯನ್ನು ಬೆಂಬಲಿಸುತ್ತದೆ ಮತ್ತು ಮಾಡುತ್ತದೆ\n"
+"                    ಕುಪ್ಪಂನಲ್ಲಿ ಸೇವೆಗಳನ್ನು ಕಂಡುಹಿಡಿಯುವುದು ಸರಳ, ವೇಗ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ."
+
+msgid "Today"
+msgstr "ಇಂದು"
+
+msgid ""
+"Today, Kuppam functions as a mandal headquarters with an active town centre, produce markets,\n"
+"                    schools and colleges, and steadily improving road and civic infrastructure — while still\n"
+"                    keeping its identity as an agricultural trading town for the surrounding villages."
+msgstr ""
+"ಇಂದು, ಕುಪ್ಪಂ ಸಕ್ರಿಯ ಪಟ್ಟಣ ಕೇಂದ್ರದೊಂದಿಗೆ ಮಂಡಲ ಕೇಂದ್ರವಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ, ಉತ್ಪನ್ನ ಮಾರುಕಟ್ಟೆಗಳು,\n"
+"                    ಶಾಲೆಗಳು ಮತ್ತು ಕಾಲೇಜುಗಳು, ಮತ್ತು ರಸ್ತೆ ಮತ್ತು ನಾಗರಿಕ ಮೂಲಸೌಕರ್ಯಗಳನ್ನು ಸ್ಥಿರವಾಗಿ ಸುಧಾರಿಸುವುದು - ಇನ್ನೂ ಹಾಗೆಯೇ\n"
+"                    ಸುತ್ತಮುತ್ತಲಿನ ಹಳ್ಳಿಗಳಿಗೆ ಕೃಷಿ ವ್ಯಾಪಾರ ಪಟ್ಟಣವಾಗಿ ತನ್ನ ಗುರುತನ್ನು ಉಳಿಸಿಕೊಂಡಿದೆ."
+
+msgid ""
+"Together, their long association with Kuppam is one of the more visible threads running through\n"
+"                    the town's modern development story."
+msgstr ""
+"ಒಟ್ಟಾಗಿ, ಕುಪ್ಪಂನೊಂದಿಗಿನ ಅವರ ಸುದೀರ್ಘ ಒಡನಾಟವು ಹೆಚ್ಚು ಗೋಚರಿಸುವ ಎಳೆಗಳಲ್ಲಿ ಒಂದಾಗಿದೆ\n"
+"                    ಪಟ್ಟಣದ ಆಧುನಿಕ ಅಭಿವೃದ್ಧಿಯ ಕಥೆ."
+
+msgid "Toggle dark mode"
+msgstr "ಡಾರ್ಕ್ ಮೋಡ್ ಅನ್ನು ಟಾಗಲ್ ಮಾಡಿ"
+
+msgid "Tomato, mango and mulberry farming anchor the local economy."
+msgstr "ಟೊಮೇಟೊ, ಮಾವು ಮತ್ತು ಹಿಪ್ಪುನೇರಳೆ ಕೃಷಿ ಸ್ಥಳೀಯ ಆರ್ಥಿಕತೆಗೆ ಆಧಾರವಾಗಿದೆ."
+
+msgid "Tomorrow"
+msgstr "ನಾಳೆ"
+
+msgid "Total"
+msgstr "ಒಟ್ಟು"
+
+msgid "Total Admins"
+msgstr "ಒಟ್ಟು ನಿರ್ವಾಹಕರು"
+
+msgid "Total Businesses"
+msgstr "ಒಟ್ಟು ವ್ಯವಹಾರಗಳು"
+
+msgid "Total Comments"
+msgstr "ಒಟ್ಟು ಕಾಮೆಂಟ್‌ಗಳು"
+
+msgid "Total Favorites"
+msgstr "ಒಟ್ಟು ಮೆಚ್ಚಿನವುಗಳು"
+
+msgid "Total Likes"
+msgstr "ಒಟ್ಟು ಇಷ್ಟಗಳು"
+
+msgid "Total Listings"
+msgstr "ಒಟ್ಟು ಪಟ್ಟಿಗಳು"
+
+msgid "Total Posts"
+msgstr "ಒಟ್ಟು ಪೋಸ್ಟ್‌ಗಳು"
+
+msgid "Total Reviews"
+msgstr "ಒಟ್ಟು ವಿಮರ್ಶೆಗಳು"
+
+msgid "Total Shares"
+msgstr "ಒಟ್ಟು ಷೇರುಗಳು"
+
+msgid "Total Users"
+msgstr "ಒಟ್ಟು ಬಳಕೆದಾರರು"
+
+msgid "Total Views"
+msgstr "ಒಟ್ಟು ವೀಕ್ಷಣೆಗಳು"
+
+msgid "Tourism and Famous Places"
+msgstr "ಪ್ರವಾಸೋದ್ಯಮ ಮತ್ತು ಪ್ರಸಿದ್ಧ ಸ್ಥಳಗಳು"
+
+msgid ""
+"Track planned and ongoing civic and infrastructure projects shaping your "
+"city."
+msgstr ""
+"ನಿಮ್ಮ ನಗರವನ್ನು ರೂಪಿಸುವ ಯೋಜಿತ ಮತ್ತು ನಡೆಯುತ್ತಿರುವ ನಾಗರಿಕ ಮತ್ತು ಮೂಲಸೌಕರ್ಯ "
+"ಯೋಜನೆಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ."
+
+msgid "Transport"
+msgstr "ಸಾರಿಗೆ"
+
+msgid "Trusted, reviewed local listings you can rely on."
+msgstr "ನೀವು ಅವಲಂಬಿಸಬಹುದಾದ ವಿಶ್ವಾಸಾರ್ಹ, ಪರಿಶೀಲಿಸಿದ ಸ್ಥಳೀಯ ಪಟ್ಟಿಗಳು."
+
+msgid "Try adjusting your search or filters."
+msgstr "ನಿಮ್ಮ ಹುಡುಕಾಟ ಅಥವಾ ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಸರಿಹೊಂದಿಸಲು ಪ್ರಯತ್ನಿಸಿ."
+
+msgid "Try adjusting your search."
+msgstr "ನಿಮ್ಮ ಹುಡುಕಾಟವನ್ನು ಸರಿಹೊಂದಿಸಲು ಪ್ರಯತ್ನಿಸಿ."
+
+msgid "Type"
+msgstr "ಟೈಪ್ ಮಾಡಿ"
+
+msgid "UI/UX Design"
+msgstr "UI/UX ವಿನ್ಯಾಸ"
+
+msgid "Unblock"
+msgstr "ಅನಿರ್ಬಂಧಿಸಿ"
+
+msgid ""
+"Under British rule, the area was administered as part of the Madras Presidency, with the\n"
+"                    Kangundi zamindari continuing under colonial oversight until independence. Kuppam's own railway\n"
+"                    station came later — it opened in 1958, after independence, on what is now the Chennai–Bangalore\n"
+"                    line — extending the same Madras Railway network the British had been building across this part\n"
+"                    of Chittoor district since the 19th century, and finally connecting the town itself to wider\n"
+"                    trade and administrative networks."
+msgstr ""
+"ಬ್ರಿಟಿಷ್ ಆಳ್ವಿಕೆಯಲ್ಲಿ, ಈ ಪ್ರದೇಶವನ್ನು ಮದ್ರಾಸ್ ಪ್ರೆಸಿಡೆನ್ಸಿಯ ಭಾಗವಾಗಿ ಆಡಳಿತ ನಡೆಸಲಾಯಿತು\n"
+"                    ಕಂಗುಂಡಿ ಜಮೀನ್ದಾರಿಯು ಸ್ವಾತಂತ್ರ್ಯದವರೆಗೂ ವಸಾಹತುಶಾಹಿ ಮೇಲ್ವಿಚಾರಣೆಯಲ್ಲಿ ಮುಂದುವರೆಯಿತು. ಕುಪ್ಪಂನ ಸ್ವಂತ ರೈಲ್ವೆ\n"
+"                    ನಿಲ್ದಾಣವು ನಂತರ ಬಂದಿತು - ಇದು 1958 ರಲ್ಲಿ ಪ್ರಾರಂಭವಾಯಿತು, ಸ್ವಾತಂತ್ರ್ಯದ ನಂತರ, ಈಗ ಚೆನ್ನೈ-ಬೆಂಗಳೂರು\n"
+"                    ಮಾರ್ಗ - ಬ್ರಿಟಿಷರು ಈ ಭಾಗದಲ್ಲಿ ನಿರ್ಮಿಸುತ್ತಿದ್ದ ಅದೇ ಮದ್ರಾಸ್ ರೈಲ್ವೆ ಜಾಲವನ್ನು ವಿಸ್ತರಿಸುವುದು\n"
+"                    19 ನೇ ಶತಮಾನದಿಂದ ಚಿತ್ತೂರು ಜಿಲ್ಲೆ, ಮತ್ತು ಅಂತಿಮವಾಗಿ ಪಟ್ಟಣವನ್ನು ವಿಶಾಲವಾಗಿ ಸಂಪರ್ಕಿಸುತ್ತದೆ\n"
+"                    ವ್ಯಾಪಾರ ಮತ್ತು ಆಡಳಿತ ಜಾಲಗಳು."
+
+msgid "Unfeature"
+msgstr "ವೈಶಿಷ್ಟ್ಯವಿಲ್ಲದ"
+
+msgid "Unread"
+msgstr "ಓದಿಲ್ಲ"
+
+msgid "Unread Messages"
+msgstr "ಓದದಿರುವ ಸಂದೇಶಗಳು"
+
+msgid "Unread Notifications"
+msgstr "ಓದದಿರುವ ಅಧಿಸೂಚನೆಗಳು"
+
+msgid "Unsuspend"
+msgstr "ಅಮಾನತುಗೊಳಿಸು"
+
+msgid "Upcoming Projects"
+msgstr "ಮುಂಬರುವ ಯೋಜನೆಗಳು"
+
+msgid "Upload"
+msgstr "ಅಪ್ಲೋಡ್ ಮಾಡಿ"
+
+msgid "Uploaded by"
+msgstr "ಇವರಿಂದ ಅಪ್‌ಲೋಡ್ ಮಾಡಲಾಗಿದೆ"
+
+msgid "Uploads"
+msgstr "ಅಪ್‌ಲೋಡ್‌ಗಳು"
+
+msgid "Use \"Add a New Listing\" above to publish your first one."
+msgstr "ನಿಮ್ಮ ಮೊದಲನೆಯದನ್ನು ಪ್ರಕಟಿಸಲು ಮೇಲಿನ \"ಹೊಸ ಪಟ್ಟಿಯನ್ನು ಸೇರಿಸಿ\" ಬಳಸಿ."
+
+msgid "User"
+msgstr "ಬಳಕೆದಾರ"
+
+msgid "Users"
+msgstr "ಬಳಕೆದಾರರು"
+
+msgid "Verified Information"
+msgstr "ಪರಿಶೀಲಿಸಿದ ಮಾಹಿತಿ"
+
+msgid "Video Gallery"
+msgstr "ವೀಡಿಯೊ ಗ್ಯಾಲರಿ"
+
+msgid "Videos (mp4/webm/mov, ≤50MB each)"
+msgstr "ವೀಡಿಯೊಗಳು (mp4/webm/mov, ಪ್ರತಿ ≤50MB)"
+
+msgid "View"
+msgstr "ವೀಕ್ಷಿಸಿ"
+
+msgid "View All"
+msgstr "ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ"
+
+msgid "View Details"
+msgstr "ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ"
+
+msgid "View all"
+msgstr "ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ"
+
+msgid "View all my listings"
+msgstr "ನನ್ನ ಎಲ್ಲಾ ಪಟ್ಟಿಗಳನ್ನು ವೀಕ್ಷಿಸಿ"
+
+msgid "View and update your account details"
+msgstr "ನಿಮ್ಮ ಖಾತೆಯ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ ಮತ್ತು ನವೀಕರಿಸಿ"
+
+msgid "View from Horsley Hills, near Kuppam"
+msgstr "ಕುಪ್ಪಂ ಸಮೀಪದ ಹಾರ್ಸ್ಲಿ ಹಿಲ್ಸ್‌ನಿಂದ ನೋಟ"
+
+msgid "View listing"
+msgstr "ಪಟ್ಟಿಯನ್ನು ವೀಕ್ಷಿಸಿ"
+
+msgid "View profile"
+msgstr "ಪ್ರೊಫೈಲ್ ವೀಕ್ಷಿಸಿ"
+
+msgid "View, filter, and moderate every registered account."
+msgstr "ಪ್ರತಿ ನೋಂದಾಯಿತ ಖಾತೆಯನ್ನು ವೀಕ್ಷಿಸಿ, ಫಿಲ್ಟರ್ ಮಾಡಿ ಮತ್ತು ಮಾಡರೇಟ್ ಮಾಡಿ."
+
+msgid "Views"
+msgstr "ವೀಕ್ಷಣೆಗಳು"
+
+msgid "Views & Engagement Over Time"
+msgstr "ವೀಕ್ಷಣೆಗಳು ಮತ್ತು ಕಾಲಾನಂತರದಲ್ಲಿ ತೊಡಗಿಸಿಕೊಳ್ಳುವಿಕೆ"
+
+msgid "Views / Impressions"
+msgstr "ವೀಕ್ಷಣೆಗಳು / ಅನಿಸಿಕೆಗಳು"
+
+msgid "Vision"
+msgstr "ದೃಷ್ಟಿ"
+
+msgid "Visit CraftLanee"
+msgstr "CraftLanee ಗೆ ಭೇಟಿ ನೀಡಿ"
+
+msgid ""
+"We are committed to providing reliable, verified, and accessible information that benefits\n"
+"                residents, businesses, and visitors. We continuously improve the platform by adding new\n"
+"                features, expanding local coverage, and listening to community feedback."
+msgstr ""
+"ಲಾಭದಾಯಕವಾದ ವಿಶ್ವಾಸಾರ್ಹ, ಪರಿಶೀಲಿಸಿದ ಮತ್ತು ಪ್ರವೇಶಿಸಬಹುದಾದ ಮಾಹಿತಿಯನ್ನು ಒದಗಿಸಲು ನಾವು ಬದ್ಧರಾಗಿದ್ದೇವೆ\n"
+"                ನಿವಾಸಿಗಳು, ವ್ಯಾಪಾರಗಳು ಮತ್ತು ಸಂದರ್ಶಕರು. ಹೊಸದನ್ನು ಸೇರಿಸುವ ಮೂಲಕ ನಾವು ವೇದಿಕೆಯನ್ನು ನಿರಂತರವಾಗಿ ಸುಧಾರಿಸುತ್ತೇವೆ\n"
+"                ವೈಶಿಷ್ಟ್ಯಗಳು, ಸ್ಥಳೀಯ ವ್ಯಾಪ್ತಿಯನ್ನು ವಿಸ್ತರಿಸುವುದು ಮತ್ತು ಸಮುದಾಯದ ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಆಲಿಸುವುದು."
+
+msgid ""
+"We'd love to hear from you — questions, feedback, or partnership ideas, all "
+"welcome."
+msgstr ""
+"ನಿಮ್ಮಿಂದ ಕೇಳಲು ನಾವು ಇಷ್ಟಪಡುತ್ತೇವೆ — ಪ್ರಶ್ನೆಗಳು, ಪ್ರತಿಕ್ರಿಯೆ ಅಥವಾ ಪಾಲುದಾರಿಕೆ "
+"ವಿಚಾರಗಳು, ಎಲ್ಲರಿಗೂ ಸ್ವಾಗತ."
+
+msgid "We'll let you know here when there's something new."
+msgstr "ಹೊಸದೇನಾದರೂ ಇದ್ದಾಗ ನಾವು ನಿಮಗೆ ಇಲ್ಲಿ ತಿಳಿಸುತ್ತೇವೆ."
+
+msgid "Website"
+msgstr "ವೆಬ್‌ಸೈಟ್"
+
+msgid "Website Development &"
+msgstr "ವೆಬ್‌ಸೈಟ್ ಅಭಿವೃದ್ಧಿ &"
+
+msgid "Website Hosting & Deployment"
+msgstr "ವೆಬ್‌ಸೈಟ್ ಹೋಸ್ಟಿಂಗ್ ಮತ್ತು ನಿಯೋಜನೆ"
+
+msgid "Website Maintenance & Support"
+msgstr "ವೆಬ್‌ಸೈಟ್ ನಿರ್ವಹಣೆ ಮತ್ತು ಬೆಂಬಲ"
+
+msgid "Website development and digital solutions"
+msgstr "ವೆಬ್‌ಸೈಟ್ ಅಭಿವೃದ್ಧಿ ಮತ್ತು ಡಿಜಿಟಲ್ ಪರಿಹಾರಗಳು"
+
+msgid "What We Offer"
+msgstr "ನಾವು ಏನು ನೀಡುತ್ತೇವೆ"
+
+msgid "What's Here"
+msgstr "ಇಲ್ಲಿ ಏನಿದೆ"
+
+msgid "When"
+msgstr "ಯಾವಾಗ"
+
+msgid ""
+"When on, visitors can't override this with their own theme switcher — it's "
+"locked to the default above for every session."
+msgstr ""
+"ಆನ್ ಆಗಿರುವಾಗ, ಸಂದರ್ಶಕರು ತಮ್ಮದೇ ಆದ ಥೀಮ್ ಸ್ವಿಚರ್‌ನೊಂದಿಗೆ ಇದನ್ನು ಅತಿಕ್ರಮಿಸಲು "
+"ಸಾಧ್ಯವಿಲ್ಲ - ಇದು ಪ್ರತಿ ಸೆಶನ್‌ಗೆ ಮೇಲಿನ ಡೀಫಾಲ್ಟ್‌ಗೆ ಲಾಕ್ ಆಗಿದೆ."
+
+msgid ""
+"Whether you're a resident looking for local services, a visitor exploring Kuppam, or a\n"
+"            business owner wanting to reach more customers — OneTownCity is here to connect you."
+msgstr ""
+"ನೀವು ಸ್ಥಳೀಯ ಸೇವೆಗಳನ್ನು ಹುಡುಕುತ್ತಿರುವ ನಿವಾಸಿಯಾಗಿದ್ದರೂ, ಕುಪ್ಪಂ ಅನ್ನು ಅನ್ವೇಷಿಸುವ ಸಂದರ್ಶಕರಾಗಿದ್ದರೂ ಅಥವಾ ಎ\n"
+"            ವ್ಯಾಪಾರ ಮಾಲೀಕರು ಹೆಚ್ಚಿನ ಗ್ರಾಹಕರನ್ನು ತಲುಪಲು ಬಯಸುತ್ತಾರೆ - ನಿಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಲು OneTownCity ಇಲ್ಲಿದೆ."
+
+msgid ""
+"Whether you're searching for a restaurant, hospital, school, property, transport service,\n"
+"                    or local business, OneTownCity helps you find accurate and up-to-date information\n"
+"                    quickly and conveniently — bringing it all together in one user-friendly platform that\n"
+"                    gives businesses and organizations a digital presence too."
+msgstr ""
+"ನೀವು ರೆಸ್ಟೋರೆಂಟ್, ಆಸ್ಪತ್ರೆ, ಶಾಲೆ, ಆಸ್ತಿ, ಸಾರಿಗೆ ಸೇವೆಗಾಗಿ ಹುಡುಕುತ್ತಿರಲಿ,\n"
+"                    ಅಥವಾ ಸ್ಥಳೀಯ ವ್ಯಾಪಾರ, ನಿಖರವಾದ ಮತ್ತು ನವೀಕೃತ ಮಾಹಿತಿಯನ್ನು ಹುಡುಕಲು OneTownCity ನಿಮಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ\n"
+"                    ತ್ವರಿತವಾಗಿ ಮತ್ತು ಅನುಕೂಲಕರವಾಗಿ - ಒಂದು ಬಳಕೆದಾರ ಸ್ನೇಹಿ ವೇದಿಕೆಯಲ್ಲಿ ಎಲ್ಲವನ್ನೂ ಒಟ್ಟಿಗೆ ತರುವುದು\n"
+"                    ವ್ಯವಹಾರಗಳು ಮತ್ತು ಸಂಸ್ಥೆಗಳಿಗೆ ಡಿಜಿಟಲ್ ಉಪಸ್ಥಿತಿಯನ್ನು ನೀಡುತ್ತದೆ."
+
+msgid "Who We Are"
+msgstr "ನಾವು ಯಾರು"
+
+msgid "Why OneTownCity"
+msgstr "ಏಕೆ OneTownCity"
+
+msgid "Working Hours"
+msgstr "ಕೆಲಸದ ಸಮಯ"
+
+msgid "You don't have any approved categories yet."
+msgstr "ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಅನುಮೋದಿತ ವರ್ಗಗಳನ್ನು ಹೊಂದಿಲ್ಲ."
+
+msgid "You haven't added any listings yet"
+msgstr "ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಪಟ್ಟಿಗಳನ್ನು ಸೇರಿಸಿಲ್ಲ"
+
+msgid "You haven't saved any favorites yet"
+msgstr "ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಮೆಚ್ಚಿನವುಗಳನ್ನು ಉಳಿಸಿಲ್ಲ"
+
+msgid "Your OneTownCity activity, at a glance"
+msgstr "ನಿಮ್ಮ OneTownCity ಚಟುವಟಿಕೆ, ಒಂದು ನೋಟದಲ್ಲಿ"
+
+msgid "Your complete local information platform for Kuppam."
+msgstr "ಕುಪ್ಪಂಗೆ ನಿಮ್ಮ ಸಂಪೂರ್ಣ ಸ್ಥಳೀಯ ಮಾಹಿತಿ ವೇದಿಕೆ."
+
+msgid "Your email address"
+msgstr "ನಿಮ್ಮ ಇಮೇಲ್ ವಿಳಾಸ"
+
+msgid "Your information is kept private and never shared."
+msgstr ""
+"ನಿಮ್ಮ ಮಾಹಿತಿಯನ್ನು ಖಾಸಗಿಯಾಗಿ ಇರಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ಎಂದಿಗೂ ಹಂಚಿಕೊಳ್ಳುವುದಿಲ್ಲ."
+
+msgid "Your listings, at a glance"
+msgstr "ನಿಮ್ಮ ಪಟ್ಟಿಗಳು, ಒಂದು ನೋಟದಲ್ಲಿ"
+
+msgid ""
+"Your trusted local information portal for Kuppam — businesses, jobs, real "
+"estate, and everything in between."
+msgstr ""
+"ಕುಪ್ಪಂಗಾಗಿ ನಿಮ್ಮ ವಿಶ್ವಾಸಾರ್ಹ ಸ್ಥಳೀಯ ಮಾಹಿತಿ ಪೋರ್ಟಲ್ — ವ್ಯಾಪಾರಗಳು, ಉದ್ಯೋಗಗಳು, "
+"ರಿಯಲ್ ಎಸ್ಟೇಟ್ ಮತ್ತು ನಡುವೆ ಇರುವ ಎಲ್ಲವೂ."
+
+msgid "e.g. Restaurants"
+msgstr "ಉದಾ. ಉಪಹಾರಗೃಹಗಳು"
+
+msgid "e.g. restaurant"
+msgstr "ಉದಾ. ರೆಸ್ಟೋರೆಂಟ್"
+
+msgid "for \"<strong>{{ query }}</strong>\""
+msgstr "\"<strong>{{ query }}</strong>\" ಗಾಗಿ"
+
+msgid "in <strong>{{ label }}</strong>"
+msgstr "<strong>{{ label }}</strong> ನಲ್ಲಿ"
+
+msgid "in <strong>{{ t }}</strong>"
+msgstr "<strong>{{ t }}</strong> ನಲ್ಲಿ"
+
+msgid "optional"
+msgstr "ಐಚ್ಛಿಕ"
+
+msgid "top-level only"
+msgstr "ಉನ್ನತ ಮಟ್ಟದ ಮಾತ್ರ"
+
+msgid "top-level only, static path"
+msgstr "ಉನ್ನತ ಮಟ್ಟದ ಮಾತ್ರ, ಸ್ಥಿರ ಮಾರ್ಗ"
+
+msgid "{{ trend }}% vs last week"
+msgstr "{{ trend }}% ವಿರುದ್ಧ ಕಳೆದ ವಾರ"

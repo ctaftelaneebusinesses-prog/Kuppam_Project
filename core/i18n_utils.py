@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 TRANSLATE_SOCKET_TIMEOUT_SECONDS = 5
 
 #: Matches settings.LANGUAGES minus English (nothing to translate into itself).
-TRANSLATABLE_LANGUAGES = {'te', 'hi', 'ta'}
+TRANSLATABLE_LANGUAGES = {'te', 'hi', 'ta', 'kn'}
 
 CACHE_TTL_SECONDS = 60 * 60 * 24 * 30  # 30 days — static-ish UI/category strings
 

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -8,7 +9,7 @@
     <div class="hk-dash-topbar">
         <div class="d-flex align-items-center gap-3">
             <div class="hk-section-icon"><i class="bi bi-heart"></i></div>
-            <h3 class="fw-bold mb-0">My Favorites</h3>
+            <h3 class="fw-bold mb-0">{% trans "My Favorites" %}</h3>
         </div>
     </div>
 
@@ -21,7 +22,7 @@
                     <span class="badge bg-primary-subtle text-primary mb-2 align-self-start">{{ item.label|title }}</span>
                     <h5 class="card-title">{{ item.obj }}</h5>
                     <a href="{{ item.obj.get_absolute_url }}" class="btn btn-outline-primary mt-auto">
-                        View Details <i class="bi bi-arrow-right"></i>
+                        {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
@@ -31,10 +32,10 @@
     {% else %}
     <div class="alert alert-info text-center py-5 hk-empty-state">
         <i class="bi bi-heart display-4 d-block mb-3"></i>
-        <p class="fw-bold mb-1">You haven't saved any favorites yet</p>
-        <p class="text-muted mb-3">Tap the heart on any listing to save it here for later.</p>
+        <p class="fw-bold mb-1">{% trans "You haven't saved any favorites yet" %}</p>
+        <p class="text-muted mb-3">{% trans "Tap the heart on any listing to save it here for later." %}</p>
         <a href="{% url 'core:home' %}" class="btn btn-outline-primary">
-            <i class="bi bi-compass"></i> Explore Listings
+            <i class="bi bi-compass"></i> {% trans "Explore Listings" %}
         </a>
     </div>
     {% endif %}

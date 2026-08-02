@@ -25,4 +25,8 @@
         <span class="hk-palette-option-text"><span class="hk-palette-option-name">தமிழ்</span></span>
         <i class="bi bi-check-circle-fill hk-palette-option-check"></i>
     </button>
+    <button type="submit" name="language" value="kn" class="hk-palette-option {% if HK_CURRENT_LANG == 'kn' %}is-active{% endif %}" role="menuitemradio" aria-pressed="{% if HK_CURRENT_LANG == 'kn' %}true{% else %}false{% endif %}">
+        <span class="hk-palette-option-text"><span class="hk-palette-option-name">ಕನ್ನಡ</span></span>
+        <i class="bi bi-check-circle-fill hk-palette-option-check"></i>
+    </button>
 </form>

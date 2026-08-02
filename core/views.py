@@ -373,6 +373,28 @@ CATEGORIES = [
 ]
 
 
+def robots_txt(request):
+    """
+    Tells search engine crawlers which parts of the site are worth indexing
+    (public listings/pages) vs. which aren't (auth-gated dashboard, uploads,
+    and account flows) and points them at the sitemap.
+    """
+    lines = [
+        'User-agent: *',
+        'Disallow: /dashboard/',
+        'Disallow: /uploads/',
+        'Disallow: /admin/',
+        'Disallow: /login/',
+        'Disallow: /signin/',
+        'Disallow: /register/',
+        'Disallow: /welcome/',
+        'Disallow: /favorites/',
+        'Disallow: /notifications/',
+        f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}",
+    ]
+    return HttpResponse('\n'.join(lines), content_type='text/plain')
+
+
 def home(request):
     """
     Homepage: hero section, search box, category grid, featured businesses.
@@ -400,9 +422,14 @@ def home(request):
         'users': get_user_model().objects.count(),
     }
 
+    # Reuses the same cached lookup the navbar's category_tree context
+    # processor already computes (see core/context_processors.py) instead of
+    # re-querying Category here — home.html never reads .children on these,
+    # so the separate prefetch this used to run was pure waste on top of it.
+    from .context_processors import category_tree
     context = {
         'page_title': 'OneTownCity — Visual Local Engine & Discovery Portal',
-        'categories': Category.objects.filter(parent=None, is_active=True).prefetch_related('children').order_by('order', 'label'),
+        'categories': category_tree(request)['nav_category_tree'],
         'featured_businesses': featured_businesses,
         'featured_properties': featured_properties,
         'featured_jobs': featured_jobs,
@@ -2028,21 +2055,54 @@ def _user_dashboard(request):
 
 
 def _super_admin_dashboard(request):
-    pending_listings = sum(m.objects.filter(status=ListingStatus.PENDING).count() for m in LISTING_MODELS.values())
-    approved_listings = sum(m.objects.filter(status=ListingStatus.APPROVED).count() for m in LISTING_MODELS.values())
-    rejected_listings = sum(m.objects.filter(status=ListingStatus.REJECTED).count() for m in LISTING_MODELS.values())
+    # Each of these used to be 1-3 separate .count() calls per model (worth
+    # ~40 queries total measured on this page alone) — collapsed into one
+    # conditional-aggregate query per table, since same-table counts can
+    # share a single query but cross-table ones can't.
+    listing_status_totals = [
+        m.objects.aggregate(
+            pending=Count('id', filter=Q(status=ListingStatus.PENDING)),
+            approved=Count('id', filter=Q(status=ListingStatus.APPROVED)),
+            rejected=Count('id', filter=Q(status=ListingStatus.REJECTED)),
+        )
+        for m in LISTING_MODELS.values()
+    ]
+    pending_listings = sum(t['pending'] for t in listing_status_totals)
+    approved_listings = sum(t['approved'] for t in listing_status_totals)
+    rejected_listings = sum(t['rejected'] for t in listing_status_totals)
+
+    profile_counts = Profile.objects.aggregate(
+        total_users=Count('id', filter=Q(role=UserRole.USER)),
+        total_admins=Count('id', filter=Q(role=UserRole.ADMIN)),
+    )
+    request_counts = AdminRequest.objects.aggregate(
+        pending_requests=Count('id', filter=Q(status=AdminRequestStatus.PENDING)),
+        approved_requests=Count('id', filter=Q(status=AdminRequestStatus.APPROVED)),
+        rejected_requests=Count('id', filter=Q(status=AdminRequestStatus.REJECTED)),
+    )
+    business_counts = Business.objects.aggregate(
+        total=Count('id'),
+        restaurants=Count('id', filter=Q(category='restaurant')),
+        schools=Count('id', filter=Q(category='school')),
+        colleges=Count('id', filter=Q(category='college')),
+        hospitals=Count('id', filter=Q(category='hospital')),
+    )
+    message_counts = ContactMessage.objects.aggregate(
+        total=Count('id'),
+        unread=Count('id', filter=Q(is_read=False)),
+    )
 
     stats = {
-        'total_users': Profile.objects.filter(role=UserRole.USER).count(),
-        'total_admins': Profile.objects.filter(role=UserRole.ADMIN).count(),
-        'pending_requests': AdminRequest.objects.filter(status=AdminRequestStatus.PENDING).count(),
-        'approved_requests': AdminRequest.objects.filter(status=AdminRequestStatus.APPROVED).count(),
-        'rejected_requests': AdminRequest.objects.filter(status=AdminRequestStatus.REJECTED).count(),
-        'total_businesses': Business.objects.count(),
-        'total_restaurants': Business.objects.filter(category='restaurant').count(),
-        'total_schools': Business.objects.filter(category='school').count(),
-        'total_colleges': Business.objects.filter(category='college').count(),
-        'total_hospitals': Business.objects.filter(category='hospital').count(),
+        'total_users': profile_counts['total_users'],
+        'total_admins': profile_counts['total_admins'],
+        'pending_requests': request_counts['pending_requests'],
+        'approved_requests': request_counts['approved_requests'],
+        'rejected_requests': request_counts['rejected_requests'],
+        'total_businesses': business_counts['total'],
+        'total_restaurants': business_counts['restaurants'],
+        'total_schools': business_counts['schools'],
+        'total_colleges': business_counts['colleges'],
+        'total_hospitals': business_counts['hospitals'],
         'total_properties': Property.objects.count(),
         'total_jobs': Job.objects.count(),
         'total_events': Event.objects.count(),
@@ -2056,15 +2116,18 @@ def _super_admin_dashboard(request):
         'total_likes': Like.objects.count(),
         'total_favorites': Favorite.objects.count(),
         'total_shares': Share.objects.count(),
-        'total_messages': ContactMessage.objects.count(),
-        'unread_messages': ContactMessage.objects.filter(is_read=False).count(),
+        'total_messages': message_counts['total'],
+        'unread_messages': message_counts['unread'],
     }
 
     context = {
         'page_title': 'Super Admin Dashboard - OneTownCity',
         'stats': stats,
-        'recent_requests': AdminRequest.objects.select_related('user').prefetch_related('categories').order_by('-created_at')[:5],
-        'recent_logins': LoginHistory.objects.select_related('user').filter(event_type='login').order_by('-created_at')[:10],
+        # 'user__profile' added: the template reads req.user.profile.full_name
+        # / entry.user.profile.full_name per row, which without this was a
+        # separate query per row (15 extra queries for a 5+10 row page).
+        'recent_requests': AdminRequest.objects.select_related('user', 'user__profile').prefetch_related('categories').order_by('-created_at')[:5],
+        'recent_logins': LoginHistory.objects.select_related('user', 'user__profile').filter(event_type='login').order_by('-created_at')[:10],
         'recent_messages': ContactMessage.objects.order_by('-created_at')[:5],
         'active_nav': 'overview',
     }

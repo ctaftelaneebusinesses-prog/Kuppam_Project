@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block body_attrs %}data-category-bg="{% if directory_key == 'restaurants' %}restaurant{% elif directory_key == 'hospitals' %}health{% elif directory_key == 'education' %}education{% elif directory_key == 'transport' %}transport{% endif %}" data-subcategory="{{ selected_subcategory }}"{% endblock %}
 
 {% block content %}
+{% if directory_key == 'restaurants' %}{% trans "Restaurants & Food" as directory_label_t %}{% elif directory_key == 'hospitals' %}{% trans "Hospitals & Healthcare" as directory_label_t %}{% elif directory_key == 'education' %}{% trans "Education" as directory_label_t %}{% elif directory_key == 'transport' %}{% trans "Transport" as directory_label_t %}{% else %}{% trans "Listings" as directory_label_t %}{% endif %}
 <section class="container py-5">
 
     <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
         <div class="hk-section-icon"><i class="bi {{ directory_icon }}"></i></div>
         <div>
-            <h2 class="fw-bold mb-0">{{ directory_label }}</h2>
-            <p class="text-muted mb-0">Browse {{ directory_label|lower }} listings in Kuppam</p>
+            <h2 class="fw-bold mb-0">{{ directory_label_t }}</h2>
+            <p class="text-muted mb-0">{% blocktrans with label=directory_label_t|lower %}Browse {{ label }} listings in Kuppam{% endblocktrans %}</p>
         </div>
     </div>
 
@@ -19,7 +21,7 @@
         <form method="get" class="row g-2 align-items-end">
             <div class="col-12">
                 <label class="form-label" for="directory-search-input">
-                    <i class="bi bi-funnel"></i> Search {{ directory_label }}
+                    <i class="bi bi-funnel"></i> {% blocktrans with label=directory_label_t %}Search {{ label }}{% endblocktrans %}
                 </label>
             </div>
             <div class="col-12 col-md-{% if subcategory_choices %}6{% else %}9{% endif %}">
@@ -30,7 +32,7 @@
                         id="directory-search-input"
                         name="q"
                         class="form-control"
-                        placeholder="Search by name or address..."
+                        placeholder="{% trans 'Search by name or address...' %}"
                         value="{{ query }}"
                     >
                 </div>
@@ -38,7 +40,7 @@
             {% if subcategory_choices %}
             <div class="col-8 col-md-3">
                 <select name="type" class="form-select">
-                    <option value="">All Types</option>
+                    <option value="">{% trans "All Types" %}</option>
                     {% for value, label in subcategory_choices %}
                     <option value="{{ value }}" {% if selected_subcategory == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
@@ -47,7 +49,7 @@
             {% endif %}
             <div class="col-4 col-md-3">
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Search
+                    <i class="bi bi-search"></i> {% trans "Search" %}
                 </button>
             </div>
         </form>
@@ -57,11 +59,11 @@
     <div class="hk-results-bar mb-4">
         <i class="bi bi-list-check"></i>
         {% if query or selected_subcategory %}
-            Showing {{ total_results }} result{{ total_results|pluralize }}
-            {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
-            &mdash; <a href="{{ request.path }}">Clear filters <i class="bi bi-x-circle"></i></a>
+            {% blocktrans count counter=total_results %}Showing {{ counter }} result{% plural %}Showing {{ counter }} results{% endblocktrans %}
+            {% if query %} {% blocktrans %}for "<strong>{{ query }}</strong>"{% endblocktrans %}{% endif %}
+            &mdash; <a href="{{ request.path }}">{% trans "Clear filters" %} <i class="bi bi-x-circle"></i></a>
         {% else %}
-            Showing {{ total_results }} listing{{ total_results|pluralize }}
+            {% blocktrans count counter=total_results %}Showing {{ counter }} listing{% plural %}Showing {{ counter }} listings{% endblocktrans %}
         {% endif %}
     </div>
 
@@ -77,33 +79,33 @@
 
     <!-- Pagination -->
     {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="mt-5" aria-label="Listing pagination">
+    <nav class="mt-5" aria-label="{% trans 'Listing pagination' %}">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="First page">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="{% trans 'First page' %}">
                         <i class="bi bi-chevron-double-left"></i>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="Previous page">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="{% trans 'Previous page' %}">
                         <i class="bi bi-chevron-left"></i>
                     </a>
                 </li>
             {% endif %}
 
             <li class="page-item active">
-                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <span class="page-link">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</span>
             </li>
 
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="Next page">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="{% trans 'Next page' %}">
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="Last page">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="{% trans 'Last page' %}">
                         <i class="bi bi-chevron-double-right"></i>
                     </a>
                 </li>
@@ -115,13 +117,13 @@
     {% else %}
     <div class="alert alert-info text-center py-5 hk-empty-state">
         <i class="bi {{ directory_icon }} display-4 d-block mb-3"></i>
-        <p class="fw-bold mb-1">No {{ directory_label|lower }} found</p>
+        <p class="fw-bold mb-1">{% blocktrans with label=directory_label_t|lower %}No {{ label }} found{% endblocktrans %}</p>
         <p class="text-muted mb-3">
-            {% if query or selected_subcategory %}No listings match your search/filter. Try different keywords or types.{% else %}There are no listings here yet. Please check back soon.{% endif %}
+            {% if query or selected_subcategory %}{% trans "No listings match your search/filter. Try different keywords or types." %}{% else %}{% trans "There are no listings here yet. Please check back soon." %}{% endif %}
         </p>
         {% if query or selected_subcategory %}
         <a href="{{ request.path }}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+            <i class="bi bi-arrow-counterclockwise"></i> {% trans "Clear Filters" %}
         </a>
         {% endif %}
     </div>

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block body_attrs %}data-category-bg="projects"{% endblock %}
@@ -9,8 +10,8 @@
     <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
         <div class="hk-section-icon"><i class="bi bi-cone-striped"></i></div>
         <div>
-            <h2 class="fw-bold mb-0">Upcoming Projects</h2>
-            <p class="text-muted mb-0">Planned and ongoing civic and infrastructure projects in Kuppam</p>
+            <h2 class="fw-bold mb-0">{% trans "Upcoming Projects" %}</h2>
+            <p class="text-muted mb-0">{% trans "Planned and ongoing civic and infrastructure projects in Kuppam" %}</p>
         </div>
     </div>
 
@@ -19,7 +20,7 @@
         <form method="get" class="row g-2 align-items-end">
             <div class="col-12">
                 <label class="form-label" for="project-search-input">
-                    <i class="bi bi-funnel"></i> Search Projects
+                    <i class="bi bi-funnel"></i> {% trans "Search Projects" %}
                 </label>
             </div>
             <div class="col-12 col-md-9">
@@ -30,14 +31,14 @@
                         id="project-search-input"
                         name="q"
                         class="form-control"
-                        placeholder="Search projects by title or location..."
+                        placeholder="{% trans 'Search projects by title or location...' %}"
                         value="{{ query }}"
                     >
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Search
+                    <i class="bi bi-search"></i> {% trans "Search" %}
                 </button>
             </div>
         </form>
@@ -47,10 +48,10 @@
     <div class="hk-results-bar mb-4">
         <i class="bi bi-list-check"></i>
         {% if query %}
-            Showing {{ total_results }} result{{ total_results|pluralize }} for "<strong>{{ query }}</strong>"
-            &mdash; <a href="{% url 'core:project_list' %}">Clear search <i class="bi bi-x-circle"></i></a>
+            {% blocktrans count counter=total_results %}Showing {{ counter }} result{% plural %}Showing {{ counter }} results{% endblocktrans %} {% blocktrans %}for "<strong>{{ query }}</strong>"{% endblocktrans %}
+            &mdash; <a href="{% url 'core:project_list' %}">{% trans "Clear search" %} <i class="bi bi-x-circle"></i></a>
         {% else %}
-            Showing {{ total_results }} project{{ total_results|pluralize }}
+            {% blocktrans count counter=total_results %}Showing {{ counter }} project{% plural %}Showing {{ counter }} projects{% endblocktrans %}
         {% endif %}
     </div>
 
@@ -66,33 +67,33 @@
 
     <!-- Pagination -->
     {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="mt-5" aria-label="Projects listing pagination">
+    <nav class="mt-5" aria-label="{% trans 'Projects listing pagination' %}">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First page">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="{% trans 'First page' %}">
                         <i class="bi bi-chevron-double-left"></i>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous page">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="{% trans 'Previous page' %}">
                         <i class="bi bi-chevron-left"></i>
                     </a>
                 </li>
             {% endif %}
 
             <li class="page-item active">
-                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <span class="page-link">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</span>
             </li>
 
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next page">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="{% trans 'Next page' %}">
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last page">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="{% trans 'Last page' %}">
                         <i class="bi bi-chevron-double-right"></i>
                     </a>
                 </li>
@@ -104,11 +105,11 @@
     {% else %}
     <div class="alert alert-info text-center py-5 hk-empty-state">
         <i class="bi bi-cone-striped display-4 d-block mb-3"></i>
-        <p class="fw-bold mb-1">No upcoming projects found</p>
-        <p class="text-muted mb-3">Try adjusting your search.</p>
+        <p class="fw-bold mb-1">{% trans "No upcoming projects found" %}</p>
+        <p class="text-muted mb-3">{% trans "Try adjusting your search." %}</p>
         {% if query %}
         <a href="{% url 'core:project_list' %}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-counterclockwise"></i> Clear Search
+            <i class="bi bi-arrow-counterclockwise"></i> {% trans "Clear Search" %}
         </a>
         {% endif %}
     </div>

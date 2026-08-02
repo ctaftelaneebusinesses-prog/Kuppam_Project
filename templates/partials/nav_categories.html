@@ -6,25 +6,9 @@
     </a>
     <ul class="dropdown-menu hk-nav-cat-menu">
         {% for cat in nav_category_tree %}
-        <li>
-            {% if cat.listing_model == 'business' %}<a class="dropdown-item fw-semibold" href="{% url 'core:business_list' %}{% if cat.business_subcategory %}?category={{ cat.business_subcategory }}{% endif %}"><i class="bi {{ cat.icon }}"></i> {{ cat.label|dyntrans }}</a>
-            {% elif cat.listing_model == 'property' %}<a class="dropdown-item fw-semibold" href="{% url 'core:property_list' %}"><i class="bi {{ cat.icon }}"></i> {{ cat.label|dyntrans }}</a>
-            {% elif cat.listing_model == 'job' %}<a class="dropdown-item fw-semibold" href="{% url 'core:job_list' %}"><i class="bi {{ cat.icon }}"></i> {{ cat.label|dyntrans }}</a>
-            {% elif cat.listing_model == 'event' %}<a class="dropdown-item fw-semibold" href="{% url 'core:event_list' %}"><i class="bi {{ cat.icon }}"></i> {{ cat.label|dyntrans }}</a>
-            {% elif cat.listing_model == 'news' %}<a class="dropdown-item fw-semibold" href="{% url 'core:news_list' %}"><i class="bi {{ cat.icon }}"></i> {{ cat.label|dyntrans }}</a>
-            {% elif cat.listing_model == 'project' %}<a class="dropdown-item fw-semibold" href="{% url 'core:project_list' %}"><i class="bi {{ cat.icon }}"></i> {{ cat.label|dyntrans }}</a>
-            {% endif %}
-        </li>
+        <li><a class="dropdown-item fw-semibold" href="{{ cat.list_url }}"><i class="bi {{ cat.icon }}"></i> {{ cat.label|dyntrans }}</a></li>
         {% for sub in cat.children.all %}
-        <li>
-            {% if sub.listing_model == 'business' %}<a class="dropdown-item ps-4 small" href="{% url 'core:business_list' %}{% if sub.business_subcategory %}?category={{ sub.business_subcategory }}{% endif %}"><i class="bi {{ sub.icon }}"></i> {{ sub.label|dyntrans }}</a>
-            {% elif sub.listing_model == 'property' %}<a class="dropdown-item ps-4 small" href="{% url 'core:property_list' %}"><i class="bi {{ sub.icon }}"></i> {{ sub.label|dyntrans }}</a>
-            {% elif sub.listing_model == 'job' %}<a class="dropdown-item ps-4 small" href="{% url 'core:job_list' %}"><i class="bi {{ sub.icon }}"></i> {{ sub.label|dyntrans }}</a>
-            {% elif sub.listing_model == 'event' %}<a class="dropdown-item ps-4 small" href="{% url 'core:event_list' %}"><i class="bi {{ sub.icon }}"></i> {{ sub.label|dyntrans }}</a>
-            {% elif sub.listing_model == 'news' %}<a class="dropdown-item ps-4 small" href="{% url 'core:news_list' %}"><i class="bi {{ sub.icon }}"></i> {{ sub.label|dyntrans }}</a>
-            {% elif sub.listing_model == 'project' %}<a class="dropdown-item ps-4 small" href="{% url 'core:project_list' %}"><i class="bi {{ sub.icon }}"></i> {{ sub.label|dyntrans }}</a>
-            {% endif %}
-        </li>
+        <li><a class="dropdown-item ps-4 small" href="{{ sub.list_url }}"><i class="bi {{ sub.icon }}"></i> {{ sub.label|dyntrans }}</a></li>
         {% endfor %}
         {% endfor %}
     </ul>

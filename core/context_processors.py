@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 
 
 def supabase_config(request):
@@ -29,6 +30,15 @@ def unread_messages(request):
     return {'unread_message_count': ContactMessage.objects.filter(is_read=False).count()}
 
 
+CATEGORY_TREE_CACHE_KEY = 'core:nav_category_tree'
+SITE_THEME_CACHE_KEY = 'core:site_theme'
+# Both are re-read on literally every page view (nav dropdown / anti-flash
+# script) but only change when a Super Admin edits categories or site theme
+# — cached with a short TTL as a safety net, and cleared immediately by
+# signals.py on save so admin edits still show up right away.
+CONTEXT_CACHE_TTL = 300
+
+
 def category_tree(request):
     """
     Active top-level categories (with their active subcategories prefetched)
@@ -36,13 +46,16 @@ def category_tree(request):
     partials/nav_categories.html. Replaces what used to be hardcoded links,
     so Super Admin category/subcategory changes cascade there automatically.
     """
-    from django.db.models import Prefetch
-    from .models import Category
-    top_categories = (
-        Category.objects.filter(parent=None, is_active=True)
-        .prefetch_related(Prefetch('children', queryset=Category.objects.filter(is_active=True).order_by('order', 'label')))
-        .order_by('order', 'label')
-    )
+    top_categories = cache.get(CATEGORY_TREE_CACHE_KEY)
+    if top_categories is None:
+        from django.db.models import Prefetch
+        from .models import Category
+        top_categories = list(
+            Category.objects.filter(parent=None, is_active=True)
+            .prefetch_related(Prefetch('children', queryset=Category.objects.filter(is_active=True).order_by('order', 'label')))
+            .order_by('order', 'label')
+        )
+        cache.set(CATEGORY_TREE_CACHE_KEY, top_categories, CONTEXT_CACHE_TTL)
     return {'nav_category_tree': top_categories}
 
 
@@ -53,9 +66,13 @@ def site_theme(request):
     palette-switcher.js can apply them before a visitor's own localStorage
     choice is considered.
     """
-    from .models import SiteSettings
-    settings_obj = SiteSettings.load()
-    return {
-        'site_default_palette': settings_obj.default_palette,
-        'site_enforce_palette': settings_obj.enforce_palette,
-    }
+    theme = cache.get(SITE_THEME_CACHE_KEY)
+    if theme is None:
+        from .models import SiteSettings
+        settings_obj = SiteSettings.load()
+        theme = {
+            'site_default_palette': settings_obj.default_palette,
+            'site_enforce_palette': settings_obj.enforce_palette,
+        }
+        cache.set(SITE_THEME_CACHE_KEY, theme, CONTEXT_CACHE_TTL)
+    return theme

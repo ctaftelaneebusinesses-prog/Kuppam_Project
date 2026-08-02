@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.sitemaps',
 
     # Local apps
     'core',
@@ -102,6 +103,31 @@ DATABASES = {
         conn_max_age=0 if DEBUG else 600,
     )
 }
+# ------------------------------------------------------------------
+# CACHING
+# ------------------------------------------------------------------
+# Used for the category nav tree and site-theme flags (core/context_processors.py),
+# which are otherwise re-queried on every single page view. REDIS_URL is optional —
+# add a Redis instance on Railway/Render and set it there to share the cache across
+# gunicorn workers; without it, every worker just keeps its own in-memory cache,
+# which is still faster than re-hitting Postgres on every request.
+REDIS_URL = os.getenv('REDIS_URL', '')
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient'},
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
+
 # PASSWORD VALIDATION
 # ------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
@@ -124,6 +150,7 @@ LANGUAGES = [
     ('te', 'Telugu'),
     ('hi', 'Hindi'),
     ('ta', 'Tamil'),
+    ('kn', 'Kannada'),
 ]
 LOCALE_PATHS = [BASE_DIR / 'locale']
 

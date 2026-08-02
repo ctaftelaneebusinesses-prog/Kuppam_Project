@@ -2,6 +2,7 @@
 {% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ business.description|default:business.name|truncatechars:160 }}{% endblock %}
 
 {% block content %}
 <section class="container py-5">

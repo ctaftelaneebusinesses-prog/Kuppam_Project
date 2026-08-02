@@ -3,6 +3,7 @@
 {% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ property.description|default:property.title|truncatechars:160 }}{% endblock %}
 
 {% block content %}
 <section class="container py-5">

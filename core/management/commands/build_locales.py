@@ -30,7 +30,7 @@ BLOCKTRANS_RE = re.compile(
 )
 VAR_RE = re.compile(r'{{\s*(\w+)\s*}}')
 
-LANGUAGES = ['te', 'hi', 'ta']
+LANGUAGES = ['te', 'hi', 'ta', 'kn']
 
 
 def extract_msgids(text):
