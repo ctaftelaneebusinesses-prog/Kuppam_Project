@@ -1,0 +1,152 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <a href="{% url 'core:dashboard_users' %}" class="text-decoration-none small text-muted d-inline-flex align-items-center gap-1 mb-2">
+            <i class="bi bi-arrow-left"></i> Back to Manage Users
+        </a>
+        <h3 class="fw-bold mb-0" data-aos="fade-up">{{ viewed_profile.full_name|default:viewed_profile.user.username }}</h3>
+    </div>
+</div>
+
+<div class="card hk-data-card mb-4">
+    <div class="card-body d-flex flex-wrap align-items-center gap-4">
+        <img src="{{ viewed_profile.display_photo }}" alt="{{ viewed_profile.full_name }}" class="rounded-circle" style="width:84px; height:84px; object-fit:cover;">
+        <div class="flex-grow-1">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <span class="fw-bold fs-5">{{ viewed_profile.full_name|default:viewed_profile.user.username }}</span>
+                <span class="badge bg-primary-subtle text-primary">{{ viewed_profile.get_role_display }}</span>
+                {% if viewed_profile.is_blocked %}<span class="hk-status-pill hk-status-rejected">Blocked</span>{% endif %}
+                {% if viewed_profile.is_suspended %}<span class="hk-status-pill hk-status-pending">Suspended</span>{% endif %}
+                {% if not viewed_profile.is_blocked and not viewed_profile.is_suspended %}<span class="hk-status-pill hk-status-active">Active</span>{% endif %}
+            </div>
+            <div class="text-muted small mb-1"><i class="bi bi-envelope"></i> {{ viewed_profile.user.email }}{% if viewed_profile.phone_number %} &middot; <i class="bi bi-telephone"></i> {{ viewed_profile.phone_number }}{% endif %}</div>
+            <div class="text-muted small">
+                <i class="bi bi-geo-alt"></i> {{ viewed_profile.city|default:"—" }}{% if viewed_profile.state %}, {{ viewed_profile.state }}{% endif %}{% if viewed_profile.pincode %} - {{ viewed_profile.pincode }}{% endif %}
+                &middot; <i class="bi bi-calendar3"></i> Joined {{ viewed_profile.created_at|date:"d M Y" }}
+                &middot; <i class="bi bi-clock-history"></i> Last active {{ viewed_profile.last_active_at|date:"d M Y, H:i"|default:"never" }}
+            </div>
+            {% if viewed_profile.address %}<div class="text-muted small mt-1"><i class="bi bi-house"></i> {{ viewed_profile.address }}</div>{% endif %}
+        </div>
+        <div class="d-flex gap-1">
+            {% if viewed_profile.role != 'super_admin' %}
+            <form method="post" action="{% url 'core:dashboard_user_toggle_block' viewed_profile.user_id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="bi {% if viewed_profile.is_blocked %}bi-shield-check{% else %}bi-shield-slash{% endif %}"></i>
+                    {% if viewed_profile.is_blocked %}Unblock{% else %}Block{% endif %}
+                </button>
+            </form>
+            {% if viewed_profile.role == 'admin' %}
+            <form method="post" action="{% url 'core:dashboard_user_toggle_suspend' viewed_profile.user_id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="btn btn-outline-warning btn-sm">
+                    <i class="bi {% if viewed_profile.is_suspended %}bi-play-circle{% else %}bi-pause-circle{% endif %}"></i>
+                    {% if viewed_profile.is_suspended %}Unsuspend{% else %}Suspend{% endif %}
+                </button>
+            </form>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="hk-dash-section-title" data-aos="fade-up">Listings</div>
+<div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-card-list"></i></div><div><div class="hk-stat-value">{{ stats.total }}</div><div class="hk-stat-label">Total</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending }}</div><div class="hk-stat-label">Pending</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved }}</div><div class="hk-stat-label">Approved</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-danger-bg-subtle); color:var(--bs-danger);"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ stats.rejected }}</div><div class="hk-stat-label">Rejected</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-eye"></i></div><div><div class="hk-stat-value">{{ stats.total_views }}</div><div class="hk-stat-label">Total Views</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--hk-violet-bg); color:#7C3AED;"><i class="bi bi-heart"></i></div><div><div class="hk-stat-value">{{ stats.total_likes }}</div><div class="hk-stat-label">Total Likes</div></div></div>
+</div>
+
+{% if permitted_categories is not None %}
+<div class="hk-dash-section-title" data-aos="fade-up">Permitted Categories</div>
+<div class="card hk-data-card mb-4">
+    <div class="card-body d-flex flex-wrap gap-2">
+        {% for category in permitted_categories %}
+        <span class="badge bg-primary-subtle text-primary"><i class="bi {{ category.icon }}"></i> {{ category.label }}</span>
+        {% empty %}
+        <p class="text-muted mb-0">No categories granted yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if items %}
+<div class="card hk-data-card mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Listing</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Views</th>
+                    <th>Likes</th>
+                    <th>Created</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                {% with obj=item.obj %}
+                <tr>
+                    <td>{{ obj }}</td>
+                    <td><span class="hk-type-pill hk-type-{{ item.model_key }}">{{ item.model_key }}</span></td>
+                    <td><span class="hk-status-pill hk-status-{{ obj.status }}">{{ obj.get_status_display }}</span></td>
+                    <td>{{ obj.view_count }}</td>
+                    <td>{{ obj.like_count }}</td>
+                    <td class="small text-muted">{{ obj.created_at|date:"d M Y" }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'core:dashboard_post_detail' item.model_key obj.pk %}" class="hk-row-action-btn" title="View listing"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
+                {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info text-center py-5 hk-empty-state mb-4">
+    <i class="bi bi-card-list display-4 d-block mb-3"></i>
+    <p class="fw-bold mb-1">No listings yet</p>
+    <p class="text-muted mb-0">This user hasn't published anything.</p>
+</div>
+{% endif %}
+
+<div class="hk-dash-section-title" data-aos="fade-up">Recent Login Activity</div>
+<div class="card hk-data-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Event</th>
+                    <th>IP Address</th>
+                    <th>Device</th>
+                    <th>When</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in login_history %}
+                <tr>
+                    <td><span class="badge {% if entry.event_type == 'login' %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-secondary{% endif %}">{{ entry.get_event_type_display }}</span></td>
+                    <td class="text-muted small">{{ entry.ip_address|default:"—" }}</td>
+                    <td class="text-muted small">{{ entry.user_agent|default:"—"|truncatechars:60 }}</td>
+                    <td class="text-muted small">{{ entry.created_at|date:"d M Y, H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center text-muted py-4">No login activity recorded.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

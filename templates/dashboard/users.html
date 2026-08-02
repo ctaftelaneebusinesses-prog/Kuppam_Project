@@ -84,8 +84,11 @@
                             {% if not profile.is_blocked and not profile.is_suspended %}<span class="hk-status-pill hk-status-active">Active</span>{% endif %}
                         </td>
                         <td class="text-end">
-                            {% if profile.role != 'super_admin' %}
                             <div class="d-flex justify-content-end gap-1">
+                                <a href="{% url 'core:dashboard_user_detail' profile.user_id %}" class="hk-row-action-btn" title="View profile">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% if profile.role != 'super_admin' %}
                                 <button type="submit" formaction="{% url 'core:dashboard_user_toggle_block' profile.user_id %}" class="hk-row-action-btn hk-row-action-danger" title="{% if profile.is_blocked %}Unblock{% else %}Block{% endif %}">
                                     <i class="bi {% if profile.is_blocked %}bi-shield-check{% else %}bi-shield-slash{% endif %}"></i>
                                 </button>
@@ -94,8 +97,8 @@
                                     <i class="bi {% if profile.is_suspended %}bi-play-circle{% else %}bi-pause-circle{% endif %}"></i>
                                 </button>
                                 {% endif %}
+                                {% endif %}
                             </div>
-                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}

@@ -1974,6 +1974,47 @@ def dashboard_users(request):
 
 
 @super_admin_required
+def dashboard_user_detail(request, user_id):
+    """
+    Full read-only profile view for one account — Super Admin clicks a row
+    in Manage Users to see everything the flat table can't show inline
+    (contact/address details, granted category permissions, every listing
+    they own, recent login history). Reuses the same per-owner listing scan
+    _admin_dashboard already does for a Content Provider's own workspace,
+    just pointed at the viewed user instead of request.user.
+    """
+    profile = get_object_or_404(Profile.objects.select_related('user'), user_id=user_id)
+    target_user = profile.user
+
+    own_items = []
+    for key, model_cls in LISTING_MODELS.items():
+        qs = model_cls.objects.filter(owner=target_user).select_related('listing_category')
+        for obj in qs:
+            own_items.append({'model_key': key, 'obj': obj})
+    own_items.sort(key=lambda item: item['obj'].created_at, reverse=True)
+
+    stats = {
+        'total': len(own_items),
+        'pending': sum(1 for i in own_items if i['obj'].status == ListingStatus.PENDING),
+        'approved': sum(1 for i in own_items if i['obj'].status == ListingStatus.APPROVED),
+        'rejected': sum(1 for i in own_items if i['obj'].status == ListingStatus.REJECTED),
+        'total_views': sum(i['obj'].view_count for i in own_items),
+        'total_likes': sum(i['obj'].like_count for i in own_items),
+    }
+
+    context = {
+        'page_title': f'{profile.full_name or target_user.username} - OneTownCity',
+        'viewed_profile': profile,
+        'stats': stats,
+        'items': own_items,
+        'permitted_categories': Category.objects.filter(is_active=True, admin_permissions__admin=target_user) if profile.role == UserRole.ADMIN else None,
+        'login_history': LoginHistory.objects.filter(user=target_user)[:10],
+        'active_nav': 'users',
+    }
+    return render(request, 'dashboard/user_detail.html', context)
+
+
+@super_admin_required
 @require_POST
 def dashboard_user_toggle_block(request, user_id):
     profile = get_object_or_404(Profile, user_id=user_id)
@@ -2389,7 +2430,10 @@ def _filtered_post_items(request):
     """
     Shared query-param filtering/sorting for the Posts dashboard, reused by
     dashboard_posts (paginated HTML table) and the Excel/PDF export views so
-    an export always matches whatever the Super Admin is currently viewing.
+    an export always matches whatever the viewer is currently allowed to see.
+
+    Super Admins see every listing; Admins (Content Providers) are scoped to
+    only the listings they own.
     """
     q = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '').strip()
@@ -2397,12 +2441,15 @@ def _filtered_post_items(request):
     owner_id = request.GET.get('owner', '').strip()
     status_filter = request.GET.get('status', '').strip()
     sort = request.GET.get('sort', 'newest')
+    is_super_admin = request.profile.is_super_admin
 
     items = []
     for key, model_cls in LISTING_MODELS.items():
         if model_filter and model_filter != key:
             continue
         qs = model_cls.objects.select_related('owner', 'listing_category')
+        if not is_super_admin:
+            qs = qs.filter(owner=request.user)
         if status_filter:
             qs = qs.filter(status=status_filter)
         if category_id:
@@ -2436,10 +2483,13 @@ def dashboard_posts(request):
 
     counts = {'total': 0, 'pending': 0, 'approved': 0, 'rejected': 0}
     for model_cls in LISTING_MODELS.values():
-        counts['total'] += model_cls.objects.count()
-        counts['pending'] += model_cls.objects.filter(status=ListingStatus.PENDING).count()
-        counts['approved'] += model_cls.objects.filter(status=ListingStatus.APPROVED).count()
-        counts['rejected'] += model_cls.objects.filter(status=ListingStatus.REJECTED).count()
+        base_qs = model_cls.objects.all()
+        if not request.profile.is_super_admin:
+            base_qs = base_qs.filter(owner=request.user)
+        counts['total'] += base_qs.count()
+        counts['pending'] += base_qs.filter(status=ListingStatus.PENDING).count()
+        counts['approved'] += base_qs.filter(status=ListingStatus.APPROVED).count()
+        counts['rejected'] += base_qs.filter(status=ListingStatus.REJECTED).count()
 
     context = {
         'page_title': 'Posts - OneTownCity',
@@ -2460,12 +2510,22 @@ def dashboard_posts(request):
     return render(request, 'dashboard/posts.html', context)
 
 
+def _ensure_post_owner_access(request, obj):
+    """
+    IDOR guard: Admins (Content Providers) may only view/act on listings
+    they own, even via a direct URL — Super Admins are unrestricted.
+    """
+    if not request.profile.is_super_admin and obj.owner_id != request.user.id:
+        raise Http404('Unknown listing type')
+
+
 @admin_or_super_required
 def dashboard_post_detail(request, model_key, pk):
     model_cls = LISTING_MODELS.get(model_key)
     if model_cls is None:
         raise Http404('Unknown listing type')
     obj = get_object_or_404(model_cls.objects.select_related('owner', 'listing_category', 'reviewed_by'), pk=pk)
+    _ensure_post_owner_access(request, obj)
     ct = ContentType.objects.get_for_model(obj)
     gallery_images = PostImage.objects.filter(content_type=ct, object_id=obj.pk).select_related('uploaded_by')
     gallery_videos = PostVideo.objects.filter(content_type=ct, object_id=obj.pk).select_related('uploaded_by')
@@ -2489,6 +2549,7 @@ def dashboard_post_toggle_active(request, model_key, pk):
     if model_cls is None:
         raise Http404('Unknown listing type')
     obj = get_object_or_404(model_cls, pk=pk)
+    _ensure_post_owner_access(request, obj)
     obj.is_active = not obj.is_active
     obj.save(update_fields=['is_active'])
     messages.success(request, f'{obj} is now {"active" if obj.is_active else "inactive"}.')
@@ -2502,6 +2563,7 @@ def dashboard_post_toggle_featured(request, model_key, pk):
     if model_cls is None:
         raise Http404('Unknown listing type')
     obj = get_object_or_404(model_cls, pk=pk)
+    _ensure_post_owner_access(request, obj)
     obj.is_featured = not obj.is_featured
     obj.save(update_fields=['is_featured'])
     messages.success(request, f'{obj} is now {"featured" if obj.is_featured else "not featured"}.')
@@ -2515,6 +2577,7 @@ def dashboard_post_add_images(request, model_key, pk):
     if model_cls is None:
         raise Http404('Unknown listing type')
     obj = get_object_or_404(model_cls, pk=pk)
+    _ensure_post_owner_access(request, obj)
     ct = ContentType.objects.get_for_model(obj)
 
     images, image_errors = _validate_gallery_files(
@@ -2556,6 +2619,8 @@ def dashboard_post_add_images(request, model_key, pk):
 def dashboard_post_delete_image(request, image_pk):
     image = get_object_or_404(PostImage, pk=image_pk)
     obj = image.content_object
+    if obj is not None:
+        _ensure_post_owner_access(request, obj)
     model_key = image.content_type.model
     image.delete()
     messages.success(request, 'Image deleted.')
@@ -2569,6 +2634,8 @@ def dashboard_post_delete_image(request, image_pk):
 def dashboard_post_delete_video(request, video_pk):
     video = get_object_or_404(PostVideo, pk=video_pk)
     obj = video.content_object
+    if obj is not None:
+        _ensure_post_owner_access(request, obj)
     model_key = video.content_type.model
     video.delete()
     messages.success(request, 'Video deleted.')
@@ -2584,6 +2651,7 @@ def dashboard_post_set_cover_image(request, image_pk):
     obj = image.content_object
     if obj is None:
         raise Http404('Post no longer exists')
+    _ensure_post_owner_access(request, obj)
     model_key = image.content_type.model
 
     if obj.image:
@@ -2629,6 +2697,8 @@ def dashboard_posts_bulk_action(request):
             continue
         obj = model_cls.objects.filter(pk=pk).first()
         if obj is None:
+            continue
+        if not request.profile.is_super_admin and obj.owner_id != request.user.id:
             continue
 
         if action in ('approve', 'reject'):
