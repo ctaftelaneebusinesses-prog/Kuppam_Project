@@ -138,7 +138,7 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.validators import validate_email
-from django.db.models import Count, F, ProtectedError, Q
+from django.db.models import Count, F, Prefetch, ProtectedError, Q
 from django.db.models.functions import TruncDate
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -1410,10 +1410,17 @@ def admin_request_new(request):
         initial = {'categories': resubmitting.categories.all()} if resubmitting else {}
         form = AdminRequestForm(initial=initial)
 
+    selected_ids = {c.pk for c in form.initial.get('categories', [])} if not request.method == 'POST' \
+        else {int(v) for v in request.POST.getlist('categories') if v.isdigit()}
+
     context = {
         'page_title': 'What Do You Want to Manage? - OneTownCity',
         'form': form,
         'resubmitting': bool(resubmitting),
+        'top_categories': Category.objects.filter(parent=None, is_active=True).prefetch_related(
+            Prefetch('children', queryset=Category.objects.filter(is_active=True).order_by('order', 'label'))
+        ).order_by('order', 'label'),
+        'selected_ids': selected_ids,
     }
     return render(request, 'admin_request_form.html', context)
 
@@ -1607,6 +1614,27 @@ def notifications_unread_count(request):
 # Content Provider (Admin): "My Listings" + submission wizard
 # ===========================================================================
 
+def _group_categories_by_top(categories):
+    """
+    Buckets a flat iterable of (possibly-child) Category rows under their
+    top-level ancestor, preserving order. Used to turn a permission-filtered
+    category list into the same collapsible parent/subcategory groups as
+    Manage Categories and the onboarding checklist, instead of one long flat
+    row of pills mixing parents and children together.
+    """
+    groups, order = {}, []
+    for cat in categories:
+        top = cat.parent if cat.parent_id else cat
+        if top.pk not in groups:
+            groups[top.pk] = {'top': top, 'top_permitted': False, 'children': []}
+            order.append(top.pk)
+        if cat.pk == top.pk:
+            groups[top.pk]['top_permitted'] = True
+        else:
+            groups[top.pk]['children'].append(cat)
+    return [groups[pk] for pk in order]
+
+
 @onboarding_required
 def my_listings(request):
     profile = request.profile
@@ -1621,14 +1649,14 @@ def my_listings(request):
             items.append({'model_key': key, 'obj': obj})
     items.sort(key=lambda item: item['obj'].created_at, reverse=True)
 
-    permitted_categories = Category.objects.filter(is_active=True)
+    permitted_categories = Category.objects.filter(is_active=True).select_related('parent')
     if not profile.is_super_admin:
         permitted_categories = permitted_categories.filter(admin_permissions__admin=request.user)
 
     context = {
         'page_title': 'My Listings - OneTownCity',
         'items': items,
-        'permitted_categories': permitted_categories,
+        'permitted_category_groups': _group_categories_by_top(permitted_categories.order_by('order', 'label')),
         'active_nav': 'my_listings',
     }
     return render(request, 'dashboard/my_listings.html', context)
@@ -1941,7 +1969,12 @@ def _owner_engagement_analytics(own_items):
         'trend_likes': trend_pct([likes_qs]),
         'trend_shares': trend_pct([shares_qs]),
         'trend_reviews': trend_pct([reviews_qs, comments_qs]),
-        'top_posts': top_posts,
+        'top_posts_chart': {
+            'labels': [str(i['obj'])[:18] for i in top_posts],
+            'likes': [i['obj'].like_count for i in top_posts],
+            'shares': [i['obj'].share_count for i in top_posts],
+            'reviews': [i['obj'].review_count for i in top_posts],
+        },
     }
 
 
@@ -1974,7 +2007,10 @@ def _admin_dashboard(request):
         'stats': stats,
         'analytics': _owner_engagement_analytics(own_items),
         'recent_items': own_items[:8],
-        'permitted_categories': Category.objects.filter(is_active=True, admin_permissions__admin=request.user),
+        'permitted_category_groups': _group_categories_by_top(
+            Category.objects.filter(is_active=True, admin_permissions__admin=request.user)
+            .select_related('parent').order_by('order', 'label')
+        ),
         'active_nav': 'overview',
     }
     return render(request, 'dashboard/admin_dashboard.html', context)

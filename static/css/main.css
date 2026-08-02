@@ -4651,6 +4651,116 @@ html[data-theme="dark"] .hk-weather-widget {
 .hk-stat-icon--gold { background: var(--hk-gold-bg); color: var(--hk-gold-600); }
 .hk-stat-icon--emerald { background: var(--hk-emerald-bg); color: var(--hk-emerald); }
 .hk-stat-icon--rose { background: var(--hk-red-bg); color: var(--hk-red-600); }
+.hk-stat-icon--sky { background: var(--hk-sky-bg); color: var(--hk-sky); }
+.hk-stat-icon--violet { background: var(--hk-violet-bg); color: var(--hk-purple); }
+
+/* --- Post Performance: YouTube-Studio-style engagement metric cards --------------------
+   Same surface/shadow/radius language as .hk-stat-card, plus a trend badge
+   (up/down/new) pairing each count with its week-over-week delta. -------- */
+.hk-yt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.hk-yt-card {
+    border: 1px solid var(--hk-border-soft);
+    border-radius: var(--hk-radius-xl);
+    background: var(--hk-surface);
+    box-shadow: var(--hk-shadow-sm);
+    padding: 1.25rem 1.35rem;
+    transition: transform var(--hk-duration-luxury) var(--hk-ease-out), box-shadow var(--hk-duration-luxury) ease;
+}
+
+.hk-yt-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--hk-shadow-hover);
+}
+
+.hk-yt-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: .9rem;
+}
+
+.hk-trend-badge {
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .3rem .6rem;
+    border-radius: var(--hk-radius-pill);
+    white-space: nowrap;
+}
+
+.hk-trend-up { background: var(--hk-emerald-bg); color: var(--hk-emerald); }
+.hk-trend-down { background: var(--hk-red-bg); color: var(--hk-red-600); }
+.hk-trend-flat { background: #F1F5F9; color: var(--hk-ink-soft); }
+
+/* --- Post Analytics drill-down table: clickable rows expand a detail tray ------------- */
+.hk-analytics-table thead.table-light th {
+    background-color: #F8F9FD;
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--hk-ink-soft);
+    border-bottom: none;
+}
+
+.hk-analytics-row {
+    cursor: pointer;
+}
+
+.hk-analytics-row:hover {
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.hk-tray-chevron {
+    transition: transform .2s ease;
+    color: var(--hk-ink-soft);
+}
+
+.hk-analytics-row[aria-expanded="true"] .hk-tray-chevron {
+    transform: rotate(180deg);
+}
+
+.hk-tray {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.75rem;
+    padding: 1.1rem 1.5rem;
+    background: #F8F9FD;
+    border-top: 1px dashed var(--hk-border-soft);
+    border-bottom: 1px dashed var(--hk-border-soft);
+}
+
+.hk-tray-metric {
+    text-align: center;
+    min-width: 84px;
+}
+
+.hk-tray-metric-value {
+    font-family: var(--hk-font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--hk-ink);
+    line-height: 1.1;
+}
+
+.hk-tray-metric-label {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--hk-ink-soft);
+    margin-top: .25rem;
+}
+
+.hk-tray-actions {
+    display: flex;
+    gap: .5rem;
+    margin-left: auto;
+}
 
 .hk-stat-card .hk-stat-value {
     font-family: var(--hk-font-heading);
@@ -5260,6 +5370,16 @@ html[data-theme="dark"] .hk-dashboard-main .hk-theme-toggle {
     color: var(--hk-ink-soft);
     font-size: .85rem;
     padding: .5rem .85rem;
+}
+
+/* "Add a New Listing" quick-pick chevron (my_listings.html) — same rotate-on-
+   expand affordance as .hk-cat-chevron, just sized for a small pill button. */
+.hk-quickadd-toggle i {
+    transition: transform .2s ease;
+}
+
+.hk-quickadd-toggle:not(.collapsed) i {
+    transform: rotate(180deg);
 }
 
 html[data-theme="dark"] .hk-cat-table thead th,

@@ -9,11 +9,35 @@
 
 <div class="card mb-4">
     <div class="card-header bg-white fw-semibold">Add a New Listing</div>
-    <div class="card-body d-flex flex-wrap gap-2">
-        {% for category in permitted_categories %}
-        <a href="{% url 'core:listing_submit' category.key %}" class="btn btn-outline-primary btn-sm">
-            <i class="bi {{ category.icon }}"></i> {{ category.label }}
-        </a>
+    <div class="card-body d-flex flex-column gap-2">
+        {% for group in permitted_category_groups %}
+        <div>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                {% if group.top_permitted %}
+                <a href="{% url 'core:listing_submit' group.top.key %}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi {{ group.top.icon }}"></i> {{ group.top.label }}
+                </a>
+                {% elif group.children %}
+                <span class="fw-semibold text-muted small"><i class="bi {{ group.top.icon }}"></i> {{ group.top.label }}</span>
+                {% endif %}
+                {% if group.children %}
+                <button type="button" class="btn btn-outline-secondary btn-sm hk-quickadd-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#hkQuickAdd{{ group.top.pk }}" aria-expanded="false" aria-controls="hkQuickAdd{{ group.top.pk }}">
+                    <i class="bi bi-chevron-down"></i> {{ group.children|length }} subcategor{{ group.children|length|pluralize:"y,ies" }}
+                </button>
+                {% endif %}
+            </div>
+            {% if group.children %}
+            <div class="collapse" id="hkQuickAdd{{ group.top.pk }}">
+                <div class="d-flex flex-wrap gap-2 mt-2 ps-3">
+                    {% for sub in group.children %}
+                    <a href="{% url 'core:listing_submit' sub.key %}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-arrow-return-right"></i> {{ sub.label }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
         {% empty %}
         <p class="text-muted mb-0">You don't have any approved categories yet.</p>
         {% endfor %}

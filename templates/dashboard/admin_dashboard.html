@@ -24,13 +24,80 @@
         <div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-x-circle"></i></div>
         <div><div class="hk-stat-value">{{ stats.rejected }}</div><div class="hk-stat-label">Rejected</div></div>
     </div>
-    <div class="hk-stat-card">
-        <div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-eye"></i></div>
-        <div><div class="hk-stat-value">{{ stats.total_views }}</div><div class="hk-stat-label">Total Views</div></div>
+</div>
+
+<h6 class="hk-dash-section-title" data-aos="fade-up">Post Performance</h6>
+<div class="hk-yt-grid mb-4" data-aos="fade-up">
+    <div class="hk-yt-card">
+        <div class="hk-yt-card-top">
+            <div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-eye"></i></div>
+            {% if analytics.trend_views is None %}
+            <span class="hk-trend-badge hk-trend-flat">New</span>
+            {% else %}
+            <span class="hk-trend-badge {% if analytics.trend_views >= 0 %}hk-trend-up{% else %}hk-trend-down{% endif %}">
+                {% if analytics.trend_views >= 0 %}+{% endif %}{{ analytics.trend_views }}% vs last week
+            </span>
+            {% endif %}
+        </div>
+        <div class="hk-stat-value">{{ stats.total_views }}</div>
+        <div class="hk-stat-label">Views / Impressions</div>
     </div>
-    <div class="hk-stat-card">
-        <div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-hand-thumbs-up"></i></div>
-        <div><div class="hk-stat-value">{{ stats.total_likes }}</div><div class="hk-stat-label">Total Likes</div></div>
+    <div class="hk-yt-card">
+        <div class="hk-yt-card-top">
+            <div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-hand-thumbs-up"></i></div>
+            {% if analytics.trend_likes is None %}
+            <span class="hk-trend-badge hk-trend-flat">New</span>
+            {% else %}
+            <span class="hk-trend-badge {% if analytics.trend_likes >= 0 %}hk-trend-up{% else %}hk-trend-down{% endif %}">
+                {% if analytics.trend_likes >= 0 %}+{% endif %}{{ analytics.trend_likes }}% vs last week
+            </span>
+            {% endif %}
+        </div>
+        <div class="hk-stat-value">{{ stats.total_likes }}</div>
+        <div class="hk-stat-label">Likes / Reactions</div>
+    </div>
+    <div class="hk-yt-card">
+        <div class="hk-yt-card-top">
+            <div class="hk-stat-icon hk-stat-icon--sky"><i class="bi bi-share-fill"></i></div>
+            {% if analytics.trend_shares is None %}
+            <span class="hk-trend-badge hk-trend-flat">New</span>
+            {% else %}
+            <span class="hk-trend-badge {% if analytics.trend_shares >= 0 %}hk-trend-up{% else %}hk-trend-down{% endif %}">
+                {% if analytics.trend_shares >= 0 %}+{% endif %}{{ analytics.trend_shares }}% vs last week
+            </span>
+            {% endif %}
+        </div>
+        <div class="hk-stat-value">{{ stats.total_shares }}</div>
+        <div class="hk-stat-label">Shares</div>
+    </div>
+    <div class="hk-yt-card">
+        <div class="hk-yt-card-top">
+            <div class="hk-stat-icon hk-stat-icon--violet"><i class="bi bi-chat-square-text-fill"></i></div>
+            {% if analytics.trend_reviews is None %}
+            <span class="hk-trend-badge hk-trend-flat">New</span>
+            {% else %}
+            <span class="hk-trend-badge {% if analytics.trend_reviews >= 0 %}hk-trend-up{% else %}hk-trend-down{% endif %}">
+                {% if analytics.trend_reviews >= 0 %}+{% endif %}{{ analytics.trend_reviews }}% vs last week
+            </span>
+            {% endif %}
+        </div>
+        <div class="hk-stat-value">{{ stats.total_reviews }}</div>
+        <div class="hk-stat-label">Reviews / Comments</div>
+    </div>
+</div>
+
+<div class="row g-4 mb-2" data-aos="fade-up">
+    <div class="col-lg-7">
+        <div class="hk-chart-card h-100">
+            <h6 class="fw-bold mb-3">Views &amp; Engagement Over Time</h6>
+            <canvas id="hkTimelineChart" height="230"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="hk-chart-card h-100">
+            <h6 class="fw-bold mb-3">Engagement Breakdown by Post</h6>
+            <canvas id="hkBreakdownChart" height="230"></canvas>
+        </div>
     </div>
 </div>
 
@@ -38,11 +105,35 @@
     <div class="col-lg-4" data-aos="fade-up">
         <div class="card h-100">
             <div class="card-header bg-white fw-semibold"><i class="bi bi-tags text-primary"></i> My Managed Categories</div>
-            <div class="card-body d-flex flex-wrap gap-2">
-                {% for category in permitted_categories %}
-                <a href="{% url 'core:listing_submit' category.key %}" class="btn btn-outline-primary btn-sm">
-                    <i class="bi {{ category.icon }}"></i> {{ category.label }}
-                </a>
+            <div class="card-body d-flex flex-column gap-2">
+                {% for group in permitted_category_groups %}
+                <div>
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        {% if group.top_permitted %}
+                        <a href="{% url 'core:listing_submit' group.top.key %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi {{ group.top.icon }}"></i> {{ group.top.label }}
+                        </a>
+                        {% elif group.children %}
+                        <span class="fw-semibold text-muted small"><i class="bi {{ group.top.icon }}"></i> {{ group.top.label }}</span>
+                        {% endif %}
+                        {% if group.children %}
+                        <button type="button" class="btn btn-outline-secondary btn-sm hk-quickadd-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#hkAdminQuickAdd{{ group.top.pk }}" aria-expanded="false" aria-controls="hkAdminQuickAdd{{ group.top.pk }}">
+                            <i class="bi bi-chevron-down"></i> {{ group.children|length }} subcategor{{ group.children|length|pluralize:"y,ies" }}
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% if group.children %}
+                    <div class="collapse" id="hkAdminQuickAdd{{ group.top.pk }}">
+                        <div class="d-flex flex-wrap gap-2 mt-2 ps-3">
+                            {% for sub in group.children %}
+                            <a href="{% url 'core:listing_submit' sub.key %}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-arrow-return-right"></i> {{ sub.label }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
                 {% empty %}
                 <p class="text-muted mb-0">You don't have any approved categories yet.</p>
                 {% endfor %}
@@ -57,18 +148,70 @@
                 <a href="{% url 'core:my_listings' %}" class="small">View all my listings</a>
             </div>
             {% if recent_items %}
-            <div class="list-group list-group-flush">
-                {% for item in recent_items %}
-                {% with obj=item.obj %}
-                <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3">
-                    <span class="text-truncate">{{ obj }}</span>
-                    <span class="d-flex align-items-center gap-2 flex-shrink-0">
-                        <span class="hk-type-pill hk-type-{{ item.model_key }}">{{ item.model_key }}</span>
-                        <span class="hk-status-pill hk-status-{{ obj.status }}">{{ obj.get_status_display }}</span>
-                    </span>
-                </a>
-                {% endwith %}
-                {% endfor %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 hk-analytics-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Listing</th>
+                            <th>Status</th>
+                            <th class="text-end"><i class="bi bi-eye"></i> Views</th>
+                            <th class="text-end"><i class="bi bi-hand-thumbs-up"></i> Likes</th>
+                            <th class="text-end"><i class="bi bi-share-fill"></i> Shares</th>
+                            <th class="text-end"><i class="bi bi-chat-square-text-fill"></i> Reviews</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in recent_items %}
+                        {% with obj=item.obj %}
+                        <tr class="hk-analytics-row" data-bs-toggle="collapse" data-bs-target="#hkTray{{ forloop.counter }}" aria-expanded="false">
+                            <td class="text-truncate" style="max-width:220px;">
+                                {{ obj }}
+                                <span class="hk-type-pill hk-type-{{ item.model_key }} ms-2">{{ item.model_key }}</span>
+                            </td>
+                            <td><span class="hk-status-pill hk-status-{{ obj.status }}">{{ obj.get_status_display }}</span></td>
+                            <td class="text-end">{{ obj.view_count }}</td>
+                            <td class="text-end">{{ obj.like_count }}</td>
+                            <td class="text-end">{{ obj.share_count }}</td>
+                            <td class="text-end">{{ obj.review_count }}</td>
+                            <td class="text-end"><i class="bi bi-chevron-down hk-tray-chevron"></i></td>
+                        </tr>
+                        <tr class="collapse hk-tray-row" id="hkTray{{ forloop.counter }}">
+                            <td colspan="7" class="p-0">
+                                <div class="hk-tray">
+                                    <div class="hk-tray-metric">
+                                        <div class="hk-tray-metric-value">{{ obj.view_count }}</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-eye"></i> Views</div>
+                                    </div>
+                                    <div class="hk-tray-metric">
+                                        <div class="hk-tray-metric-value">{{ obj.like_count }}</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-hand-thumbs-up"></i> Likes</div>
+                                    </div>
+                                    <div class="hk-tray-metric">
+                                        <div class="hk-tray-metric-value">{{ obj.share_count }}</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-share-fill"></i> Shares</div>
+                                    </div>
+                                    <div class="hk-tray-metric">
+                                        <div class="hk-tray-metric-value">{{ obj.review_count }}</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-star-fill"></i> Reviews{% if obj.avg_rating %} ({{ obj.avg_rating }}★){% endif %}</div>
+                                    </div>
+                                    <div class="hk-tray-metric">
+                                        <div class="hk-tray-metric-value">{{ obj.comment_count }}</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-chat-square-text-fill"></i> Comments</div>
+                                    </div>
+                                    <div class="hk-tray-actions">
+                                        {% if obj.status == 'approved' %}
+                                        <a href="{{ obj.get_absolute_url }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View</a>
+                                        {% endif %}
+                                        <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Edit</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
             {% else %}
             <div class="card-body">
@@ -91,6 +234,11 @@
         </div>
     </div>
 </div>
+
+{{ analytics.labels|json_script:"hkAnalyticsLabels" }}
+{{ analytics.daily_views|json_script:"hkAnalyticsViews" }}
+{{ analytics.daily_engagement|json_script:"hkAnalyticsEngagement" }}
+{{ analytics.top_posts_chart|json_script:"hkTopPostsChart" }}
 {% endblock %}
 
 {% block extra_js %}
@@ -126,6 +274,109 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         }
+    });
+
+    const labels = JSON.parse(document.getElementById('hkAnalyticsLabels').textContent);
+    const dailyViews = JSON.parse(document.getElementById('hkAnalyticsViews').textContent);
+    const dailyEngagement = JSON.parse(document.getElementById('hkAnalyticsEngagement').textContent);
+    const topPosts = JSON.parse(document.getElementById('hkTopPostsChart').textContent);
+
+    const timelineCtx = document.getElementById('hkTimelineChart');
+    let timelineChart = null;
+
+    hkRegisterThemedCharts(function () {
+        const p = hkChartPalette();
+        const viewsGradient = timelineCtx.getContext('2d').createLinearGradient(0, 0, 0, 230);
+        viewsGradient.addColorStop(0, p.primary + '55');
+        viewsGradient.addColorStop(1, p.primary + '00');
+        const engagementGradient = timelineCtx.getContext('2d').createLinearGradient(0, 0, 0, 230);
+        engagementGradient.addColorStop(0, p.sky + '55');
+        engagementGradient.addColorStop(1, p.sky + '00');
+
+        const datasets = [
+            {
+                label: 'Views',
+                data: dailyViews,
+                borderColor: p.primary,
+                backgroundColor: viewsGradient,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 0,
+                borderWidth: 2,
+            },
+            {
+                label: 'Engagement (likes + shares + reviews + comments)',
+                data: dailyEngagement,
+                borderColor: p.sky,
+                backgroundColor: engagementGradient,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 0,
+                borderWidth: 2,
+            },
+        ];
+
+        if (timelineChart) {
+            timelineChart.data.datasets = datasets;
+            timelineChart.options.scales.x.ticks.color = p.inkSoft;
+            timelineChart.options.scales.y.ticks.color = p.inkSoft;
+            timelineChart.options.scales.x.grid.color = p.gridLine;
+            timelineChart.options.scales.y.grid.color = p.gridLine;
+            timelineChart.options.plugins.legend.labels.color = p.inkSoft;
+            timelineChart.update();
+        } else {
+            timelineChart = new Chart(timelineCtx, {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'bottom', labels: { color: p.inkSoft, boxWidth: 12 } } },
+                    scales: {
+                        x: { grid: { color: p.gridLine }, ticks: { color: p.inkSoft } },
+                        y: { beginAtZero: true, grid: { color: p.gridLine }, ticks: { color: p.inkSoft, precision: 0 } },
+                    },
+                }
+            });
+        }
+    });
+
+    const breakdownCtx = document.getElementById('hkBreakdownChart');
+    let breakdownChart = null;
+
+    hkRegisterThemedCharts(function () {
+        const p = hkChartPalette();
+        const datasets = [
+            { label: 'Likes', data: topPosts.likes, backgroundColor: p.gold, borderRadius: 4 },
+            { label: 'Shares', data: topPosts.shares, backgroundColor: p.sky, borderRadius: 4 },
+            { label: 'Reviews', data: topPosts.reviews, backgroundColor: p.violet, borderRadius: 4 },
+        ];
+
+        if (breakdownChart) {
+            breakdownChart.data.datasets = datasets;
+            breakdownChart.options.scales.x.ticks.color = p.inkSoft;
+            breakdownChart.options.scales.y.ticks.color = p.inkSoft;
+            breakdownChart.options.scales.y.grid.color = p.gridLine;
+            breakdownChart.options.plugins.legend.labels.color = p.inkSoft;
+            breakdownChart.update();
+        } else {
+            breakdownChart = new Chart(breakdownCtx, {
+                type: 'bar',
+                data: { labels: topPosts.labels, datasets: datasets },
+                options: {
+                    plugins: { legend: { position: 'bottom', labels: { color: p.inkSoft, boxWidth: 12 } } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: p.inkSoft } },
+                        y: { beginAtZero: true, grid: { color: p.gridLine }, ticks: { color: p.inkSoft, precision: 0 } },
+                    },
+                }
+            });
+        }
+    });
+
+    document.querySelectorAll('.hk-analytics-row').forEach(function (row) {
+        row.addEventListener('click', function () {
+            row.classList.toggle('hk-analytics-row-open');
+        });
     });
 });
 </script>

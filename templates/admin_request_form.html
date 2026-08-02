@@ -5,7 +5,7 @@
 {% block content %}
 <section class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-md-9 col-lg-7">
             <div class="card hk-detail-panel">
                 <div class="card-body p-4 p-md-5">
                     <div class="text-center mb-4">
@@ -13,23 +13,56 @@
                             <i class="bi bi-list-check"></i>
                         </div>
                         <h3 class="fw-bold mt-2">{% if resubmitting %}Update Your Request{% else %}What Do You Want to Manage?{% endif %}</h3>
-                        <p class="text-muted">Select every category you'd like to publish listings for. A Super Admin will review your request.</p>
+                        <p class="text-muted">Select every category you'd like to publish listings for — click a category to see and pick its subcategories too. A Super Admin will review your request.</p>
                     </div>
 
                     <form method="post">
                         {% csrf_token %}
 
-                        <div class="mb-4">
-                            {% for checkbox in form.categories %}
-                                <div class="form-check py-2 border-bottom">
-                                    {{ checkbox.tag }}
-                                    <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
-                                </div>
-                            {% endfor %}
-                            {% if form.categories.errors %}
-                                <div class="text-danger small mt-2">{{ form.categories.errors }}</div>
-                            {% endif %}
+                        <div class="hk-cat-card mb-4">
+                            <div class="hk-cat-table-wrap">
+                                <table class="hk-cat-table mb-0">
+                                    <tbody>
+                                        {% for category in top_categories %}
+                                        <tr class="hk-cat-row-top collapsed"
+                                            {% if category.children.all %}data-bs-toggle="collapse" data-bs-target="#onbCat{{ category.pk }}" aria-expanded="false" aria-controls="onbCat{{ category.pk }}"{% endif %}>
+                                            <td>
+                                                {% if category.children.all %}
+                                                <span class="hk-cat-chevron"><i class="bi bi-chevron-right"></i></span>
+                                                {% else %}
+                                                <span class="d-inline-block" style="width:22px;"></span>
+                                                {% endif %}
+                                                <div class="form-check d-inline-flex align-items-center gap-2 mb-0" onclick="event.stopPropagation()">
+                                                    <input class="form-check-input mt-0" type="checkbox" name="categories" value="{{ category.pk }}" id="onbCatCb{{ category.pk }}" {% if category.pk in selected_ids %}checked{% endif %}>
+                                                    <label class="form-check-label fw-semibold mb-0" for="onbCatCb{{ category.pk }}"><i class="bi {{ category.icon }}"></i> {{ category.label }}</label>
+                                                </div>
+                                                {% if category.children.all %}<span class="hk-cat-subcount">{{ category.children.all|length }}</span>{% endif %}
+                                            </td>
+                                        </tr>
+                                        {% if category.children.all %}
+                                        <tr class="hk-cat-drawer-row">
+                                            <td class="hk-cat-drawer-cell">
+                                                <div class="collapse" id="onbCat{{ category.pk }}">
+                                                    <div class="hk-cat-drawer">
+                                                        {% for sub in category.children.all %}
+                                                        <div class="form-check d-flex align-items-center gap-2 py-1">
+                                                            <input class="form-check-input mt-0" type="checkbox" name="categories" value="{{ sub.pk }}" id="onbCatCb{{ sub.pk }}" {% if sub.pk in selected_ids %}checked{% endif %}>
+                                                            <label class="form-check-label mb-0" for="onbCatCb{{ sub.pk }}"><i class="bi bi-arrow-return-right text-muted"></i> {{ sub.label }}</label>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+                        {% if form.categories.errors %}
+                            <div class="text-danger small mt-2 mb-3">{{ form.categories.errors }}</div>
+                        {% endif %}
 
                         <button type="submit" class="btn btn-primary w-100 btn-lg hk-cta-btn">
                             Submit for Review <i class="bi bi-send"></i>
