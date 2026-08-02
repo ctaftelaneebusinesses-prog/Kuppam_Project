@@ -55,8 +55,8 @@
                                 <span class="hk-select-option-dot"></span>
                             </li>
                             {% for cat in categories %}
-                            <li class="hk-select-option" role="option" aria-selected="false" data-value="{{ cat.slug }}">
-                                <span>{{ cat.name|dyntrans }}</span>
+                            <li class="hk-select-option" role="option" aria-selected="false" data-value="{{ cat.search_redirect_key }}">
+                                <span>{{ cat.label|dyntrans }}</span>
                                 <span class="hk-select-option-dot"></span>
                             </li>
                             {% endfor %}

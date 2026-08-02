@@ -184,6 +184,20 @@ class Category(models.Model):
     def active_children(self):
         return self.children.filter(is_active=True)
 
+    #: Maps a top-level category to the key views.SEARCH_CATEGORY_REDIRECT
+    #: expects (used by the homepage hero search bar's category dropdown —
+    #: keep in sync if that dict's keys ever change).
+    _SEARCH_REDIRECT_KEYS = {
+        'property': 'real-estate', 'job': 'jobs', 'event': 'events',
+        'news': 'news', 'project': 'projects',
+    }
+
+    @property
+    def search_redirect_key(self):
+        if self.listing_model != 'business':
+            return self._SEARCH_REDIRECT_KEYS.get(self.listing_model, '')
+        return self.key if self.key in ('restaurants', 'hospitals', 'education', 'transport') else 'shops'
+
     #: Which model + field each listing_model counts/filters against. Business,
     #: Property and Project have a real choice field a business_subcategory
     #: value can match against; Job/Event/News don't have an equivalent split,

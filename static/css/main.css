@@ -181,12 +181,16 @@ html[data-theme="dark"] .hk-navbar-solid {
    - The 4 weather effects (no surface tokens of their own — they're a wash
      over whatever light/dark is already active) get a background-image tint
      layered on top of the existing background-color, reusing the exact same
-     *-glow tokens the body wash already uses (autumn/spring/winter) or the
-     frost tint the sidebar already uses (winter) — one hue per season, not
-     a second color system. background-image swaps instantly on change
-     (can't be transitioned), same tradeoff already accepted for the body
-     wash; background-color itself keeps animating via the .navbar
-     transition rule above so palette-to-palette swaps still fade smoothly. */
+     *-glow tokens the body wash already uses — one hue per season, not a
+     second color system. Deliberately a full-width edge-to-edge gradient
+     (90deg, no transparent stop) rather than the diagonal-fading-out style
+     used elsewhere (e.g. the sidebar frost tint) — the navbar is up to
+     1280px wide but only 64px tall, so a gradient that fades out partway
+     across the width left the far (right-hand icon cluster) side untinted.
+     background-image swaps instantly on change (can't be transitioned),
+     same tradeoff already accepted for the body wash; background-color
+     itself keeps animating via the .navbar transition rule above so
+     palette-to-palette swaps still fade smoothly. */
 html[data-palette="summer-silk"] .navbar:not(.hk-navbar-transparent),
 html[data-palette="summer-silk"] .hk-navbar-solid {
     background-color: rgba(255, 253, 248, .8) !important;
@@ -207,22 +211,22 @@ html[data-palette="nordic-aurora"] .hk-navbar-solid {
 
 html[data-palette="autumn"] .navbar:not(.hk-navbar-transparent),
 html[data-palette="autumn"] .hk-navbar-solid {
-    background-image: linear-gradient(120deg, var(--hk-autumn-glow-1), transparent 65%), linear-gradient(300deg, var(--hk-autumn-glow-2), transparent 65%);
+    background-image: linear-gradient(90deg, var(--hk-autumn-glow-1), var(--hk-autumn-glow-2));
 }
 
 html[data-palette="spring"] .navbar:not(.hk-navbar-transparent),
 html[data-palette="spring"] .hk-navbar-solid {
-    background-image: linear-gradient(120deg, var(--hk-spring-glow-1), transparent 65%), linear-gradient(300deg, var(--hk-spring-glow-2), transparent 65%);
+    background-image: linear-gradient(90deg, var(--hk-spring-glow-1), var(--hk-spring-glow-2));
 }
 
 html[data-palette="winter"] .navbar:not(.hk-navbar-transparent),
 html[data-palette="winter"] .hk-navbar-solid {
-    background-image: linear-gradient(160deg, var(--hk-weather-frost-tint), transparent 65%);
+    background-image: linear-gradient(90deg, var(--hk-winter-glow-1), var(--hk-winter-glow-2));
 }
 
 html[data-palette="rain"] .navbar:not(.hk-navbar-transparent),
 html[data-palette="rain"] .hk-navbar-solid {
-    background-image: linear-gradient(160deg, var(--hk-rain-glow-1), transparent 65%), linear-gradient(300deg, var(--hk-rain-glow-2), transparent 65%);
+    background-image: linear-gradient(90deg, var(--hk-rain-glow-1), var(--hk-rain-glow-2));
 }
 
 .navbar .hk-theme-toggle {
