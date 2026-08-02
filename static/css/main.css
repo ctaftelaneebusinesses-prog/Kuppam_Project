@@ -21,6 +21,17 @@ body {
        the floating island's top inset (16px) + its height (64px) + a small
        breathing gap before content (16px). */
     padding-top: 96px;
+    /* AOS's fade-left/fade-right entrance animations (used throughout
+       home/about/history) sit at a translateX(±100px)-ish offset before
+       they scroll into view and trigger. Sections below the fold still
+       carry that offset, which was pushing the document's scrollable width
+       past the real viewport on narrow phones — Chrome/Safari mobile then
+       auto-zoom the whole page out to fit, which is the "everything is
+       shrunk and both edges are cropped" bug reported on iPhone widths.
+       Clipping horizontal overflow here is the standard fix: it doesn't
+       change any visible layout, it just stops the still-off-screen,
+       about-to-animate-in copies from counting toward page width. */
+    overflow-x: hidden;
 }
 
 body.hk-has-transparent-hero {
@@ -36,6 +47,7 @@ h1, h2, h3, h4, h5, h6 {
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 a {
@@ -5372,14 +5384,135 @@ html[data-theme="dark"] .hk-dashboard-main .hk-theme-toggle {
     padding: .5rem .85rem;
 }
 
-/* "Add a New Listing" quick-pick chevron (my_listings.html) — same rotate-on-
-   expand affordance as .hk-cat-chevron, just sized for a small pill button. */
-.hk-quickadd-toggle i {
+/* "Add a New Listing" quick-pick grid (my_listings.html / admin_dashboard.html)
+   — one card per top-level category. align-content:start keeps a card that
+   expands its subcategory drawer from stretching every other card in the
+   same row to match its height (CSS Grid's default stretch behavior). */
+.hk-quickadd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    align-content: start;
+}
+
+.hk-quickadd-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--hk-surface);
+    border: 1px solid var(--hk-border-soft);
+    border-radius: 12px;
+    box-shadow: var(--hk-shadow-sm);
+    padding: 1.1rem 1rem .9rem;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.hk-quickadd-card:hover {
+    border-color: var(--bs-primary);
+    box-shadow: var(--hk-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.hk-quickadd-card-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    gap: .6rem;
+    color: var(--hk-ink);
+}
+
+.hk-quickadd-card-link-static {
+    cursor: default;
+}
+
+.hk-quickadd-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+    flex-shrink: 0;
+}
+
+.hk-quickadd-label {
+    font-weight: 700;
+    font-size: .88rem;
+    line-height: 1.25;
+}
+
+.hk-quickadd-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    margin-top: .9rem;
+    padding: .4rem .7rem;
+    border: none;
+    border-radius: var(--hk-radius-pill);
+    background: var(--hk-gray-100);
+    color: var(--hk-ink-soft);
+    font-size: .74rem;
+    font-weight: 600;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.hk-quickadd-trigger:hover,
+.hk-quickadd-trigger:focus-visible {
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+    outline: none;
+}
+
+.hk-quickadd-trigger i {
     transition: transform .2s ease;
 }
 
-.hk-quickadd-toggle:not(.collapsed) i {
+.hk-quickadd-trigger:not(.collapsed) i {
     transform: rotate(180deg);
+}
+
+.hk-quickadd-subgrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-top: .75rem;
+    padding-top: .75rem;
+    border-top: 1px dashed var(--hk-border-soft);
+}
+
+.hk-quickadd-sub-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .3rem .65rem;
+    border-radius: var(--hk-radius-pill);
+    background: var(--hk-gray-50);
+    border: 1px solid var(--hk-border-soft);
+    color: var(--hk-ink);
+    font-size: .78rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.hk-quickadd-sub-pill:hover {
+    background: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+}
+
+html[data-theme="dark"] .hk-quickadd-trigger {
+    background: rgba(255, 255, 255, .06);
+    color: var(--hk-ink-soft);
+}
+
+html[data-theme="dark"] .hk-quickadd-sub-pill {
+    background: rgba(255, 255, 255, .03);
 }
 
 html[data-theme="dark"] .hk-cat-table thead th,

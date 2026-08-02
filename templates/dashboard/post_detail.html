@@ -1,11 +1,12 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'core:dashboard_posts' %}">Posts</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:dashboard_posts' %}">{% trans "Posts" %}</a></li>
         <li class="breadcrumb-item active" aria-current="page">{{ obj }}</li>
     </ol>
 </nav>
@@ -14,23 +15,23 @@
     <div>
         <span class="hk-type-pill hk-type-{{ model_key }}">{{ model_key }}</span>
         <span class="hk-status-pill hk-status-{{ obj.status }}">{{ obj.get_status_display }}</span>
-        {% if obj.is_featured %}<span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Featured</span>{% endif %}
-        {% if not obj.is_active %}<span class="badge bg-secondary">Disabled</span>{% endif %}
+        {% if obj.is_featured %}<span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> {% trans "Featured" %}</span>{% endif %}
+        {% if not obj.is_active %}<span class="badge bg-secondary">{% trans "Disabled" %}</span>{% endif %}
         <h3 class="fw-bold mt-2 mb-1">{{ obj }}</h3>
         <p class="text-muted small mb-0">
-            Uploaded by {% if obj.owner %}{{ obj.owner.profile.full_name|default:obj.owner.email }}{% else %}Staff{% endif %}
+            {% trans "Uploaded by" %} {% if obj.owner %}{{ obj.owner.profile.full_name|default:obj.owner.email }}{% else %}{% trans "Staff" %}{% endif %}
             &middot; {{ obj.created_at|date:"d M Y, H:i" }}
-            {% if obj.listing_category %}&middot; Category: {{ obj.listing_category.label }}{% endif %}
+            {% if obj.listing_category %}&middot; {% trans "Category:" %} {{ obj.listing_category.label }}{% endif %}
         </p>
         {% if obj.reviewed_by %}
-        <p class="text-muted small mb-0">Last reviewed by {{ obj.reviewed_by.profile.full_name|default:obj.reviewed_by.email }} on {{ obj.reviewed_at|date:"d M Y, H:i" }}</p>
+        <p class="text-muted small mb-0">{% blocktrans with reviewer=obj.reviewed_by.profile.full_name|default:obj.reviewed_by.email reviewed_on=obj.reviewed_at|date:"d M Y, H:i" %}Last reviewed by {{ reviewer }} on {{ reviewed_on }}{% endblocktrans %}</p>
         {% endif %}
         {% if obj.rejection_reason %}
         <p class="text-danger small mb-0"><i class="bi bi-exclamation-circle"></i> {{ obj.rejection_reason }}</p>
         {% endif %}
     </div>
     {% if request.profile.is_super_admin or obj.owner_id == request.user.id %}
-    <a href="{% url 'core:listing_edit' model_key obj.pk %}" class="btn btn-primary"><i class="bi bi-pencil"></i> Edit Post</a>
+    <a href="{% url 'core:listing_edit' model_key obj.pk %}" class="btn btn-primary"><i class="bi bi-pencil"></i> {% trans "Edit Post" %}</a>
     {% endif %}
 </div>
 
@@ -38,42 +39,42 @@
     <div class="col-lg-8">
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="fw-bold mb-3">Details</h6>
+                <h6 class="fw-bold mb-3">{% trans "Details" %}</h6>
                 {% if obj.description %}<p>{{ obj.description|linebreaksbr }}</p>{% elif obj.content %}<p>{{ obj.content|linebreaksbr }}</p>{% endif %}
 
                 <div class="row g-3 mt-1">
-                    {% if obj.address %}<div class="col-sm-6"><div class="small text-muted">Address</div><div>{{ obj.address }}</div></div>{% endif %}
-                    {% if obj.location %}<div class="col-sm-6"><div class="small text-muted">Location</div><div>{{ obj.location }}</div></div>{% endif %}
-                    {% if obj.phone_number %}<div class="col-sm-6"><div class="small text-muted">Phone</div><div>{{ obj.phone_number }}</div></div>{% endif %}
-                    {% if obj.contact_number %}<div class="col-sm-6"><div class="small text-muted">Contact</div><div>{{ obj.contact_number }}</div></div>{% endif %}
-                    {% if obj.website %}<div class="col-sm-6"><div class="small text-muted">Website</div><div><a href="{{ obj.website }}" target="_blank" rel="noopener">{{ obj.website }}</a></div></div>{% endif %}
-                    {% if obj.maps_link %}<div class="col-sm-6"><div class="small text-muted">Google Maps</div><div><a href="{{ obj.maps_link }}" target="_blank" rel="noopener">Open in Maps <i class="bi bi-box-arrow-up-right"></i></a></div></div>{% endif %}
-                    {% if obj.price %}<div class="col-sm-6"><div class="small text-muted">Price</div><div>₹{{ obj.price }}</div></div>{% endif %}
-                    {% if obj.salary %}<div class="col-sm-6"><div class="small text-muted">Salary</div><div>{{ obj.salary }}</div></div>{% endif %}
-                    {% if obj.event_date %}<div class="col-sm-6"><div class="small text-muted">Event Date</div><div>{{ obj.event_date|date:"d M Y" }}</div></div>{% endif %}
-                    {% if obj.published_date %}<div class="col-sm-6"><div class="small text-muted">Published</div><div>{{ obj.published_date|date:"d M Y" }}</div></div>{% endif %}
-                    {% if obj.source %}<div class="col-sm-6"><div class="small text-muted">Source</div><div>{{ obj.source }}</div></div>{% endif %}
+                    {% if obj.address %}<div class="col-sm-6"><div class="small text-muted">{% trans "Address" %}</div><div>{{ obj.address }}</div></div>{% endif %}
+                    {% if obj.location %}<div class="col-sm-6"><div class="small text-muted">{% trans "Location" %}</div><div>{{ obj.location }}</div></div>{% endif %}
+                    {% if obj.phone_number %}<div class="col-sm-6"><div class="small text-muted">{% trans "Phone" %}</div><div>{{ obj.phone_number }}</div></div>{% endif %}
+                    {% if obj.contact_number %}<div class="col-sm-6"><div class="small text-muted">{% trans "Contact" %}</div><div>{{ obj.contact_number }}</div></div>{% endif %}
+                    {% if obj.website %}<div class="col-sm-6"><div class="small text-muted">{% trans "Website" %}</div><div><a href="{{ obj.website }}" target="_blank" rel="noopener">{{ obj.website }}</a></div></div>{% endif %}
+                    {% if obj.maps_link %}<div class="col-sm-6"><div class="small text-muted">{% trans "Google Maps" %}</div><div><a href="{{ obj.maps_link }}" target="_blank" rel="noopener">{% trans "Open in Maps" %} <i class="bi bi-box-arrow-up-right"></i></a></div></div>{% endif %}
+                    {% if obj.price %}<div class="col-sm-6"><div class="small text-muted">{% trans "Price" %}</div><div>₹{{ obj.price }}</div></div>{% endif %}
+                    {% if obj.salary %}<div class="col-sm-6"><div class="small text-muted">{% trans "Salary" %}</div><div>{{ obj.salary }}</div></div>{% endif %}
+                    {% if obj.event_date %}<div class="col-sm-6"><div class="small text-muted">{% trans "Event Date" %}</div><div>{{ obj.event_date|date:"d M Y" }}</div></div>{% endif %}
+                    {% if obj.published_date %}<div class="col-sm-6"><div class="small text-muted">{% trans "Published" %}</div><div>{{ obj.published_date|date:"d M Y" }}</div></div>{% endif %}
+                    {% if obj.source %}<div class="col-sm-6"><div class="small text-muted">{% trans "Source" %}</div><div>{{ obj.source }}</div></div>{% endif %}
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="fw-bold mb-3">Stats</h6>
+                <h6 class="fw-bold mb-3">{% trans "Stats" %}</h6>
                 <div class="row g-3 text-center">
-                    <div class="col"><div class="fw-bold fs-5">{{ obj.view_count }}</div><div class="small text-muted">Views</div></div>
-                    <div class="col"><div class="fw-bold fs-5">{{ obj.like_count }}</div><div class="small text-muted">Likes</div></div>
-                    <div class="col"><div class="fw-bold fs-5">{{ obj.comment_count }}</div><div class="small text-muted">Comments</div></div>
-                    <div class="col"><div class="fw-bold fs-5">{{ obj.review_count }}</div><div class="small text-muted">Reviews</div></div>
-                    <div class="col"><div class="fw-bold fs-5">{{ obj.avg_rating }}</div><div class="small text-muted">Avg Rating</div></div>
-                    <div class="col"><div class="fw-bold fs-5">{{ obj.share_count }}</div><div class="small text-muted">Shares</div></div>
+                    <div class="col"><div class="fw-bold fs-5">{{ obj.view_count }}</div><div class="small text-muted">{% trans "Views" %}</div></div>
+                    <div class="col"><div class="fw-bold fs-5">{{ obj.like_count }}</div><div class="small text-muted">{% trans "Likes" %}</div></div>
+                    <div class="col"><div class="fw-bold fs-5">{{ obj.comment_count }}</div><div class="small text-muted">{% trans "Comments" %}</div></div>
+                    <div class="col"><div class="fw-bold fs-5">{{ obj.review_count }}</div><div class="small text-muted">{% trans "Reviews" %}</div></div>
+                    <div class="col"><div class="fw-bold fs-5">{{ obj.avg_rating }}</div><div class="small text-muted">{% trans "Avg Rating" %}</div></div>
+                    <div class="col"><div class="fw-bold fs-5">{{ obj.share_count }}</div><div class="small text-muted">{% trans "Shares" %}</div></div>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="fw-bold mb-3">Photo Gallery</h6>
+                <h6 class="fw-bold mb-3">{% trans "Photo Gallery" %}</h6>
                 <div class="row g-3 mb-3">
                     {% for image in gallery_images %}
                     <div class="col-6 col-md-4 col-lg-3">
@@ -82,17 +83,17 @@
                             <div class="d-flex gap-1 mt-1">
                                 <form method="post" action="{% url 'core:dashboard_post_set_cover_image' image.pk %}" class="flex-fill">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-primary btn-sm w-100" title="Set as cover"><i class="bi bi-star"></i></button>
+                                    <button type="submit" class="btn btn-outline-primary btn-sm w-100" title="{% trans 'Set as cover' %}"><i class="bi bi-star"></i></button>
                                 </form>
                                 <form method="post" action="{% url 'core:dashboard_post_delete_image' image.pk %}" class="flex-fill hkDeleteImageForm">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="Delete"><i class="bi bi-trash"></i></button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </div>
                     </div>
                     {% empty %}
-                    <div class="col-12 text-muted small">No gallery images yet.</div>
+                    <div class="col-12 text-muted small">{% trans "No gallery images yet." %}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -100,7 +101,7 @@
 
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="fw-bold mb-3">Video Gallery</h6>
+                <h6 class="fw-bold mb-3">{% trans "Video Gallery" %}</h6>
                 <div class="row g-3 mb-3">
                     {% for video in gallery_videos %}
                     <div class="col-6 col-md-4 col-lg-3">
@@ -108,12 +109,12 @@
                             <video src="{{ video.video.url }}" class="rounded w-100" style="aspect-ratio:1/1;object-fit:cover;background:#000;" controls></video>
                             <form method="post" action="{% url 'core:dashboard_post_delete_video' video.pk %}" class="mt-1 hkDeleteImageForm">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="Delete"><i class="bi bi-trash"></i></button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></button>
                             </form>
                         </div>
                     </div>
                     {% empty %}
-                    <div class="col-12 text-muted small">No gallery videos yet.</div>
+                    <div class="col-12 text-muted small">{% trans "No gallery videos yet." %}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -121,22 +122,22 @@
 
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="fw-bold mb-3">Add Photos / Videos</h6>
+                <h6 class="fw-bold mb-3">{% trans "Add Photos / Videos" %}</h6>
                 <form method="post" action="{% url 'core:dashboard_post_add_images' model_key obj.pk %}" enctype="multipart/form-data" class="hk-dropzone" id="hkPostMediaForm">
                     {% csrf_token %}
                     <div class="text-center py-3">
                         <i class="bi bi-cloud-upload fs-2 text-muted d-block mb-2"></i>
                         <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
                             <div>
-                                <label class="form-label small mb-1 d-block">Photos (jpg/png/webp, ≤8MB each)</label>
+                                <label class="form-label small mb-1 d-block">{% trans "Photos (jpg/png/webp, ≤8MB each)" %}</label>
                                 <input type="file" name="images" multiple accept="image/png,image/jpeg,image/webp" class="form-control form-control-sm">
                             </div>
                             <div>
-                                <label class="form-label small mb-1 d-block">Videos (mp4/webm/mov, ≤50MB each)</label>
+                                <label class="form-label small mb-1 d-block">{% trans "Videos (mp4/webm/mov, ≤50MB each)" %}</label>
                                 <input type="file" name="videos" multiple accept="video/mp4,video/webm,video/quicktime" class="form-control form-control-sm">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-cloud-upload"></i> Upload</button>
+                        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-cloud-upload"></i> {% trans "Upload" %}</button>
                     </div>
                 </form>
             </div>
@@ -146,7 +147,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-text text-primary"></i> Comments ({{ obj.comment_count }})</h6>
+                        <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-text text-primary"></i> {% blocktrans with count=obj.comment_count %}Comments ({{ count }}){% endblocktrans %}</h6>
                         {% for comment in comments %}
                         <div class="mb-2 pb-2 border-bottom">
                             <div class="d-flex justify-content-between">
@@ -156,7 +157,7 @@
                             <div class="small">{{ comment.body }}</div>
                         </div>
                         {% empty %}
-                        <div class="hk-empty-state text-center py-3 small">No comments yet.</div>
+                        <div class="hk-empty-state text-center py-3 small">{% trans "No comments yet." %}</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -164,7 +165,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="fw-bold mb-3"><i class="bi bi-star text-primary"></i> Reviews ({{ obj.review_count }})</h6>
+                        <h6 class="fw-bold mb-3"><i class="bi bi-star text-primary"></i> {% blocktrans with count=obj.review_count %}Reviews ({{ count }}){% endblocktrans %}</h6>
                         {% for review in reviews %}
                         <div class="mb-2 pb-2 border-bottom">
                             <div class="d-flex justify-content-between">
@@ -175,7 +176,7 @@
                             {% if review.body %}<div class="small">{{ review.body }}</div>{% endif %}
                         </div>
                         {% empty %}
-                        <div class="hk-empty-state text-center py-3 small">No reviews yet.</div>
+                        <div class="hk-empty-state text-center py-3 small">{% trans "No reviews yet." %}</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -186,16 +187,16 @@
     <div class="col-lg-4">
         <div class="card mb-3">
             <div class="card-body">
-                <h6 class="fw-bold mb-3">Moderation</h6>
+                <h6 class="fw-bold mb-3">{% trans "Moderation" %}</h6>
                 {% if request.profile.is_super_admin %}
                 <form method="post" action="{% url 'core:dashboard_listing_review' model_key obj.pk %}" class="hk-review-form mb-3">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.path }}">
-                    <textarea name="note" class="form-control form-control-sm mb-2" rows="2" placeholder="Reason / requested changes (for reject or changes-requested)"></textarea>
+                    <textarea name="note" class="form-control form-control-sm mb-2" rows="2" placeholder="{% trans 'Reason / requested changes (for reject or changes-requested)' %}"></textarea>
                     <div class="d-flex gap-2">
-                        <button type="submit" name="action" value="approve" class="btn btn-sm btn-success flex-fill">Approve</button>
-                        <button type="submit" name="action" value="changes_requested" class="btn btn-sm btn-outline-warning flex-fill">Changes</button>
-                        <button type="submit" name="action" value="reject" class="btn btn-sm btn-outline-danger flex-fill">Reject</button>
+                        <button type="submit" name="action" value="approve" class="btn btn-sm btn-success flex-fill">{% trans "Approve" %}</button>
+                        <button type="submit" name="action" value="changes_requested" class="btn btn-sm btn-outline-warning flex-fill">{% trans "Changes" %}</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-sm btn-outline-danger flex-fill">{% trans "Reject" %}</button>
                     </div>
                 </form>
                 <hr>
@@ -204,20 +205,20 @@
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.path }}">
                     <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
-                        {% if obj.is_active %}<i class="bi bi-toggle-on"></i> Disable Post{% else %}<i class="bi bi-toggle-off"></i> Enable Post{% endif %}
+                        {% if obj.is_active %}<i class="bi bi-toggle-on"></i> {% trans "Disable Post" %}{% else %}<i class="bi bi-toggle-off"></i> {% trans "Enable Post" %}{% endif %}
                     </button>
                 </form>
                 <form method="post" action="{% url 'core:dashboard_post_toggle_featured' model_key obj.pk %}" class="mb-2">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.path }}">
                     <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
-                        {% if obj.is_featured %}<i class="bi bi-star-fill"></i> Unfeature{% else %}<i class="bi bi-star"></i> Mark as Featured{% endif %}
+                        {% if obj.is_featured %}<i class="bi bi-star-fill"></i> {% trans "Unfeature" %}{% else %}<i class="bi bi-star"></i> {% trans "Mark as Featured" %}{% endif %}
                     </button>
                 </form>
                 <form method="post" action="{% url 'core:listing_delete' model_key obj.pk %}" class="hkDeletePostForm">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{% url 'core:dashboard_posts' %}">
-                    <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-trash"></i> Delete Post</button>
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-trash"></i> {% trans "Delete Post" %}</button>
                 </form>
             </div>
         </div>

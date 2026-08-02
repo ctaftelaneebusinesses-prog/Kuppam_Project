@@ -1,4 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -6,10 +7,10 @@
 <div class="row justify-content-center">
     <div class="col-lg-7">
         <h3 class="fw-bold mb-1">
-            {% if category %}Add {{ category.label }}{% else %}Edit Listing{% endif %}
+            {% if category %}{% blocktrans with cat=category.label %}Add {{ cat }}{% endblocktrans %}{% else %}{% trans "Edit Listing" %}{% endif %}
         </h3>
         <p class="text-muted mb-4">
-            {% if category %}It will be reviewed by the Super Admin before it goes live.{% else %}Changes are re-reviewed before appearing on the site.{% endif %}
+            {% if category %}{% trans "It will be reviewed by the Super Admin before it goes live." %}{% else %}{% trans "Changes are re-reviewed before appearing on the site." %}{% endif %}
         </p>
 
         <div class="card">
@@ -37,7 +38,7 @@
                     {% endif %}
                     {% endfor %}
                     <button type="submit" class="btn btn-primary hk-cta-btn w-100">
-                        <i class="bi bi-check2-circle"></i> {% if category %}Submit for Review{% else %}Save Changes{% endif %}
+                        <i class="bi bi-check2-circle"></i> {% if category %}{% trans "Submit for Review" %}{% else %}{% trans "Save Changes" %}{% endif %}
                     </button>
                 </form>
             </div>
@@ -46,7 +47,7 @@
         {% if object %}
         <div class="card mt-4">
             <div class="card-body">
-                <h6 class="fw-bold mb-3"><i class="bi bi-images text-primary"></i> Gallery</h6>
+                <h6 class="fw-bold mb-3"><i class="bi bi-images text-primary"></i> {% trans "Gallery" %}</h6>
                 <div class="row g-3 mb-3">
                     {% for image in gallery_images %}
                     <div class="col-6 col-md-4">
@@ -55,11 +56,11 @@
                             <div class="d-flex gap-1 mt-1">
                                 <form method="post" action="{% url 'core:my_listing_media_set_cover' image.pk %}" class="flex-fill">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-primary btn-sm w-100" title="Set as cover"><i class="bi bi-star"></i></button>
+                                    <button type="submit" class="btn btn-outline-primary btn-sm w-100" title="{% trans 'Set as cover' %}"><i class="bi bi-star"></i></button>
                                 </form>
                                 <form method="post" action="{% url 'core:my_listing_media_delete' 'image' image.pk %}" class="flex-fill hkGalleryDeleteForm">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="Delete"><i class="bi bi-trash"></i></button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </div>
@@ -71,13 +72,13 @@
                             <video src="{{ video.video.url }}" class="rounded w-100" style="aspect-ratio:1/1;object-fit:cover;background:#000;" controls></video>
                             <form method="post" action="{% url 'core:my_listing_media_delete' 'video' video.pk %}" class="mt-1 hkGalleryDeleteForm">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="Delete"><i class="bi bi-trash"></i></button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></button>
                             </form>
                         </div>
                     </div>
                     {% endfor %}
                     {% if not gallery_images and not gallery_videos %}
-                    <div class="col-12 text-muted small">No gallery photos or videos yet.</div>
+                    <div class="col-12 text-muted small">{% trans "No gallery photos or videos yet." %}</div>
                     {% endif %}
                 </div>
                 <form method="post" action="{% url 'core:my_listing_media_add' model_key object.pk %}" enctype="multipart/form-data" class="hk-dropzone">
@@ -86,15 +87,15 @@
                         <i class="bi bi-cloud-upload fs-2 text-muted d-block mb-2"></i>
                         <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
                             <div>
-                                <label class="form-label small mb-1 d-block">Photos (jpg/png/webp, ≤8MB each)</label>
+                                <label class="form-label small mb-1 d-block">{% trans "Photos (jpg/png/webp, ≤8MB each)" %}</label>
                                 <input type="file" name="images" multiple accept="image/png,image/jpeg,image/webp" class="form-control form-control-sm">
                             </div>
                             <div>
-                                <label class="form-label small mb-1 d-block">Videos (mp4/webm/mov, ≤50MB each)</label>
+                                <label class="form-label small mb-1 d-block">{% trans "Videos (mp4/webm/mov, ≤50MB each)" %}</label>
                                 <input type="file" name="videos" multiple accept="video/mp4,video/webm,video/quicktime" class="form-control form-control-sm">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-cloud-upload"></i> Upload</button>
+                        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-cloud-upload"></i> {% trans "Upload" %}</button>
                     </div>
                 </form>
             </div>
@@ -107,7 +108,7 @@
 (function () {
     document.querySelectorAll('.hkGalleryDeleteForm').forEach(function (form) {
         form.addEventListener('submit', function (e) {
-            if (!confirm('Delete this item? This cannot be undone.')) e.preventDefault();
+            if (!confirm('{% trans "Delete this item? This cannot be undone." %}')) e.preventDefault();
         });
     });
 })();

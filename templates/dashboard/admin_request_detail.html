@@ -1,14 +1,15 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
-<h3 class="fw-bold mb-4">Review Admin Request</h3>
+<h3 class="fw-bold mb-4">{% trans "Review Admin Request" %}</h3>
 
 <div class="row g-4">
     <div class="col-lg-7">
         <div class="card hk-detail-panel mb-4">
-            <div class="card-header bg-white fw-semibold">Applicant Profile</div>
+            <div class="card-header bg-white fw-semibold">{% trans "Applicant Profile" %}</div>
             <div class="card-body">
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <img src="{{ admin_request.user.profile.display_photo }}" class="rounded-circle" width="56" height="56" style="object-fit:cover;" alt="">
@@ -22,7 +23,7 @@
                         <div class="hk-meta-item">
                             <div class="hk-meta-icon"><i class="bi bi-telephone-fill"></i></div>
                             <div>
-                                <div class="hk-meta-label">Phone</div>
+                                <div class="hk-meta-label">{% trans "Phone" %}</div>
                                 <div class="hk-meta-value">{{ admin_request.user.profile.phone_number|default:"—" }}</div>
                             </div>
                         </div>
@@ -31,7 +32,7 @@
                         <div class="hk-meta-item">
                             <div class="hk-meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
                             <div>
-                                <div class="hk-meta-label">Address</div>
+                                <div class="hk-meta-label">{% trans "Address" %}</div>
                                 <div class="hk-meta-value">{{ admin_request.user.profile.address|default:"—" }}</div>
                             </div>
                         </div>
@@ -40,7 +41,7 @@
                         <div class="hk-meta-item">
                             <div class="hk-meta-icon"><i class="bi bi-signpost-2-fill"></i></div>
                             <div>
-                                <div class="hk-meta-label">City / State</div>
+                                <div class="hk-meta-label">{% trans "City / State" %}</div>
                                 <div class="hk-meta-value">{{ admin_request.user.profile.city }} {{ admin_request.user.profile.state }}</div>
                             </div>
                         </div>
@@ -49,7 +50,7 @@
                         <div class="hk-meta-item">
                             <div class="hk-meta-icon"><i class="bi bi-mailbox"></i></div>
                             <div>
-                                <div class="hk-meta-label">Pincode</div>
+                                <div class="hk-meta-label">{% trans "Pincode" %}</div>
                                 <div class="hk-meta-value">{{ admin_request.user.profile.pincode|default:"—" }}</div>
                             </div>
                         </div>
@@ -58,7 +59,7 @@
                         <div class="hk-meta-item">
                             <div class="hk-meta-icon"><i class="bi bi-calendar-check"></i></div>
                             <div>
-                                <div class="hk-meta-label">Submitted</div>
+                                <div class="hk-meta-label">{% trans "Submitted" %}</div>
                                 <div class="hk-meta-value">{{ admin_request.created_at|date:"d M Y, H:i" }}</div>
                             </div>
                         </div>
@@ -68,7 +69,7 @@
         </div>
 
         <div class="card hk-detail-panel">
-            <div class="card-header bg-white fw-semibold">Requested Permissions</div>
+            <div class="card-header bg-white fw-semibold">{% trans "Requested Permissions" %}</div>
             <div class="card-body">
                 {% for category in admin_request.categories.all %}
                 <span class="badge bg-primary-subtle text-primary me-1 mb-1">{{ category.label }}</span>
@@ -80,24 +81,24 @@
     <div class="col-lg-5">
         <div class="card hk-detail-panel">
             <div class="card-header bg-white fw-semibold">
-                Decision — current status: <span class="hk-status-pill hk-status-{{ admin_request.status }}">{{ admin_request.get_status_display }}</span>
+                {% trans "Decision — current status:" %} <span class="hk-status-pill hk-status-{{ admin_request.status }}">{{ admin_request.get_status_display }}</span>
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label">Note (rejection reason / requested changes)</label>
+                        <label class="form-label">{% trans "Note (rejection reason / requested changes)" %}</label>
                         {{ form.note }}
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" name="action" value="approve" class="btn btn-success">
-                            <i class="bi bi-check-lg"></i> Approve
+                            <i class="bi bi-check-lg"></i> {% trans "Approve" %}
                         </button>
                         <button type="submit" name="action" value="changes_requested" class="btn btn-outline-warning">
-                            <i class="bi bi-pencil"></i> Request Changes
+                            <i class="bi bi-pencil"></i> {% trans "Request Changes" %}
                         </button>
                         <button type="submit" name="action" value="reject" class="btn btn-outline-danger">
-                            <i class="bi bi-x-lg"></i> Reject
+                            <i class="bi bi-x-lg"></i> {% trans "Reject" %}
                         </button>
                     </div>
                 </form>

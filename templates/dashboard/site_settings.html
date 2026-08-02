@@ -1,10 +1,11 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
-<h3 class="fw-bold mb-1" data-aos="fade-up">Site Theme</h3>
-<p class="text-muted mb-4" data-aos="fade-up">Set the default look every visitor sees. Your own browser's theme switcher still lets you preview any palette locally, on top of this.</p>
+<h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Site Theme" %}</h3>
+<p class="text-muted mb-4" data-aos="fade-up">{% trans "Set the default look every visitor sees. Your own browser's theme switcher still lets you preview any palette locally, on top of this." %}</p>
 
 <div class="card" data-aos="fade-up" style="max-width:720px;">
     <div class="card-body p-4">
@@ -13,7 +14,7 @@
         <form method="post">
             {% csrf_token %}
 
-            <label class="form-label fw-semibold mb-3">Default Palette</label>
+            <label class="form-label fw-semibold mb-3">{% trans "Default Palette" %}</label>
             <div class="hk-grid-auto-sm mb-4">
                 {% for radio in form.default_palette %}
                 <label class="hk-palette-option hk-palette-option-form" data-palette="{{ radio.data.value }}">
@@ -29,13 +30,13 @@
             <div class="form-check form-switch mb-4">
                 {{ form.enforce_palette }}
                 <label class="form-check-label" for="{{ form.enforce_palette.id_for_label }}">
-                    Enforce for everyone
+                    {% trans "Enforce for everyone" %}
                 </label>
-                <div class="form-text">When on, visitors can't override this with their own theme switcher — it's locked to the default above for every session.</div>
+                <div class="form-text">{% trans "When on, visitors can't override this with their own theme switcher — it's locked to the default above for every session." %}</div>
             </div>
 
             <button type="submit" class="btn btn-primary hk-cta-btn">
-                <i class="bi bi-check2"></i> Save Site Theme
+                <i class="bi bi-check2"></i> {% trans "Save Site Theme" %}
             </button>
         </form>
     </div>
@@ -43,7 +44,7 @@
 
 {% if settings_obj.updated_by %}
 <p class="text-muted small mt-3" data-aos="fade-up">
-    Last updated by {{ settings_obj.updated_by.profile.full_name|default:settings_obj.updated_by.username }} on {{ settings_obj.updated_at|date:"d M Y, H:i" }}
+    {% blocktrans with editor=settings_obj.updated_by.profile.full_name|default:settings_obj.updated_by.username updated_on=settings_obj.updated_at|date:"d M Y, H:i" %}Last updated by {{ editor }} on {{ updated_on }}{% endblocktrans %}
 </p>
 {% endif %}
 {% endblock %}

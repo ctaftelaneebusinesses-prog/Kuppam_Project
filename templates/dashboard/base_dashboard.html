@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block body_class %}hk-dashboard-active{% endblock %}
 
@@ -12,7 +12,7 @@
             <span class="hk-dash-brand mb-0">
                 <span class="hk-brand-word"><span class="hk-brand-word-one">One</span><span class="hk-brand-accent">TownCity</span></span>
             </span>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#hkDashSidebar" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#hkDashSidebar" aria-label="{% trans 'Close' %}"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column p-3">
             <div class="hk-dash-profile">
@@ -20,87 +20,87 @@
                 <div>
                     <div class="hk-dash-profile-name">{{ user.profile.full_name|default:user.username }}</div>
                     <div class="hk-dash-profile-role">
-                        {% if request.profile.is_super_admin %}Super Admin{% elif request.profile.is_admin %}Content Provider{% else %}Explorer{% endif %}
+                        {% if request.profile.is_super_admin %}{% trans "Super Admin" %}{% elif request.profile.is_admin %}{% trans "Content Provider" %}{% else %}{% trans "Explorer" %}{% endif %}
                     </div>
                 </div>
             </div>
 
             <nav class="nav flex-column gap-1 flex-grow-1">
                 <div class="hk-dash-section-title">
-                    {% if request.profile.is_super_admin %}Administration{% elif request.profile.is_admin %}Manager Workspace{% else %}My Workspace{% endif %}
+                    {% if request.profile.is_super_admin %}{% trans "Administration" %}{% elif request.profile.is_admin %}{% trans "Manager Workspace" %}{% else %}{% trans "My Workspace" %}{% endif %}
                 </div>
                 <a class="nav-link hk-dash-link {% if active_nav == 'overview' %}active{% endif %}" href="{% url 'core:dashboard' %}">
-                    <i class="bi bi-speedometer2"></i> Overview
+                    <i class="bi bi-speedometer2"></i> {% trans "Overview" %}
                 </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'profile' %}active{% endif %}" href="{% url 'core:dashboard_profile' %}">
-                    <i class="bi bi-person-vcard"></i> My Profile
+                    <i class="bi bi-person-vcard"></i> {% trans "My Profile" %}
                 </a>
                 {% if request.profile.is_super_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'requests' %}active{% endif %}" href="{% url 'core:dashboard_admin_requests' %}">
-                    <i class="bi bi-person-plus"></i> Admin Requests
+                    <i class="bi bi-person-plus"></i> {% trans "Admin Requests" %}
                 </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'listings' %}active{% endif %}" href="{% url 'core:dashboard_pending_listings' %}">
-                    <i class="bi bi-clipboard-check"></i> Listing Approvals
+                    <i class="bi bi-clipboard-check"></i> {% trans "Listing Approvals" %}
                 </a>
                 {% endif %}
                 {% if request.profile.is_super_admin or request.profile.is_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'posts' %}active{% endif %}" href="{% url 'core:dashboard_posts' %}">
-                    <i class="bi bi-collection"></i> Posts
+                    <i class="bi bi-collection"></i> {% trans "Posts" %}
                 </a>
                 {% endif %}
                 {% if request.profile.is_super_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'users' %}active{% endif %}" href="{% url 'core:dashboard_users' %}">
-                    <i class="bi bi-people"></i> Users
+                    <i class="bi bi-people"></i> {% trans "Users" %}
                 </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'categories' %}active{% endif %}" href="{% url 'core:dashboard_categories' %}">
-                    <i class="bi bi-tags"></i> Categories
+                    <i class="bi bi-tags"></i> {% trans "Categories" %}
                 </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'site_theme' %}active{% endif %}" href="{% url 'core:dashboard_site_settings' %}">
-                    <i class="bi bi-palette2"></i> Site Theme
+                    <i class="bi bi-palette2"></i> {% trans "Site Theme" %}
                 </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'messages' %}active{% endif %}" href="{% url 'core:dashboard_messages' %}">
-                    <i class="bi bi-envelope"></i> Contact Messages
+                    <i class="bi bi-envelope"></i> {% trans "Contact Messages" %}
                     {% if unread_message_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_message_count }}</span>{% endif %}
                 </a>
                 {% endif %}
                 {% if user.is_staff or request.profile.is_super_admin or request.profile.is_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'uploads' %}active{% endif %}" href="{% url 'core:upload_hub' %}">
-                    <i class="bi bi-cloud-arrow-up"></i> Uploads
+                    <i class="bi bi-cloud-arrow-up"></i> {% trans "Uploads" %}
                 </a>
                 {% endif %}
 
-                <div class="hk-dash-section-title">My Account</div>
+                <div class="hk-dash-section-title">{% trans "My Account" %}</div>
                 <a class="nav-link hk-dash-link {% if active_nav == 'my_listings' %}active{% endif %}" href="{% url 'core:my_listings' %}">
-                    <i class="bi bi-card-list"></i> My Listings
+                    <i class="bi bi-card-list"></i> {% trans "My Listings" %}
                 </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'favorites' %}active{% endif %}" href="{% url 'core:my_favorites' %}">
-                    <i class="bi bi-heart"></i> My Favorites
+                    <i class="bi bi-heart"></i> {% trans "My Favorites" %}
                 </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'notifications' %}active{% endif %}" href="{% url 'core:notifications_list' %}">
-                    <i class="bi bi-bell"></i> Notifications
+                    <i class="bi bi-bell"></i> {% trans "Notifications" %}
                     {% if unread_notification_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_notification_count }}</span>{% endif %}
                 </a>
             </nav>
 
-            <div class="hk-weather-season-picker" role="group" aria-label="Seasonal background theme">
+            <div class="hk-weather-season-picker" role="group" aria-label="{% trans 'Seasonal background theme' %}">
                 <div class="hk-weather-season-head">
                     <i class="bi bi-clouds"></i>
-                    <span>Seasonal Theme</span>
+                    <span>{% trans "Seasonal Theme" %}</span>
                 </div>
                 <div class="hk-weather-season-options">
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="none" aria-pressed="true" title="No seasonal effect">
+                    <button type="button" class="hk-weather-season-option" data-weather-season-option="none" aria-pressed="true" title="{% trans 'No seasonal effect' %}">
                         <i class="bi bi-slash-circle"></i>
                     </button>
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="rain" aria-pressed="false" title="Rainy season">
+                    <button type="button" class="hk-weather-season-option" data-weather-season-option="rain" aria-pressed="false" title="{% trans 'Rainy season' %}">
                         <i class="bi bi-cloud-rain-heavy"></i>
                     </button>
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="winter" aria-pressed="false" title="Snow (Christmas)">
+                    <button type="button" class="hk-weather-season-option" data-weather-season-option="winter" aria-pressed="false" title="{% trans 'Snow (Christmas)' %}">
                         <i class="bi bi-snow2"></i>
                     </button>
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="spring" aria-pressed="false" title="Spring season">
+                    <button type="button" class="hk-weather-season-option" data-weather-season-option="spring" aria-pressed="false" title="{% trans 'Spring season' %}">
                         <i class="bi bi-flower1"></i>
                     </button>
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="autumn" aria-pressed="false" title="Autumn season">
+                    <button type="button" class="hk-weather-season-option" data-weather-season-option="autumn" aria-pressed="false" title="{% trans 'Autumn season' %}">
                         <i class="bi bi-tree-fill"></i>
                     </button>
                 </div>
@@ -108,7 +108,7 @@
 
             <div class="hk-dash-sidebar-footer">
                 <a href="{% url 'core:home' %}" class="nav-link hk-dash-link">
-                    <i class="bi bi-box-arrow-left"></i> Back to Site
+                    <i class="bi bi-box-arrow-left"></i> {% trans "Back to Site" %}
                 </a>
             </div>
         </div>
@@ -118,11 +118,11 @@
         <div class="container-fluid py-4 px-4">
             <div class="hk-dash-mainbar d-flex align-items-center mb-4">
                 <div class="hk-dash-mobile-bar d-flex d-lg-none align-items-center gap-3">
-                    <button type="button" class="hk-theme-toggle" data-bs-toggle="offcanvas" data-bs-target="#hkDashSidebar" aria-controls="hkDashSidebar" aria-label="Open dashboard menu">
+                    <button type="button" class="hk-theme-toggle" data-bs-toggle="offcanvas" data-bs-target="#hkDashSidebar" aria-controls="hkDashSidebar" aria-label="{% trans 'Open dashboard menu' %}">
                         <i class="bi bi-list"></i>
                     </button>
                     <span class="fw-bold" style="color: var(--hk-ink);">
-                        {% if request.profile.is_super_admin %}Admin Dashboard{% elif request.profile.is_admin %}Manager Dashboard{% else %}My Dashboard{% endif %}
+                        {% if request.profile.is_super_admin %}{% trans "Admin Dashboard" %}{% elif request.profile.is_admin %}{% trans "Manager Dashboard" %}{% else %}{% trans "My Dashboard" %}{% endif %}
                     </span>
                 </div>
 
@@ -130,7 +130,7 @@
                     <span class="hk-weather-emoji" id="hkWeatherEmoji">🌤️</span>
                     <div class="hk-weather-main">
                         <span class="hk-weather-temp" id="hkWeatherTemp">--°C</span>
-                        <span class="hk-weather-condition" id="hkWeatherCondition">Loading…</span>
+                        <span class="hk-weather-condition" id="hkWeatherCondition">{% trans "Loading…" %}</span>
                     </div>
                     <span class="hk-weather-wind-inline"><i class="bi bi-wind"></i> <span id="hkWeatherWind">-- km/h</span></span>
                 </div>

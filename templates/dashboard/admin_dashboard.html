@@ -1,101 +1,101 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
-<h3 class="fw-bold mb-1" data-aos="fade-up">Manager Workspace</h3>
-<p class="text-muted mb-4" data-aos="fade-up">Your listings, at a glance</p>
+<h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Manager Workspace" %}</h3>
+<p class="text-muted mb-4" data-aos="fade-up">{% trans "Your listings, at a glance" %}</p>
 
 <div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
     <div class="hk-stat-card">
         <div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-card-list"></i></div>
-        <div><div class="hk-stat-value">{{ stats.total }}</div><div class="hk-stat-label">Total Listings</div></div>
+        <div><div class="hk-stat-value">{{ stats.total }}</div><div class="hk-stat-label">{% trans "Total Listings" %}</div></div>
     </div>
     <div class="hk-stat-card">
         <div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div>
-        <div><div class="hk-stat-value">{{ stats.pending }}</div><div class="hk-stat-label">Pending Review</div></div>
+        <div><div class="hk-stat-value">{{ stats.pending }}</div><div class="hk-stat-label">{% trans "Pending Review" %}</div></div>
     </div>
     <div class="hk-stat-card">
         <div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div>
-        <div><div class="hk-stat-value">{{ stats.approved }}</div><div class="hk-stat-label">Approved</div></div>
+        <div><div class="hk-stat-value">{{ stats.approved }}</div><div class="hk-stat-label">{% trans "Approved" %}</div></div>
     </div>
     <div class="hk-stat-card">
         <div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-x-circle"></i></div>
-        <div><div class="hk-stat-value">{{ stats.rejected }}</div><div class="hk-stat-label">Rejected</div></div>
+        <div><div class="hk-stat-value">{{ stats.rejected }}</div><div class="hk-stat-label">{% trans "Rejected" %}</div></div>
     </div>
 </div>
 
-<h6 class="hk-dash-section-title" data-aos="fade-up">Post Performance</h6>
+<h6 class="hk-dash-section-title" data-aos="fade-up">{% trans "Post Performance" %}</h6>
 <div class="hk-yt-grid mb-4" data-aos="fade-up">
     <div class="hk-yt-card">
         <div class="hk-yt-card-top">
             <div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-eye"></i></div>
             {% if analytics.trend_views is None %}
-            <span class="hk-trend-badge hk-trend-flat">New</span>
+            <span class="hk-trend-badge hk-trend-flat">{% trans "New" %}</span>
             {% else %}
             <span class="hk-trend-badge {% if analytics.trend_views >= 0 %}hk-trend-up{% else %}hk-trend-down{% endif %}">
-                {% if analytics.trend_views >= 0 %}+{% endif %}{{ analytics.trend_views }}% vs last week
+                {% if analytics.trend_views >= 0 %}+{% endif %}{% blocktrans with trend=analytics.trend_views %}{{ trend }}% vs last week{% endblocktrans %}
             </span>
             {% endif %}
         </div>
         <div class="hk-stat-value">{{ stats.total_views }}</div>
-        <div class="hk-stat-label">Views / Impressions</div>
+        <div class="hk-stat-label">{% trans "Views / Impressions" %}</div>
     </div>
     <div class="hk-yt-card">
         <div class="hk-yt-card-top">
             <div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-hand-thumbs-up"></i></div>
             {% if analytics.trend_likes is None %}
-            <span class="hk-trend-badge hk-trend-flat">New</span>
+            <span class="hk-trend-badge hk-trend-flat">{% trans "New" %}</span>
             {% else %}
             <span class="hk-trend-badge {% if analytics.trend_likes >= 0 %}hk-trend-up{% else %}hk-trend-down{% endif %}">
-                {% if analytics.trend_likes >= 0 %}+{% endif %}{{ analytics.trend_likes }}% vs last week
+                {% if analytics.trend_likes >= 0 %}+{% endif %}{% blocktrans with trend=analytics.trend_likes %}{{ trend }}% vs last week{% endblocktrans %}
             </span>
             {% endif %}
         </div>
         <div class="hk-stat-value">{{ stats.total_likes }}</div>
-        <div class="hk-stat-label">Likes / Reactions</div>
+        <div class="hk-stat-label">{% trans "Likes / Reactions" %}</div>
     </div>
     <div class="hk-yt-card">
         <div class="hk-yt-card-top">
             <div class="hk-stat-icon hk-stat-icon--sky"><i class="bi bi-share-fill"></i></div>
             {% if analytics.trend_shares is None %}
-            <span class="hk-trend-badge hk-trend-flat">New</span>
+            <span class="hk-trend-badge hk-trend-flat">{% trans "New" %}</span>
             {% else %}
             <span class="hk-trend-badge {% if analytics.trend_shares >= 0 %}hk-trend-up{% else %}hk-trend-down{% endif %}">
-                {% if analytics.trend_shares >= 0 %}+{% endif %}{{ analytics.trend_shares }}% vs last week
+                {% if analytics.trend_shares >= 0 %}+{% endif %}{% blocktrans with trend=analytics.trend_shares %}{{ trend }}% vs last week{% endblocktrans %}
             </span>
             {% endif %}
         </div>
         <div class="hk-stat-value">{{ stats.total_shares }}</div>
-        <div class="hk-stat-label">Shares</div>
+        <div class="hk-stat-label">{% trans "Shares" %}</div>
     </div>
     <div class="hk-yt-card">
         <div class="hk-yt-card-top">
             <div class="hk-stat-icon hk-stat-icon--violet"><i class="bi bi-chat-square-text-fill"></i></div>
             {% if analytics.trend_reviews is None %}
-            <span class="hk-trend-badge hk-trend-flat">New</span>
+            <span class="hk-trend-badge hk-trend-flat">{% trans "New" %}</span>
             {% else %}
             <span class="hk-trend-badge {% if analytics.trend_reviews >= 0 %}hk-trend-up{% else %}hk-trend-down{% endif %}">
-                {% if analytics.trend_reviews >= 0 %}+{% endif %}{{ analytics.trend_reviews }}% vs last week
+                {% if analytics.trend_reviews >= 0 %}+{% endif %}{% blocktrans with trend=analytics.trend_reviews %}{{ trend }}% vs last week{% endblocktrans %}
             </span>
             {% endif %}
         </div>
         <div class="hk-stat-value">{{ stats.total_reviews }}</div>
-        <div class="hk-stat-label">Reviews / Comments</div>
+        <div class="hk-stat-label">{% trans "Reviews / Comments" %}</div>
     </div>
 </div>
 
 <div class="row g-4 mb-2" data-aos="fade-up">
     <div class="col-lg-7">
         <div class="hk-chart-card h-100">
-            <h6 class="fw-bold mb-3">Views &amp; Engagement Over Time</h6>
+            <h6 class="fw-bold mb-3">{% trans "Views & Engagement Over Time" %}</h6>
             <canvas id="hkTimelineChart" height="230"></canvas>
         </div>
     </div>
     <div class="col-lg-5">
         <div class="hk-chart-card h-100">
-            <h6 class="fw-bold mb-3">Engagement Breakdown by Post</h6>
+            <h6 class="fw-bold mb-3">{% trans "Engagement Breakdown by Post" %}</h6>
             <canvas id="hkBreakdownChart" height="230"></canvas>
         </div>
     </div>
@@ -104,39 +104,43 @@
 <div class="row g-4">
     <div class="col-lg-4" data-aos="fade-up">
         <div class="card h-100">
-            <div class="card-header bg-white fw-semibold"><i class="bi bi-tags text-primary"></i> My Managed Categories</div>
-            <div class="card-body d-flex flex-column gap-2">
-                {% for group in permitted_category_groups %}
-                <div>
-                    <div class="d-flex align-items-center flex-wrap gap-2">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-tags text-primary"></i> {% trans "My Managed Categories" %}</div>
+            <div class="card-body">
+                {% if permitted_category_groups %}
+                <div class="hk-quickadd-grid">
+                    {% for group in permitted_category_groups %}
+                    <div class="hk-quickadd-card">
                         {% if group.top_permitted %}
-                        <a href="{% url 'core:listing_submit' group.top.key %}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi {{ group.top.icon }}"></i> {{ group.top.label }}
+                        <a href="{% url 'core:listing_submit' group.top.key %}" class="hk-quickadd-card-link">
+                            <span class="hk-quickadd-icon"><i class="bi {{ group.top.icon }}"></i></span>
+                            <span class="hk-quickadd-label">{{ group.top.label }}</span>
                         </a>
                         {% elif group.children %}
-                        <span class="fw-semibold text-muted small"><i class="bi {{ group.top.icon }}"></i> {{ group.top.label }}</span>
+                        <div class="hk-quickadd-card-link hk-quickadd-card-link-static">
+                            <span class="hk-quickadd-icon"><i class="bi {{ group.top.icon }}"></i></span>
+                            <span class="hk-quickadd-label">{{ group.top.label }}</span>
+                        </div>
                         {% endif %}
                         {% if group.children %}
-                        <button type="button" class="btn btn-outline-secondary btn-sm hk-quickadd-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#hkAdminQuickAdd{{ group.top.pk }}" aria-expanded="false" aria-controls="hkAdminQuickAdd{{ group.top.pk }}">
-                            <i class="bi bi-chevron-down"></i> {{ group.children|length }} subcategor{{ group.children|length|pluralize:"y,ies" }}
+                        <button type="button" class="hk-quickadd-trigger collapsed" data-bs-toggle="collapse" data-bs-target="#hkAdminQuickAdd{{ group.top.pk }}" aria-expanded="false" aria-controls="hkAdminQuickAdd{{ group.top.pk }}">
+                            {% blocktrans count counter=group.children|length %}{{ counter }} subcategory{% plural %}{{ counter }} subcategories{% endblocktrans %} <i class="bi bi-chevron-down"></i>
                         </button>
+                        <div class="collapse" id="hkAdminQuickAdd{{ group.top.pk }}">
+                            <div class="hk-quickadd-subgrid">
+                                {% for sub in group.children %}
+                                <a href="{% url 'core:listing_submit' sub.key %}" class="hk-quickadd-sub-pill">
+                                    <i class="bi bi-arrow-return-right"></i> {{ sub.label }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
                         {% endif %}
                     </div>
-                    {% if group.children %}
-                    <div class="collapse" id="hkAdminQuickAdd{{ group.top.pk }}">
-                        <div class="d-flex flex-wrap gap-2 mt-2 ps-3">
-                            {% for sub in group.children %}
-                            <a href="{% url 'core:listing_submit' sub.key %}" class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-arrow-return-right"></i> {{ sub.label }}
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <p class="text-muted mb-0">You don't have any approved categories yet.</p>
-                {% endfor %}
+                {% else %}
+                <p class="text-muted mb-0">{% trans "You don't have any approved categories yet." %}</p>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -144,20 +148,20 @@
     <div class="col-lg-8" data-aos="fade-up">
         <div class="card h-100">
             <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-clock-history text-primary"></i> Recent Activity</span>
-                <a href="{% url 'core:my_listings' %}" class="small">View all my listings</a>
+                <span><i class="bi bi-clock-history text-primary"></i> {% trans "Recent Activity" %}</span>
+                <a href="{% url 'core:my_listings' %}" class="small">{% trans "View all my listings" %}</a>
             </div>
             {% if recent_items %}
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 hk-analytics-table">
                     <thead class="table-light">
                         <tr>
-                            <th>Listing</th>
-                            <th>Status</th>
-                            <th class="text-end"><i class="bi bi-eye"></i> Views</th>
-                            <th class="text-end"><i class="bi bi-hand-thumbs-up"></i> Likes</th>
-                            <th class="text-end"><i class="bi bi-share-fill"></i> Shares</th>
-                            <th class="text-end"><i class="bi bi-chat-square-text-fill"></i> Reviews</th>
+                            <th>{% trans "Listing" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th class="text-end"><i class="bi bi-eye"></i> {% trans "Views" %}</th>
+                            <th class="text-end"><i class="bi bi-hand-thumbs-up"></i> {% trans "Likes" %}</th>
+                            <th class="text-end"><i class="bi bi-share-fill"></i> {% trans "Shares" %}</th>
+                            <th class="text-end"><i class="bi bi-chat-square-text-fill"></i> {% trans "Reviews" %}</th>
                             <th class="text-end"></th>
                         </tr>
                     </thead>
@@ -181,29 +185,29 @@
                                 <div class="hk-tray">
                                     <div class="hk-tray-metric">
                                         <div class="hk-tray-metric-value">{{ obj.view_count }}</div>
-                                        <div class="hk-tray-metric-label"><i class="bi bi-eye"></i> Views</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-eye"></i> {% trans "Views" %}</div>
                                     </div>
                                     <div class="hk-tray-metric">
                                         <div class="hk-tray-metric-value">{{ obj.like_count }}</div>
-                                        <div class="hk-tray-metric-label"><i class="bi bi-hand-thumbs-up"></i> Likes</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-hand-thumbs-up"></i> {% trans "Likes" %}</div>
                                     </div>
                                     <div class="hk-tray-metric">
                                         <div class="hk-tray-metric-value">{{ obj.share_count }}</div>
-                                        <div class="hk-tray-metric-label"><i class="bi bi-share-fill"></i> Shares</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-share-fill"></i> {% trans "Shares" %}</div>
                                     </div>
                                     <div class="hk-tray-metric">
                                         <div class="hk-tray-metric-value">{{ obj.review_count }}</div>
-                                        <div class="hk-tray-metric-label"><i class="bi bi-star-fill"></i> Reviews{% if obj.avg_rating %} ({{ obj.avg_rating }}★){% endif %}</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-star-fill"></i> {% trans "Reviews" %}{% if obj.avg_rating %} ({{ obj.avg_rating }}★){% endif %}</div>
                                     </div>
                                     <div class="hk-tray-metric">
                                         <div class="hk-tray-metric-value">{{ obj.comment_count }}</div>
-                                        <div class="hk-tray-metric-label"><i class="bi bi-chat-square-text-fill"></i> Comments</div>
+                                        <div class="hk-tray-metric-label"><i class="bi bi-chat-square-text-fill"></i> {% trans "Comments" %}</div>
                                     </div>
                                     <div class="hk-tray-actions">
                                         {% if obj.status == 'approved' %}
-                                        <a href="{{ obj.get_absolute_url }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View</a>
+                                        <a href="{{ obj.get_absolute_url }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> {% trans "View" %}</a>
                                         {% endif %}
-                                        <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Edit</a>
+                                        <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> {% trans "Edit" %}</a>
                                     </div>
                                 </div>
                             </td>
@@ -217,8 +221,8 @@
             <div class="card-body">
                 <div class="alert alert-info text-center py-5 hk-empty-state mb-0">
                     <i class="bi bi-card-list display-4 d-block mb-3"></i>
-                    <p class="fw-bold mb-1">You haven't added any listings yet</p>
-                    <p class="text-muted mb-0">Pick a category above to publish your first one.</p>
+                    <p class="fw-bold mb-1">{% trans "You haven't added any listings yet" %}</p>
+                    <p class="text-muted mb-0">{% trans "Pick a category above to publish your first one." %}</p>
                 </div>
             </div>
             {% endif %}
@@ -229,7 +233,7 @@
 <div class="row g-4 mt-2">
     <div class="col-lg-6 mx-auto" data-aos="fade-up">
         <div class="hk-chart-card h-100">
-            <h6 class="fw-bold mb-3">My Listings by Status</h6>
+            <h6 class="fw-bold mb-3">{% trans "My Listings by Status" %}</h6>
             <canvas id="hkMyListingsChart" height="200"></canvas>
         </div>
     </div>

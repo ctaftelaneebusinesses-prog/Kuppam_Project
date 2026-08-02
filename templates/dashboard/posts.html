@@ -1,27 +1,28 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <div>
-        <h3 class="fw-bold mb-1" data-aos="fade-up">Posts</h3>
-        <p class="text-muted small mb-0">Manage every listing across all categories from one place.</p>
+        <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Posts" %}</h3>
+        <p class="text-muted small mb-0">{% trans "Manage every listing across all categories from one place." %}</p>
     </div>
     <div class="d-flex gap-2">
-        <a href="{% url 'core:dashboard_posts_export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-excel"></i> Excel</a>
-        <a href="{% url 'core:dashboard_posts_export_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+        <a href="{% url 'core:dashboard_posts_export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-excel"></i> {% trans "Excel" %}</a>
+        <a href="{% url 'core:dashboard_posts_export_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-pdf"></i> {% trans "PDF" %}</a>
         {% if request.profile.is_super_admin %}
-        <a href="{% url 'core:dashboard_post_create_picker' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Post</a>
+        <a href="{% url 'core:dashboard_post_create_picker' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> {% trans "New Post" %}</a>
         {% endif %}
     </div>
 </div>
 
 <div class="row g-3 g-lg-4 mb-4">
-    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-collection"></i></div><div><div class="hk-stat-value">{{ counts.total }}</div><div class="hk-stat-label">Total Posts</div></div></div></div>
-    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ counts.pending }}</div><div class="hk-stat-label">Pending</div></div></div></div>
-    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ counts.approved }}</div><div class="hk-stat-label">Approved</div></div></div></div>
-    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ counts.rejected }}</div><div class="hk-stat-label">Rejected</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-collection"></i></div><div><div class="hk-stat-value">{{ counts.total }}</div><div class="hk-stat-label">{% trans "Total Posts" %}</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ counts.pending }}</div><div class="hk-stat-label">{% trans "Pending" %}</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ counts.approved }}</div><div class="hk-stat-label">{% trans "Approved" %}</div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ counts.rejected }}</div><div class="hk-stat-label">{% trans "Rejected" %}</div></div></div></div>
 </div>
 
 <form method="get" class="card hk-toolbar-card mb-4">
@@ -30,12 +31,12 @@
             <div class="hk-toolbar-search">
                 <div class="input-group">
                     <span class="input-group-text bg-transparent border-end-0" style="border-color:var(--hk-border-soft); border-radius:10px 0 0 10px;"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" style="border-radius:0 10px 10px 0;" placeholder="Title, company, location...">
+                    <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" style="border-radius:0 10px 10px 0;" placeholder="{% trans 'Title, company, location...' %}">
                 </div>
             </div>
             <div class="hk-toolbar-field">
                 <select name="model" class="form-select">
-                    <option value="">All Types</option>
+                    <option value="">{% trans "All Types" %}</option>
                     {% for key in model_choices %}
                     <option value="{{ key }}" {% if selected_model == key %}selected{% endif %}>{{ key|title }}</option>
                     {% endfor %}
@@ -43,7 +44,7 @@
             </div>
             <div class="hk-toolbar-field">
                 <select name="category" class="form-select">
-                    <option value="">All Categories</option>
+                    <option value="">{% trans "All Categories" %}</option>
                     {% for cat in categories %}
                     <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.label }}</option>
                     {% endfor %}
@@ -51,7 +52,7 @@
             </div>
             <div class="hk-toolbar-field">
                 <select name="owner" class="form-select">
-                    <option value="">All Admins</option>
+                    <option value="">{% trans "All Admins" %}</option>
                     {% for owner in owners %}
                     <option value="{{ owner.id }}" {% if selected_owner == owner.id|stringformat:'s' %}selected{% endif %}>{{ owner.profile.full_name|default:owner.email }}</option>
                     {% endfor %}
@@ -59,7 +60,7 @@
             </div>
             <div class="hk-toolbar-field">
                 <select name="status" class="form-select">
-                    <option value="">All Statuses</option>
+                    <option value="">{% trans "All Statuses" %}</option>
                     {% for value, label in status_choices %}
                     <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
@@ -67,15 +68,15 @@
             </div>
             <div class="hk-toolbar-field">
                 <select name="sort" class="form-select" onchange="this.form.submit()">
-                    <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
-                    <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
-                    <option value="most_viewed" {% if sort == 'most_viewed' %}selected{% endif %}>Most viewed</option>
-                    <option value="most_liked" {% if sort == 'most_liked' %}selected{% endif %}>Most liked</option>
+                    <option value="newest" {% if sort == 'newest' %}selected{% endif %}>{% trans "Newest first" %}</option>
+                    <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>{% trans "Oldest first" %}</option>
+                    <option value="most_viewed" {% if sort == 'most_viewed' %}selected{% endif %}>{% trans "Most viewed" %}</option>
+                    <option value="most_liked" {% if sort == 'most_liked' %}selected{% endif %}>{% trans "Most liked" %}</option>
                 </select>
             </div>
-            <button class="btn btn-primary hk-toolbar-apply-btn" type="submit" title="Apply filters"><i class="bi bi-funnel"></i></button>
+            <button class="btn btn-primary hk-toolbar-apply-btn" type="submit" title="{% trans 'Apply filters' %}"><i class="bi bi-funnel"></i></button>
             {% if query or selected_model or selected_category or selected_owner or status_filter %}
-            <a href="{% url 'core:dashboard_posts' %}" class="btn btn-outline-secondary hk-toolbar-apply-btn" title="Clear filters"><i class="bi bi-x-lg"></i></a>
+            <a href="{% url 'core:dashboard_posts' %}" class="btn btn-outline-secondary hk-toolbar-apply-btn" title="{% trans 'Clear filters' %}"><i class="bi bi-x-lg"></i></a>
             {% endif %}
         </div>
     </div>
@@ -88,18 +89,18 @@
     <div class="hk-bulkbar mb-3" id="hkBulkbar">
         <select name="bulk_action" id="hkBulkAction" class="form-select w-auto">
             {% if request.profile.is_super_admin %}
-            <option value="approve">Approve</option>
-            <option value="reject">Reject</option>
+            <option value="approve">{% trans "Approve" %}</option>
+            <option value="reject">{% trans "Reject" %}</option>
             {% endif %}
-            <option value="enable">Enable</option>
-            <option value="disable">Disable</option>
-            <option value="feature">Feature</option>
-            <option value="unfeature">Unfeature</option>
-            <option value="delete">Delete</option>
+            <option value="enable">{% trans "Enable" %}</option>
+            <option value="disable">{% trans "Disable" %}</option>
+            <option value="feature">{% trans "Feature" %}</option>
+            <option value="unfeature">{% trans "Unfeature" %}</option>
+            <option value="delete">{% trans "Delete" %}</option>
         </select>
-        <input type="text" name="note" class="form-control flex-grow-1" placeholder="Reason (used for reject)" style="min-width:220px;">
-        <button type="submit" id="hkBulkApply" class="btn hk-bulkbar-apply-btn"><i class="bi bi-check2-circle"></i> Apply to Selected</button>
-        <span class="hk-bulkbar-count ms-auto" id="hkBulkbarCount">{{ page_obj.paginator.count }} post{{ page_obj.paginator.count|pluralize }}</span>
+        <input type="text" name="note" class="form-control flex-grow-1" placeholder="{% trans 'Reason (used for reject)' %}" style="min-width:220px;">
+        <button type="submit" id="hkBulkApply" class="btn hk-bulkbar-apply-btn"><i class="bi bi-check2-circle"></i> {% trans "Apply to Selected" %}</button>
+        <span class="hk-bulkbar-count ms-auto" id="hkBulkbarCount">{% blocktrans count counter=page_obj.paginator.count %}{{ counter }} post{% plural %}{{ counter }} posts{% endblocktrans %}</span>
     </div>
 
     <div class="card">
@@ -108,16 +109,16 @@
                 <thead class="table-light">
                     <tr>
                         <th style="width:36px;"><input type="checkbox" id="hkSelectAll" class="form-check-input"></th>
-                        <th style="width:70px;">Photo</th>
-                        <th>Title</th>
-                        <th>Type</th>
-                        <th>Category</th>
-                        <th>Admin</th>
-                        <th>Status</th>
-                        <th>Views</th>
-                        <th>Likes</th>
-                        <th>Created</th>
-                        <th class="text-end">Actions</th>
+                        <th style="width:70px;">{% trans "Photo" %}</th>
+                        <th>{% trans "Title" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Category" %}</th>
+                        <th>{% trans "Admin" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Views" %}</th>
+                        <th>{% trans "Likes" %}</th>
+                        <th>{% trans "Created" %}</th>
+                        <th class="text-end">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -129,13 +130,13 @@
                         <td class="{% if not obj.is_active %}hk-post-title-off{% endif %}">
                             <div class="fw-semibold">{{ obj }}</div>
                             <div class="d-flex gap-1 mt-1">
-                                {% if obj.is_featured %}<span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> Featured</span>{% endif %}
-                                {% if not obj.is_active %}<span class="badge bg-secondary">Disabled</span>{% endif %}
+                                {% if obj.is_featured %}<span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> {% trans "Featured" %}</span>{% endif %}
+                                {% if not obj.is_active %}<span class="badge bg-secondary">{% trans "Disabled" %}</span>{% endif %}
                             </div>
                         </td>
                         <td><span class="hk-type-pill hk-type-{{ item.model_key }}">{{ item.model_key }}</span></td>
                         <td class="small">{{ obj.listing_category.label|default:'—' }}</td>
-                        <td class="small">{% if obj.owner %}{{ obj.owner.profile.full_name|default:obj.owner.email }}{% else %}Staff{% endif %}</td>
+                        <td class="small">{% if obj.owner %}{{ obj.owner.profile.full_name|default:obj.owner.email }}{% else %}{% trans "Staff" %}{% endif %}</td>
                         <td>
                             <span class="hk-status-pill hk-status-{{ obj.status }}">{{ obj.get_status_display }}</span>
                         </td>
@@ -144,20 +145,20 @@
                         <td class="small text-muted">{{ obj.created_at|date:"d M Y" }}</td>
                         <td class="text-end">
                             <div class="d-flex justify-content-end gap-1">
-                                <a href="{% url 'core:dashboard_post_detail' item.model_key obj.pk %}" class="hk-row-action-btn" title="View"><i class="bi bi-eye"></i></a>
+                                <a href="{% url 'core:dashboard_post_detail' item.model_key obj.pk %}" class="hk-row-action-btn" title="{% trans 'View' %}"><i class="bi bi-eye"></i></a>
                                 {% if request.profile.is_super_admin or obj.owner_id == request.user.id %}
-                                <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="hk-row-action-btn" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="hk-row-action-btn" title="{% trans 'Edit' %}"><i class="bi bi-pencil"></i></a>
                                 {% endif %}
-                                <button type="submit" formaction="{% url 'core:dashboard_post_toggle_active' item.model_key obj.pk %}" class="hk-row-action-btn" title="{% if obj.is_active %}Disable{% else %}Enable{% endif %}">
+                                <button type="submit" formaction="{% url 'core:dashboard_post_toggle_active' item.model_key obj.pk %}" class="hk-row-action-btn" title="{% if obj.is_active %}{% trans 'Disable' %}{% else %}{% trans 'Enable' %}{% endif %}">
                                     <i class="bi {% if obj.is_active %}bi-toggle-on{% else %}bi-toggle-off{% endif %}"></i>
                                 </button>
-                                <button type="submit" formaction="{% url 'core:listing_delete' item.model_key obj.pk %}" class="hk-row-action-btn hk-row-action-danger hkConfirmDelete" title="Delete"><i class="bi bi-trash"></i></button>
+                                <button type="submit" formaction="{% url 'core:listing_delete' item.model_key obj.pk %}" class="hk-row-action-btn hk-row-action-danger hkConfirmDelete" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></button>
                             </div>
                         </td>
                     </tr>
                     {% endwith %}
                     {% empty %}
-                    <tr><td colspan="11" class="text-center text-muted py-5"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No posts match these filters.</td></tr>
+                    <tr><td colspan="11" class="text-center text-muted py-5"><i class="bi bi-inbox fs-2 d-block mb-2"></i>{% trans "No posts match these filters." %}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -166,14 +167,14 @@
 </form>
 
 {% if page_obj.paginator.num_pages > 1 %}
-<nav class="mt-4" aria-label="Posts pagination">
+<nav class="mt-4" aria-label="{% trans 'Posts pagination' %}">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>
+        <li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">{% trans "Previous" %}</a></li>
         {% endif %}
-        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        <li class="page-item disabled"><span class="page-link">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</span></li>
         {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">{% trans "Next" %}</a></li>
         {% endif %}
     </ul>
 </nav>

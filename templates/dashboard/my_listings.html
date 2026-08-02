@@ -1,46 +1,51 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
 <div class="hk-dash-topbar">
-    <h3 class="fw-bold mb-0">My Listings</h3>
+    <h3 class="fw-bold mb-0">{% trans "My Listings" %}</h3>
 </div>
 
 <div class="card mb-4">
-    <div class="card-header bg-white fw-semibold">Add a New Listing</div>
-    <div class="card-body d-flex flex-column gap-2">
-        {% for group in permitted_category_groups %}
-        <div>
-            <div class="d-flex align-items-center flex-wrap gap-2">
+    <div class="card-header bg-white fw-semibold">{% trans "Add a New Listing" %}</div>
+    <div class="card-body">
+        {% if permitted_category_groups %}
+        <div class="hk-quickadd-grid">
+            {% for group in permitted_category_groups %}
+            <div class="hk-quickadd-card">
                 {% if group.top_permitted %}
-                <a href="{% url 'core:listing_submit' group.top.key %}" class="btn btn-outline-primary btn-sm">
-                    <i class="bi {{ group.top.icon }}"></i> {{ group.top.label }}
+                <a href="{% url 'core:listing_submit' group.top.key %}" class="hk-quickadd-card-link">
+                    <span class="hk-quickadd-icon"><i class="bi {{ group.top.icon }}"></i></span>
+                    <span class="hk-quickadd-label">{{ group.top.label }}</span>
                 </a>
                 {% elif group.children %}
-                <span class="fw-semibold text-muted small"><i class="bi {{ group.top.icon }}"></i> {{ group.top.label }}</span>
+                <div class="hk-quickadd-card-link hk-quickadd-card-link-static">
+                    <span class="hk-quickadd-icon"><i class="bi {{ group.top.icon }}"></i></span>
+                    <span class="hk-quickadd-label">{{ group.top.label }}</span>
+                </div>
                 {% endif %}
                 {% if group.children %}
-                <button type="button" class="btn btn-outline-secondary btn-sm hk-quickadd-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#hkQuickAdd{{ group.top.pk }}" aria-expanded="false" aria-controls="hkQuickAdd{{ group.top.pk }}">
-                    <i class="bi bi-chevron-down"></i> {{ group.children|length }} subcategor{{ group.children|length|pluralize:"y,ies" }}
+                <button type="button" class="hk-quickadd-trigger collapsed" data-bs-toggle="collapse" data-bs-target="#hkQuickAdd{{ group.top.pk }}" aria-expanded="false" aria-controls="hkQuickAdd{{ group.top.pk }}">
+                    {% blocktrans count counter=group.children|length %}{{ counter }} subcategory{% plural %}{{ counter }} subcategories{% endblocktrans %} <i class="bi bi-chevron-down"></i>
                 </button>
+                <div class="collapse" id="hkQuickAdd{{ group.top.pk }}">
+                    <div class="hk-quickadd-subgrid">
+                        {% for sub in group.children %}
+                        <a href="{% url 'core:listing_submit' sub.key %}" class="hk-quickadd-sub-pill">
+                            <i class="bi bi-arrow-return-right"></i> {{ sub.label }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
                 {% endif %}
             </div>
-            {% if group.children %}
-            <div class="collapse" id="hkQuickAdd{{ group.top.pk }}">
-                <div class="d-flex flex-wrap gap-2 mt-2 ps-3">
-                    {% for sub in group.children %}
-                    <a href="{% url 'core:listing_submit' sub.key %}" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-arrow-return-right"></i> {{ sub.label }}
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
+            {% endfor %}
         </div>
-        {% empty %}
-        <p class="text-muted mb-0">You don't have any approved categories yet.</p>
-        {% endfor %}
+        {% else %}
+        <p class="text-muted mb-0">{% trans "You don't have any approved categories yet." %}</p>
+        {% endif %}
     </div>
 </div>
 
@@ -50,13 +55,13 @@
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Listing</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Views</th>
-                    <th>Likes</th>
-                    <th>Rating</th>
-                    <th class="text-end">Actions</th>
+                    <th>{% trans "Listing" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th>{% trans "Views" %}</th>
+                    <th>{% trans "Likes" %}</th>
+                    <th>{% trans "Rating" %}</th>
+                    <th class="text-end">{% trans "Actions" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -75,10 +80,10 @@
                     <td class="text-end">
                         <div class="d-flex justify-content-end gap-1">
                             {% if obj.status == 'approved' %}
-                            <a href="{{ obj.get_absolute_url }}" class="hk-row-action-btn" title="View"><i class="bi bi-eye"></i></a>
+                            <a href="{{ obj.get_absolute_url }}" class="hk-row-action-btn" title="{% trans 'View' %}"><i class="bi bi-eye"></i></a>
                             {% endif %}
-                            <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="hk-row-action-btn" title="Edit"><i class="bi bi-pencil"></i></a>
-                            <button type="submit" form="hkDelete-{{ item.model_key }}-{{ obj.pk }}" class="hk-row-action-btn hk-row-action-danger hkConfirmDelete" title="Delete"><i class="bi bi-trash"></i></button>
+                            <a href="{% url 'core:listing_edit' item.model_key obj.pk %}" class="hk-row-action-btn" title="{% trans 'Edit' %}"><i class="bi bi-pencil"></i></a>
+                            <button type="submit" form="hkDelete-{{ item.model_key }}-{{ obj.pk }}" class="hk-row-action-btn hk-row-action-danger hkConfirmDelete" title="{% trans 'Delete' %}"><i class="bi bi-trash"></i></button>
                         </div>
                         <form method="post" id="hkDelete-{{ item.model_key }}-{{ obj.pk }}" action="{% url 'core:listing_delete' item.model_key obj.pk %}" class="d-none">
                             {% csrf_token %}
@@ -94,15 +99,15 @@
 {% else %}
 <div class="alert alert-info text-center py-5 hk-empty-state">
     <i class="bi bi-card-list display-4 d-block mb-3"></i>
-    <p class="fw-bold mb-1">You haven't added any listings yet</p>
-    <p class="text-muted mb-0">Use "Add a New Listing" above to publish your first one.</p>
+    <p class="fw-bold mb-1">{% trans "You haven't added any listings yet" %}</p>
+    <p class="text-muted mb-0">{% blocktrans %}Use "Add a New Listing" above to publish your first one.{% endblocktrans %}</p>
 </div>
 {% endif %}
 
 <script>
 document.querySelectorAll('.hkConfirmDelete').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
-        if (!confirm('Delete this listing? This cannot be undone.')) e.preventDefault();
+        if (!confirm('{% trans "Delete this listing? This cannot be undone." %}')) e.preventDefault();
     });
 });
 </script>

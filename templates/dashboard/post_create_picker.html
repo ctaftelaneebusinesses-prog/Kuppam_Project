@@ -1,17 +1,18 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'core:dashboard_posts' %}">Posts</a></li>
-        <li class="breadcrumb-item active" aria-current="page">New Post</li>
+        <li class="breadcrumb-item"><a href="{% url 'core:dashboard_posts' %}">{% trans "Posts" %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{% trans "New Post" %}</li>
     </ol>
 </nav>
 
-<h3 class="fw-bold mb-1">Draft a New Post</h3>
-<p class="text-muted mb-4">Pick a category to publish a standalone post directly — it goes live immediately, no approval queue.</p>
+<h3 class="fw-bold mb-1">{% trans "Draft a New Post" %}</h3>
+<p class="text-muted mb-4">{% trans "Pick a category to publish a standalone post directly — it goes live immediately, no approval queue." %}</p>
 
 <div class="card">
     <div class="card-body d-flex flex-wrap gap-2">
@@ -20,7 +21,8 @@
             <i class="bi {{ category.icon }}"></i> {{ category.label }}
         </a>
         {% empty %}
-        <p class="text-muted mb-0">No categories yet — add one from <a href="{% url 'core:dashboard_categories' %}">Manage Categories</a> first.</p>
+        {% url 'core:dashboard_categories' as manage_categories_url %}
+        <p class="text-muted mb-0">{% blocktrans %}No categories yet — add one from <a href="{{ manage_categories_url }}">Manage Categories</a> first.{% endblocktrans %}</p>
         {% endfor %}
     </div>
 </div>

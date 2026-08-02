@@ -1,20 +1,21 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'core:dashboard_posts' %}">Posts</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'core:dashboard_post_create_picker' %}">New Post</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:dashboard_posts' %}">{% trans "Posts" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:dashboard_post_create_picker' %}">{% trans "New Post" %}</a></li>
         <li class="breadcrumb-item active" aria-current="page">{{ category.label }}</li>
     </ol>
 </nav>
 
 <div class="row justify-content-center">
     <div class="col-lg-7">
-        <h3 class="fw-bold mb-1">New {{ category.label }}</h3>
-        <p class="text-muted mb-4">Published immediately as Super Admin — no approval step.</p>
+        <h3 class="fw-bold mb-1">{% blocktrans with cat=category.label %}New {{ cat }}{% endblocktrans %}</h3>
+        <p class="text-muted mb-4">{% trans "Published immediately as Super Admin — no approval step." %}</p>
 
         <div class="card">
             <div class="card-body p-4">
@@ -41,7 +42,7 @@
                     {% endif %}
                     {% endfor %}
                     <button type="submit" class="btn btn-primary hk-cta-btn w-100">
-                        <i class="bi bi-check2-circle"></i> Publish
+                        <i class="bi bi-check2-circle"></i> {% trans "Publish" %}
                     </button>
                 </form>
             </div>

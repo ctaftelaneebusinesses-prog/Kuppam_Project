@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -10,92 +10,92 @@
     <div class="hk-history-hero-slides" id="hkHistoryHeroSlides" aria-hidden="true"></div>
     <div class="hk-history-hero-overlay"></div>
     <div class="container text-center hk-history-hero-content">
-        <span class="hk-history-hero-badge" data-aos="fade-up"><i class="bi bi-clock-history"></i> A Journey Through Time</span>
-        <h1 class="fw-bold mb-2" data-aos="fade-up" data-aos-delay="100">History of Kuppam</h1>
-        <p class="lead mb-0 hk-history-hero-sub" data-aos="fade-up" data-aos-delay="200">From ancient roots to a growing educational and agricultural hub in Andhra Pradesh</p>
+        <span class="hk-history-hero-badge" data-aos="fade-up"><i class="bi bi-clock-history"></i> {% trans "A Journey Through Time" %}</span>
+        <h1 class="fw-bold mb-2" data-aos="fade-up" data-aos-delay="100">{% trans "History of Kuppam" %}</h1>
+        <p class="lead mb-0 hk-history-hero-sub" data-aos="fade-up" data-aos-delay="200">{% trans "From ancient roots to a growing educational and agricultural hub in Andhra Pradesh" %}</p>
     </div>
-    <a href="#timeline" class="hk-history-scroll-cue" aria-label="Scroll down"><i class="bi bi-chevron-down"></i></a>
+    <a href="#timeline" class="hk-history-scroll-cue" aria-label="{% trans 'Scroll down' %}"><i class="bi bi-chevron-down"></i></a>
 </section>
 
 <!-- Timeline overview -->
 <section class="hk-section" id="timeline">
     <div class="container">
     <div class="hk-section-header text-center mb-5" data-aos="fade-up">
-        <div class="hk-section-kicker justify-content-center">Chronological Index</div>
-        <h2>Kuppam Through the Ages</h2>
-        <p>A quick chronological index — tap any era to jump to the full story below</p>
+        <div class="hk-section-kicker justify-content-center">{% trans "Chronological Index" %}</div>
+        <h2>{% trans "Kuppam Through the Ages" %}</h2>
+        <p>{% trans "A quick chronological index — tap any era to jump to the full story below" %}</p>
     </div>
     <div class="hk-timeline">
         <a href="#ancient-history" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-bank"></i></div>
             <div class="hk-timeline-body">
-                <div class="hk-timeline-period">Ancient Era</div>
-                <div class="hk-timeline-title">Early South Indian Dynasties</div>
-                <p class="hk-timeline-summary">Satavahana, Pallava, Chola and Vijayanagara influence shape the wider region.</p>
+                <div class="hk-timeline-period">{% trans "Ancient Era" %}</div>
+                <div class="hk-timeline-title">{% trans "Early South Indian Dynasties" %}</div>
+                <p class="hk-timeline-summary">{% trans "Satavahana, Pallava, Chola and Vijayanagara influence shape the wider region." %}</p>
             </div>
         </a>
         <a href="#medieval-history" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-shield-fill"></i></div>
             <div class="hk-timeline-body">
-                <div class="hk-timeline-period">Medieval Period</div>
-                <div class="hk-timeline-title">Local Nayaka &amp; Zamindari Rule</div>
-                <p class="hk-timeline-summary">The Kambi Nayudu dynasty rules from Kangundi Fort for nearly a millennium.</p>
+                <div class="hk-timeline-period">{% trans "Medieval Period" %}</div>
+                <div class="hk-timeline-title">{% trans "Local Nayaka & Zamindari Rule" %}</div>
+                <p class="hk-timeline-summary">{% trans "The Kambi Nayudu dynasty rules from Kangundi Fort for nearly a millennium." %}</p>
             </div>
         </a>
         <a href="#british-period" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-train-front"></i></div>
             <div class="hk-timeline-body">
-                <div class="hk-timeline-period">British Colonial Era</div>
-                <div class="hk-timeline-title">Madras Presidency &amp; the Railway</div>
-                <p class="hk-timeline-summary">Madras Railway expansion later reaches Kuppam, connecting it to the wider region.</p>
+                <div class="hk-timeline-period">{% trans "British Colonial Era" %}</div>
+                <div class="hk-timeline-title">{% trans "Madras Presidency & the Railway" %}</div>
+                <p class="hk-timeline-summary">{% trans "Madras Railway expansion later reaches Kuppam, connecting it to the wider region." %}</p>
             </div>
         </a>
         <a href="#after-independence" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-flag-fill"></i></div>
             <div class="hk-timeline-body">
                 <div class="hk-timeline-period">1947 – 1956</div>
-                <div class="hk-timeline-title">Independence &amp; Andhra Pradesh</div>
-                <p class="hk-timeline-summary">Kuppam becomes part of independent India's new state boundaries.</p>
+                <div class="hk-timeline-title">{% trans "Independence & Andhra Pradesh" %}</div>
+                <p class="hk-timeline-summary">{% trans "Kuppam becomes part of independent India's new state boundaries." %}</p>
             </div>
         </a>
         <a href="#leadership-naidu" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-person-hearts"></i></div>
             <div class="hk-timeline-body">
-                <div class="hk-timeline-period">1989 – Present</div>
-                <div class="hk-timeline-title">N. Chandrababu Naidu &amp; Nara Bhuvaneswari</div>
-                <p class="hk-timeline-summary">Eight-term MLA leadership and community initiatives shape modern Kuppam.</p>
+                <div class="hk-timeline-period">1989 – {% trans "Present" %}</div>
+                <div class="hk-timeline-title">{% trans "N. Chandrababu Naidu & Nara Bhuvaneswari" %}</div>
+                <p class="hk-timeline-summary">{% trans "Eight-term MLA leadership and community initiatives shape modern Kuppam." %}</p>
             </div>
         </a>
         <a href="#educational-growth" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-mortarboard-fill"></i></div>
             <div class="hk-timeline-body">
                 <div class="hk-timeline-period">1997</div>
-                <div class="hk-timeline-title">Dravidian University Established</div>
-                <p class="hk-timeline-summary">Higher education reshapes Kuppam into a student destination.</p>
+                <div class="hk-timeline-title">{% trans "Dravidian University Established" %}</div>
+                <p class="hk-timeline-summary">{% trans "Higher education reshapes Kuppam into a student destination." %}</p>
             </div>
         </a>
         <a href="#agriculture-economy" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-flower1"></i></div>
             <div class="hk-timeline-body">
-                <div class="hk-timeline-period">Ongoing</div>
-                <div class="hk-timeline-title">An Agricultural Economy Matures</div>
-                <p class="hk-timeline-summary">Tomato, mango and mulberry farming anchor the local economy.</p>
+                <div class="hk-timeline-period">{% trans "Ongoing" %}</div>
+                <div class="hk-timeline-title">{% trans "An Agricultural Economy Matures" %}</div>
+                <p class="hk-timeline-summary">{% trans "Tomato, mango and mulberry farming anchor the local economy." %}</p>
             </div>
         </a>
         <a href="#present-day" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-buildings"></i></div>
             <div class="hk-timeline-body">
-                <div class="hk-timeline-period">Today</div>
-                <div class="hk-timeline-title">A Growing Education &amp; Trade Hub</div>
-                <p class="hk-timeline-summary">Kuppam balances its agricultural roots with modern civic growth.</p>
+                <div class="hk-timeline-period">{% trans "Today" %}</div>
+                <div class="hk-timeline-title">{% trans "A Growing Education & Trade Hub" %}</div>
+                <p class="hk-timeline-summary">{% trans "Kuppam balances its agricultural roots with modern civic growth." %}</p>
             </div>
         </a>
         <a href="#future-vision" class="hk-timeline-item" data-aos="fade-up">
             <div class="hk-timeline-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
             <div class="hk-timeline-body">
-                <div class="hk-timeline-period">Tomorrow</div>
-                <div class="hk-timeline-title">A Smart, Sustainable Kuppam</div>
-                <p class="hk-timeline-summary">Better connectivity, digital access, and sustainable growth ahead.</p>
+                <div class="hk-timeline-period">{% trans "Tomorrow" %}</div>
+                <div class="hk-timeline-title">{% trans "A Smart, Sustainable Kuppam" %}</div>
+                <p class="hk-timeline-summary">{% trans "Better connectivity, digital access, and sustainable growth ahead." %}</p>
             </div>
         </a>
     </div>
@@ -109,23 +109,23 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/intro-landscape.jpg' %}" alt="Landscape view near Kuppam, Andhra Pradesh" loading="lazy">
-                        <span class="hk-history-media-tag">Local Landscape View</span>
+                        <img src="{% static 'images/history/intro-landscape.jpg' %}" alt="{% trans 'Landscape view near Kuppam, Andhra Pradesh' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Local Landscape View" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-4"><i class="bi bi-geo-alt-fill"></i></div>
-                <h2 class="fw-bold mb-4">Discover <span class="hk-brand-accent">Kuppam</span></h2>
+                <h2 class="fw-bold mb-4">{% trans "Discover" %} <span class="hk-brand-accent">Kuppam</span></h2>
                 <p class="text-muted">
-                    Kuppam sits at the tri-junction where Andhra Pradesh, Tamil Nadu and Karnataka meet — a mandal
+                    {% blocktrans %}Kuppam sits at the tri-junction where Andhra Pradesh, Tamil Nadu and Karnataka meet — a mandal
                     headquarters in Chittoor district shaped by centuries of Telugu, Tamil and Kannada culture
-                    converging in one town.
+                    converging in one town.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    Ringed by hills and blessed with a mild climate, it has grown from a farming centre into a hub
+                    {% blocktrans %}Ringed by hills and blessed with a mild climate, it has grown from a farming centre into a hub
                     for higher education and produce trade — anchored by its university and engineering colleges —
-                    while holding on to a close-knit, small-town character and steadily improving road connectivity.
+                    while holding on to a close-knit, small-town character and steadily improving road connectivity.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -139,22 +139,22 @@
             <div class="col-lg-6 order-lg-2" data-aos="fade-left">
                 <div class="hk-history-frame">
                     <div class="hk-history-media hk-history-media-contain">
-                        <img src="{% static 'images/history/origin-map.jpg' %}" alt="Map of Kuppam assembly constituency mandals" loading="lazy">
-                        <span class="hk-history-media-tag">Kuppam constituency map</span>
+                        <img src="{% static 'images/history/origin-map.jpg' %}" alt="{% trans 'Map of Kuppam assembly constituency mandals' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Kuppam constituency map" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-1" data-aos="fade-right">
                 <div class="hk-history-icon mb-3"><i class="bi bi-translate"></i></div>
-                <h2 class="fw-bold mb-3">Origin of the Name "Kuppam"</h2>
+                <h2 class="fw-bold mb-3">{% trans 'Origin of the Name "Kuppam"' %}</h2>
                 <p class="text-muted">
-                    "Kuppam" is widely understood locally to mean a meeting place or confluence — a fitting name
+                    {% blocktrans %}"Kuppam" is widely understood locally to mean a meeting place or confluence — a fitting name
                     given the town's position at the tri-junction of three states. It follows a Dravidian-language
-                    place-naming pattern common across the Telugu- and Tamil-speaking border region.
+                    place-naming pattern common across the Telugu- and Tamil-speaking border region.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    Local oral histories may offer more specific accounts of the name's origin — an area where
-                    community knowledge can meaningfully add to this page over time.
+                    {% blocktrans %}Local oral histories may offer more specific accounts of the name's origin — an area where
+                    community knowledge can meaningfully add to this page over time.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -168,24 +168,24 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/culture-temple.jpg' %}" alt="Sri Subrahmanya Swamy temple deity, Kuppam" loading="lazy">
-                        <span class="hk-history-media-tag">Sri Subrahmanya Swamy Temple, Kuppam</span>
+                        <img src="{% static 'images/history/culture-temple.jpg' %}" alt="{% trans 'Sri Subrahmanya Swamy temple deity, Kuppam' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Sri Subrahmanya Swamy Temple, Kuppam" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-3"><i class="bi bi-bank"></i></div>
-                <h2 class="fw-bold mb-3">Ancient History</h2>
+                <h2 class="fw-bold mb-3">{% trans "Ancient History" %}</h2>
                 <p class="text-muted">
-                    The wider Rayalaseema and southern Andhra region — of which Chittoor district and Kuppam are
+                    {% blocktrans %}The wider Rayalaseema and southern Andhra region — of which Chittoor district and Kuppam are
                     part — has been shaped over centuries by successive South Indian dynasties, including the
                     Satavahanas, Pallavas, Cholas, and later the Vijayanagara Empire, each leaving behind temple
-                    architecture, irrigation tanks, and inscriptions across the region.
+                    architecture, irrigation tanks, and inscriptions across the region.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    The Sri Subrahmanya Swamy temple at Gudivanka, within the Kuppam area, carries that long
+                    {% blocktrans %}The Sri Subrahmanya Swamy temple at Gudivanka, within the Kuppam area, carries that long
                     temple-building tradition forward — still an active hilltop place of worship that draws
-                    devotees from across the Andhra Pradesh–Karnataka border during the Aadi Krithika season.
+                    devotees from across the Andhra Pradesh–Karnataka border during the Aadi Krithika season.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -199,24 +199,24 @@
             <div class="col-lg-6 order-lg-2" data-aos="fade-left">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/medieval-raja.jpg' %}" alt="Raja K.J.V. Naidu of Kuppam, historical portrait" loading="lazy" style="object-position: top;">
-                        <span class="hk-history-media-tag">Raja K.J.V. Naidu of Kuppam</span>
+                        <img src="{% static 'images/history/medieval-raja.jpg' %}" alt="{% trans 'Raja K.J.V. Naidu of Kuppam, historical portrait' %}" loading="lazy" style="object-position: top;">
+                        <span class="hk-history-media-tag">{% trans "Raja K.J.V. Naidu of Kuppam" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-1" data-aos="fade-right">
                 <div class="hk-history-icon mb-3"><i class="bi bi-shield-fill"></i></div>
-                <h2 class="fw-bold mb-3">Medieval History</h2>
+                <h2 class="fw-bold mb-3">{% trans "Medieval History" %}</h2>
                 <p class="text-muted">
-                    During the medieval period, the region came under the influence of the Vijayanagara Empire, and
+                    {% blocktrans %}During the medieval period, the region came under the influence of the Vijayanagara Empire, and
                     from 1026 the Kuppam area itself was ruled directly by the Kambi Nayudu dynasty of Kangundi — 28
                     hereditary rulers who governed roughly 360 villages from Kangundi Fort, a line that continued
                     uninterrupted until the zamindari system was abolished after independence. Figures such as Raja
-                    K.J.V. Naidu, pictured here, belonged to this same local ruling family in its final generations.
+                    K.J.V. Naidu, pictured here, belonged to this same local ruling family in its final generations.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    These centuries laid much of the agrarian and temple-centred village structure that
-                    characterises the Kuppam area to this day.
+                    {% blocktrans %}These centuries laid much of the agrarian and temple-centred village structure that
+                    characterises the Kuppam area to this day.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -230,25 +230,25 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/railway-station.jpg' %}" alt="Kuppam railway station" loading="lazy">
-                        <span class="hk-history-media-tag">Kuppam Railway Station</span>
+                        <img src="{% static 'images/history/railway-station.jpg' %}" alt="{% trans 'Kuppam railway station' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Kuppam Railway Station" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-3"><i class="bi bi-train-front"></i></div>
-                <h2 class="fw-bold mb-3">British Colonial Period</h2>
+                <h2 class="fw-bold mb-3">{% trans "British Colonial Period" %}</h2>
                 <p class="text-muted">
-                    Under British rule, the area was administered as part of the Madras Presidency, with the
+                    {% blocktrans %}Under British rule, the area was administered as part of the Madras Presidency, with the
                     Kangundi zamindari continuing under colonial oversight until independence. Kuppam's own railway
                     station came later — it opened in 1958, after independence, on what is now the Chennai–Bangalore
                     line — extending the same Madras Railway network the British had been building across this part
                     of Chittoor district since the 19th century, and finally connecting the town itself to wider
-                    trade and administrative networks.
+                    trade and administrative networks.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    Colonial-era revenue and administrative records from this time offer another rich vein of local
-                    history worth documenting alongside this page.
+                    {% blocktrans %}Colonial-era revenue and administrative records from this time offer another rich vein of local
+                    history worth documenting alongside this page.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -262,23 +262,23 @@
             <div class="col-lg-6 order-lg-2" data-aos="fade-left">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/after-independence.jpg' %}" alt="Community book-release event, Kuppam HP i-community" loading="lazy">
-                        <span class="hk-history-media-tag">Kuppam i-community, early development era</span>
+                        <img src="{% static 'images/history/after-independence.jpg' %}" alt="{% trans 'Community book-release event, Kuppam HP i-community' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Kuppam i-community, early development era" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-1" data-aos="fade-right">
                 <div class="hk-history-icon mb-3"><i class="bi bi-flag-fill"></i></div>
-                <h2 class="fw-bold mb-3">History After Indian Independence</h2>
+                <h2 class="fw-bold mb-3">{% trans "History After Indian Independence" %}</h2>
                 <p class="text-muted">
-                    After 1947, the region became part of independent India's evolving state boundaries — first
+                    {% blocktrans %}After 1947, the region became part of independent India's evolving state boundaries — first
                     Madras State, then the Andhra State formed in 1953, and finally the unified Andhra Pradesh
                     created in 1956. Kuppam settled into its present role as a mandal headquarters within Chittoor
-                    district.
+                    district.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    Community and literacy initiatives, like the Telugu-language book release pictured here, mark
-                    the kind of grassroots development activity that shaped Kuppam in the decades that followed.
+                    {% blocktrans %}Community and literacy initiatives, like the Telugu-language book release pictured here, mark
+                    the kind of grassroots development activity that shaped Kuppam in the decades that followed.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -292,22 +292,22 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/development-activity.jpg' %}" alt="Community learning activity centre in Kuppam" loading="lazy">
-                        <span class="hk-history-media-tag">Kuppam community learning centre</span>
+                        <img src="{% static 'images/history/development-activity.jpg' %}" alt="{% trans 'Community learning activity centre in Kuppam' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Kuppam community learning centre" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-3"><i class="bi bi-building-up"></i></div>
-                <h2 class="fw-bold mb-3">Development of Kuppam</h2>
+                <h2 class="fw-bold mb-3">{% trans "Development of Kuppam" %}</h2>
                 <p class="text-muted">
-                    Over the last few decades, Kuppam has seen sustained investment in roads, drinking water,
+                    {% blocktrans %}Over the last few decades, Kuppam has seen sustained investment in roads, drinking water,
                     power supply, and public buildings, alongside hands-on community learning initiatives that
-                    brought interactive science and skill-building facilities to local children and residents.
+                    brought interactive science and skill-building facilities to local children and residents.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    This steady, incremental development is a recurring theme in the town's recent history rather
-                    than any single turning point.
+                    {% blocktrans %}This steady, incremental development is a recurring theme in the town's recent history rather
+                    than any single turning point.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -321,23 +321,23 @@
             <div class="col-lg-6 order-lg-2" data-aos="fade-left">
                 <div class="hk-history-frame">
                     <div class="hk-history-media hk-history-media-contain">
-                        <img src="{% static 'images/history/political-kada.jpg' %}" alt="Kuppam Area Development Authority emblem" loading="lazy">
-                        <span class="hk-history-media-tag">Kuppam Area Development Authority</span>
+                        <img src="{% static 'images/history/political-kada.jpg' %}" alt="{% trans 'Kuppam Area Development Authority emblem' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Kuppam Area Development Authority" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-1" data-aos="fade-right">
                 <div class="hk-history-icon mb-3"><i class="bi bi-bank2"></i></div>
-                <h2 class="fw-bold mb-3">Political Importance</h2>
+                <h2 class="fw-bold mb-3">{% trans "Political Importance" %}</h2>
                 <p class="text-muted">
-                    Kuppam is a state legislative assembly constituency in Andhra Pradesh, represented for an
+                    {% blocktrans %}Kuppam is a state legislative assembly constituency in Andhra Pradesh, represented for an
                     extended period by N. Chandrababu Naidu, who has served as Chief Minister of Andhra Pradesh —
                     a long association that has kept Kuppam prominent in state-level development planning, including
-                    through dedicated bodies like the Kuppam Area Development Authority shown here.
+                    through dedicated bodies like the Kuppam Area Development Authority shown here.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    This section focuses on Kuppam's administrative and electoral significance rather than on
-                    individual political narratives.
+                    {% blocktrans %}This section focuses on Kuppam's administrative and electoral significance rather than on
+                    individual political narratives.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -351,30 +351,30 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/leader-naidu-bhuvaneswari.jpg' %}" alt="N. Chandrababu Naidu and Nara Bhuvaneswari" loading="lazy">
-                        <span class="hk-history-media-tag">N. Chandrababu Naidu &amp; Nara Bhuvaneswari</span>
+                        <img src="{% static 'images/history/leader-naidu-bhuvaneswari.jpg' %}" alt="{% trans 'N. Chandrababu Naidu and Nara Bhuvaneswari' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "N. Chandrababu Naidu & Nara Bhuvaneswari" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-3"><i class="bi bi-person-hearts"></i></div>
-                <h2 class="fw-bold mb-3">N. Chandrababu Naidu &amp; Nara Bhuvaneswari</h2>
+                <h2 class="fw-bold mb-3">{% trans "N. Chandrababu Naidu & Nara Bhuvaneswari" %}</h2>
                 <p class="text-muted">
-                    N. Chandrababu Naidu, an eight-term MLA who has represented Kuppam continuously since 1989, is
+                    {% blocktrans %}N. Chandrababu Naidu, an eight-term MLA who has represented Kuppam continuously since 1989, is
                     closely associated with the town's rise as an education and civic hub — including the founding
                     of Dravidian University in 1997, Kuppam Engineering College, and the Kuppam Area Development
                     Authority (KADA), which has driven local roads, drinking water, and infrastructure projects over
-                    the years.
+                    the years.{% endblocktrans %}
                 </p>
                 <p class="text-muted">
-                    His wife, Nara Bhuvaneswari — Managing Trustee of the NTR Trust and Vice Chairperson of Heritage
+                    {% blocktrans %}His wife, Nara Bhuvaneswari — Managing Trustee of the NTR Trust and Vice Chairperson of Heritage
                     Foods — has made regular visits to schools across the Kuppam constituency, including outreach at
                     the Zilla Parishad High School in Kenchanaballa, supporting scholarships, healthcare camps, and
-                    environmental initiatives such as sapling plantations for local students.
+                    environmental initiatives such as sapling plantations for local students.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    Together, their long association with Kuppam is one of the more visible threads running through
-                    the town's modern development story.
+                    {% blocktrans %}Together, their long association with Kuppam is one of the more visible threads running through
+                    the town's modern development story.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -388,23 +388,23 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/present-day.jpg' %}" alt="Dravidian University central library, Kuppam" loading="lazy">
-                        <span class="hk-history-media-tag">Dravidian University, Kuppam</span>
+                        <img src="{% static 'images/history/present-day.jpg' %}" alt="{% trans 'Dravidian University central library, Kuppam' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Dravidian University, Kuppam" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-3"><i class="bi bi-mortarboard-fill"></i></div>
-                <h2 class="fw-bold mb-3">Educational Growth</h2>
+                <h2 class="fw-bold mb-3">{% trans "Educational Growth" %}</h2>
                 <p class="text-muted">
-                    Kuppam is home to Dravidian University, established in 1997 to promote study and research on
+                    {% blocktrans %}Kuppam is home to Dravidian University, established in 1997 to promote study and research on
                     Dravidian languages and culture, along with Kuppam Engineering College and other degree colleges
                     that have grown up around it — together turning the town into a destination for students from
-                    across the tri-state border area.
+                    across the tri-state border area.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    This growth in higher education has been one of the most visible drivers of Kuppam's modern
-                    development, bringing a steady student population and associated local economy.
+                    {% blocktrans %}This growth in higher education has been one of the most visible drivers of Kuppam's modern
+                    development, bringing a steady student population and associated local economy.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -418,22 +418,22 @@
             <div class="col-lg-6 order-lg-2" data-aos="fade-left">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/agriculture-canal.jpg' %}" alt="Irrigation canal near Kuppam" loading="lazy">
-                        <span class="hk-history-media-tag">Irrigation canal near Kuppam</span>
+                        <img src="{% static 'images/history/agriculture-canal.jpg' %}" alt="{% trans 'Irrigation canal near Kuppam' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Irrigation canal near Kuppam" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-1" data-aos="fade-right">
                 <div class="hk-history-icon mb-3"><i class="bi bi-flower1"></i></div>
-                <h2 class="fw-bold mb-3">Agriculture and Economy</h2>
+                <h2 class="fw-bold mb-3">{% trans "Agriculture and Economy" %}</h2>
                 <p class="text-muted">
-                    Kuppam's economy has long rested on agriculture — the area is particularly well known for
+                    {% blocktrans %}Kuppam's economy has long rested on agriculture — the area is particularly well known for
                     tomato cultivation and trade, alongside mango orchards, groundnuts, mulberry (sericulture), and
-                    a range of vegetable crops supported by local irrigation canals like the one pictured here.
+                    a range of vegetable crops supported by local irrigation canals like the one pictured here.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    Local markets built around tomato and produce trading remain a defining part of Kuppam's
-                    economic identity, even as education and services have added new dimensions to the local economy.
+                    {% blocktrans %}Local markets built around tomato and produce trading remain a defining part of Kuppam's
+                    economic identity, even as education and services have added new dimensions to the local economy.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -447,23 +447,23 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/gangamma.jpg' %}" alt="Tirupati Gangamma Jatara celebration, Kuppam" loading="lazy">
-                        <span class="hk-history-media-tag">Gangamma Jatara, Kuppam</span>
+                        <img src="{% static 'images/history/gangamma.jpg' %}" alt="{% trans 'Tirupati Gangamma Jatara celebration, Kuppam' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Gangamma Jatara, Kuppam" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-3"><i class="bi bi-palette-fill"></i></div>
-                <h2 class="fw-bold mb-3">Culture and Traditions</h2>
+                <h2 class="fw-bold mb-3">{% trans "Culture and Traditions" %}</h2>
                 <p class="text-muted">
-                    Sitting at the meeting point of three states, Kuppam reflects a blend of Telugu, Tamil and
+                    {% blocktrans %}Sitting at the meeting point of three states, Kuppam reflects a blend of Telugu, Tamil and
                     Kannada customs, language, and cuisine. Village temple traditions such as the Gangamma Jatara
                     pictured here, weekly markets, and extended-family community life continue to shape everyday
-                    culture in and around the town.
+                    culture in and around the town.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    This cultural mix is one of Kuppam's more distinctive traits compared to towns further inside
-                    any single state.
+                    {% blocktrans %}This cultural mix is one of Kuppam's more distinctive traits compared to towns further inside
+                    any single state.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -477,22 +477,22 @@
             <div class="col-lg-6 order-lg-2" data-aos="fade-left">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/festival-main.jpg' %}" alt="Local festival celebration in Kuppam" loading="lazy">
-                        <span class="hk-history-media-tag">Festival celebrations, Kuppam</span>
+                        <img src="{% static 'images/history/festival-main.jpg' %}" alt="{% trans 'Local festival celebration in Kuppam' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Festival celebrations, Kuppam" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-1" data-aos="fade-right">
                 <div class="hk-history-icon mb-3"><i class="bi bi-stars"></i></div>
-                <h2 class="fw-bold mb-3">Festivals</h2>
+                <h2 class="fw-bold mb-3">{% trans "Festivals" %}</h2>
                 <p class="text-muted">
-                    Like much of Andhra Pradesh, Kuppam celebrates Sankranti, Ugadi, and Dasara with community
+                    {% blocktrans %}Like much of Andhra Pradesh, Kuppam celebrates Sankranti, Ugadi, and Dasara with community
                     gatherings, alongside local temple festivals (jatras) that draw residents from surrounding
-                    villages for processions, fairs, and shared meals.
+                    villages for processions, fairs, and shared meals.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    These festival calendars are a good example of content best filled in further with specifics
-                    from local temple committees and residents.
+                    {% blocktrans %}These festival calendars are a good example of content best filled in further with specifics
+                    from local temple committees and residents.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -506,22 +506,22 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/gallery-horsley-view.jpg' %}" alt="View from Horsley Hills, near Kuppam" loading="lazy">
-                        <span class="hk-history-media-tag">Horsley Hills, Chittoor district</span>
+                        <img src="{% static 'images/history/gallery-horsley-view.jpg' %}" alt="{% trans 'View from Horsley Hills, near Kuppam' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Horsley Hills, Chittoor district" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-3"><i class="bi bi-binoculars-fill"></i></div>
-                <h2 class="fw-bold mb-3">Tourism and Famous Places</h2>
+                <h2 class="fw-bold mb-3">{% trans "Tourism and Famous Places" %}</h2>
                 <p class="text-muted">
-                    Kuppam sits within reach of hill destinations in Chittoor district, including the well-known
+                    {% blocktrans %}Kuppam sits within reach of hill destinations in Chittoor district, including the well-known
                     Horsley Hills further north — often called the "Ooty of Andhra Pradesh" for its misty
                     viewpoints, forests and cool climate. The Dravidian University campus itself has become a
-                    local landmark worth visiting.
+                    local landmark worth visiting.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    See the Gallery section below for more scenic views of the hills and surrounding countryside.
+                    {% trans "See the Gallery section below for more scenic views of the hills and surrounding countryside." %}
                 </p>
             </div>
         </div>
@@ -535,22 +535,22 @@
             <div class="col-lg-6 order-lg-2" data-aos="fade-left">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/present-day.jpg' %}" alt="Community academy event at Dravidian University, Kuppam" loading="lazy">
-                        <span class="hk-history-media-tag">Community event, Dravidian University</span>
+                        <img src="{% static 'images/history/present-day.jpg' %}" alt="{% trans 'Community academy event at Dravidian University, Kuppam' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Community event, Dravidian University" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-1" data-aos="fade-right">
                 <div class="hk-history-icon mb-3"><i class="bi bi-buildings"></i></div>
-                <h2 class="fw-bold mb-3">Present-Day Kuppam</h2>
+                <h2 class="fw-bold mb-3">{% trans "Present-Day Kuppam" %}</h2>
                 <p class="text-muted">
-                    Today, Kuppam functions as a mandal headquarters with an active town centre, produce markets,
+                    {% blocktrans %}Today, Kuppam functions as a mandal headquarters with an active town centre, produce markets,
                     schools and colleges, and steadily improving road and civic infrastructure — while still
-                    keeping its identity as an agricultural trading town for the surrounding villages.
+                    keeping its identity as an agricultural trading town for the surrounding villages.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    OneTownCity itself — this directory — is part of that present-day story: a local information
-                    portal built for the town's businesses, students, job-seekers and residents.
+                    {% blocktrans %}OneTownCity itself — this directory — is part of that present-day story: a local information
+                    portal built for the town's businesses, students, job-seekers and residents.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -564,23 +564,23 @@
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-history-frame">
                     <div class="hk-history-media">
-                        <img src="{% static 'images/history/development-launch-naidu.webp' %}" alt="Chief Minister N. Chandrababu Naidu at a Kuppam development event, July 2025" loading="lazy">
-                        <span class="hk-history-media-tag">Kuppam development launch, July 2025</span>
+                        <img src="{% static 'images/history/development-launch-naidu.webp' %}" alt="{% trans 'Chief Minister N. Chandrababu Naidu at a Kuppam development event, July 2025' %}" loading="lazy">
+                        <span class="hk-history-media-tag">{% trans "Kuppam development launch, July 2025" %}</span>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
                 <div class="hk-history-icon mb-3"><i class="bi bi-rocket-takeoff-fill"></i></div>
-                <h2 class="fw-bold mb-3">Future Vision</h2>
+                <h2 class="fw-bold mb-3">{% trans "Future Vision" %}</h2>
                 <p class="text-muted">
-                    Kuppam's growth path is already in motion: an announced industrial investment plan of around
+                    {% blocktrans %}Kuppam's growth path is already in motion: an announced industrial investment plan of around
                     ₹9,322 crore, the Swarna Kuppam initiative upgrading internal roads across the constituency,
                     and new units such as a battery anode material plant and a Mother Dairy processing facility
-                    expected to bring thousands of local jobs.
+                    expected to bring thousands of local jobs.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0">
-                    Platforms like OneTownCity aim to support that future by making local businesses, jobs,
-                    services and civic information easier for everyone in the community to find and use.
+                    {% blocktrans %}Platforms like OneTownCity aim to support that future by making local businesses, jobs,
+                    services and civic information easier for everyone in the community to find and use.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -591,9 +591,9 @@
 <section class="hk-history-section" id="gallery">
     <div class="container">
         <div class="hk-section-header text-center mb-5" data-aos="fade-up">
-            <div class="hk-section-kicker justify-content-center">In Pictures</div>
-            <h2>Gallery of Kuppam</h2>
-            <p>More glimpses of the town, its university, and the hills around it — tap any photo to enlarge</p>
+            <div class="hk-section-kicker justify-content-center">{% trans "In Pictures" %}</div>
+            <h2>{% trans "Gallery of Kuppam" %}</h2>
+            <p>{% trans "More glimpses of the town, its university, and the hills around it — tap any photo to enlarge" %}</p>
         </div>
         <div class="row g-3">
             {% for img in gallery_images %}
@@ -625,7 +625,7 @@
 
 <div class="container py-5" data-aos="fade-up">
     <details class="hk-credits">
-        <summary>Photo credits (Wikimedia Commons contributors)</summary>
+        <summary>{% trans "Photo credits (Wikimedia Commons contributors)" %}</summary>
         <ul class="small">
             <li>Scenic &amp; landscape views near Kuppam — KuppamArunKumar, CC BY-SA 4.0</li>
             <li>Kuppam constituency map — Gunasekharkaluva, CC BY-SA 4.0</li>
@@ -645,13 +645,13 @@
             <li>N. Chandrababu Naidu &amp; Nara Bhuvaneswari — © ANI (Asian News International); used here for informational/editorial purposes, not a Creative Commons or public-domain image like the others on this page</li>
             <li>Kuppam development launch, July 2025 — © Deccan Chronicle, photo by arrangement; used here for informational/editorial purposes, not a Creative Commons or public-domain image like the others on this page</li>
         </ul>
-        <p class="mb-0">Full attribution and licence terms are available on each image's Wikimedia Commons file page.</p>
+        <p class="mb-0">{% trans "Full attribution and licence terms are available on each image's Wikimedia Commons file page." %}</p>
     </details>
 </div>
 
 <div class="container pb-5 text-center" data-aos="fade-up">
     <a href="{% url 'core:home' %}" class="btn btn-primary btn-lg">
-        <i class="bi bi-house-door"></i> Back to Home
+        <i class="bi bi-house-door"></i> {% trans "Back to Home" %}
     </a>
 </div>
 

@@ -1,91 +1,91 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
-<h3 class="fw-bold mb-1" data-aos="fade-up">Dashboard Overview</h3>
-<p class="text-muted mb-4" data-aos="fade-up">Platform activity at a glance</p>
+<h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Dashboard Overview" %}</h3>
+<p class="text-muted mb-4" data-aos="fade-up">{% trans "Platform activity at a glance" %}</p>
 
 <!-- Quick actions -->
 <div class="d-flex flex-wrap gap-2 mb-4" data-aos="fade-up">
     <a href="{% url 'core:dashboard_pending_listings' %}" class="btn btn-primary btn-sm">
-        <i class="bi bi-clipboard-check"></i> Review Pending Listings
+        <i class="bi bi-clipboard-check"></i> {% trans "Review Pending Listings" %}
         {% if stats.pending_listings %}<span class="badge bg-white text-primary ms-1">{{ stats.pending_listings }}</span>{% endif %}
     </a>
     <a href="{% url 'core:dashboard_admin_requests' %}" class="btn btn-outline-primary btn-sm">
-        <i class="bi bi-person-plus"></i> Admin Requests
+        <i class="bi bi-person-plus"></i> {% trans "Admin Requests" %}
         {% if stats.pending_requests %}<span class="badge bg-primary-subtle text-primary ms-1">{{ stats.pending_requests }}</span>{% endif %}
     </a>
     <a href="{% url 'core:dashboard_users' %}" class="btn btn-outline-primary btn-sm">
-        <i class="bi bi-people"></i> Manage Users
+        <i class="bi bi-people"></i> {% trans "Manage Users" %}
     </a>
     <a href="{% url 'core:dashboard_categories' %}" class="btn btn-outline-primary btn-sm">
-        <i class="bi bi-tags"></i> Manage Categories
+        <i class="bi bi-tags"></i> {% trans "Manage Categories" %}
     </a>
     <a href="{% url 'core:dashboard_messages' %}" class="btn btn-outline-primary btn-sm">
-        <i class="bi bi-envelope"></i> Contact Messages
+        <i class="bi bi-envelope"></i> {% trans "Contact Messages" %}
         {% if stats.unread_messages %}<span class="badge bg-danger ms-1">{{ stats.unread_messages }}</span>{% endif %}
     </a>
 </div>
 
-<div class="hk-dash-section-title" data-aos="fade-up">Community</div>
+<div class="hk-dash-section-title" data-aos="fade-up">{% trans "Community" %}</div>
 <div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-people"></i></div><div><div class="hk-stat-value">{{ stats.total_users }}</div><div class="hk-stat-label">Total Users</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-person-badge"></i></div><div><div class="hk-stat-value">{{ stats.total_admins }}</div><div class="hk-stat-label">Total Admins</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_requests }}</div><div class="hk-stat-label">Pending Admin Requests</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_requests }}</div><div class="hk-stat-label">Approved Requests</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-people"></i></div><div><div class="hk-stat-value">{{ stats.total_users }}</div><div class="hk-stat-label">{% trans "Total Users" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-person-badge"></i></div><div><div class="hk-stat-value">{{ stats.total_admins }}</div><div class="hk-stat-label">{% trans "Total Admins" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_requests }}</div><div class="hk-stat-label">{% trans "Pending Admin Requests" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_requests }}</div><div class="hk-stat-label">{% trans "Approved Requests" %}</div></div></div>
 </div>
 
-<div class="hk-dash-section-title" data-aos="fade-up">Content Inventory</div>
+<div class="hk-dash-section-title" data-aos="fade-up">{% trans "Content Inventory" %}</div>
 <div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-shop"></i></div><div><div class="hk-stat-value">{{ stats.total_businesses }}</div><div class="hk-stat-label">Businesses</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-cup-hot"></i></div><div><div class="hk-stat-value">{{ stats.total_restaurants }}</div><div class="hk-stat-label">Restaurants</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-mortarboard"></i></div><div><div class="hk-stat-value">{{ stats.total_schools }}</div><div class="hk-stat-label">Schools</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-building"></i></div><div><div class="hk-stat-value">{{ stats.total_colleges }}</div><div class="hk-stat-label">Colleges</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-hospital"></i></div><div><div class="hk-stat-value">{{ stats.total_hospitals }}</div><div class="hk-stat-label">Hospitals</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-house-door"></i></div><div><div class="hk-stat-value">{{ stats.total_properties }}</div><div class="hk-stat-label">Properties</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-briefcase"></i></div><div><div class="hk-stat-value">{{ stats.total_jobs }}</div><div class="hk-stat-label">Jobs</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-calendar-event"></i></div><div><div class="hk-stat-value">{{ stats.total_events }}</div><div class="hk-stat-label">Events</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-newspaper"></i></div><div><div class="hk-stat-value">{{ stats.total_news }}</div><div class="hk-stat-label">News</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-cone-striped"></i></div><div><div class="hk-stat-value">{{ stats.total_projects }}</div><div class="hk-stat-label">Upcoming Projects</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-shop"></i></div><div><div class="hk-stat-value">{{ stats.total_businesses }}</div><div class="hk-stat-label">{% trans "Businesses" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-cup-hot"></i></div><div><div class="hk-stat-value">{{ stats.total_restaurants }}</div><div class="hk-stat-label">{% trans "Restaurants" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-mortarboard"></i></div><div><div class="hk-stat-value">{{ stats.total_schools }}</div><div class="hk-stat-label">{% trans "Schools" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-building"></i></div><div><div class="hk-stat-value">{{ stats.total_colleges }}</div><div class="hk-stat-label">{% trans "Colleges" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-hospital"></i></div><div><div class="hk-stat-value">{{ stats.total_hospitals }}</div><div class="hk-stat-label">{% trans "Hospitals" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-house-door"></i></div><div><div class="hk-stat-value">{{ stats.total_properties }}</div><div class="hk-stat-label">{% trans "Properties" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-briefcase"></i></div><div><div class="hk-stat-value">{{ stats.total_jobs }}</div><div class="hk-stat-label">{% trans "Jobs" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-calendar-event"></i></div><div><div class="hk-stat-value">{{ stats.total_events }}</div><div class="hk-stat-label">{% trans "Events" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-newspaper"></i></div><div><div class="hk-stat-value">{{ stats.total_news }}</div><div class="hk-stat-label">{% trans "News" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-cone-striped"></i></div><div><div class="hk-stat-value">{{ stats.total_projects }}</div><div class="hk-stat-label">{% trans "Upcoming Projects" %}</div></div></div>
 </div>
 
 <!-- Charts -->
 <div class="row g-4 mb-2">
     <div class="col-lg-7" data-aos="fade-up">
         <div class="hk-chart-card">
-            <h6 class="fw-bold mb-3">Content Inventory</h6>
+            <h6 class="fw-bold mb-3">{% trans "Content Inventory" %}</h6>
             <canvas id="hkContentChart" height="160"></canvas>
         </div>
     </div>
     <div class="col-lg-5" data-aos="fade-up">
         <div class="hk-chart-card">
-            <h6 class="fw-bold mb-3">Moderation Queue</h6>
+            <h6 class="fw-bold mb-3">{% trans "Moderation Queue" %}</h6>
             <canvas id="hkModerationChart" height="160"></canvas>
         </div>
     </div>
 </div>
 
-<div class="hk-dash-section-title" data-aos="fade-up">Moderation &amp; Engagement</div>
+<div class="hk-dash-section-title" data-aos="fade-up">{% trans "Moderation &amp; Engagement" %}</div>
 <div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
-    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_listings }}</div><div class="hk-stat-label">Pending Approvals</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_listings }}</div><div class="hk-stat-label">Approved Listings</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ stats.rejected_listings }}</div><div class="hk-stat-label">Rejected Listings</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-chat-left-text"></i></div><div><div class="hk-stat-value">{{ stats.total_comments }}</div><div class="hk-stat-label">Total Comments</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-star"></i></div><div><div class="hk-stat-value">{{ stats.total_reviews }}</div><div class="hk-stat-label">Total Reviews</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-hand-thumbs-up"></i></div><div><div class="hk-stat-value">{{ stats.total_likes }}</div><div class="hk-stat-label">Total Likes</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-heart"></i></div><div><div class="hk-stat-value">{{ stats.total_favorites }}</div><div class="hk-stat-label">Total Favorites</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-share"></i></div><div><div class="hk-stat-value">{{ stats.total_shares }}</div><div class="hk-stat-label">Total Shares</div></div></div>
-    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-envelope"></i></div><div><div class="hk-stat-value">{{ stats.unread_messages }}</div><div class="hk-stat-label">Unread Messages</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_listings }}</div><div class="hk-stat-label">{% trans "Pending Approvals" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_listings }}</div><div class="hk-stat-label">{% trans "Approved Listings" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ stats.rejected_listings }}</div><div class="hk-stat-label">{% trans "Rejected Listings" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-chat-left-text"></i></div><div><div class="hk-stat-value">{{ stats.total_comments }}</div><div class="hk-stat-label">{% trans "Total Comments" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-star"></i></div><div><div class="hk-stat-value">{{ stats.total_reviews }}</div><div class="hk-stat-label">{% trans "Total Reviews" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-hand-thumbs-up"></i></div><div><div class="hk-stat-value">{{ stats.total_likes }}</div><div class="hk-stat-label">{% trans "Total Likes" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-heart"></i></div><div><div class="hk-stat-value">{{ stats.total_favorites }}</div><div class="hk-stat-label">{% trans "Total Favorites" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-share"></i></div><div><div class="hk-stat-value">{{ stats.total_shares }}</div><div class="hk-stat-label">{% trans "Total Shares" %}</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-envelope"></i></div><div><div class="hk-stat-value">{{ stats.unread_messages }}</div><div class="hk-stat-label">{% trans "Unread Messages" %}</div></div></div>
 </div>
 
 <div class="row g-4 mt-2">
     <div class="col-lg-4" data-aos="fade-up">
         <div class="card">
             <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-person-plus text-primary"></i> Recent Admin Requests</span>
-                <a href="{% url 'core:dashboard_admin_requests' %}" class="small">View all</a>
+                <span><i class="bi bi-person-plus text-primary"></i> {% trans "Recent Admin Requests" %}</span>
+                <a href="{% url 'core:dashboard_admin_requests' %}" class="small">{% trans "View all" %}</a>
             </div>
             <div class="list-group list-group-flush">
                 {% for req in recent_requests %}
@@ -94,14 +94,14 @@
                     <span class="badge bg-secondary-subtle text-secondary">{{ req.get_status_display }}</span>
                 </a>
                 {% empty %}
-                <div class="list-group-item text-muted">No requests yet.</div>
+                <div class="list-group-item text-muted">{% trans "No requests yet." %}</div>
                 {% endfor %}
             </div>
         </div>
     </div>
     <div class="col-lg-4" data-aos="fade-up">
         <div class="card">
-            <div class="card-header bg-white fw-semibold"><i class="bi bi-box-arrow-in-right text-primary"></i> Recent Logins</div>
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-box-arrow-in-right text-primary"></i> {% trans "Recent Logins" %}</div>
             <div class="list-group list-group-flush">
                 {% for entry in recent_logins %}
                 <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -109,7 +109,7 @@
                     <span class="text-muted small">{{ entry.created_at|date:"d M, H:i" }}</span>
                 </div>
                 {% empty %}
-                <div class="list-group-item text-muted">No login activity yet.</div>
+                <div class="list-group-item text-muted">{% trans "No login activity yet." %}</div>
                 {% endfor %}
             </div>
         </div>
@@ -117,8 +117,8 @@
     <div class="col-lg-4" data-aos="fade-up">
         <div class="card">
             <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-envelope text-primary"></i> Recent Contact Messages</span>
-                <a href="{% url 'core:dashboard_messages' %}" class="small">View all</a>
+                <span><i class="bi bi-envelope text-primary"></i> {% trans "Recent Contact Messages" %}</span>
+                <a href="{% url 'core:dashboard_messages' %}" class="small">{% trans "View all" %}</a>
             </div>
             <div class="list-group list-group-flush">
                 {% for msg in recent_messages %}
@@ -127,10 +127,10 @@
                         <span class="d-block">{{ msg.name }}</span>
                         <span class="d-block text-muted small">{{ msg.subject }}</span>
                     </span>
-                    {% if not msg.is_read %}<span class="badge bg-danger">Unread</span>{% endif %}
+                    {% if not msg.is_read %}<span class="badge bg-danger">{% trans "Unread" %}</span>{% endif %}
                 </a>
                 {% empty %}
-                <div class="list-group-item text-muted">No messages yet.</div>
+                <div class="list-group-item text-muted">{% trans "No messages yet." %}</div>
                 {% endfor %}
             </div>
         </div>

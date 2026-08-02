@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -14,9 +14,9 @@
     <div class="hk-hero-glow hk-hero-glow-b"></div>
     <div class="container text-center hk-hero-content">
         <div class="hk-icon-circle hk-icon-circle-lg mb-4 mx-auto"><i class="bi bi-geo-alt-fill"></i></div>
-        <h1 class="fw-bold mb-3">About One<span class="hk-text-gradient-gold">TownCity</span></h1>
-        <p class="lead mb-0 opacity-75">Your complete local information platform for Kuppam.</p>
-        <p class="opacity-75">Connecting people, businesses, and services in one trusted place.</p>
+        <h1 class="fw-bold mb-3">{% blocktrans %}About One<span class="hk-text-gradient-gold">TownCity</span>{% endblocktrans %}</h1>
+        <p class="lead mb-0 opacity-75">{% trans "Your complete local information platform for Kuppam." %}</p>
+        <p class="opacity-75">{% trans "Connecting people, businesses, and services in one trusted place." %}</p>
     </div>
 </section>
 
@@ -26,23 +26,23 @@
         <div class="row g-5 align-items-center">
             <div class="col-lg-6" data-aos="fade-right">
                 <div class="hk-about-service-media">
-                    <img src="{% static 'images/history/intro-landscape.jpg' %}" alt="Landscape view near Kuppam, Andhra Pradesh" loading="lazy">
+                    <img src="{% static 'images/history/intro-landscape.jpg' %}" alt="{% trans 'Landscape view near Kuppam, Andhra Pradesh' %}" loading="lazy">
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left">
-                <div class="hk-section-kicker hk-section-kicker--accent">Who We Are</div>
-                <h2 class="mb-4 fw-bold">Built for the people of <span class="hk-text-gradient-gold">Kuppam</span></h2>
+                <div class="hk-section-kicker hk-section-kicker--accent">{% trans "Who We Are" %}</div>
+                <h2 class="mb-4 fw-bold">{% blocktrans %}Built for the people of <span class="hk-text-gradient-gold">Kuppam</span>{% endblocktrans %}</h2>
                 <p class="text-muted mb-3 hk-text-justify">
-                    OneTownCity is a comprehensive local information platform designed to connect the people
+                    {% blocktrans %}OneTownCity is a comprehensive local information platform designed to connect the people
                     of Kuppam with businesses, services, institutions, and opportunities. Our goal is to
                     provide a single, trusted destination where residents, visitors, students, and business
-                    owners can easily discover everything Kuppam has to offer.
+                    owners can easily discover everything Kuppam has to offer.{% endblocktrans %}
                 </p>
                 <p class="text-muted mb-0 hk-text-justify">
-                    Whether you're searching for a restaurant, hospital, school, property, transport service,
+                    {% blocktrans %}Whether you're searching for a restaurant, hospital, school, property, transport service,
                     or local business, OneTownCity helps you find accurate and up-to-date information
                     quickly and conveniently — bringing it all together in one user-friendly platform that
-                    gives businesses and organizations a digital presence too.
+                    gives businesses and organizations a digital presence too.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -56,22 +56,22 @@
         <div class="col-md-6" data-aos="fade-right">
             <div class="hk-bento-card hk-bento-card--indigo">
                 <div class="hk-bento-icon hk-bento-icon--indigo"><i class="bi bi-bullseye"></i></div>
-                <h4 class="hk-bento-title">Mission</h4>
+                <h4 class="hk-bento-title">{% trans "Mission" %}</h4>
                 <p class="hk-bento-text mb-0">
-                    To build a trusted digital platform that connects people with verified local
+                    {% blocktrans %}To build a trusted digital platform that connects people with verified local
                     information, promotes local businesses, supports community growth, and makes
-                    discovering services in Kuppam simple, fast, and reliable.
+                    discovering services in Kuppam simple, fast, and reliable.{% endblocktrans %}
                 </p>
             </div>
         </div>
         <div class="col-md-6" data-aos="fade-left">
             <div class="hk-bento-card hk-bento-card--gold">
                 <div class="hk-bento-icon hk-bento-icon--gold"><i class="bi bi-eye"></i></div>
-                <h4 class="hk-bento-title">Vision</h4>
+                <h4 class="hk-bento-title">{% trans "Vision" %}</h4>
                 <p class="hk-bento-text mb-0">
-                    To become the most trusted digital information platform for Kuppam, helping
+                    {% blocktrans %}To become the most trusted digital information platform for Kuppam, helping
                     residents, visitors, and businesses stay connected while supporting the town's
-                    digital growth and development.
+                    digital growth and development.{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -83,22 +83,22 @@
 <section class="hk-section" id="services">
     <div class="container">
     <div class="hk-section-header text-center mb-5" data-aos="fade-up">
-        <div class="hk-section-kicker justify-content-center">What We Offer</div>
-        <h2>Every category, <span class="text-primary">one platform</span></h2>
-        <p>Every listing includes contact details, location, images, and Google Maps integration.</p>
+        <div class="hk-section-kicker justify-content-center">{% trans "What We Offer" %}</div>
+        <h2>{% blocktrans %}Every category, <span class="text-primary">one platform</span>{% endblocktrans %}</h2>
+        <p>{% trans "Every listing includes contact details, location, images, and Google Maps integration." %}</p>
     </div>
     <div class="row g-4 justify-content-center" data-aos="fade-up">
         <div class="col-sm-6 col-lg-4">
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/real-estate.jpg' %}" alt="Real Estate" loading="lazy">
+                        <img src="{% static 'images/services/real-estate.jpg' %}" alt="{% trans 'Real Estate' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-house-door"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Real Estate</h5>
-                    <p>Find houses, apartments, plots, villas, rental properties, and commercial spaces available across Kuppam.</p>
+                    <h5>{% trans "Real Estate" %}</h5>
+                    <p>{% trans "Find houses, apartments, plots, villas, rental properties, and commercial spaces available across Kuppam." %}</p>
                 </div>
             </div>
         </div>
@@ -106,13 +106,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/business.jpg' %}" alt="Businesses" loading="lazy">
+                        <img src="{% static 'images/services/business.jpg' %}" alt="{% trans 'Businesses' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-shop"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Businesses</h5>
-                    <p>Explore car garages, clothing and textile shops, stationery shops, supermarkets, salons, and other local businesses around Kuppam.</p>
+                    <h5>{% trans "Businesses" %}</h5>
+                    <p>{% trans "Explore car garages, clothing and textile shops, stationery shops, supermarkets, salons, and other local businesses around Kuppam." %}</p>
                 </div>
             </div>
         </div>
@@ -120,13 +120,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/jobs.jpg' %}" alt="Jobs" loading="lazy">
+                        <img src="{% static 'images/services/jobs.jpg' %}" alt="{% trans 'Jobs' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-briefcase"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Jobs</h5>
-                    <p>Browse job openings from local shops, offices, and companies hiring across Kuppam.</p>
+                    <h5>{% trans "Jobs" %}</h5>
+                    <p>{% trans "Browse job openings from local shops, offices, and companies hiring across Kuppam." %}</p>
                 </div>
             </div>
         </div>
@@ -134,13 +134,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/events.jpg' %}" alt="Events" loading="lazy" style="object-position: top center;">
+                        <img src="{% static 'images/services/events.jpg' %}" alt="{% trans 'Events' %}" loading="lazy" style="object-position: top center;">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-calendar-event"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Events</h5>
-                    <p>Stay updated with upcoming festivals, exhibitions, public events, and local programs.</p>
+                    <h5>{% trans "Events" %}</h5>
+                    <p>{% trans "Stay updated with upcoming festivals, exhibitions, public events, and local programs." %}</p>
                 </div>
             </div>
         </div>
@@ -148,13 +148,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/restaurants.jpg' %}" alt="Restaurants" loading="lazy">
+                        <img src="{% static 'images/services/restaurants.jpg' %}" alt="{% trans 'Restaurants' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-cup-hot"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Restaurants</h5>
-                    <p>Discover the best restaurants, cafés, bakeries, and food outlets in Kuppam.</p>
+                    <h5>{% trans "Restaurants" %}</h5>
+                    <p>{% trans "Discover the best restaurants, cafés, bakeries, and food outlets in Kuppam." %}</p>
                 </div>
             </div>
         </div>
@@ -162,13 +162,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/hospitals.jpg' %}" alt="Hospitals &amp; Healthcare" loading="lazy">
+                        <img src="{% static 'images/services/hospitals.jpg' %}" alt="{% trans 'Hospitals &amp; Healthcare' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-hospital"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Hospitals &amp; Healthcare</h5>
-                    <p>Find hospitals, clinics, diagnostic centers, pharmacies, and emergency healthcare services.</p>
+                    <h5>{% trans "Hospitals &amp; Healthcare" %}</h5>
+                    <p>{% trans "Find hospitals, clinics, diagnostic centers, pharmacies, and emergency healthcare services." %}</p>
                 </div>
             </div>
         </div>
@@ -176,13 +176,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/education.jpg' %}" alt="Education" loading="lazy">
+                        <img src="{% static 'images/services/education.jpg' %}" alt="{% trans 'Education' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-mortarboard"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Education</h5>
-                    <p>Explore schools, colleges, universities, and other educational institutions in Kuppam.</p>
+                    <h5>{% trans "Education" %}</h5>
+                    <p>{% trans "Explore schools, colleges, universities, and other educational institutions in Kuppam." %}</p>
                 </div>
             </div>
         </div>
@@ -190,13 +190,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/transport.jpg' %}" alt="Transport" loading="lazy">
+                        <img src="{% static 'images/services/transport.jpg' %}" alt="{% trans 'Transport' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-bus-front"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Transport</h5>
-                    <p>Find buses, taxis, auto services, logistics, and transportation facilities.</p>
+                    <h5>{% trans "Transport" %}</h5>
+                    <p>{% trans "Find buses, taxis, auto services, logistics, and transportation facilities." %}</p>
                 </div>
             </div>
         </div>
@@ -204,13 +204,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/news.jpg' %}" alt="OneTownCity News" loading="lazy">
+                        <img src="{% static 'images/services/news.jpg' %}" alt="{% trans 'OneTownCity News' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-newspaper"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>OneTownCity News</h5>
-                    <p>Catch up on local announcements, civic updates, and news from around Kuppam.</p>
+                    <h5>{% trans "OneTownCity News" %}</h5>
+                    <p>{% trans "Catch up on local announcements, civic updates, and news from around Kuppam." %}</p>
                 </div>
             </div>
         </div>
@@ -218,13 +218,13 @@
             <div class="hk-service-card">
                 <div class="hk-service-card-media">
                     <div class="hk-service-card-media-inner">
-                        <img src="{% static 'images/services/upcoming-projects.jpg' %}" alt="Upcoming Projects" loading="lazy">
+                        <img src="{% static 'images/services/upcoming-projects.jpg' %}" alt="{% trans 'Upcoming Projects' %}" loading="lazy">
                     </div>
                     <div class="hk-service-card-icon"><i class="bi bi-cone-striped"></i></div>
                 </div>
                 <div class="hk-service-card-body">
-                    <h5>Upcoming Projects</h5>
-                    <p>Track planned and ongoing civic and infrastructure projects shaping your city.</p>
+                    <h5>{% trans "Upcoming Projects" %}</h5>
+                    <p>{% trans "Track planned and ongoing civic and infrastructure projects shaping your city." %}</p>
                 </div>
             </div>
         </div>
@@ -236,50 +236,50 @@
 <section class="hk-section hk-section-alt">
     <div class="container">
     <div class="hk-section-header text-center mb-5" data-aos="fade-up">
-        <div class="hk-section-kicker justify-content-center">Why OneTownCity</div>
-        <h2>Built on trust, made <span class="text-primary">simple</span></h2>
+        <div class="hk-section-kicker justify-content-center">{% trans "Why OneTownCity" %}</div>
+        <h2>{% blocktrans %}Built on trust, made <span class="text-primary">simple</span>{% endblocktrans %}</h2>
     </div>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" data-aos="fade-up">
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--blue"><i class="bi bi-shield-check"></i></div>
-                <h3>Verified Information</h3>
-                <p>Trusted, reviewed local listings you can rely on.</p>
+                <h3>{% trans "Verified Information" %}</h3>
+                <p>{% trans "Trusted, reviewed local listings you can rely on." %}</p>
             </div>
         </div>
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--violet"><i class="bi bi-search"></i></div>
-                <h3>Easy Search &amp; Navigation</h3>
-                <p>Find what you need quickly, without the hassle.</p>
+                <h3>{% trans "Easy Search &amp; Navigation" %}</h3>
+                <p>{% trans "Find what you need quickly, without the hassle." %}</p>
             </div>
         </div>
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--emerald"><i class="bi bi-geo-alt-fill"></i></div>
-                <h3>Google Maps Integration</h3>
-                <p>Get directions to any listing in a single tap.</p>
+                <h3>{% trans "Google Maps Integration" %}</h3>
+                <p>{% trans "Get directions to any listing in a single tap." %}</p>
             </div>
         </div>
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--gold"><i class="bi bi-star-fill"></i></div>
-                <h3>Reviews &amp; Ratings</h3>
-                <p>Real feedback from the local community.</p>
+                <h3>{% trans "Reviews &amp; Ratings" %}</h3>
+                <p>{% trans "Real feedback from the local community." %}</p>
             </div>
         </div>
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--sky"><i class="bi bi-shield-lock-fill"></i></div>
-                <h3>Secure Google Sign-In</h3>
-                <p>Sign in safely and manage your listings with ease.</p>
+                <h3>{% trans "Secure Google Sign-In" %}</h3>
+                <p>{% trans "Sign in safely and manage your listings with ease." %}</p>
             </div>
         </div>
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--blue"><i class="bi bi-phone-fill"></i></div>
-                <h3>Mobile-Friendly Design</h3>
-                <p>A fast, responsive experience on any device.</p>
+                <h3>{% trans "Mobile-Friendly Design" %}</h3>
+                <p>{% trans "A fast, responsive experience on any device." %}</p>
             </div>
         </div>
     </div>
@@ -290,8 +290,8 @@
 <section class="hk-section">
     <div class="container">
     <div class="hk-section-header text-center mb-5" data-aos="fade-up">
-        <div class="hk-section-kicker hk-section-kicker--accent justify-content-center">The Process</div>
-        <h2 class="hk-process-heading">How OneTownCity <span class="text-primary">works</span></h2>
+        <div class="hk-section-kicker hk-section-kicker--accent justify-content-center">{% trans "The Process" %}</div>
+        <h2 class="hk-process-heading">{% blocktrans %}How OneTownCity <span class="text-primary">works</span>{% endblocktrans %}</h2>
     </div>
     <div class="hk-process-timeline">
         <div class="hk-process-track" aria-hidden="true"></div>
@@ -301,9 +301,9 @@
             <div class="hk-process-card">
                 <div class="hk-process-card-head">
                     <div class="hk-process-card-icon hk-process-card-icon--indigo"><i class="bi bi-google"></i></div>
-                    <h5 class="hk-process-card-title">Sign In</h5>
+                    <h5 class="hk-process-card-title">{% trans "Sign In" %}</h5>
                 </div>
-                <p class="hk-process-card-text">Sign in using your Google account to get started.</p>
+                <p class="hk-process-card-text">{% trans "Sign in using your Google account to get started." %}</p>
             </div>
         </div>
 
@@ -312,9 +312,9 @@
             <div class="hk-process-card">
                 <div class="hk-process-card-head">
                     <div class="hk-process-card-icon hk-process-card-icon--gold"><i class="bi bi-compass"></i></div>
-                    <h5 class="hk-process-card-title">Explore or List</h5>
+                    <h5 class="hk-process-card-title">{% trans "Explore or List" %}</h5>
                 </div>
-                <p class="hk-process-card-text">Browse local businesses and services, or request permission to publish your own listings.</p>
+                <p class="hk-process-card-text">{% trans "Browse local businesses and services, or request permission to publish your own listings." %}</p>
             </div>
         </div>
 
@@ -323,9 +323,9 @@
             <div class="hk-process-card">
                 <div class="hk-process-card-head">
                     <div class="hk-process-card-icon hk-process-card-icon--indigo"><i class="bi bi-shield-check"></i></div>
-                    <h5 class="hk-process-card-title">Review &amp; Approval</h5>
+                    <h5 class="hk-process-card-title">{% trans "Review &amp; Approval" %}</h5>
                 </div>
-                <p class="hk-process-card-text">Content submitted by providers is reviewed by the Super Admin before publication.</p>
+                <p class="hk-process-card-text">{% trans "Content submitted by providers is reviewed by the Super Admin before publication." %}</p>
             </div>
         </div>
 
@@ -334,9 +334,9 @@
             <div class="hk-process-card">
                 <div class="hk-process-card-head">
                     <div class="hk-process-card-icon hk-process-card-icon--gold"><i class="bi bi-broadcast"></i></div>
-                    <h5 class="hk-process-card-title">Goes Live</h5>
+                    <h5 class="hk-process-card-title">{% trans "Goes Live" %}</h5>
                 </div>
-                <p class="hk-process-card-text">Once approved, listings become publicly visible to everyone.</p>
+                <p class="hk-process-card-text">{% trans "Once approved, listings become publicly visible to everyone." %}</p>
             </div>
         </div>
 
@@ -345,9 +345,9 @@
             <div class="hk-process-card">
                 <div class="hk-process-card-head">
                     <div class="hk-process-card-icon hk-process-card-icon--indigo"><i class="bi bi-chat-square-heart"></i></div>
-                    <h5 class="hk-process-card-title">Engage</h5>
+                    <h5 class="hk-process-card-title">{% trans "Engage" %}</h5>
                 </div>
-                <p class="hk-process-card-text">Search, view, rate, review, comment on, and share listings with others.</p>
+                <p class="hk-process-card-text">{% trans "Search, view, rate, review, comment on, and share listings with others." %}</p>
             </div>
         </div>
     </div>
@@ -358,37 +358,37 @@
 <section class="hk-section hk-section-alt">
     <div class="container">
     <div class="hk-section-header text-center mb-5" data-aos="fade-up">
-        <div class="hk-section-kicker justify-content-center">The People Behind It</div>
-        <h2>Our <span class="text-primary">Team</span></h2>
-        <p>OneTownCity is developed by a passionate team dedicated to creating a better digital experience for the people of Kuppam.</p>
+        <div class="hk-section-kicker justify-content-center">{% trans "The People Behind It" %}</div>
+        <h2>{% blocktrans %}Our <span class="text-primary">Team</span>{% endblocktrans %}</h2>
+        <p>{% trans "OneTownCity is developed by a passionate team dedicated to creating a better digital experience for the people of Kuppam." %}</p>
     </div>
     <div class="row g-4" data-aos="fade-up">
         <div class="col-sm-6 col-lg-3">
             <div class="hk-bento-card hk-bento-card--blue">
                 <div class="hk-bento-icon hk-bento-icon--blue"><i class="bi bi-person-fill"></i></div>
-                <h5 class="hk-bento-title hk-bento-title--sm">Founder</h5>
-                <p class="hk-bento-text hk-bento-text--sm mb-0">Leads the vision, strategy, and overall development of the platform.</p>
+                <h5 class="hk-bento-title hk-bento-title--sm">{% trans "Founder" %}</h5>
+                <p class="hk-bento-text hk-bento-text--sm mb-0">{% trans "Leads the vision, strategy, and overall development of the platform." %}</p>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
             <div class="hk-bento-card hk-bento-card--indigo">
                 <div class="hk-bento-icon hk-bento-icon--indigo"><i class="bi bi-code-slash"></i></div>
-                <h5 class="hk-bento-title hk-bento-title--sm">Development Team</h5>
-                <p class="hk-bento-text hk-bento-text--sm mb-0">Responsible for designing, developing, testing, and maintaining the website and its features.</p>
+                <h5 class="hk-bento-title hk-bento-title--sm">{% trans "Development Team" %}</h5>
+                <p class="hk-bento-text hk-bento-text--sm mb-0">{% trans "Responsible for designing, developing, testing, and maintaining the website and its features." %}</p>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
             <div class="hk-bento-card hk-bento-card--gold">
                 <div class="hk-bento-icon hk-bento-icon--gold"><i class="bi bi-megaphone"></i></div>
-                <h5 class="hk-bento-title hk-bento-title--sm">Digital Marketing Team</h5>
-                <p class="hk-bento-text hk-bento-text--sm mb-0">Promotes OneTownCity, increases community engagement, and helps local businesses reach more people.</p>
+                <h5 class="hk-bento-title hk-bento-title--sm">{% trans "Digital Marketing Team" %}</h5>
+                <p class="hk-bento-text hk-bento-text--sm mb-0">{% trans "Promotes OneTownCity, increases community engagement, and helps local businesses reach more people." %}</p>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
             <div class="hk-bento-card hk-bento-card--emerald">
                 <div class="hk-bento-icon hk-bento-icon--emerald"><i class="bi bi-headset"></i></div>
-                <h5 class="hk-bento-title hk-bento-title--sm">Support Team</h5>
-                <p class="hk-bento-text hk-bento-text--sm mb-0">Assists users, resolves issues, and helps maintain a smooth experience across the platform.</p>
+                <h5 class="hk-bento-title hk-bento-title--sm">{% trans "Support Team" %}</h5>
+                <p class="hk-bento-text hk-bento-text--sm mb-0">{% trans "Assists users, resolves issues, and helps maintain a smooth experience across the platform." %}</p>
             </div>
         </div>
     </div>
@@ -400,12 +400,12 @@
     <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-9 text-center" data-aos="fade-up">
-            <div class="hk-section-kicker justify-content-center">Our Promise</div>
-            <h2 class="mb-4">Our <span class="text-primary">Commitment</span></h2>
+            <div class="hk-section-kicker justify-content-center">{% trans "Our Promise" %}</div>
+            <h2 class="mb-4">{% blocktrans %}Our <span class="text-primary">Commitment</span>{% endblocktrans %}</h2>
             <p class="text-muted mb-0 hk-text-justify">
-                We are committed to providing reliable, verified, and accessible information that benefits
+                {% blocktrans %}We are committed to providing reliable, verified, and accessible information that benefits
                 residents, businesses, and visitors. We continuously improve the platform by adding new
-                features, expanding local coverage, and listening to community feedback.
+                features, expanding local coverage, and listening to community feedback.{% endblocktrans %}
             </p>
         </div>
     </div>
@@ -417,24 +417,24 @@
     <div class="hk-hero-glow hk-hero-glow-a"></div>
     <div class="hk-hero-glow hk-hero-glow-b"></div>
     <div class="container text-center hk-hero-content" data-aos="fade-up">
-        <h2 class="mb-3">Join the One <span class="hk-text-gradient-gold">TownCity</span> Community</h2>
+        <h2 class="mb-3">{% blocktrans %}Join the One <span class="hk-text-gradient-gold">TownCity</span> Community{% endblocktrans %}</h2>
         <p class="lead opacity-75 mb-4">
-            Whether you're a resident looking for local services, a visitor exploring Kuppam, or a
-            business owner wanting to reach more customers — OneTownCity is here to connect you.
+            {% blocktrans %}Whether you're a resident looking for local services, a visitor exploring Kuppam, or a
+            business owner wanting to reach more customers — OneTownCity is here to connect you.{% endblocktrans %}
         </p>
         <a href="{% url 'core:contact' %}" class="hk-cta-btn hk-cta-btn-gold">
-            <i class="bi bi-telephone-fill"></i> Get In Touch
+            <i class="bi bi-telephone-fill"></i> {% trans "Get In Touch" %}
         </a>
     </div>
 </section>
 
 <div class="container py-4">
     <details class="hk-credits">
-        <summary>Photo credits</summary>
+        <summary>{% trans "Photo credits" %}</summary>
         <ul class="small">
-            <li>Landscape near Kuppam — KuppamArunKumar, CC BY-SA 4.0</li>
-            <li>Government Degree College, Kuppam campus — courtesy of Government Degree College, Kuppam (gdckuppam.edu.in), used here to represent the institution accurately rather than a generic stock photo.</li>
-            <li>PES Medical College campus, Kuppam — aerial photo credited to "Kuppam Diaries"; source and licence unconfirmed, used here for informational/editorial purposes rather than a generic stock photo.</li>
+            <li>{% blocktrans %}Landscape near Kuppam — KuppamArunKumar, CC BY-SA 4.0{% endblocktrans %}</li>
+            <li>{% blocktrans %}Government Degree College, Kuppam campus — courtesy of Government Degree College, Kuppam (gdckuppam.edu.in), used here to represent the institution accurately rather than a generic stock photo.{% endblocktrans %}</li>
+            <li>{% blocktrans %}PES Medical College campus, Kuppam — aerial photo credited to "Kuppam Diaries"; source and licence unconfirmed, used here for informational/editorial purposes rather than a generic stock photo.{% endblocktrans %}</li>
         </ul>
     </details>
 </div>
