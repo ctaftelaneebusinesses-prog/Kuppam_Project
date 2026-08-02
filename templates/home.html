@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block navbar_class %}hk-navbar-transparent{% endblock %}
@@ -18,11 +19,11 @@
 
     <div class="container text-center hk-hero-content">
         <div class="hk-hero-eyebrow" data-aos="fade-up">
-            <span class="hk-hero-eyebrow-dot"></span> The One-Stop City Engine
+            <span class="hk-hero-eyebrow-dot"></span> {% trans "The One-Stop City Engine" %}
         </div>
-        <h1 class="hk-hero-heading hk-hero-heading-gradient mb-3" data-aos="fade-up" data-aos-delay="50">Explore, track, and connect with your community on OneTownCity.</h1>
+        <h1 class="hk-hero-heading hk-hero-heading-gradient mb-3" data-aos="fade-up" data-aos-delay="50">{% trans "Explore, track, and connect with your community on OneTownCity." %}</h1>
         <p class="hk-hero-subhead mb-4" data-aos="fade-up" data-aos-delay="100">
-            One clean interface for local listings, real estate, and upcoming projects. Tap to view image galleries, access Google links instantly, and share real community feedback.
+            {% blocktrans %}One clean interface for local listings, real estate, and upcoming projects. Tap to view image galleries, access Google links instantly, and share real community feedback.{% endblocktrans %}
         </p>
 
         <form action="{% url 'core:search' %}" method="get" class="hk-search-shell mx-auto" data-aos="fade-up" data-aos-delay="200">
@@ -33,7 +34,7 @@
                         type="text"
                         name="q"
                         class="form-control"
-                        placeholder="Search shops, jobs, restaurants..."
+                        placeholder="{% trans 'Search shops, jobs, restaurants...' %}"
                         required
                         minlength="2"
                         autocomplete="off"
@@ -45,17 +46,17 @@
                     <div class="hk-select" id="hkCategorySelect">
                         <input type="hidden" name="category" class="hk-select-value" value="">
                         <button type="button" class="hk-select-trigger" aria-haspopup="listbox" aria-expanded="false">
-                            <span class="hk-select-trigger-label">All Categories</span>
+                            <span class="hk-select-trigger-label">{% trans "All Categories" %}</span>
                             <i class="bi bi-chevron-down hk-select-chevron"></i>
                         </button>
                         <ul class="hk-select-menu" role="listbox" tabindex="-1">
                             <li class="hk-select-option is-active" role="option" aria-selected="true" data-value="">
-                                <span>All Categories</span>
+                                <span>{% trans "All Categories" %}</span>
                                 <span class="hk-select-option-dot"></span>
                             </li>
                             {% for cat in categories %}
                             <li class="hk-select-option" role="option" aria-selected="false" data-value="{{ cat.slug }}">
-                                <span>{{ cat.name }}</span>
+                                <span>{{ cat.name|dyntrans }}</span>
                                 <span class="hk-select-option-dot"></span>
                             </li>
                             {% endfor %}
@@ -63,44 +64,44 @@
                     </div>
                 </div>
                 <button type="submit" class="hk-search-shell-btn">
-                    <i class="bi bi-search"></i> Search
+                    <i class="bi bi-search"></i> {% trans "Search" %}
                 </button>
             </div>
         </form>
 
         <div class="hk-quick-pill-row" data-aos="fade-up" data-aos-delay="300">
-            <a href="{% url 'core:business_list' %}" class="hk-quick-pill"><i class="bi bi-shop"></i> Businesses</a>
-            <a href="{% url 'core:property_list' %}" class="hk-quick-pill"><i class="bi bi-house-door"></i> Real Estate</a>
-            <a href="{% url 'core:job_list' %}" class="hk-quick-pill"><i class="bi bi-briefcase"></i> Jobs</a>
-            <a href="{% url 'core:restaurant_list' %}" class="hk-quick-pill"><i class="bi bi-cup-hot"></i> Restaurants</a>
-            <a href="{% url 'core:event_list' %}" class="hk-quick-pill"><i class="bi bi-calendar-event"></i> Events</a>
+            <a href="{% url 'core:business_list' %}" class="hk-quick-pill"><i class="bi bi-shop"></i> {% trans "Businesses" %}</a>
+            <a href="{% url 'core:property_list' %}" class="hk-quick-pill"><i class="bi bi-house-door"></i> {% trans "Real Estate" %}</a>
+            <a href="{% url 'core:job_list' %}" class="hk-quick-pill"><i class="bi bi-briefcase"></i> {% trans "Jobs" %}</a>
+            <a href="{% url 'core:restaurant_list' %}" class="hk-quick-pill"><i class="bi bi-cup-hot"></i> {% trans "Restaurants" %}</a>
+            <a href="{% url 'core:event_list' %}" class="hk-quick-pill"><i class="bi bi-calendar-event"></i> {% trans "Events" %}</a>
         </div>
 
         <div class="hk-hero-stats hk-hero-stats-bento" data-aos="fade-up" data-aos-delay="350">
             <div class="hk-hero-stat-tile">
                 <div class="hk-hero-stat-icon"><i class="bi bi-shop"></i></div>
                 <div class="hk-stat-number" data-count="{{ stats.businesses }}">0</div>
-                <div class="hk-stat-label">Total Businesses</div>
+                <div class="hk-stat-label">{% trans "Total Businesses" %}</div>
             </div>
             <div class="hk-hero-stat-tile">
                 <div class="hk-hero-stat-icon"><i class="bi bi-house-door"></i></div>
                 <div class="hk-stat-number" data-count="{{ stats.properties }}">0</div>
-                <div class="hk-stat-label">Properties Listed</div>
+                <div class="hk-stat-label">{% trans "Properties Listed" %}</div>
             </div>
             <div class="hk-hero-stat-tile">
                 <div class="hk-hero-stat-icon"><i class="bi bi-briefcase"></i></div>
                 <div class="hk-stat-number" data-count="{{ stats.jobs }}">0</div>
-                <div class="hk-stat-label">Open Jobs</div>
+                <div class="hk-stat-label">{% trans "Open Jobs" %}</div>
             </div>
             <div class="hk-hero-stat-tile">
                 <div class="hk-hero-stat-icon"><i class="bi bi-people"></i></div>
                 <div class="hk-stat-number" data-count="{{ stats.users }}">0</div>
-                <div class="hk-stat-label">Community Members</div>
+                <div class="hk-stat-label">{% trans "Community Members" %}</div>
             </div>
         </div>
     </div>
 
-    <a href="#categories" class="hk-scroll-cue" aria-label="Scroll down">
+    <a href="#categories" class="hk-scroll-cue" aria-label="{% trans 'Scroll down' %}">
         <i class="bi bi-chevron-down"></i>
     </a>
 </section>
@@ -109,49 +110,49 @@
 <section class="hk-section" id="categories">
     <div class="container">
     <div class="hk-section-header text-center mb-5" data-aos="fade-up">
-        <div class="hk-section-kicker justify-content-center">What's Here</div>
-        <h2>Explore Categories</h2>
-        <p>Everything Kuppam has to offer, organized in one place</p>
+        <div class="hk-section-kicker justify-content-center">{% trans "What's Here" %}</div>
+        <h2>{% trans "Explore Categories" %}</h2>
+        <p>{% trans "Everything Kuppam has to offer, organized in one place" %}</p>
     </div>
-    <div class="row g-4">
+    <div class="hk-grid-auto">
         {% for cat in categories %}
-        {% if cat.slug == 'shops' %}
-            {% url 'core:business_list' as cat_url %}
-        {% elif cat.slug == 'real-estate' %}
+        {% if cat.listing_model == 'property' %}
             {% url 'core:property_list' as cat_url %}
-        {% elif cat.slug == 'jobs' %}
+        {% elif cat.listing_model == 'job' %}
             {% url 'core:job_list' as cat_url %}
-        {% elif cat.slug == 'events' %}
+        {% elif cat.listing_model == 'event' %}
             {% url 'core:event_list' as cat_url %}
-        {% elif cat.slug == 'news' %}
+        {% elif cat.listing_model == 'news' %}
             {% url 'core:news_list' as cat_url %}
-        {% elif cat.slug == 'restaurants' %}
-            {% url 'core:restaurant_list' as cat_url %}
-        {% elif cat.slug == 'hospitals' %}
-            {% url 'core:hospital_list' as cat_url %}
-        {% elif cat.slug == 'education' %}
-            {% url 'core:education_list' as cat_url %}
-        {% elif cat.slug == 'transport' %}
-            {% url 'core:transport_list' as cat_url %}
-        {% elif cat.slug == 'projects' %}
+        {% elif cat.listing_model == 'project' %}
             {% url 'core:project_list' as cat_url %}
+        {% elif cat.key == 'restaurants' %}
+            {% url 'core:restaurant_list' as cat_url %}
+        {% elif cat.key == 'hospitals' %}
+            {% url 'core:hospital_list' as cat_url %}
+        {% elif cat.key == 'education' %}
+            {% url 'core:education_list' as cat_url %}
+        {% elif cat.key == 'transport' %}
+            {% url 'core:transport_list' as cat_url %}
+        {% else %}
+            {% url 'core:business_list' as cat_url %}
         {% endif %}
-        <div class="col-sm-6 col-lg-4" id="{{ cat.slug }}" data-aos="fade-up">
+        <div id="{{ cat.key }}" data-aos="fade-up">
             <div class="hk-service-card">
                 <a href="{{ cat_url }}" class="text-decoration-none">
                     <div class="hk-service-card-media">
                         <div class="hk-service-card-media-inner">
-                            <img src="{% static cat.image %}" alt="{{ cat.name }}" loading="lazy">
+                            <img src="{% static cat.image %}" alt="{{ cat.label }}" loading="lazy">
                         </div>
-                        <span class="hk-service-card-count"><i class="bi bi-list-check"></i> {{ cat.count }} Listing{{ cat.count|pluralize }}</span>
+                        <span class="hk-service-card-count"><i class="bi bi-list-check"></i> {% blocktrans count counter=cat.listing_count %}{{ counter }} Listing{% plural %}{{ counter }} Listings{% endblocktrans %}</span>
                         <div class="hk-service-card-icon"><i class="bi {{ cat.icon }}"></i></div>
                     </div>
                 </a>
                 <div class="hk-service-card-body">
-                    <h5><a href="{{ cat_url }}" class="text-decoration-none text-dark">{{ cat.name }}</a></h5>
-                    <p>{{ cat.description }}</p>
+                    <h5><a href="{{ cat_url }}" class="text-decoration-none text-dark">{{ cat.label|dyntrans }}</a></h5>
+                    <p>{{ cat.description|dyntrans }}</p>
                     <a href="{{ cat_url }}" class="btn btn-primary">
-                        Explore {{ cat.name }} <i class="bi bi-arrow-right"></i>
+                        {% blocktrans with name=cat.label|dyntrans %}Explore {{ name }}{% endblocktrans %} <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
@@ -165,89 +166,91 @@
 <section class="hk-section" id="web-development">
     <div class="container">
     <div class="hk-section-header text-center mb-5" data-aos="fade-up">
-        <div class="hk-section-kicker justify-content-center">Beyond the Directory</div>
-        <h2>Website Development &amp; <span class="text-primary">Digital Solutions</span></h2>
-        <p>End-to-end web development for startups, businesses, educational institutions, and organizations building a strong online presence.</p>
+        <div class="hk-section-kicker justify-content-center">{% trans "Beyond the Directory" %}</div>
+        <h2>{% trans "Website Development &" %} <span class="text-primary">{% trans "Digital Solutions" %}</span></h2>
+        <p>{% trans "End-to-end web development for startups, businesses, educational institutions, and organizations building a strong online presence." %}</p>
     </div>
 
-    <div class="row g-5 align-items-center mb-5">
+    <div class="row g-5 align-items-stretch mb-5">
         <div class="col-lg-5" data-aos="fade-right">
             <div class="hk-solutions-media-frame">
-                <img src="{% static 'images/services/website-development.jpg' %}" alt="Website development and digital solutions" loading="lazy">
+                <img src="{% static 'images/services/website-development.jpg' %}" alt="{% trans 'Website development and digital solutions' %}" loading="lazy">
             </div>
         </div>
         <div class="col-lg-7" data-aos="fade-left">
-            <h3 class="fw-bold mb-3">Our Services</h3>
+            <h3 class="fw-bold mb-3">{% trans "Our Services" %}</h3>
             <div class="row row-cols-1 row-cols-sm-2 g-3 mb-4">
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-window"></i></div>
-                        <p class="hk-solution-card-title">Business Website Development</p>
+                        <p class="hk-solution-card-title">{% trans "Business Website Development" %}</p>
                     </div>
                 </div>
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-cart4"></i></div>
-                        <p class="hk-solution-card-title">E-Commerce Website Development</p>
+                        <p class="hk-solution-card-title">{% trans "E-Commerce Website Development" %}</p>
                     </div>
                 </div>
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-mortarboard"></i></div>
-                        <p class="hk-solution-card-title">School &amp; College Management Systems</p>
+                        <p class="hk-solution-card-title">{% trans "School & College Management Systems" %}</p>
                     </div>
                 </div>
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-code-slash"></i></div>
-                        <p class="hk-solution-card-title">Custom Web Applications</p>
+                        <p class="hk-solution-card-title">{% trans "Custom Web Applications" %}</p>
                     </div>
                 </div>
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-palette"></i></div>
-                        <p class="hk-solution-card-title">UI/UX Design</p>
+                        <p class="hk-solution-card-title">{% trans "UI/UX Design" %}</p>
                     </div>
                 </div>
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-tools"></i></div>
-                        <p class="hk-solution-card-title">Website Maintenance &amp; Support</p>
+                        <p class="hk-solution-card-title">{% trans "Website Maintenance & Support" %}</p>
                     </div>
                 </div>
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-graph-up-arrow"></i></div>
-                        <p class="hk-solution-card-title">SEO Optimization</p>
+                        <p class="hk-solution-card-title">{% trans "SEO Optimization" %}</p>
                     </div>
                 </div>
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-hdd-network"></i></div>
-                        <p class="hk-solution-card-title">Website Hosting &amp; Deployment</p>
+                        <p class="hk-solution-card-title">{% trans "Website Hosting & Deployment" %}</p>
                     </div>
                 </div>
                 <div class="col">
                     <div class="hk-solution-card">
                         <div class="hk-solution-icon"><i class="bi bi-headset"></i></div>
-                        <p class="hk-solution-card-title">Call Center &amp; BPO Services</p>
+                        <p class="hk-solution-card-title">{% trans "Call Center & BPO Services" %}</p>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <hr class="hk-solutions-divider">
+    <hr class="hk-solutions-divider">
 
-            <h3 class="fw-bold mb-3">Industries We Serve</h3>
-            <div class="d-flex flex-wrap gap-2">
-                <span class="hk-industry-pill">Educational Institutions</span>
-                <span class="hk-industry-pill">Healthcare</span>
-                <span class="hk-industry-pill">Real Estate</span>
-                <span class="hk-industry-pill">Retail &amp; E-Commerce</span>
-                <span class="hk-industry-pill">Restaurants &amp; Caf&eacute;s</span>
-                <span class="hk-industry-pill">Manufacturing</span>
-                <span class="hk-industry-pill">Startups</span>
-                <span class="hk-industry-pill">Corporate Businesses</span>
-            </div>
+    <div class="mb-5" data-aos="fade-up">
+        <h3 class="fw-bold mb-3">{% trans "Industries We Serve" %}</h3>
+        <div class="hk-industries-grid">
+            <span class="hk-industry-pill">{% trans "Educational Institutions" %}</span>
+            <span class="hk-industry-pill">{% trans "Healthcare" %}</span>
+            <span class="hk-industry-pill">{% trans "Real Estate" %}</span>
+            <span class="hk-industry-pill">{% trans "Retail & E-Commerce" %}</span>
+            <span class="hk-industry-pill">{% trans "Restaurants & Cafés" %}</span>
+            <span class="hk-industry-pill">{% trans "Manufacturing" %}</span>
+            <span class="hk-industry-pill">{% trans "Startups" %}</span>
+            <span class="hk-industry-pill">{% trans "Corporate Businesses" %}</span>
         </div>
     </div>
 
@@ -255,37 +258,37 @@
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--blue"><i class="bi bi-phone-fill"></i></div>
-                <h3>Modern &amp; Responsive</h3>
-                <p>Custom-built designs that look great on every device.</p>
+                <h3>{% trans "Modern & Responsive" %}</h3>
+                <p>{% trans "Custom-built designs that look great on every device." %}</p>
             </div>
         </div>
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--emerald"><i class="bi bi-search"></i></div>
-                <h3>SEO-Friendly</h3>
-                <p>Built to rank, with secure and scalable architecture.</p>
+                <h3>{% trans "SEO-Friendly" %}</h3>
+                <p>{% trans "Built to rank, with secure and scalable architecture." %}</p>
             </div>
         </div>
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--gold"><i class="bi bi-lightning-charge-fill"></i></div>
-                <h3>Fast Performance</h3>
-                <p>Optimized for speed with ongoing technical support.</p>
+                <h3>{% trans "Fast Performance" %}</h3>
+                <p>{% trans "Optimized for speed with ongoing technical support." %}</p>
             </div>
         </div>
         <div class="col">
             <div class="hk-why-card">
                 <div class="hk-why-icon hk-why-icon--violet"><i class="bi bi-currency-rupee"></i></div>
-                <h3>Affordable Pricing</h3>
-                <p>Experienced developers, priced for local businesses.</p>
+                <h3>{% trans "Affordable Pricing" %}</h3>
+                <p>{% trans "Experienced developers, priced for local businesses." %}</p>
             </div>
         </div>
     </div>
 
     <div class="text-center" data-aos="fade-up">
-        <p class="lead mb-3">Ready to build your digital presence?</p>
+        <p class="lead mb-3">{% trans "Ready to build your digital presence?" %}</p>
         <a href="{% url 'core:contact' %}" class="btn btn-primary btn-lg hk-cta-btn">
-            <i class="bi bi-telephone-fill"></i> Contact Us Today
+            <i class="bi bi-telephone-fill"></i> {% trans "Contact Us Today" %}
         </a>
     </div>
     </div>
@@ -297,15 +300,15 @@
     <div class="hk-section-header-row" data-aos="fade-up">
         <div class="d-flex align-items-center gap-3">
             <div class="hk-section-icon"><i class="bi bi-cone-striped"></i></div>
-            <h2>Upcoming Projects</h2>
+            <h2>{% trans "Upcoming Projects" %}</h2>
         </div>
         <a href="{% url 'core:project_list' %}" class="hk-view-all-link">
-            View All <i class="bi bi-arrow-right"></i>
+            {% trans "View All" %} <i class="bi bi-arrow-right"></i>
         </a>
     </div>
-    <div class="row g-4">
+    <div class="hk-grid-auto">
         {% for project in featured_projects %}
-        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+        <div data-aos="fade-up">
             {% include 'partials/project_card.html' with project=project %}
         </div>
         {% endfor %}

@@ -1,0 +1,360 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OneTownCity\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "About Us"
+msgstr "हमारे बारे में"
+
+msgid "Address"
+msgstr "पता"
+
+msgid "Affordable Pricing"
+msgstr "किफायती मूल्य निर्धारण"
+
+msgid "All Categories"
+msgstr "सभी श्रेणियाँ"
+
+msgid "Back to OneTownCity News"
+msgstr "वनटाउनसिटी न्यूज़ पर वापस"
+
+msgid "Beyond the Directory"
+msgstr "निर्देशिका से परे"
+
+msgid "Built to rank, with secure and scalable architecture."
+msgstr "सुरक्षित और स्केलेबल वास्तुकला के साथ, रैंक के अनुसार निर्मित।"
+
+msgid "Business Website Development"
+msgstr "व्यवसाय वेबसाइट विकास"
+
+msgid "Businesses"
+msgstr "व्यवसाय"
+
+msgid "Call Center & BPO Services"
+msgstr "कॉल सेंटर और बीपीओ सेवाएँ"
+
+msgid "Categories"
+msgstr "श्रेणियाँ"
+
+msgid "Change language"
+msgstr "भाषा बदलें"
+
+msgid "Chat with OneTownCity on WhatsApp"
+msgstr "व्हाट्सएप पर वनटाउनसिटी के साथ चैट करें"
+
+msgid "Community Members"
+msgstr "समुदाय के सदस्यों"
+
+msgid "Contact"
+msgstr "संपर्क"
+
+msgid "Contact Us Today"
+msgstr "आज ही हमसे संपर्क करें"
+
+msgid "Corporate Businesses"
+msgstr "कॉर्पोरेट व्यवसाय"
+
+msgid "Custom Web Applications"
+msgstr "कस्टम वेब अनुप्रयोग"
+
+msgid "Custom-built designs that look great on every device."
+msgstr "कस्टम-निर्मित डिज़ाइन जो हर डिवाइस पर बहुत अच्छे लगते हैं।"
+
+msgid "Dashboard"
+msgstr "डैशबोर्ड"
+
+msgid "Digital Solutions"
+msgstr "डिजिटल समाधान"
+
+msgid "Dismiss"
+msgstr "नकार देना"
+
+msgid "E-Commerce Website Development"
+msgstr "ई-कॉमर्स वेबसाइट विकास"
+
+msgid "Educational Institutions"
+msgstr "शिक्षण संस्थानों"
+
+msgid "Email for newsletter"
+msgstr "न्यूज़लेटर के लिए ईमेल करें"
+
+msgid ""
+"End-to-end web development for startups, businesses, educational "
+"institutions, and organizations building a strong online presence."
+msgstr ""
+"स्टार्टअप्स, व्यवसायों, शैक्षणिक संस्थानों और मजबूत ऑनलाइन उपस्थिति बनाने "
+"वाले संगठनों के लिए एंड-टू-एंड वेब विकास।"
+
+msgid "Events"
+msgstr "घटनाएँ"
+
+msgid "Everything Kuppam has to offer, organized in one place"
+msgstr "कुप्पम की पेशकश की हर चीज़ एक ही स्थान पर व्यवस्थित है"
+
+msgid "Experienced developers, priced for local businesses."
+msgstr "अनुभवी डेवलपर्स, स्थानीय व्यवसायों के लिए कीमत।"
+
+msgid "Explore Categories"
+msgstr "श्रेणियाँ खोजें"
+
+msgid "Explore {{ name }}"
+msgstr "अन्वेषण करें {{ name }}"
+
+msgid "Explore, track, and connect with your community on OneTownCity."
+msgstr ""
+"वनटाउनसिटी पर अपने समुदाय को एक्सप्लोर करें, ट्रैक करें और उससे जुड़ें।"
+
+msgid "Fast Performance"
+msgstr "तेज़ प्रदर्शन"
+
+msgid "Featured"
+msgstr "प्रदर्शित"
+
+msgid "Get the latest Kuppam listings and news in your inbox."
+msgstr "अपने इनबॉक्स में नवीनतम कुप्पम लिस्टिंग और समाचार प्राप्त करें।"
+
+msgid "Healthcare"
+msgstr "स्वास्थ्य देखभाल"
+
+msgid "Hi OneTownCity! I'd like some help finding..."
+msgstr "हाय वनटाउनसिटी! मुझे ढूंढने में कुछ मदद चाहिए..."
+
+msgid "History"
+msgstr "इतिहास"
+
+msgid "Home"
+msgstr "घर"
+
+msgid "Industries We Serve"
+msgstr "जिन उद्योगों की हम सेवा करते हैं"
+
+msgid "Job Description"
+msgstr "नौकरी का विवरण"
+
+msgid "Jobs"
+msgstr "नौकरियाँ"
+
+msgid "Language"
+msgstr "भाषा"
+
+msgid "Logout"
+msgstr "लॉग आउट"
+
+msgid "Manufacturing"
+msgstr "उत्पादन"
+
+msgid "Mark all read"
+msgstr "सभी को पढ़ा दिखाएं"
+
+msgid "Modern & Responsive"
+msgstr "आधुनिक और उत्तरदायी"
+
+msgid "My Favorites"
+msgstr "मेरे प्रिय"
+
+msgid "My Listings"
+msgstr "मेरी सूचियाँ"
+
+msgid ""
+"Need help finding a business, job or property in Kuppam? Chat with us on "
+"WhatsApp."
+msgstr ""
+"कुप्पम में व्यवसाय, नौकरी या संपत्ति ढूंढने में सहायता चाहिए? हमारे साथ "
+"व्हाट्सएप पर चैट करें।"
+
+msgid "New"
+msgstr "नया"
+
+msgid "No further details have been added for this project yet."
+msgstr "इस परियोजना के लिए अभी तक कोई और विवरण नहीं जोड़ा गया है।"
+
+msgid "No notifications yet."
+msgstr "अभी तक कोई सूचना नहीं."
+
+msgid "Notifications"
+msgstr "सूचनाएं"
+
+msgid ""
+"One clean interface for local listings, real estate, and upcoming projects. "
+"Tap to view image galleries, access Google links instantly, and share real "
+"community feedback."
+msgstr ""
+"स्थानीय लिस्टिंग, रियल एस्टेट और आगामी परियोजनाओं के लिए एक स्वच्छ इंटरफ़ेस।"
+" छवि गैलरी देखने के लिए टैप करें, तुरंत Google लिंक तक पहुंचें और वास्तविक "
+"सामुदायिक प्रतिक्रिया साझा करें।"
+
+msgid "OneTownCity News"
+msgstr "वनटाउनसिटी समाचार"
+
+msgid "OneTownCity. All rights reserved. Powered by CraftLanee."
+msgstr "वनटाउनसिटी। सर्वाधिकार सुरक्षित। क्राफ्टलानी द्वारा संचालित।"
+
+msgid "Open Jobs"
+msgstr "नौकरियाँ खोलें"
+
+msgid "Open in Google Maps"
+msgstr "Google मानचित्र में खोलें"
+
+msgid "Open menu"
+msgstr "मेनू खोलें"
+
+msgid "Optimized for speed with ongoing technical support."
+msgstr "चल रही तकनीकी सहायता के साथ गति के लिए अनुकूलित।"
+
+msgid "Our Services"
+msgstr "हमारी सेवाएँ"
+
+msgid "Palette"
+msgstr "पैलेट"
+
+msgid "Past Event"
+msgstr "पिछली घटना"
+
+msgid "Phone"
+msgstr "फ़ोन"
+
+msgid "Powered by"
+msgstr "द्वारा संचालित"
+
+msgid "Powered by CraftLanee"
+msgstr "क्राफ्टलानी द्वारा संचालित"
+
+msgid "Privacy Policy"
+msgstr "गोपनीयता नीति"
+
+msgid "Properties"
+msgstr "गुण"
+
+msgid "Properties Listed"
+msgstr "गुण सूचीबद्ध"
+
+msgid "Quick Links"
+msgstr "त्वरित सम्पक"
+
+msgid "Read More"
+msgstr "और पढ़ें"
+
+msgid "Ready to build your digital presence?"
+msgstr "क्या आप अपनी डिजिटल उपस्थिति बनाने के लिए तैयार हैं?"
+
+msgid "Real Estate"
+msgstr "रियल एस्टेट"
+
+msgid "Restaurants"
+msgstr "रेस्टोरेंट"
+
+msgid "Restaurants & Cafés"
+msgstr "रेस्तरां और कैफे"
+
+msgid "Retail & E-Commerce"
+msgstr "खुदरा एवं ई-कॉमर्स"
+
+msgid "SEO Optimization"
+msgstr "एसईओ अनुकूलन"
+
+msgid "SEO-Friendly"
+msgstr "Seo के अनुकूल"
+
+msgid "Salary not disclosed"
+msgstr "वेतन का खुलासा नहीं"
+
+msgid "Save to favorites"
+msgstr "पसंदीदा में सहेजें"
+
+msgid "School & College Management Systems"
+msgstr "स्कूल और कॉलेज प्रबंधन प्रणाली"
+
+msgid "Scroll down"
+msgstr "नीचे स्क्रॉल करें"
+
+msgid "Search"
+msgstr "खोज"
+
+msgid "Search shops, jobs, restaurants..."
+msgstr "दुकानें, नौकरियाँ, रेस्तरां खोजें..."
+
+msgid "Services"
+msgstr "सेवाएं"
+
+msgid "Share"
+msgstr "शेयर करना"
+
+msgid "Sign In"
+msgstr "दाखिल करना"
+
+msgid "Sign in to save"
+msgstr "सहेजने के लिए साइन इन करें"
+
+msgid "Startups"
+msgstr "स्टार्टअप"
+
+msgid "Stay Updated"
+msgstr "अपडेट रहें"
+
+msgid "Switch theme palette"
+msgstr "थीम पैलेट बदलें"
+
+msgid "Terms of Service"
+msgstr "सेवा की शर्तें"
+
+msgid "The One-Stop City Engine"
+msgstr "वन-स्टॉप सिटी इंजन"
+
+msgid "Theme"
+msgstr "विषय"
+
+msgid "Theme Palette"
+msgstr "थीम पैलेट"
+
+msgid "Toggle dark mode"
+msgstr "डार्क मोड टॉगल करें"
+
+msgid "Total Businesses"
+msgstr "कुल व्यवसाय"
+
+msgid "UI/UX Design"
+msgstr "यूआई/यूएक्स डिज़ाइन"
+
+msgid "Upcoming Projects"
+msgstr "आगामी परियोजनाएँ"
+
+msgid "View All"
+msgstr "सभी को देखें"
+
+msgid "View Details"
+msgstr "विवरण देखें"
+
+msgid "View all notifications"
+msgstr "सभी सूचनाएं देखें"
+
+msgid "Website Development &"
+msgstr "वेबसाइट विकास &"
+
+msgid "Website Hosting & Deployment"
+msgstr "वेबसाइट होस्टिंग एवं परिनियोजन"
+
+msgid "Website Maintenance & Support"
+msgstr "वेबसाइट का रखरखाव एवं सहायता"
+
+msgid "Website development and digital solutions"
+msgstr "वेबसाइट विकास और डिजिटल समाधान"
+
+msgid "What's Here"
+msgstr "यहां क्या है"
+
+msgid "Your email address"
+msgstr "आपका ईमेल पता"
+
+msgid ""
+"Your trusted local information portal for Kuppam — businesses, jobs, real "
+"estate, and everything in between."
+msgstr ""
+"कुप्पम के लिए आपका विश्वसनीय स्थानीय सूचना पोर्टल - व्यवसाय, नौकरियां, रियल "
+"एस्टेट और इनके बीच सब कुछ।"
+
+msgid "ago"
+msgstr "पहले"

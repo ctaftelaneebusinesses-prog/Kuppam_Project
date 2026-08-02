@@ -1,4 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -29,25 +30,25 @@
 </div>
 
 <div class="hk-dash-section-title" data-aos="fade-up">Community</div>
-<div class="row g-3 mb-2">
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-people"></i></div><div><div class="hk-stat-value">{{ stats.total_users }}</div><div class="hk-stat-label">Total Users</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-person-badge"></i></div><div><div class="hk-stat-value">{{ stats.total_admins }}</div><div class="hk-stat-label">Total Admins</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_requests }}</div><div class="hk-stat-label">Pending Admin Requests</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_requests }}</div><div class="hk-stat-label">Approved Requests</div></div></div></div>
+<div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-people"></i></div><div><div class="hk-stat-value">{{ stats.total_users }}</div><div class="hk-stat-label">Total Users</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-person-badge"></i></div><div><div class="hk-stat-value">{{ stats.total_admins }}</div><div class="hk-stat-label">Total Admins</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_requests }}</div><div class="hk-stat-label">Pending Admin Requests</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_requests }}</div><div class="hk-stat-label">Approved Requests</div></div></div>
 </div>
 
 <div class="hk-dash-section-title" data-aos="fade-up">Content Inventory</div>
-<div class="row g-3 mb-2">
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-shop"></i></div><div><div class="hk-stat-value">{{ stats.total_businesses }}</div><div class="hk-stat-label">Businesses</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-cup-hot"></i></div><div><div class="hk-stat-value">{{ stats.total_restaurants }}</div><div class="hk-stat-label">Restaurants</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-mortarboard"></i></div><div><div class="hk-stat-value">{{ stats.total_schools }}</div><div class="hk-stat-label">Schools</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-building"></i></div><div><div class="hk-stat-value">{{ stats.total_colleges }}</div><div class="hk-stat-label">Colleges</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-hospital"></i></div><div><div class="hk-stat-value">{{ stats.total_hospitals }}</div><div class="hk-stat-label">Hospitals</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-house-door"></i></div><div><div class="hk-stat-value">{{ stats.total_properties }}</div><div class="hk-stat-label">Properties</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-briefcase"></i></div><div><div class="hk-stat-value">{{ stats.total_jobs }}</div><div class="hk-stat-label">Jobs</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-calendar-event"></i></div><div><div class="hk-stat-value">{{ stats.total_events }}</div><div class="hk-stat-label">Events</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-newspaper"></i></div><div><div class="hk-stat-value">{{ stats.total_news }}</div><div class="hk-stat-label">News</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-cone-striped"></i></div><div><div class="hk-stat-value">{{ stats.total_projects }}</div><div class="hk-stat-label">Upcoming Projects</div></div></div></div>
+<div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-shop"></i></div><div><div class="hk-stat-value">{{ stats.total_businesses }}</div><div class="hk-stat-label">Businesses</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-cup-hot"></i></div><div><div class="hk-stat-value">{{ stats.total_restaurants }}</div><div class="hk-stat-label">Restaurants</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-mortarboard"></i></div><div><div class="hk-stat-value">{{ stats.total_schools }}</div><div class="hk-stat-label">Schools</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-building"></i></div><div><div class="hk-stat-value">{{ stats.total_colleges }}</div><div class="hk-stat-label">Colleges</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-hospital"></i></div><div><div class="hk-stat-value">{{ stats.total_hospitals }}</div><div class="hk-stat-label">Hospitals</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-house-door"></i></div><div><div class="hk-stat-value">{{ stats.total_properties }}</div><div class="hk-stat-label">Properties</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-briefcase"></i></div><div><div class="hk-stat-value">{{ stats.total_jobs }}</div><div class="hk-stat-label">Jobs</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-calendar-event"></i></div><div><div class="hk-stat-value">{{ stats.total_events }}</div><div class="hk-stat-label">Events</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-newspaper"></i></div><div><div class="hk-stat-value">{{ stats.total_news }}</div><div class="hk-stat-label">News</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-cone-striped"></i></div><div><div class="hk-stat-value">{{ stats.total_projects }}</div><div class="hk-stat-label">Upcoming Projects</div></div></div>
 </div>
 
 <!-- Charts -->
@@ -67,16 +68,16 @@
 </div>
 
 <div class="hk-dash-section-title" data-aos="fade-up">Moderation &amp; Engagement</div>
-<div class="row g-3 mb-2">
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_listings }}</div><div class="hk-stat-label">Pending Approvals</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--hk-emerald-bg); color:var(--hk-emerald);"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_listings }}</div><div class="hk-stat-label">Approved Listings</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:#FCE9EC; color:#dc3545;"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ stats.rejected_listings }}</div><div class="hk-stat-label">Rejected Listings</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-chat-left-text"></i></div><div><div class="hk-stat-value">{{ stats.total_comments }}</div><div class="hk-stat-label">Total Comments</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-star"></i></div><div><div class="hk-stat-value">{{ stats.total_reviews }}</div><div class="hk-stat-label">Total Reviews</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-hand-thumbs-up"></i></div><div><div class="hk-stat-value">{{ stats.total_likes }}</div><div class="hk-stat-label">Total Likes</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-heart"></i></div><div><div class="hk-stat-value">{{ stats.total_favorites }}</div><div class="hk-stat-label">Total Favorites</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon"><i class="bi bi-share"></i></div><div><div class="hk-stat-value">{{ stats.total_shares }}</div><div class="hk-stat-label">Total Shares</div></div></div></div>
-    <div class="col-6 col-md-3" data-aos="fade-up"><div class="hk-stat-card"><div class="hk-stat-icon" style="background:#FCE9EC; color:#dc3545;"><i class="bi bi-envelope"></i></div><div><div class="hk-stat-value">{{ stats.unread_messages }}</div><div class="hk-stat-label">Unread Messages</div></div></div></div>
+<div class="hk-grid-auto-sm mb-4" data-aos="fade-up">
+    <div class="hk-stat-card"><div class="hk-stat-icon" style="background:var(--bs-warning-bg-subtle); color:var(--bs-warning);"><i class="bi bi-hourglass-split"></i></div><div><div class="hk-stat-value">{{ stats.pending_listings }}</div><div class="hk-stat-label">Pending Approvals</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-check-circle"></i></div><div><div class="hk-stat-value">{{ stats.approved_listings }}</div><div class="hk-stat-label">Approved Listings</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-x-circle"></i></div><div><div class="hk-stat-value">{{ stats.rejected_listings }}</div><div class="hk-stat-label">Rejected Listings</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-chat-left-text"></i></div><div><div class="hk-stat-value">{{ stats.total_comments }}</div><div class="hk-stat-label">Total Comments</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--gold"><i class="bi bi-star"></i></div><div><div class="hk-stat-value">{{ stats.total_reviews }}</div><div class="hk-stat-label">Total Reviews</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--indigo"><i class="bi bi-hand-thumbs-up"></i></div><div><div class="hk-stat-value">{{ stats.total_likes }}</div><div class="hk-stat-label">Total Likes</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-heart"></i></div><div><div class="hk-stat-value">{{ stats.total_favorites }}</div><div class="hk-stat-label">Total Favorites</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--emerald"><i class="bi bi-share"></i></div><div><div class="hk-stat-value">{{ stats.total_shares }}</div><div class="hk-stat-label">Total Shares</div></div></div>
+    <div class="hk-stat-card"><div class="hk-stat-icon hk-stat-icon--rose"><i class="bi bi-envelope"></i></div><div><div class="hk-stat-value">{{ stats.unread_messages }}</div><div class="hk-stat-label">Unread Messages</div></div></div>
 </div>
 
 <div class="row g-4 mt-2">
@@ -135,51 +136,79 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard-charts.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const contentCtx = document.getElementById('hkContentChart');
-    if (contentCtx) {
-        new Chart(contentCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Businesses', 'Properties', 'Jobs', 'Events', 'News', 'Projects'],
-                datasets: [{
-                    label: 'Listings',
-                    data: [{{ stats.total_businesses }}, {{ stats.total_properties }}, {{ stats.total_jobs }}, {{ stats.total_events }}, {{ stats.total_news }}, {{ stats.total_projects }}],
-                    backgroundColor: ['#0F4C81', '#5B3DE0', '#3EC1F3', '#F0A93A', '#0FA36B', '#DC3545'],
-                    borderRadius: 8,
-                    maxBarThickness: 48,
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-            }
-        });
-    }
-
     const modCtx = document.getElementById('hkModerationChart');
-    if (modCtx) {
-        new Chart(modCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pending', 'Approved', 'Rejected'],
-                datasets: [{
-                    data: [{{ stats.pending_listings }}, {{ stats.approved_listings }}, {{ stats.rejected_listings }}],
-                    backgroundColor: ['#F0A93A', '#0FA36B', '#dc3545'],
-                    borderWidth: 0,
-                }]
-            },
-            options: {
-                plugins: { legend: { position: 'bottom' } },
-                cutout: '65%',
+    let contentChart = null;
+    let modChart = null;
+
+    hkRegisterThemedCharts(function () {
+        const p = hkChartPalette();
+
+        if (contentCtx) {
+            const backgroundColor = [p.primary, p.violet, p.sky, p.gold, p.emerald, p.red];
+            if (contentChart) {
+                contentChart.data.datasets[0].backgroundColor = backgroundColor;
+                contentChart.options.scales.y.ticks.color = p.inkSoft;
+                contentChart.options.scales.x.ticks.color = p.inkSoft;
+                contentChart.options.scales.y.grid.color = p.gridLine;
+                contentChart.update();
+            } else {
+                contentChart = new Chart(contentCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Businesses', 'Properties', 'Jobs', 'Events', 'News', 'Projects'],
+                        datasets: [{
+                            label: 'Listings',
+                            data: [{{ stats.total_businesses }}, {{ stats.total_properties }}, {{ stats.total_jobs }}, {{ stats.total_events }}, {{ stats.total_news }}, {{ stats.total_projects }}],
+                            backgroundColor: backgroundColor,
+                            borderRadius: 8,
+                            maxBarThickness: 48,
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0, color: p.inkSoft }, grid: { color: p.gridLine } },
+                            x: { ticks: { color: p.inkSoft }, grid: { display: false } },
+                        },
+                    }
+                });
             }
-        });
-    }
+        }
+
+        if (modCtx) {
+            const backgroundColor = [p.gold, p.emerald, p.red];
+            if (modChart) {
+                modChart.data.datasets[0].backgroundColor = backgroundColor;
+                modChart.options.plugins.legend.labels.color = p.inkSoft;
+                modChart.update();
+            } else {
+                modChart = new Chart(modCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pending', 'Approved', 'Rejected'],
+                        datasets: [{
+                            data: [{{ stats.pending_listings }}, {{ stats.approved_listings }}, {{ stats.rejected_listings }}],
+                            backgroundColor: backgroundColor,
+                            borderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { position: 'bottom', labels: { color: p.inkSoft } } },
+                        cutout: '65%',
+                    }
+                });
+            }
+        }
+    });
 });
 </script>
 {% endblock %}

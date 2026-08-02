@@ -65,3 +65,29 @@ def role_required(*roles):
 
 super_admin_required = role_required(UserRole.SUPER_ADMIN)
 admin_or_super_required = role_required(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+
+
+def excel_upload_allowed(view_func):
+    """
+    Restricts a view to Django staff (legacy developer accounts) OR a
+    Google/Supabase-authenticated Admin/Super Admin profile. Two separate
+    auth flows exist side by side (see staff_required's docstring), so this
+    checks both rather than picking one.
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(settings.GOOGLE_LOGIN_URL)
+        if request.user.is_staff:
+            return view_func(request, *args, **kwargs)
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        if profile.is_blocked:
+            logout(request)
+            messages.error(request, 'This account has been blocked. Contact support if you think this is a mistake.')
+            return redirect('core:google_login')
+        if profile.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
+            messages.error(request, 'You do not have permission to access this page.')
+            return redirect('core:home')
+        request.profile = profile
+        return view_func(request, *args, **kwargs)
+    return wrapper

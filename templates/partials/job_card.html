@@ -3,11 +3,11 @@ Reusable job card. Include with: {% include 'partials/job_card.html' with job=<j
 Used identically on job_list.html, the homepage Featured Jobs section, and the
 "related jobs" section on job_detail.html.
 {% endcomment %}
-{% load hk_extras %}
+{% load i18n hk_extras %}
 <div class="card h-100 hk-card">
     {% if job.is_featured %}
     <span class="hk-badge-featured">
-        <i class="bi bi-star-fill"></i> Featured
+        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
     </span>
     {% endif %}
     {% if job.has_image %}
@@ -28,7 +28,7 @@ Used identically on job_list.html, the homepage Featured Jobs section, and the
         <div class="hk-card-meta-row">
             <span class="hk-rating">
                 <i class="bi bi-star-fill"></i>
-                {% if job.review_count %}{{ job.avg_rating }} ({{ job.review_count }}){% else %}New{% endif %}
+                {% if job.review_count %}{{ job.avg_rating }} ({{ job.review_count }}){% else %}{% trans "New" %}{% endif %}
             </span>
             <span><i class="bi bi-eye"></i> {{ job.view_count }}</span>
         </div>
@@ -41,23 +41,23 @@ Used identically on job_list.html, the homepage Featured Jobs section, and the
         </p>
         {% else %}
         <p class="card-text text-muted small mb-3">
-            <i class="bi bi-dash-circle"></i> Salary not disclosed
+            <i class="bi bi-dash-circle"></i> {% trans "Salary not disclosed" %}
         </p>
         {% endif %}
         <a href="{% url 'core:job_detail' job.slug %}" class="btn btn-outline-primary mt-auto">
-            View Details <i class="bi bi-arrow-right"></i>
+            {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
         </a>
         <div class="hk-card-actions">
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'core:toggle_favorite' 'job' job.pk %}">
                 {% csrf_token %}
-                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></button>
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
             </form>
             {% else %}
-            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="Sign in to save"><i class="bi bi-heart"></i></a>
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
             {% endif %}
-            <a href="{{ job.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="Open in Google Maps"><i class="bi bi-geo"></i></a>
-            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:job_detail' job.slug %}" data-title="{{ job.job_title }}" title="Share"><i class="bi bi-share"></i></button>
+            <a href="{{ job.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="{% trans 'Open in Google Maps' %}"><i class="bi bi-geo"></i></a>
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:job_detail' job.slug %}" data-title="{{ job.job_title }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
         </div>
     </div>
 </div>

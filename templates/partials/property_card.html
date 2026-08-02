@@ -2,11 +2,11 @@
 Reusable property card. Include with: {% include 'partials/property_card.html' with property=<property_instance> %}
 {% endcomment %}
 {% load humanize %}
-{% load hk_extras %}
+{% load i18n hk_extras %}
 <div class="card h-100 hk-card">
     {% if property.is_featured %}
     <span class="hk-badge-featured">
-        <i class="bi bi-star-fill"></i> Featured
+        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
     </span>
     {% endif %}
     {% if property.has_image %}
@@ -22,7 +22,7 @@ Reusable property card. Include with: {% include 'partials/property_card.html' w
         <div class="hk-card-meta-row">
             <span class="hk-rating">
                 <i class="bi bi-star-fill"></i>
-                {% if property.review_count %}{{ property.avg_rating }} ({{ property.review_count }}){% else %}New{% endif %}
+                {% if property.review_count %}{{ property.avg_rating }} ({{ property.review_count }}){% else %}{% trans "New" %}{% endif %}
             </span>
             <span><i class="bi bi-eye"></i> {{ property.view_count }}</span>
         </div>
@@ -33,19 +33,19 @@ Reusable property card. Include with: {% include 'partials/property_card.html' w
             &#8377; {{ property.price|floatformat:0|intcomma }}
         </p>
         <a href="{% url 'core:property_detail' property.slug %}" class="btn btn-outline-primary mt-auto">
-            View Details <i class="bi bi-arrow-right"></i>
+            {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
         </a>
         <div class="hk-card-actions">
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'core:toggle_favorite' 'property' property.pk %}">
                 {% csrf_token %}
-                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></button>
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
             </form>
             {% else %}
-            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="Sign in to save"><i class="bi bi-heart"></i></a>
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
             {% endif %}
-            <a href="{{ property.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="Open in Google Maps"><i class="bi bi-geo"></i></a>
-            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:property_detail' property.slug %}" data-title="{{ property.title }}" title="Share"><i class="bi bi-share"></i></button>
+            <a href="{{ property.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="{% trans 'Open in Google Maps' %}"><i class="bi bi-geo"></i></a>
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:property_detail' property.slug %}" data-title="{{ property.title }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
         </div>
     </div>
 </div>

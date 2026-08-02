@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ page_title }}{% endblock %}
+{% block body_attrs %}data-category-bg="projects"{% endblock %}
 
 {% block content %}
 <section class="container py-5">
@@ -55,9 +56,9 @@
 
     <!-- Projects Grid -->
     {% if page_obj %}
-    <div class="row g-4">
+    <div class="hk-grid-auto">
         {% for project in page_obj %}
-        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+        <div data-aos="fade-up">
             {% include 'partials/project_card.html' with project=project %}
         </div>
         {% endfor %}

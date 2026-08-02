@@ -1,0 +1,140 @@
+<div class="card">
+    <div class="card-header bg-white fw-semibold d-flex align-items-center justify-content-between">
+        <span><i class="bi bi-person-gear text-primary"></i> My Profile</span>
+        <button type="button" class="btn btn-outline-primary btn-sm" id="hkProfileEditToggle">
+            <i class="bi bi-pencil-square"></i> Edit Profile
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="hk-profile-header d-flex align-items-center gap-3 mb-4">
+            <img src="{{ user.profile.display_photo }}" alt="{{ user.profile.full_name }}" class="hk-profile-avatar">
+            <div>
+                <div class="hk-profile-name">{{ user.profile.full_name|default:user.username }}</div>
+                <div class="hk-profile-role-badge">
+                    {% if request.profile.is_super_admin %}Super Admin{% elif request.profile.is_admin %}Content Provider{% else %}Explorer{% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" id="hkProfileForm">
+            {% csrf_token %}
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="form-floating {% if form.full_name.errors %}hk-field-invalid{% endif %}">
+                        {{ form.full_name }}
+                        <label for="{{ form.full_name.id_for_label }}">Full Name</label>
+                        {% if form.full_name.errors %}<div class="hk-field-error">{{ form.full_name.errors|striptags }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Email is tied to the sign-in account (Google/username), not part of
+                         ProfileCompletionForm — shown for completeness but never editable here. -->
+                    <div class="form-floating">
+                        <input type="email" class="form-control" id="hkProfileEmail" value="{{ user.email }}" disabled>
+                        <label for="hkProfileEmail">Email Address</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="form-floating {% if form.phone_number.errors %}hk-field-invalid{% endif %}">
+                        {{ form.phone_number }}
+                        <label for="{{ form.phone_number.id_for_label }}">Mobile Number</label>
+                        {% if form.phone_number.errors %}<div class="hk-field-error">{{ form.phone_number.errors|striptags }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="hkProfileRole"
+                               value="{% if request.profile.is_super_admin %}Super Admin{% elif request.profile.is_admin %}Content Provider{% else %}Explorer{% endif %}" disabled>
+                        <label for="hkProfileRole">Account Role</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.profile_photo.id_for_label }}" class="form-label">Profile Photo</label>
+                {{ form.profile_photo }}
+                {% if form.profile_photo.errors %}<div class="hk-field-error">{{ form.profile_photo.errors|striptags }}</div>{% endif %}
+            </div>
+
+            <div class="form-floating mb-3 {% if form.address.errors %}hk-field-invalid{% endif %}">
+                {{ form.address }}
+                <label for="{{ form.address.id_for_label }}">Address</label>
+                {% if form.address.errors %}<div class="hk-field-error">{{ form.address.errors|striptags }}</div>{% endif %}
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="form-floating {% if form.city.errors %}hk-field-invalid{% endif %}">
+                        {{ form.city }}
+                        <label for="{{ form.city.id_for_label }}">City</label>
+                        {% if form.city.errors %}<div class="hk-field-error">{{ form.city.errors|striptags }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating {% if form.state.errors %}hk-field-invalid{% endif %}">
+                        {{ form.state }}
+                        <label for="{{ form.state.id_for_label }}">State</label>
+                        {% if form.state.errors %}<div class="hk-field-error">{{ form.state.errors|striptags }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating {% if form.pincode.errors %}hk-field-invalid{% endif %}">
+                        {{ form.pincode }}
+                        <label for="{{ form.pincode.id_for_label }}">Pincode</label>
+                        {% if form.pincode.errors %}<div class="hk-field-error">{{ form.pincode.errors|striptags }}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2" id="hkProfileFormActions" hidden>
+                <button type="submit" class="btn btn-primary hk-cta-btn">
+                    Save Changes <i class="bi bi-check2"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="hkProfileCancelBtn">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('hkProfileForm');
+    var editBtn = document.getElementById('hkProfileEditToggle');
+    var actions = document.getElementById('hkProfileFormActions');
+    var cancelBtn = document.getElementById('hkProfileCancelBtn');
+    if (!form || !editBtn) return;
+
+    var editableFields = form.querySelectorAll('input[type="text"], input[type="tel"], textarea');
+    var fileField = form.querySelector('input[type="file"]');
+
+    function setEditMode(isEditing) {
+        editableFields.forEach(function (field) { field.readOnly = !isEditing; });
+        if (fileField) fileField.disabled = !isEditing;
+        actions.hidden = !isEditing;
+        editBtn.hidden = isEditing;
+    }
+
+    setEditMode(false);
+
+    editBtn.addEventListener('click', function () {
+        setEditMode(true);
+        if (editableFields.length) editableFields[0].focus();
+    });
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function () {
+            form.reset();
+            setEditMode(false);
+        });
+    }
+});
+</script>

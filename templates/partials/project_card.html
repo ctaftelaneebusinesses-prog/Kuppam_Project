@@ -1,10 +1,11 @@
 {% comment %}
 Reusable upcoming-project card. Include with: {% include 'partials/project_card.html' with project=<project_instance> %}
 {% endcomment %}
+{% load i18n %}
 <div class="card h-100 hk-card">
     {% if project.is_featured %}
     <span class="hk-badge-featured">
-        <i class="bi bi-star-fill"></i> Featured
+        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
     </span>
     {% endif %}
     {% if project.has_image %}
@@ -30,18 +31,18 @@ Reusable upcoming-project card. Include with: {% include 'partials/project_card.
         </div>
         <p class="card-text text-muted small mb-3">{{ project.description|default:"No description provided."|truncatewords:18 }}</p>
         <a href="{% url 'core:project_detail' project.slug %}" class="btn btn-outline-primary mt-auto">
-            Read More <i class="bi bi-arrow-right"></i>
+            {% trans "Read More" %} <i class="bi bi-arrow-right"></i>
         </a>
         <div class="hk-card-actions">
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'core:toggle_favorite' 'project' project.pk %}">
                 {% csrf_token %}
-                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></button>
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
             </form>
             {% else %}
-            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="Sign in to save"><i class="bi bi-heart"></i></a>
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
             {% endif %}
-            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:project_detail' project.slug %}" data-title="{{ project.title }}" title="Share"><i class="bi bi-share"></i></button>
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:project_detail' project.slug %}" data-title="{{ project.title }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
         </div>
     </div>
 </div>

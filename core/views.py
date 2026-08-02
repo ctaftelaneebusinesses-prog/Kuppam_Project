@@ -137,7 +137,7 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.validators import validate_email
-from django.db.models import F, Q
+from django.db.models import F, ProtectedError, Q
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -146,18 +146,21 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
-from .decorators import admin_or_super_required, onboarding_required, staff_required, super_admin_required
+from .decorators import (
+    admin_or_super_required, excel_upload_allowed, onboarding_required, super_admin_required,
+)
 from .excel_utils import UPLOAD_CONFIGS, ExcelValidationError, build_sample_workbook, process_excel_upload
+from .export_utils import build_posts_pdf, build_posts_workbook, build_users_pdf, build_users_workbook
 from .forms import (
-    AdminLoginForm, AdminRequestForm, AdminRequestReviewForm, CommentForm, ContactForm,
+    AdminLoginForm, AdminRequestForm, AdminRequestReviewForm, CategoryForm, CommentForm, ContactForm,
     ExcelUploadForm, LISTING_SUBMIT_FORMS, PasswordLoginForm, ProfileCompletionForm,
-    RegisterForm, ReportForm, ReviewForm,
+    RegisterForm, ReportForm, ReviewForm, SiteSettingsForm,
 )
 from .models import (
     AdminCategoryPermission, AdminRequest, AdminRequestStatus, Business, Category, Comment,
     ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News,
-    NewsletterSubscriber, Notification, PostImage, Profile, Project, Property, Report, Review,
-    Share, UserRole,
+    NewsletterSubscriber, Notification, PostImage, PostVideo, Profile, Project, Property, Report,
+    Review, Share, SiteSettings, UserRole, unique_slug_for,
 )
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
@@ -171,6 +174,36 @@ LISTING_MODELS = {
     'news': News,
     'project': Project,
 }
+
+# Gallery upload limits, shared by the Super Admin Posts dashboard and the
+# owner-facing "My Listings" gallery manager.
+GALLERY_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
+GALLERY_IMAGE_MAX_BYTES = 8 * 1024 * 1024
+GALLERY_VIDEO_TYPES = {'video/mp4', 'video/webm', 'video/quicktime'}
+GALLERY_VIDEO_MAX_BYTES = 50 * 1024 * 1024
+
+
+def _validate_gallery_files(files, allowed_types, max_bytes, kind):
+    """Returns (valid_files, error_messages) for a list of uploaded gallery files."""
+    valid, errors = [], []
+    for f in files:
+        if f.content_type not in allowed_types:
+            errors.append(f'"{f.name}" is not a supported {kind} format.')
+        elif f.size > max_bytes:
+            errors.append(f'"{f.name}" is larger than {max_bytes // (1024 * 1024)}MB.')
+        else:
+            valid.append(f)
+    return valid, errors
+
+
+def _can_moderate_posts(profile):
+    """Admin/Super Admin global moderation rights (view/enable/disable/feature/delete any post)."""
+    return profile.is_super_admin or (profile.is_admin and not profile.is_suspended)
+
+
+def _can_manage_post(profile, obj):
+    """Whether this profile may edit/delete this specific listing and its gallery."""
+    return _can_moderate_posts(profile) or obj.owner_id == profile.user_id
 
 
 def _safe_next(request, fallback):
@@ -268,10 +301,11 @@ GENERAL_BUSINESS_CATEGORY_CHOICES = [
 ]
 
 
-# Category definitions used across the homepage, search, and (later) listing pages.
-# 'image' is used by the homepage Services cards — always a real, professional
-# photo (never an icon/emoji-style illustration). 'count_fn' computes each
-# card's live listing count from the same querysets the list pages use.
+# Category definitions for the search page's category picker/chips (search()
+# below) — matched against SEARCH_CATEGORY_REDIRECT by slug. The homepage
+# Services grid used to read this same list but is now DB-driven from the
+# Category model (see home() and Category.listing_count) so Super Admins can
+# manage it from the "Manage Categories" dashboard instead of editing code.
 CATEGORIES = [
     {
         'name': 'Real Estate', 'icon': 'bi-house-door', 'slug': 'real-estate',
@@ -322,7 +356,7 @@ CATEGORIES = [
         'count_fn': lambda: _public_qs(Business).filter(category='transport').count(),
     },
     {
-        'name': 'News', 'icon': 'bi-newspaper', 'slug': 'news',
+        'name': 'OneTownCity News', 'icon': 'bi-newspaper', 'slug': 'news',
         'image': 'images/services/news.jpg',
         'description': 'Catch up on local announcements, civic updates, and news from across the city.',
         'count_fn': lambda: _public_qs(News).count(),
@@ -334,16 +368,6 @@ CATEGORIES = [
         'count_fn': lambda: _public_qs(Project).count(),
     },
 ]
-
-
-def _categories_with_counts():
-    """CATEGORIES enriched with a live listing count per card, computed fresh per request."""
-    result = []
-    for cat in CATEGORIES:
-        enriched = {k: v for k, v in cat.items() if k != 'count_fn'}
-        enriched['count'] = cat['count_fn']()
-        result.append(enriched)
-    return result
 
 
 def home(request):
@@ -375,7 +399,7 @@ def home(request):
 
     context = {
         'page_title': 'OneTownCity — Visual Local Engine & Discovery Portal',
-        'categories': _categories_with_counts(),
+        'categories': Category.objects.filter(parent=None, is_active=True).prefetch_related('children').order_by('order', 'label'),
         'featured_businesses': featured_businesses,
         'featured_properties': featured_properties,
         'featured_jobs': featured_jobs,
@@ -589,6 +613,7 @@ def directory_list(request, category):
         'total_results': businesses.count(),
         'directory_label': config['label'],
         'directory_icon': config['icon'],
+        'directory_key': category,
         'subcategory_choices': subcategory_choices,
         'selected_subcategory': subcategory,
     }
@@ -752,7 +777,7 @@ def news_list(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'News - OneTownCity',
+        'page_title': 'OneTownCity News',
         'page_obj': page_obj,
         'query': query,
         'total_results': articles.count(),
@@ -822,20 +847,41 @@ def project_detail(request, slug):
     return render(request, 'project_detail.html', context)
 
 
-@staff_required
+LISTING_MODEL_KEYS_BY_CLASS = {model_cls: key for key, model_cls in LISTING_MODELS.items()}
+
+
+def _config_allowed(request, config):
+    """
+    Whether the current requester may use this Excel upload config. Django
+    staff and Super Admins can use every config; a regular Admin is scoped to
+    the listing models they hold an AdminCategoryPermission for — otherwise
+    an Admin permitted only for Jobs could bulk-import Businesses, bypassing
+    the category-permission system used everywhere else.
+    """
+    if request.user.is_staff:
+        return True
+    profile = request.profile
+    if profile.is_super_admin:
+        return True
+    listing_model_key = LISTING_MODEL_KEYS_BY_CLASS.get(config['model'])
+    return listing_model_key in profile.managed_listing_models()
+
+
+@excel_upload_allowed
 def upload_hub(request):
     """
-    Excel Upload Center — staff-only hub linking to the bulk-upload page
-    for each module (Businesses, Properties, Jobs, Events, News).
+    Excel Upload Center — linking to the bulk-upload page for each module
+    (Businesses, Properties, Jobs, Events, News...), scoped to what the
+    requester is allowed to touch (see _config_allowed).
     """
     context = {
         'page_title': 'Excel Upload Center - OneTownCity',
-        'configs': UPLOAD_CONFIGS.values(),
+        'configs': [c for c in UPLOAD_CONFIGS.values() if _config_allowed(request, c)],
     }
     return render(request, 'uploads/upload_hub.html', context)
 
 
-@staff_required
+@excel_upload_allowed
 def upload_view(request, model_key):
     """
     Handles Excel upload + validation + insert-or-update for a single
@@ -844,6 +890,9 @@ def upload_view(request, model_key):
     config = UPLOAD_CONFIGS.get(model_key)
     if config is None:
         raise Http404('Unknown upload type')
+    if not _config_allowed(request, config):
+        messages.error(request, 'You do not have permission to bulk-upload this listing type.')
+        return redirect('core:upload_hub')
 
     result = None
 
@@ -882,7 +931,7 @@ def upload_view(request, model_key):
     return render(request, 'uploads/upload_form.html', context)
 
 
-@staff_required
+@excel_upload_allowed
 def download_sample(request, model_key):
     """
     Streams a ready-to-fill .xlsx sample template for the given module.
@@ -890,6 +939,9 @@ def download_sample(request, model_key):
     config = UPLOAD_CONFIGS.get(model_key)
     if config is None:
         raise Http404('Unknown upload type')
+    if not _config_allowed(request, config):
+        messages.error(request, 'You do not have permission to bulk-upload this listing type.')
+        return redirect('core:upload_hub')
 
     workbook = build_sample_workbook(config)
 
@@ -1036,7 +1088,7 @@ def history(request):
         {'file': 'images/history/gallery-engineering-college.png', 'caption': 'Kuppam Engineering College'},
         {'file': 'images/history/gallery-university-entrance.png', 'caption': 'Dravidian University entrance, Kuppam'},
         {'file': 'images/history/gallery-railway-alt.png', 'caption': 'Kuppam Railway Station'},
-        {'file': 'images/history/ancient-temple.jpg', 'caption': 'Sri KuppamSubrahmanyaswamy Temple'},
+        {'file': 'images/history/ancient-temple.jpg', 'caption': 'Sri Subrahmanya Swamy Temple, Kuppam'},
         {'file': 'images/history/gallery-tomato.jpg', 'caption': 'Tomato cultivation, South India'},
         {'file': 'images/history/gallery-kanipakam-temple.jpg', 'caption': 'Kanipakam Temple gopuram, Chittoor district'},
         {'file': 'images/history/gallery-horsley-blue-mountains.jpg', 'caption': 'Blue mountains, Horsley Hills'},
@@ -1349,7 +1401,7 @@ def admin_request_new(request):
                 f'{profile.full_name or request.user.email} requested Content Provider access.',
                 url=reverse('core:dashboard_admin_request_detail', args=[admin_request.pk]),
             )
-            messages.success(request, 'Your request has been submitted for review.')
+            messages.success(request, 'Your request has been submitted for review.', extra_tags='celebrate-confetti')
             return redirect('core:admin_request_pending')
     else:
         initial = {'categories': resubmitting.categories.all()} if resubmitting else {}
@@ -1442,7 +1494,7 @@ def add_review(request, model_key, pk):
             content_type=ct, object_id=obj.pk, user=request.user,
             defaults={'rating': form.cleaned_data['rating'], 'body': form.cleaned_data['body']},
         )
-        messages.success(request, 'Thanks for your review!')
+        messages.success(request, 'Thanks for your review!', extra_tags='celebrate-burst')
     else:
         messages.error(request, 'Please choose a rating.')
     return redirect(obj.get_absolute_url())
@@ -1527,6 +1579,27 @@ def notifications_mark_all_read(request):
     return redirect(request.POST.get('next') or reverse('core:notifications_list'))
 
 
+@onboarding_required
+def notification_open(request, pk):
+    """
+    WhatsApp-style click-through: opening a notification from the bell tray
+    marks it read and deep-links straight to its target (the exact post,
+    dashboard workspace, etc.) in one step, instead of the notifications
+    page's separate "mark read" button + link.
+    """
+    notification = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+    return redirect(notification.url or reverse('core:notifications_list'))
+
+
+@onboarding_required
+def notifications_unread_count(request):
+    """Polled by notification-tray.js to keep the bell badge live without a full reload."""
+    return JsonResponse({'count': request.user.notifications.filter(is_read=False).count()})
+
+
 # ===========================================================================
 # Content Provider (Admin): "My Listings" + submission wizard
 # ===========================================================================
@@ -1574,13 +1647,20 @@ def listing_submit(request, category_key):
             obj = form.save(commit=False)
             obj.owner = request.user
             obj.listing_category = category
-            obj.status = ListingStatus.PENDING
-            obj.save()
-            _notify_super_admins(
-                f'New {category.label} listing submitted: "{obj}"',
-                url=reverse('core:dashboard_pending_listings'),
-            )
-            messages.success(request, 'Your listing was submitted and is pending approval.')
+            if profile.is_super_admin:
+                obj.status = ListingStatus.APPROVED
+                obj.reviewed_by = request.user
+                obj.reviewed_at = timezone.now()
+                obj.save()
+                messages.success(request, 'Your listing was published.', extra_tags='celebrate-confetti')
+            else:
+                obj.status = ListingStatus.PENDING
+                obj.save()
+                _notify_super_admins(
+                    f'New {category.label} listing submitted: "{obj}"',
+                    url=reverse('core:dashboard_pending_listings'),
+                )
+                messages.success(request, 'Your listing was submitted and is pending approval.', extra_tags='celebrate-confetti')
             return redirect('core:my_listings')
     else:
         initial = {}
@@ -1619,11 +1699,14 @@ def listing_edit(request, model_key, pk):
     else:
         form = form_cls(instance=obj)
 
+    ct = ContentType.objects.get_for_model(obj)
     context = {
         'page_title': f'Edit {obj} - OneTownCity',
         'form': form,
         'object': obj,
         'model_key': model_key,
+        'gallery_images': PostImage.objects.filter(content_type=ct, object_id=obj.pk),
+        'gallery_videos': PostVideo.objects.filter(content_type=ct, object_id=obj.pk),
         'active_nav': 'my_listings',
     }
     return render(request, 'dashboard/listing_submit.html', context)
@@ -1637,12 +1720,103 @@ def listing_delete(request, model_key, pk):
         raise Http404('Unknown listing type')
     profile = request.profile
     obj = get_object_or_404(model_cls, pk=pk)
-    if not profile.is_super_admin and obj.owner_id != request.user.id:
+    if not _can_manage_post(profile, obj):
         messages.error(request, 'You can only delete your own listings.')
         return redirect('core:my_listings')
     obj.delete()
     messages.success(request, 'Listing deleted.')
     return redirect(_safe_next(request, reverse('core:my_listings')))
+
+
+@onboarding_required
+@require_POST
+def my_listing_media_add(request, model_key, pk):
+    """Owner (or moderating Admin/Super Admin) adds photos/videos to their own gallery."""
+    model_cls = LISTING_MODELS.get(model_key)
+    if model_cls is None:
+        raise Http404('Unknown listing type')
+    obj = get_object_or_404(model_cls, pk=pk)
+    if not _can_manage_post(request.profile, obj):
+        messages.error(request, 'You can only manage the gallery of your own listings.')
+        return redirect('core:my_listings')
+
+    ct = ContentType.objects.get_for_model(obj)
+    images, image_errors = _validate_gallery_files(
+        request.FILES.getlist('images'), GALLERY_IMAGE_TYPES, GALLERY_IMAGE_MAX_BYTES, 'image'
+    )
+    videos, video_errors = _validate_gallery_files(
+        request.FILES.getlist('videos'), GALLERY_VIDEO_TYPES, GALLERY_VIDEO_MAX_BYTES, 'video'
+    )
+    for err in image_errors + video_errors:
+        messages.error(request, err)
+
+    added = 0
+    if images:
+        start_order = PostImage.objects.filter(content_type=ct, object_id=obj.pk).count()
+        for i, uploaded_file in enumerate(images):
+            PostImage.objects.create(
+                content_type=ct, object_id=obj.pk, image=uploaded_file,
+                order=start_order + i, uploaded_by=request.user,
+            )
+        added += len(images)
+    if videos:
+        start_order = PostVideo.objects.filter(content_type=ct, object_id=obj.pk).count()
+        for i, uploaded_file in enumerate(videos):
+            PostVideo.objects.create(
+                content_type=ct, object_id=obj.pk, video=uploaded_file,
+                order=start_order + i, uploaded_by=request.user,
+            )
+        added += len(videos)
+
+    if added:
+        messages.success(request, f'{added} gallery item(s) added.')
+    elif not (image_errors or video_errors):
+        messages.error(request, 'Choose at least one photo or video to upload.')
+    return redirect(_safe_next(request, reverse('core:listing_edit', args=[model_key, pk])))
+
+
+def _get_owned_media(media_cls, pk, profile):
+    """Looks up a PostImage/PostVideo and checks the requester may manage its parent listing."""
+    media = get_object_or_404(media_cls, pk=pk)
+    obj = media.content_object
+    if obj is None or not _can_manage_post(profile, obj):
+        return None, None
+    return media, obj
+
+
+@onboarding_required
+@require_POST
+def my_listing_media_delete(request, media_type, pk):
+    media_cls = {'image': PostImage, 'video': PostVideo}.get(media_type)
+    if media_cls is None:
+        raise Http404('Unknown media type')
+    media, obj = _get_owned_media(media_cls, pk, request.profile)
+    if media is None:
+        messages.error(request, 'You can only manage the gallery of your own listings.')
+        return redirect('core:my_listings')
+    model_key = media.content_type.model
+    media.delete()
+    messages.success(request, f'{media_type.title()} deleted.')
+    return redirect(_safe_next(request, reverse('core:listing_edit', args=[model_key, obj.pk])))
+
+
+@onboarding_required
+@require_POST
+def my_listing_media_set_cover(request, pk):
+    media, obj = _get_owned_media(PostImage, pk, request.profile)
+    if media is None:
+        messages.error(request, 'You can only manage the gallery of your own listings.')
+        return redirect('core:my_listings')
+    model_key = media.content_type.model
+
+    if obj.image:
+        obj.image.delete(save=False)
+    obj.image = None
+    obj.image_url = media.image.url
+    obj.save(update_fields=['image', 'image_url'])
+
+    messages.success(request, 'Cover photo updated.')
+    return redirect(_safe_next(request, reverse('core:listing_edit', args=[model_key, obj.pk])))
 
 
 # ===========================================================================
@@ -1656,9 +1830,74 @@ def dashboard(request):
     if profile.role == UserRole.SUPER_ADMIN:
         return _super_admin_dashboard(request)
     if profile.role == UserRole.ADMIN:
-        return redirect('core:my_listings')
-    messages.info(request, 'The dashboard is only available to Admins and the Super Admin.')
-    return redirect('core:home')
+        return _admin_dashboard(request)
+    return _user_dashboard(request)
+
+
+@onboarding_required
+def dashboard_profile(request):
+    """Standalone 'My Profile' page — the same edit-your-own-details form
+    every role's Overview used to embed inline, now split out so Overview
+    stays dedicated to at-a-glance metrics."""
+    profile = request.profile
+    if request.method == 'POST':
+        form = ProfileCompletionForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated!')
+            return redirect('core:dashboard_profile')
+    else:
+        form = ProfileCompletionForm(instance=profile)
+
+    context = {
+        'page_title': 'My Profile - OneTownCity',
+        'form': form,
+        'active_nav': 'profile',
+    }
+    return render(request, 'dashboard/profile.html', context)
+
+
+def _admin_dashboard(request):
+    """Content Provider ('Manager') workspace: their own listings' health at
+    a glance, plus which categories they're permitted to publish into. Reuses
+    exactly the data my_listings already computes per-owner — this is a
+    summary landing page in front of that full table, not a parallel source
+    of truth."""
+    own_items = []
+    for key, model_cls in LISTING_MODELS.items():
+        qs = model_cls.objects.filter(owner=request.user).select_related('listing_category')
+        for obj in qs:
+            own_items.append({'model_key': key, 'obj': obj})
+    own_items.sort(key=lambda item: item['obj'].created_at, reverse=True)
+
+    stats = {
+        'total': len(own_items),
+        'pending': sum(1 for i in own_items if i['obj'].status == ListingStatus.PENDING),
+        'approved': sum(1 for i in own_items if i['obj'].status == ListingStatus.APPROVED),
+        'rejected': sum(1 for i in own_items if i['obj'].status == ListingStatus.REJECTED),
+        'total_views': sum(i['obj'].view_count for i in own_items),
+        'total_likes': sum(i['obj'].like_count for i in own_items),
+    }
+
+    context = {
+        'page_title': 'Manager Workspace - OneTownCity',
+        'stats': stats,
+        'recent_items': own_items[:6],
+        'permitted_categories': Category.objects.filter(is_active=True, admin_permissions__admin=request.user),
+        'active_nav': 'overview',
+    }
+    return render(request, 'dashboard/admin_dashboard.html', context)
+
+
+def _user_dashboard(request):
+    """Explorer's personal workspace: active status at a glance (favorites,
+    notifications)."""
+    context = {
+        'page_title': 'My Workspace - OneTownCity',
+        'favorites_count': Favorite.objects.filter(user=request.user).count(),
+        'active_nav': 'overview',
+    }
+    return render(request, 'dashboard/user_dashboard.html', context)
 
 
 def _super_admin_dashboard(request):
@@ -1705,8 +1944,8 @@ def _super_admin_dashboard(request):
     return render(request, 'dashboard/super_admin_dashboard.html', context)
 
 
-@super_admin_required
-def dashboard_users(request):
+def _filtered_profiles(request):
+    """Shared query-param filtering for the Users dashboard and its Excel/PDF exports."""
     query = request.GET.get('q', '').strip()
     profiles = Profile.objects.select_related('user').order_by('-created_at')
     if query:
@@ -1716,6 +1955,12 @@ def dashboard_users(request):
     role_filter = request.GET.get('role', '').strip()
     if role_filter:
         profiles = profiles.filter(role=role_filter)
+    return profiles, query, role_filter
+
+
+@super_admin_required
+def dashboard_users(request):
+    profiles, query, role_filter = _filtered_profiles(request)
 
     context = {
         'page_title': 'Manage Users - OneTownCity',
@@ -1746,6 +1991,57 @@ def dashboard_user_toggle_suspend(request, user_id):
     profile.save(update_fields=['is_suspended'])
     messages.success(request, f'{profile.user.email} is now {"suspended" if profile.is_suspended else "unsuspended"}.')
     return redirect('core:dashboard_users')
+
+
+@super_admin_required
+@require_POST
+def dashboard_users_bulk_delete(request):
+    """
+    Bulk-deletes selected user accounts. Super Admin accounts (including the
+    acting user's own) are always excluded from the selection as a safety
+    guard — deleting the account you're using, or another Super Admin,
+    should never be a one-click bulk action. Their listings survive with
+    owner=None (ListingMixin.owner is on_delete=SET_NULL), matching the
+    existing single-user-removal behavior elsewhere.
+    """
+    raw_ids = request.POST.getlist('items')
+    requested_ids = {int(pk) for pk in raw_ids if pk.isdigit()}
+
+    deletable_ids = set(
+        Profile.objects.filter(user_id__in=requested_ids)
+        .exclude(role=UserRole.SUPER_ADMIN)
+        .exclude(user_id=request.user.id)
+        .values_list('user_id', flat=True)
+    )
+    skipped = len(requested_ids) - len(deletable_ids)
+
+    if deletable_ids:
+        User.objects.filter(id__in=deletable_ids).delete()
+        messages.success(request, f'{len(deletable_ids)} user(s) deleted.')
+    if skipped:
+        messages.warning(request, f'{skipped} user(s) were skipped (Super Admin accounts and your own account can\'t be bulk-deleted).')
+    if not deletable_ids and not skipped:
+        messages.error(request, 'No users selected.')
+    return redirect(_safe_next(request, reverse('core:dashboard_users')))
+
+
+@super_admin_required
+def dashboard_users_export_excel(request):
+    profiles, _, _ = _filtered_profiles(request)
+    workbook = build_users_workbook(profiles)
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="onetowncity_users.xlsx"'
+    response.write(workbook.getvalue())
+    return response
+
+
+@super_admin_required
+def dashboard_users_export_pdf(request):
+    profiles, _, _ = _filtered_profiles(request)
+    pdf = build_users_pdf(profiles)
+    response = HttpResponse(pdf.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="onetowncity_users.pdf"'
+    return response
 
 
 @super_admin_required
@@ -1868,16 +2164,88 @@ def dashboard_admin_request_detail(request, pk):
 @super_admin_required
 def dashboard_categories(request):
     if request.method == 'POST':
-        category = get_object_or_404(Category, pk=request.POST.get('category_id'))
-        category.is_active = not category.is_active
-        category.save(update_fields=['is_active'])
-        messages.success(request, f'{category.label} is now {"active" if category.is_active else "inactive"}.')
+        action = request.POST.get('action', 'toggle')
+
+        if action == 'toggle':
+            category = get_object_or_404(Category, pk=request.POST.get('category_id'))
+            category.is_active = not category.is_active
+            category.save(update_fields=['is_active'])
+            messages.success(request, f'{category.label} is now {"active" if category.is_active else "inactive"}.')
+
+        elif action == 'create':
+            parent_id = request.POST.get('parent') or None
+            parent = get_object_or_404(Category, pk=parent_id) if parent_id else None
+            form = CategoryForm(request.POST, parent=parent)
+            if form.is_valid():
+                category = form.save(commit=False)
+                if not category.key:
+                    category.key = unique_slug_for(Category, category.label, field_name='key', max_length=50)
+                category.save()
+                messages.success(request, f'"{category.label}" was added.')
+            else:
+                messages.error(request, 'Could not add category: ' + ' '.join(
+                    f'{f}: {", ".join(e)}' for f, e in form.errors.items()
+                ))
+
+        elif action == 'edit':
+            category = get_object_or_404(Category, pk=request.POST.get('category_id'))
+            form = CategoryForm(request.POST, instance=category, parent=category.parent)
+            if form.is_valid():
+                form.save()
+                messages.success(request, f'"{category.label}" was updated.')
+            else:
+                messages.error(request, 'Could not update category: ' + ' '.join(
+                    f'{f}: {", ".join(e)}' for f, e in form.errors.items()
+                ))
+
+        elif action == 'delete':
+            category = get_object_or_404(Category, pk=request.POST.get('category_id'))
+            label = category.label
+            try:
+                category.delete()
+                messages.success(request, f'"{label}" was deleted.')
+            except ProtectedError:
+                messages.error(
+                    request,
+                    f'"{label}" is used by existing listings and can\'t be deleted — deactivate it instead.'
+                )
+
         return redirect('core:dashboard_categories')
 
+    top_categories = Category.objects.filter(parent=None).prefetch_related('children').order_by('order', 'label')
     return render(request, 'dashboard/categories.html', {
         'page_title': 'Manage Categories - OneTownCity',
-        'categories': Category.objects.all(),
+        'top_categories': top_categories,
+        'listing_model_choices': Category.LISTING_MODEL_CHOICES,
         'active_nav': 'categories',
+    })
+
+
+@super_admin_required
+def dashboard_site_settings(request):
+    """
+    Super Admin's site-wide theme override — the one control from the
+    original brief that touches every visitor's page, not just the admin's
+    own session (see SiteSettings.load() and the site_theme context
+    processor that feeds base.html's anti-flash script + palette-switcher.js).
+    """
+    settings_obj = SiteSettings.load()
+    if request.method == 'POST':
+        form = SiteSettingsForm(request.POST, instance=settings_obj)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.updated_by = request.user
+            obj.save()
+            messages.success(request, 'Site theme updated for all visitors.')
+            return redirect('core:dashboard_site_settings')
+    else:
+        form = SiteSettingsForm(instance=settings_obj)
+
+    return render(request, 'dashboard/site_settings.html', {
+        'page_title': 'Site Theme - OneTownCity',
+        'form': form,
+        'settings_obj': settings_obj,
+        'active_nav': 'site_theme',
     })
 
 
@@ -1972,7 +2340,57 @@ POST_SORT_KEYS = {
 
 
 @super_admin_required
-def dashboard_posts(request):
+def dashboard_post_create_picker(request):
+    """Category picker for the Super Admin's 'draft a single post' shortcut."""
+    return render(request, 'dashboard/post_create_picker.html', {
+        'page_title': 'New Post - OneTownCity',
+        'categories': Category.objects.filter(is_active=True),
+        'active_nav': 'posts',
+    })
+
+
+@super_admin_required
+def dashboard_post_create(request, category_key):
+    """
+    Lets the Super Admin draft and publish a single standalone post directly
+    (no approval queue — they authored it themselves), reusing the same
+    per-model forms as the owner-facing listing_submit wizard.
+    """
+    category = get_object_or_404(Category, key=category_key, is_active=True)
+    form_cls = LISTING_SUBMIT_FORMS[category.listing_model]
+
+    if request.method == 'POST':
+        form = form_cls(request.POST, request.FILES)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.owner = request.user
+            obj.listing_category = category
+            obj.status = ListingStatus.APPROVED
+            obj.reviewed_by = request.user
+            obj.reviewed_at = timezone.now()
+            obj.save()
+            messages.success(request, f'"{obj}" was published.')
+            return redirect('core:dashboard_posts')
+    else:
+        initial = {}
+        if category.listing_model == 'business' and category.business_subcategory:
+            initial['category'] = category.business_subcategory
+        form = form_cls(initial=initial)
+
+    return render(request, 'dashboard/post_create.html', {
+        'page_title': f'New {category.label} - OneTownCity',
+        'form': form,
+        'category': category,
+        'active_nav': 'posts',
+    })
+
+
+def _filtered_post_items(request):
+    """
+    Shared query-param filtering/sorting for the Posts dashboard, reused by
+    dashboard_posts (paginated HTML table) and the Excel/PDF export views so
+    an export always matches whatever the Super Admin is currently viewing.
+    """
     q = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '').strip()
     model_filter = request.GET.get('model', '').strip()
@@ -2001,6 +2419,12 @@ def dashboard_posts(request):
 
     sort_key, sort_reverse = POST_SORT_KEYS.get(sort, POST_SORT_KEYS['newest'])
     items.sort(key=sort_key, reverse=sort_reverse)
+    return items, q, category_id, model_filter, owner_id, status_filter, sort
+
+
+@admin_or_super_required
+def dashboard_posts(request):
+    items, q, category_id, model_filter, owner_id, status_filter, sort = _filtered_post_items(request)
 
     owners = sorted(
         {item['obj'].owner for item in items if item['obj'].owner_id},
@@ -2036,7 +2460,7 @@ def dashboard_posts(request):
     return render(request, 'dashboard/posts.html', context)
 
 
-@super_admin_required
+@admin_or_super_required
 def dashboard_post_detail(request, model_key, pk):
     model_cls = LISTING_MODELS.get(model_key)
     if model_cls is None:
@@ -2044,19 +2468,21 @@ def dashboard_post_detail(request, model_key, pk):
     obj = get_object_or_404(model_cls.objects.select_related('owner', 'listing_category', 'reviewed_by'), pk=pk)
     ct = ContentType.objects.get_for_model(obj)
     gallery_images = PostImage.objects.filter(content_type=ct, object_id=obj.pk).select_related('uploaded_by')
+    gallery_videos = PostVideo.objects.filter(content_type=ct, object_id=obj.pk).select_related('uploaded_by')
 
     context = {
         'page_title': f'{obj} - OneTownCity',
         'obj': obj,
         'model_key': model_key,
         'gallery_images': gallery_images,
+        'gallery_videos': gallery_videos,
         'active_nav': 'posts',
         **_community_context(request, obj),
     }
     return render(request, 'dashboard/post_detail.html', context)
 
 
-@super_admin_required
+@admin_or_super_required
 @require_POST
 def dashboard_post_toggle_active(request, model_key, pk):
     model_cls = LISTING_MODELS.get(model_key)
@@ -2069,7 +2495,7 @@ def dashboard_post_toggle_active(request, model_key, pk):
     return redirect(_safe_next(request, reverse('core:dashboard_posts')))
 
 
-@super_admin_required
+@admin_or_super_required
 @require_POST
 def dashboard_post_toggle_featured(request, model_key, pk):
     model_cls = LISTING_MODELS.get(model_key)
@@ -2082,7 +2508,7 @@ def dashboard_post_toggle_featured(request, model_key, pk):
     return redirect(_safe_next(request, reverse('core:dashboard_posts')))
 
 
-@super_admin_required
+@admin_or_super_required
 @require_POST
 def dashboard_post_add_images(request, model_key, pk):
     model_cls = LISTING_MODELS.get(model_key)
@@ -2090,21 +2516,42 @@ def dashboard_post_add_images(request, model_key, pk):
         raise Http404('Unknown listing type')
     obj = get_object_or_404(model_cls, pk=pk)
     ct = ContentType.objects.get_for_model(obj)
-    files = request.FILES.getlist('images')
-    if not files:
-        messages.error(request, 'Choose at least one image to upload.')
-    else:
+
+    images, image_errors = _validate_gallery_files(
+        request.FILES.getlist('images'), GALLERY_IMAGE_TYPES, GALLERY_IMAGE_MAX_BYTES, 'image'
+    )
+    videos, video_errors = _validate_gallery_files(
+        request.FILES.getlist('videos'), GALLERY_VIDEO_TYPES, GALLERY_VIDEO_MAX_BYTES, 'video'
+    )
+    for err in image_errors + video_errors:
+        messages.error(request, err)
+
+    added = 0
+    if images:
         start_order = PostImage.objects.filter(content_type=ct, object_id=obj.pk).count()
-        for i, uploaded_file in enumerate(files):
+        for i, uploaded_file in enumerate(images):
             PostImage.objects.create(
                 content_type=ct, object_id=obj.pk, image=uploaded_file,
                 order=start_order + i, uploaded_by=request.user,
             )
-        messages.success(request, f'{len(files)} image(s) added.')
+        added += len(images)
+    if videos:
+        start_order = PostVideo.objects.filter(content_type=ct, object_id=obj.pk).count()
+        for i, uploaded_file in enumerate(videos):
+            PostVideo.objects.create(
+                content_type=ct, object_id=obj.pk, video=uploaded_file,
+                order=start_order + i, uploaded_by=request.user,
+            )
+        added += len(videos)
+
+    if added:
+        messages.success(request, f'{added} gallery item(s) added.')
+    elif not (image_errors or video_errors):
+        messages.error(request, 'Choose at least one photo or video to upload.')
     return redirect('core:dashboard_post_detail', model_key=model_key, pk=pk)
 
 
-@super_admin_required
+@admin_or_super_required
 @require_POST
 def dashboard_post_delete_image(request, image_pk):
     image = get_object_or_404(PostImage, pk=image_pk)
@@ -2117,7 +2564,20 @@ def dashboard_post_delete_image(request, image_pk):
     return redirect('core:dashboard_post_detail', model_key=model_key, pk=obj.pk)
 
 
-@super_admin_required
+@admin_or_super_required
+@require_POST
+def dashboard_post_delete_video(request, video_pk):
+    video = get_object_or_404(PostVideo, pk=video_pk)
+    obj = video.content_object
+    model_key = video.content_type.model
+    video.delete()
+    messages.success(request, 'Video deleted.')
+    if obj is None:
+        return redirect('core:dashboard_posts')
+    return redirect('core:dashboard_post_detail', model_key=model_key, pk=obj.pk)
+
+
+@admin_or_super_required
 @require_POST
 def dashboard_post_set_cover_image(request, image_pk):
     image = get_object_or_404(PostImage, pk=image_pk)
@@ -2142,7 +2602,7 @@ BULK_ACTION_LABELS = {
 }
 
 
-@super_admin_required
+@admin_or_super_required
 @require_POST
 def dashboard_posts_bulk_action(request):
     action = request.POST.get('bulk_action')
@@ -2151,6 +2611,14 @@ def dashboard_posts_bulk_action(request):
 
     if action not in BULK_ACTION_LABELS:
         messages.error(request, 'Unknown bulk action.')
+        return redirect(_safe_next(request, reverse('core:dashboard_posts')))
+
+    # Approval is tied to the category-permission-gated submission workflow
+    # (see dashboard_pending_listings / dashboard_listing_review, both still
+    # Super-Admin-only) — Admins get moderation powers here (delete/enable/
+    # feature) but not approval authority over listings outside their own.
+    if action in ('approve', 'reject') and not request.profile.is_super_admin:
+        messages.error(request, 'Only Super Admin can approve or reject listings.')
         return redirect(_safe_next(request, reverse('core:dashboard_posts')))
 
     count = 0
@@ -2183,3 +2651,22 @@ def dashboard_posts_bulk_action(request):
 
     messages.success(request, f'{count} post(s) {BULK_ACTION_LABELS[action]}.')
     return redirect(_safe_next(request, reverse('core:dashboard_posts')))
+
+
+@admin_or_super_required
+def dashboard_posts_export_excel(request):
+    items, *_ = _filtered_post_items(request)
+    workbook = build_posts_workbook(items)
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="onetowncity_posts.xlsx"'
+    response.write(workbook.getvalue())
+    return response
+
+
+@admin_or_super_required
+def dashboard_posts_export_pdf(request):
+    items, *_ = _filtered_post_items(request)
+    pdf = build_posts_pdf(items)
+    response = HttpResponse(pdf.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="onetowncity_posts.pdf"'
+    return response

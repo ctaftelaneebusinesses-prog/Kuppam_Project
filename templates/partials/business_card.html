@@ -1,11 +1,11 @@
 {% comment %}
 Reusable business card. Include with: {% include 'partials/business_card.html' with business=<business_instance> %}
 {% endcomment %}
-{% load hk_extras %}
+{% load i18n hk_extras %}
 <div class="card h-100 hk-card">
     {% if business.is_featured %}
     <span class="hk-badge-featured">
-        <i class="bi bi-star-fill"></i> Featured
+        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
     </span>
     {% endif %}
     {% if business.has_image %}
@@ -21,7 +21,7 @@ Reusable business card. Include with: {% include 'partials/business_card.html' w
         <div class="hk-card-meta-row">
             <span class="hk-rating">
                 <i class="bi bi-star-fill"></i>
-                {% if business.review_count %}{{ business.avg_rating }} ({{ business.review_count }}){% else %}New{% endif %}
+                {% if business.review_count %}{{ business.avg_rating }} ({{ business.review_count }}){% else %}{% trans "New" %}{% endif %}
             </span>
             <span><i class="bi bi-eye"></i> {{ business.view_count }}</span>
         </div>
@@ -32,19 +32,19 @@ Reusable business card. Include with: {% include 'partials/business_card.html' w
             <i class="bi bi-telephone text-primary"></i> {{ business.phone_number }}
         </p>
         <a href="{% url 'core:business_detail' business.slug %}" class="btn btn-outline-primary mt-auto">
-            View Details <i class="bi bi-arrow-right"></i>
+            {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
         </a>
         <div class="hk-card-actions">
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'core:toggle_favorite' 'business' business.pk %}">
                 {% csrf_token %}
-                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="Save to favorites"><i class="bi bi-heart"></i></button>
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
             </form>
             {% else %}
-            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="Sign in to save"><i class="bi bi-heart"></i></a>
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
             {% endif %}
-            <a href="{% if business.maps_link %}{{ business.maps_link }}{% else %}{{ business.address|maps_search_url }}{% endif %}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="Open in Google Maps"><i class="bi bi-geo"></i></a>
-            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:business_detail' business.slug %}" data-title="{{ business.name }}" title="Share"><i class="bi bi-share"></i></button>
+            <a href="{% if business.maps_link %}{{ business.maps_link }}{% else %}{{ business.address|maps_search_url }}{% endif %}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="{% trans 'Open in Google Maps' %}"><i class="bi bi-geo"></i></a>
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:business_detail' business.slug %}" data-title="{{ business.name }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
         </div>
     </div>
 </div>

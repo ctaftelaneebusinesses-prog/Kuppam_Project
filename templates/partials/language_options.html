@@ -1,0 +1,28 @@
+{% load i18n %}
+<!-- Shared language option buttons — included by both the desktop floating
+     panel and the mobile drawer's inline row (base.html). Each button is a
+     native submit button carrying its own name="language" value, posting to
+     Django's built-in set_language view — switching language is a real page
+     reload (server-rendered, not a client-side flip), so every string on
+     the page — including translated listing content — updates at once. -->
+{% get_current_language as HK_CURRENT_LANG %}
+<form method="post" action="{% url 'set_language' %}" class="hk-lang-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button type="submit" name="language" value="en" class="hk-palette-option {% if HK_CURRENT_LANG == 'en' %}is-active{% endif %}" role="menuitemradio" aria-pressed="{% if HK_CURRENT_LANG == 'en' %}true{% else %}false{% endif %}">
+        <span class="hk-palette-option-text"><span class="hk-palette-option-name">English</span></span>
+        <i class="bi bi-check-circle-fill hk-palette-option-check"></i>
+    </button>
+    <button type="submit" name="language" value="te" class="hk-palette-option {% if HK_CURRENT_LANG == 'te' %}is-active{% endif %}" role="menuitemradio" aria-pressed="{% if HK_CURRENT_LANG == 'te' %}true{% else %}false{% endif %}">
+        <span class="hk-palette-option-text"><span class="hk-palette-option-name">తెలుగు</span></span>
+        <i class="bi bi-check-circle-fill hk-palette-option-check"></i>
+    </button>
+    <button type="submit" name="language" value="hi" class="hk-palette-option {% if HK_CURRENT_LANG == 'hi' %}is-active{% endif %}" role="menuitemradio" aria-pressed="{% if HK_CURRENT_LANG == 'hi' %}true{% else %}false{% endif %}">
+        <span class="hk-palette-option-text"><span class="hk-palette-option-name">हिन्दी</span></span>
+        <i class="bi bi-check-circle-fill hk-palette-option-check"></i>
+    </button>
+    <button type="submit" name="language" value="ta" class="hk-palette-option {% if HK_CURRENT_LANG == 'ta' %}is-active{% endif %}" role="menuitemradio" aria-pressed="{% if HK_CURRENT_LANG == 'ta' %}true{% else %}false{% endif %}">
+        <span class="hk-palette-option-text"><span class="hk-palette-option-name">தமிழ்</span></span>
+        <i class="bi bi-check-circle-fill hk-palette-option-check"></i>
+    </button>
+</form>

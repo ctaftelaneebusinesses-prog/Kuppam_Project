@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 
 from .models import (
-    Business, Category, Event, Job, News, Profile, Project, Property,
+    Business, Category, Event, Job, News, Profile, Project, Property, SiteSettings,
 )
 
 User = get_user_model()
@@ -326,3 +326,59 @@ class ReportForm(forms.Form):
         required=False,
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Additional details (optional)'}),
     )
+
+
+# ---------------------------------------------------------------------------
+# Super Admin: cascading category / subcategory tree
+# ---------------------------------------------------------------------------
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = [
+            'label', 'parent', 'listing_model', 'business_subcategory', 'icon',
+            'image', 'description', 'order', 'is_active',
+        ]
+        widgets = {
+            'label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Restaurants'}),
+            'parent': forms.HiddenInput,
+            'listing_model': forms.Select(attrs={'class': 'form-select'}),
+            'business_subcategory': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': "Matching Business category value (optional, e.g. 'restaurant')",
+            }),
+            'icon': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'bi-tag (Bootstrap Icons class)'}),
+            'image': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': "images/services/example.jpg (top-level homepage cards only)",
+            }),
+            'description': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Short blurb for the homepage card (top-level categories only)',
+            }),
+            'order': forms.NumberInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def __init__(self, *args, parent=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Subcategories inherit their parent's listing_model, so hide it/mark optional
+        # for them; top-level categories must choose one explicitly.
+        is_child = parent is not None or (self.instance and self.instance.parent_id)
+        self.fields['listing_model'].required = not is_child
+        if is_child:
+            self.fields['listing_model'].widget = forms.HiddenInput()
+
+
+# ---------------------------------------------------------------------------
+# Super Admin: site-wide theme override
+# ---------------------------------------------------------------------------
+
+class SiteSettingsForm(forms.ModelForm):
+    class Meta:
+        model = SiteSettings
+        fields = ['default_palette', 'enforce_palette']
+        widgets = {
+            'default_palette': forms.RadioSelect,
+            'enforce_palette': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

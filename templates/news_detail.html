@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -7,8 +8,8 @@
 
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'core:news_list' %}">News</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:news_list' %}">{% trans "OneTownCity News" %}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ article.title }}</li>
         </ol>
     </nav>
@@ -26,14 +27,14 @@
             </p>
             {% if article.is_featured %}
             <span class="badge bg-warning text-dark mb-2">
-                <i class="bi bi-star-fill"></i> Featured
+                <i class="bi bi-star-fill"></i> {% trans "Featured" %}
             </span>
             {% endif %}
             <h1 class="fw-bold mb-4">{{ article.title }}</h1>
-            <div class="hk-description-box mb-4">{{ article.content|linebreaksbr }}</div>
+            <div class="hk-description-box mb-4">{{ article|translate_field:"content"|linebreaksbr }}</div>
 
             <a href="{% url 'core:news_list' %}" class="btn btn-outline-secondary btn-lg">
-                <i class="bi bi-arrow-left"></i> Back to News
+                <i class="bi bi-arrow-left"></i> {% trans "Back to OneTownCity News" %}
             </a>
 
             {% include 'partials/community_widget.html' with obj=article %}
@@ -41,7 +42,7 @@
 
         <div class="col-lg-4">
             {% if related_articles %}
-            <h6 class="hk-related-heading mb-3">More News</h6>
+            <h6 class="hk-related-heading mb-3">More OneTownCity News</h6>
             {% for related in related_articles %}
             <div class="mb-3">
                 {% include 'partials/news_card.html' with article=related %}

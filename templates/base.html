@@ -1,18 +1,37 @@
-{% load static %}
+{% load static i18n hk_extras %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <!-- Anti-flash: applies the saved theme before first paint, so the page
          never flickers light-then-dark (or vice versa) on load. -->
     <script>
         (function () {
+            // Server-rendered site-wide default (Super Admin's Site Theme panel,
+            // see core/context_processors.py:site_theme) — a visitor's own
+            // localStorage choice still wins unless enforce_palette is on, and
+            // the Super Admin's own personal switcher is never locked out of
+            // their own session even when they've enforced it for everyone else.
+            var sitePalette = '{{ site_default_palette|default:"default" }}';
+            var enforce = {{ site_enforce_palette|yesno:"true,false" }};
+            var isSuperAdmin = {% if user.is_authenticated and user.profile.is_super_admin %}true{% else %}false{% endif %};
+            window.HK_SITE_DEFAULT_PALETTE = sitePalette;
+            window.HK_SITE_ENFORCE_PALETTE = enforce && !isSuperAdmin;
+
+            var theme = null;
+            var localPalette = null;
             try {
-                var t = localStorage.getItem('hkTheme');
-                if (t === 'dark' || t === 'light') {
-                    document.documentElement.setAttribute('data-theme', t);
-                }
+                theme = localStorage.getItem('hkTheme');
+                localPalette = localStorage.getItem('hkPalette');
             } catch (e) {}
+
+            if (theme === 'dark' || theme === 'light') {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+            var effectivePalette = (window.HK_SITE_ENFORCE_PALETTE || !localPalette) ? sitePalette : localPalette;
+            if (effectivePalette && effectivePalette !== 'default') {
+                document.documentElement.setAttribute('data-palette', effectivePalette);
+            }
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,7 +55,7 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}" {% block body_attrs %}{% endblock %}>
 
     <!-- Navbar: floating glass island, fixed + inset from the viewport edges
          (see .navbar rules in main.css). Uses container-fluid, not .container
@@ -49,73 +68,105 @@
             </a>
 
             <!-- Desktop nav (lg and up) -->
-            <ul class="navbar-nav d-none d-lg-flex flex-row gap-1 mx-auto">
+            <ul class="navbar-nav d-none d-lg-flex flex-row gap-2 mx-auto">
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">Home</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">{% trans "Home" %}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'core:history' %}">History</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'core:history' %}">{% trans "History" %}</a>
+                </li>
+                {% include 'partials/nav_categories.html' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}">{% trans "About Us" %}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:home' %}#categories">Services</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}">About Us</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}">Contact</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}">{% trans "Contact" %}</a>
                 </li>
             </ul>
 
             <div class="d-flex align-items-center gap-2">
-                <button type="button" class="hk-theme-toggle d-none d-lg-inline-flex" id="hkThemeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                <button type="button" class="hk-theme-toggle d-none d-lg-inline-flex" id="hkThemeToggle" title="{% trans 'Toggle dark mode' %}" aria-label="{% trans 'Toggle dark mode' %}">
                     <i class="bi bi-moon-stars" id="hkThemeIcon"></i>
                 </button>
 
+                <!-- Luxury palette switcher: floating panel of the 4 seasonal
+                     looks (see palette-switcher.js). Hidden on mobile — the
+                     drawer below carries an inline row version instead. -->
+                <div class="hk-palette-switcher d-none d-lg-block" data-palette-switcher>
+                    <button type="button" class="hk-theme-toggle" data-palette-trigger title="{% trans 'Switch theme palette' %}" aria-label="{% trans 'Switch theme palette' %}" aria-haspopup="true" aria-expanded="false">
+                        <span class="hk-palette-swatch-dot"></span>
+                    </button>
+                    <div class="hk-palette-panel" role="menu">
+                        <div class="hk-palette-panel-label">{% trans "Theme Palette" %}</div>
+                        {% include 'partials/palette_options.html' %}
+                    </div>
+                </div>
+
+                <!-- Language switcher: posts to Django's built-in set_language
+                     view (see language_options.html) — a full page reload in
+                     the chosen language, so every string on the page (static
+                     copy and translated listing content alike) updates. -->
+                <div class="hk-palette-switcher d-none d-lg-block" data-palette-switcher>
+                    <button type="button" class="hk-theme-toggle" data-palette-trigger title="{% trans 'Change language' %}" aria-label="{% trans 'Change language' %}" aria-haspopup="true" aria-expanded="false">
+                        <i class="bi bi-translate"></i>
+                    </button>
+                    <div class="hk-palette-panel" role="menu">
+                        <div class="hk-palette-panel-label">{% trans "Language" %}</div>
+                        {% include 'partials/language_options.html' %}
+                    </div>
+                </div>
+
                 {% if user.is_authenticated %}
-                    {% if user.profile.role == 'super_admin' or user.profile.role == 'admin' %}
-                    <a class="hk-theme-toggle d-none d-lg-inline-flex" href="{% url 'core:dashboard' %}" title="Dashboard">
-                        <i class="bi bi-speedometer2"></i>
-                    </a>
-                    {% endif %}
                     <!-- data-bs-toggle="dropdown" alone drives Bootstrap's dropdown JS;
                          intentionally NOT using the .dropdown-toggle class, since that's
                          what was drawing the default browser-style caret next to the avatar. -->
                     <div class="dropdown d-none d-lg-block hk-navbar-profile">
-                        <a class="hk-navbar-avatar-btn" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="hk-navbar-avatar-btn position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {% if user.profile.profile_photo or user.profile.profile_photo_url %}
                                 <img src="{{ user.profile.display_photo }}" alt="">
                             {% else %}
                                 <span class="hk-navbar-avatar-initial">{{ user.profile.full_name|default:user.username|slice:":1"|upper }}</span>
                             {% endif %}
+                            {% if unread_notification_count %}<span class="hk-notif-badge">{{ unread_notification_count }}</span>{% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end hk-navbar-profile-menu">
                             <li class="hk-navbar-profile-label">{{ user.profile.full_name|default:user.username }}</li>
-                            <li><a class="dropdown-item" href="{% url 'core:my_favorites' %}"><i class="bi bi-heart"></i> My Favorites</a></li>
+                            <li><a class="dropdown-item" href="{% url 'core:dashboard' %}"><i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}</a></li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center justify-content-between" href="{% url 'core:notifications_list' %}">
+                                    <span><i class="bi bi-bell"></i> {% trans "Notifications" %}</span>
+                                    {% if unread_notification_count %}<span class="hk-dropdown-badge">{{ unread_notification_count }}</span>{% endif %}
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'core:my_favorites' %}"><i class="bi bi-heart"></i> {% trans "My Favorites" %}</a></li>
                             {% if user.profile.role == 'admin' or user.profile.role == 'super_admin' %}
-                            <li><a class="dropdown-item" href="{% url 'core:my_listings' %}"><i class="bi bi-card-list"></i> My Listings</a></li>
+                            <li><a class="dropdown-item" href="{% url 'core:my_listings' %}"><i class="bi bi-card-list"></i> {% trans "My Listings" %}</a></li>
                             {% endif %}
+                            <li><a class="dropdown-item" href="{% url 'core:dashboard_profile' %}"><i class="bi bi-gear"></i> {% trans "Account Settings" %}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item" href="{% url 'core:admin_logout' %}">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                    <i class="bi bi-box-arrow-right"></i> {% trans "Sign Out" %}
                                 </a>
                             </li>
                         </ul>
                     </div>
                 {% else %}
                     <a class="btn btn-primary btn-sm d-none d-lg-inline-flex align-items-center gap-2 px-3 text-white" href="{% url 'core:google_login' %}">
-                        <i class="bi bi-google"></i> Sign In
+                        <i class="bi bi-google"></i> {% trans "Sign In" %}
                     </a>
                 {% endif %}
 
-                <a href="{% url 'core:about' %}" class="hk-navbar-powered d-none d-lg-flex align-items-center text-decoration-none" title="Powered by CraftLanee">
-                    <span class="hk-navbar-powered-text">Powered by</span>
-                    <img src="{% static 'images/craftlanee-logo-navbar-dark.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-dark">
-                    <img src="{% static 'images/craftlanee-logo-navbar-new.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-light">
+                <a href="{% url 'core:about' %}" class="hk-navbar-powered d-none d-lg-flex align-items-center text-decoration-none" title="{% trans 'Powered by CraftLanee' %}">
+                    <span class="hk-navbar-powered-text">{% trans "Powered by" %}</span>
+                    <span class="hk-navbar-craftlanee-logo-wrap">
+                        <img src="{% static 'images/craftlanee-logo-mark.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-dark">
+                        <img src="{% static 'images/craftlanee-logo-mark-white.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-light">
+                    </span>
                 </a>
 
-                <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#hkNavDrawer" aria-controls="hkNavDrawer" aria-label="Open menu">
+                <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#hkNavDrawer" aria-controls="hkNavDrawer" aria-label="{% trans 'Open menu' %}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
             </div>
@@ -133,33 +184,38 @@
         <div class="offcanvas-body">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}"><i class="bi bi-house"></i> Home</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}"><i class="bi bi-house"></i> {% trans "Home" %}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'core:history' %}"><i class="bi bi-clock-history"></i> History</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'core:history' %}"><i class="bi bi-clock-history"></i> {% trans "History" %}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:home' %}#categories"><i class="bi bi-grid"></i> Services</a>
+                    <a class="nav-link" href="{% url 'core:home' %}#categories"><i class="bi bi-grid"></i> {% trans "Services" %}</a>
+                </li>
+                {% include 'partials/nav_categories.html' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}"><i class="bi bi-info-circle"></i> {% trans "About Us" %}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}"><i class="bi bi-info-circle"></i> About Us</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}"><i class="bi bi-envelope"></i> Contact</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}"><i class="bi bi-envelope"></i> {% trans "Contact" %}</a>
                 </li>
 
                 {% if user.is_authenticated %}
-                    {% if user.profile.role == 'super_admin' or user.profile.role == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                        <a class="nav-link" href="{% url 'core:dashboard' %}"><i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}</a>
                     </li>
-                    {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:my_favorites' %}"><i class="bi bi-heart"></i> My Favorites</a>
+                        <a class="nav-link" href="{% url 'core:notifications_list' %}">
+                            <i class="bi bi-bell"></i> {% trans "Notifications" %}
+                            {% if unread_notification_count %}<span class="badge bg-danger rounded-pill ms-1">{{ unread_notification_count }}</span>{% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:my_favorites' %}"><i class="bi bi-heart"></i> {% trans "My Favorites" %}</a>
                     </li>
                     {% if user.profile.role == 'admin' or user.profile.role == 'super_admin' %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:my_listings' %}"><i class="bi bi-card-list"></i> My Listings</a>
+                        <a class="nav-link" href="{% url 'core:my_listings' %}"><i class="bi bi-card-list"></i> {% trans "My Listings" %}</a>
                     </li>
                     {% endif %}
                 {% endif %}
@@ -168,38 +224,66 @@
             <hr class="hk-nav-drawer-divider">
 
             <div class="d-flex align-items-center justify-content-between px-2">
-                <span class="text-secondary small fw-semibold">Theme</span>
-                <button type="button" class="hk-theme-toggle" id="hkThemeToggleMobile" title="Toggle dark mode" aria-label="Toggle dark mode">
+                <span class="text-secondary small fw-semibold">{% trans "Theme" %}</span>
+                <button type="button" class="hk-theme-toggle" id="hkThemeToggleMobile" title="{% trans 'Toggle dark mode' %}" aria-label="{% trans 'Toggle dark mode' %}">
                     <i class="bi bi-moon-stars" id="hkThemeIconMobile"></i>
                 </button>
+            </div>
+
+            <div class="px-2 mt-3" data-palette-switcher>
+                <span class="text-secondary small fw-semibold d-block mb-2">{% trans "Palette" %}</span>
+                <div class="hk-palette-row-mobile">
+                    {% include 'partials/palette_options.html' %}
+                </div>
+            </div>
+
+            <div class="px-2 mt-3">
+                <span class="text-secondary small fw-semibold d-block mb-2">{% trans "Language" %}</span>
+                <div class="hk-palette-row-mobile">
+                    {% include 'partials/language_options.html' %}
+                </div>
             </div>
 
             <div class="hk-nav-drawer-footer">
                 {% if user.is_authenticated %}
                     <a href="{% url 'core:admin_logout' %}" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-box-arrow-right"></i> Logout
+                        <i class="bi bi-box-arrow-right"></i> {% trans "Logout" %}
                     </a>
                 {% else %}
                     <a href="{% url 'core:google_login' %}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 text-white">
-                        <i class="bi bi-google"></i> Sign In
+                        <i class="bi bi-google"></i> {% trans "Sign In" %}
                     </a>
                 {% endif %}
                 <a href="{% url 'core:about' %}" class="d-flex align-items-center justify-content-center gap-2 text-decoration-none mt-3">
-                    <span class="text-secondary small">Powered by</span>
-                    <img src="{% static 'images/craftlanee-logo-navbar-dark.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-dark">
-                    <img src="{% static 'images/craftlanee-logo-navbar-new.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-light">
+                    <span class="text-secondary small">{% trans "Powered by" %}</span>
+                    <span class="hk-navbar-craftlanee-logo-wrap">
+                        <img src="{% static 'images/craftlanee-logo-mark.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-dark">
+                        <img src="{% static 'images/craftlanee-logo-mark-white.png' %}" alt="CraftLanee" class="hk-navbar-craftlanee-logo hk-navbar-craftlanee-logo-light">
+                    </span>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Messages -->
+    <!-- Toast notifications: floating stack, top-right, below the fixed
+         navbar — never shifts page content the way the old full-width
+         .alert banner did. Auto-dismisses itself (see toasts.js); the
+         close button lets a visitor dismiss it early. -->
     {% if messages %}
-        <div class="container mt-3">
+        <div class="hk-toast-stack" aria-live="polite" aria-atomic="true">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="hk-toast hk-toast-{{ message.tags }}" role="status" data-hk-toast
+                    {% if 'celebrate-confetti' in message.tags %}data-hk-celebrate="confetti"{% elif 'celebrate-burst' in message.tags %}data-hk-celebrate="burst"{% endif %}>
+                    <span class="hk-toast-icon">
+                        {% if 'success' in message.tags %}<i class="bi bi-check-circle-fill"></i>
+                        {% elif 'danger' in message.tags %}<i class="bi bi-x-circle-fill"></i>
+                        {% elif 'warning' in message.tags %}<i class="bi bi-exclamation-triangle-fill"></i>
+                        {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+                    </span>
+                    <span class="hk-toast-message">{{ message }}</span>
+                    <button type="button" class="hk-toast-close" data-hk-toast-close aria-label="{% trans 'Dismiss notification' %}">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
             {% endfor %}
         </div>
@@ -211,6 +295,7 @@
     </main>
 
     <!-- Footer -->
+    {% block footer %}
     <footer class="text-light mt-5">
         <div class="container">
             <div class="row g-5 mb-2">
@@ -218,7 +303,7 @@
                     <div class="hk-footer-brand mb-3">
                         <span class="hk-brand-word"><span class="hk-brand-word-one">One</span><span class="hk-brand-accent">TownCity</span></span>
                     </div>
-                    <p class="hk-footer-tagline mb-4">Your trusted local information portal for Kuppam — businesses, jobs, real estate, and everything in between.</p>
+                    <p class="hk-footer-tagline mb-4">{% blocktrans %}Your trusted local information portal for Kuppam — businesses, jobs, real estate, and everything in between.{% endblocktrans %}</p>
                     <div class="d-flex gap-2">
                         <a href="#" class="hk-social-icon" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                         <a href="#" class="hk-social-icon" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
@@ -227,31 +312,43 @@
                     </div>
                 </div>
                 <div class="col-6 col-lg-2">
-                    <h6 class="hk-footer-heading">Quick Links</h6>
+                    <h6 class="hk-footer-heading">{% trans "Quick Links" %}</h6>
                     <ul class="list-unstyled hk-footer-links">
-                        <li><a href="{% url 'core:home' %}">Home</a></li>
-                        <li><a href="{% url 'core:home' %}#categories">Services</a></li>
-                        <li><a href="{% url 'core:about' %}">About Us</a></li>
-                        <li><a href="{% url 'core:contact' %}">Contact</a></li>
+                        <li><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
+                        <li><a href="{% url 'core:home' %}#categories">{% trans "Services" %}</a></li>
+                        <li><a href="{% url 'core:about' %}">{% trans "About Us" %}</a></li>
+                        <li><a href="{% url 'core:contact' %}">{% trans "Contact" %}</a></li>
                     </ul>
                 </div>
-                <div class="col-6 col-lg-2">
-                    <h6 class="hk-footer-heading">Categories</h6>
-                    <ul class="list-unstyled hk-footer-links">
-                        <li><a href="{% url 'core:property_list' %}">Real Estate</a></li>
-                        <li><a href="{% url 'core:business_list' %}">Businesses</a></li>
-                        <li><a href="{% url 'core:job_list' %}">Jobs</a></li>
-                        <li><a href="{% url 'core:event_list' %}">Events</a></li>
-                        <li><a href="{% url 'core:news_list' %}">News</a></li>
-                        <li><a href="{% url 'core:project_list' %}">Upcoming Projects</a></li>
+                <div class="col-6 col-lg-3">
+                    <h6 class="hk-footer-heading">{% trans "Categories" %}</h6>
+                    <ul class="list-unstyled hk-footer-links hk-footer-categories-grid">
+                        {% for cat in nav_category_tree %}
+                        <li>
+                            {% if cat.listing_model == 'business' %}<a href="{% url 'core:business_list' %}{% if cat.business_subcategory %}?category={{ cat.business_subcategory }}{% endif %}">{{ cat.label|dyntrans }}</a>
+                            {% elif cat.listing_model == 'property' %}<a href="{% url 'core:property_list' %}">{{ cat.label|dyntrans }}</a>
+                            {% elif cat.listing_model == 'job' %}<a href="{% url 'core:job_list' %}">{{ cat.label|dyntrans }}</a>
+                            {% elif cat.listing_model == 'event' %}<a href="{% url 'core:event_list' %}">{{ cat.label|dyntrans }}</a>
+                            {% elif cat.listing_model == 'news' %}<a href="{% url 'core:news_list' %}">{{ cat.label|dyntrans }}</a>
+                            {% elif cat.listing_model == 'project' %}<a href="{% url 'core:project_list' %}">{{ cat.label|dyntrans }}</a>
+                            {% endif %}
+                        </li>
+                        {% empty %}
+                        <li><a href="{% url 'core:property_list' %}">{% trans "Real Estate" %}</a></li>
+                        <li><a href="{% url 'core:business_list' %}">{% trans "Businesses" %}</a></li>
+                        <li><a href="{% url 'core:job_list' %}">{% trans "Jobs" %}</a></li>
+                        <li><a href="{% url 'core:event_list' %}">{% trans "Events" %}</a></li>
+                        <li><a href="{% url 'core:news_list' %}">{% trans "OneTownCity News" %}</a></li>
+                        <li><a href="{% url 'core:project_list' %}">{% trans "Upcoming Projects" %}</a></li>
+                        {% endfor %}
                     </ul>
                 </div>
-                <div class="col-lg-4">
-                    <h6 class="hk-footer-heading">Stay Updated</h6>
-                    <p class="hk-footer-tagline mb-3">Get the latest Kuppam listings and news in your inbox.</p>
+                <div class="col-lg-3">
+                    <h6 class="hk-footer-heading">{% trans "Stay Updated" %}</h6>
+                    <p class="hk-footer-tagline mb-3">{% trans "Get the latest Kuppam listings and news in your inbox." %}</p>
                     <form class="hk-newsletter-form d-flex align-items-center" action="{% url 'core:newsletter_subscribe' %}" method="post">
                         {% csrf_token %}
-                        <input type="email" name="email" required class="form-control form-control-sm ms-2" placeholder="Your email address" aria-label="Email for newsletter">
+                        <input type="email" name="email" required class="form-control form-control-sm ms-2" placeholder="{% trans 'Your email address' %}" aria-label="{% trans 'Email for newsletter' %}">
                         <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">
                             <i class="bi bi-send"></i>
                         </button>
@@ -272,24 +369,25 @@
             </div>
 
             <div class="hk-footer-bottom d-flex flex-column flex-md-row justify-content-center align-items-center gap-2 gap-md-4 small text-secondary hk-footer-legal">
-                <span>&copy; {% now "Y" %} OneTownCity. All rights reserved. Powered by CraftLanee.</span>
-                <a href="{% url 'core:privacy_policy' %}">Privacy Policy</a>
-                <a href="{% url 'core:terms_of_service' %}">Terms of Service</a>
+                <span>&copy; {% now "Y" %} {% blocktrans %}OneTownCity. All rights reserved. Powered by CraftLanee.{% endblocktrans %}</span>
+                <a href="{% url 'core:privacy_policy' %}">{% trans "Privacy Policy" %}</a>
+                <a href="{% url 'core:terms_of_service' %}">{% trans "Terms of Service" %}</a>
             </div>
         </div>
     </footer>
+    {% endblock %}
 
     <!-- Floating WhatsApp action button (site-wide). Swap the number/message
          via the data attributes below — main.js builds the wa.me link from them. -->
-    <div class="hk-whatsapp-fab-wrap" id="hkWhatsappFab" data-wa-number="916301469575" data-wa-message="Hi OneTownCity! I'd like some help finding...">
+    <div class="hk-whatsapp-fab-wrap" id="hkWhatsappFab" data-wa-number="916301469575" data-wa-message="{% trans "Hi OneTownCity! I'd like some help finding..." %}">
         <div class="hk-whatsapp-tooltip" id="hkWhatsappTooltip" role="status">
-            <button type="button" class="hk-whatsapp-tooltip-close" id="hkWhatsappTooltipClose" aria-label="Dismiss">
+            <button type="button" class="hk-whatsapp-tooltip-close" id="hkWhatsappTooltipClose" aria-label="{% trans 'Dismiss' %}">
                 <i class="bi bi-x"></i>
             </button>
             <div class="hk-whatsapp-tooltip-title">OneTownCity</div>
-            <p class="mb-0">Need help finding a business, job or property in Kuppam? Chat with us on WhatsApp.</p>
+            <p class="mb-0">{% trans "Need help finding a business, job or property in Kuppam? Chat with us on WhatsApp." %}</p>
         </div>
-        <a href="#" id="hkWhatsappBtn" class="hk-whatsapp-fab" target="_blank" rel="noopener noreferrer" aria-label="Chat with OneTownCity on WhatsApp">
+        <a href="#" id="hkWhatsappBtn" class="hk-whatsapp-fab" target="_blank" rel="noopener noreferrer" aria-label="{% trans 'Chat with OneTownCity on WhatsApp' %}">
             <span class="hk-whatsapp-fab-ping" aria-hidden="true"></span>
             <span class="hk-whatsapp-fab-dot" aria-hidden="true"></span>
             <i class="bi bi-whatsapp"></i>
@@ -298,6 +396,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="{% static 'js/seasonal-canvas.js' %}"></script>
+    <script src="{% static 'js/world-scene.js' %}"></script>
+    <script src="{% static 'js/celebrations.js' %}"></script>
+    <script src="{% static 'js/toasts.js' %}"></script>
+    <script src="{% static 'js/palette-switcher.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
 
     {% block extra_js %}{% endblock %}

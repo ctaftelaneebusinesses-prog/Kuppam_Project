@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -8,8 +9,8 @@
 
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'core:property_list' %}">Properties</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:property_list' %}">{% trans "Properties" %}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ property.title }}</li>
         </ol>
     </nav>
@@ -28,14 +29,14 @@
             </span>
             {% if property.is_featured %}
             <span class="badge bg-warning text-dark mb-2 ms-1">
-                <i class="bi bi-star-fill"></i> Featured
+                <i class="bi bi-star-fill"></i> {% trans "Featured" %}
             </span>
             {% endif %}
             <h1 class="fw-bold mb-2">{{ property.title }}</h1>
             <p class="fs-3 fw-bold text-primary mb-3">&#8377; {{ property.price|floatformat:0|intcomma }}</p>
 
             {% if property.description %}
-            <div class="hk-description-box mb-4">{{ property.description|linebreaksbr }}</div>
+            <div class="hk-description-box mb-4">{{ property|translate_field:"description"|linebreaksbr }}</div>
             {% endif %}
 
             <div class="row g-3 mb-3">

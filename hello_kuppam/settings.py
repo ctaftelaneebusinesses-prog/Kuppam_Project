@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -70,11 +71,14 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.supabase_config',
                 'core.context_processors.notifications',
                 'core.context_processors.unread_messages',
+                'core.context_processors.site_theme',
+                'core.context_processors.category_tree',
             ],
         },
     },
@@ -91,7 +95,11 @@ import dj_database_url
 DATABASES = {
     'default': dj_database_url.parse(
         os.getenv('DATABASE_URL'),
-        conn_max_age=600,
+        # Persistent connections pin one Supabase pooler slot (15 total in
+        # session mode) per process for their whole lifetime. Runserver's
+        # autoreloader spawns a new process per code change, so a nonzero
+        # value here exhausts the pool after a handful of reloads.
+        conn_max_age=0 if DEBUG else 600,
     )
 }
 # PASSWORD VALIDATION
@@ -106,10 +114,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # ------------------------------------------------------------------
 # INTERNATIONALIZATION
 # ------------------------------------------------------------------
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('te', 'Telugu'),
+    ('hi', 'Hindi'),
+    ('ta', 'Tamil'),
+]
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 # ------------------------------------------------------------------
 # STATIC & MEDIA FILES

@@ -55,9 +55,9 @@
 
     <!-- Job Grid -->
     {% if page_obj %}
-    <div class="row g-4">
+    <div class="hk-grid-auto">
         {% for job in page_obj %}
-        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+        <div data-aos="fade-up">
             {% include 'partials/job_card.html' with job=job %}
         </div>
         {% endfor %}

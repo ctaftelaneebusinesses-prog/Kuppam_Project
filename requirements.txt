@@ -9,3 +9,6 @@ Pillow==11.0.0
 dj-database-url==2.3.0
 gunicorn==23.0.0
 whitenoise==6.8.2
+deep-translator==1.11.4
+reportlab==4.2.5
+polib==1.2.0

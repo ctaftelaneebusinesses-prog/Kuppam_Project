@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ page_title }}{% endblock %}
+{% block body_attrs %}data-category-bg="{% if directory_key == 'restaurants' %}restaurant{% elif directory_key == 'hospitals' %}health{% elif directory_key == 'education' %}education{% elif directory_key == 'transport' %}transport{% endif %}" data-subcategory="{{ selected_subcategory }}"{% endblock %}
 
 {% block content %}
 <section class="container py-5">
@@ -66,9 +67,9 @@
 
     <!-- Grid -->
     {% if page_obj %}
-    <div class="row g-4">
+    <div class="hk-grid-auto">
         {% for business in page_obj %}
-        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+        <div data-aos="fade-up">
             {% include 'partials/business_card.html' with business=business %}
         </div>
         {% endfor %}

@@ -29,7 +29,9 @@
         <p class="text-danger small mb-0"><i class="bi bi-exclamation-circle"></i> {{ obj.rejection_reason }}</p>
         {% endif %}
     </div>
+    {% if request.profile.is_super_admin or obj.owner_id == request.user.id %}
     <a href="{% url 'core:listing_edit' model_key obj.pk %}" class="btn btn-primary"><i class="bi bi-pencil"></i> Edit Post</a>
+    {% endif %}
 </div>
 
 <div class="row g-4">
@@ -93,10 +95,49 @@
                     <div class="col-12 text-muted small">No gallery images yet.</div>
                     {% endfor %}
                 </div>
-                <form method="post" action="{% url 'core:dashboard_post_add_images' model_key obj.pk %}" enctype="multipart/form-data" class="d-flex gap-2 align-items-center flex-wrap">
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Video Gallery</h6>
+                <div class="row g-3 mb-3">
+                    {% for video in gallery_videos %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="hk-gallery-item">
+                            <video src="{{ video.video.url }}" class="rounded w-100" style="aspect-ratio:1/1;object-fit:cover;background:#000;" controls></video>
+                            <form method="post" action="{% url 'core:dashboard_post_delete_video' video.pk %}" class="mt-1 hkDeleteImageForm">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100" title="Delete"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-muted small">No gallery videos yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Add Photos / Videos</h6>
+                <form method="post" action="{% url 'core:dashboard_post_add_images' model_key obj.pk %}" enctype="multipart/form-data" class="hk-dropzone" id="hkPostMediaForm">
                     {% csrf_token %}
-                    <input type="file" name="images" multiple accept="image/*" class="form-control" style="max-width:360px;">
-                    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-cloud-upload"></i> Upload Images</button>
+                    <div class="text-center py-3">
+                        <i class="bi bi-cloud-upload fs-2 text-muted d-block mb-2"></i>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
+                            <div>
+                                <label class="form-label small mb-1 d-block">Photos (jpg/png/webp, ≤8MB each)</label>
+                                <input type="file" name="images" multiple accept="image/png,image/jpeg,image/webp" class="form-control form-control-sm">
+                            </div>
+                            <div>
+                                <label class="form-label small mb-1 d-block">Videos (mp4/webm/mov, ≤50MB each)</label>
+                                <input type="file" name="videos" multiple accept="video/mp4,video/webm,video/quicktime" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-cloud-upload"></i> Upload</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -146,6 +187,7 @@
         <div class="card mb-3">
             <div class="card-body">
                 <h6 class="fw-bold mb-3">Moderation</h6>
+                {% if request.profile.is_super_admin %}
                 <form method="post" action="{% url 'core:dashboard_listing_review' model_key obj.pk %}" class="hk-review-form mb-3">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.path }}">
@@ -157,6 +199,7 @@
                     </div>
                 </form>
                 <hr>
+                {% endif %}
                 <form method="post" action="{% url 'core:dashboard_post_toggle_active' model_key obj.pk %}" class="mb-2">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.path }}">

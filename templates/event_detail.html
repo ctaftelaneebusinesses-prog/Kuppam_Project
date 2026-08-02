@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -7,8 +8,8 @@
 
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'core:event_list' %}">Events</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:event_list' %}">{% trans "Events" %}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
         </ol>
     </nav>
@@ -26,17 +27,17 @@
                 <i class="bi bi-calendar3"></i> {{ event.event_date|date:"l, d F Y" }}
             </span>
             {% if not event.is_upcoming %}
-            <span class="badge bg-secondary mb-2 ms-1">Past Event</span>
+            <span class="badge bg-secondary mb-2 ms-1">{% trans "Past Event" %}</span>
             {% endif %}
             {% if event.is_featured %}
             <span class="badge bg-warning text-dark mb-2 ms-1">
-                <i class="bi bi-star-fill"></i> Featured
+                <i class="bi bi-star-fill"></i> {% trans "Featured" %}
             </span>
             {% endif %}
             <h1 class="fw-bold mb-3">{{ event.title }}</h1>
 
             {% if event.description %}
-            <div class="hk-description-box mb-4">{{ event.description|linebreaksbr }}</div>
+            <div class="hk-description-box mb-4">{{ event|translate_field:"description"|linebreaksbr }}</div>
             {% endif %}
 
             <div class="row g-3 mb-3">

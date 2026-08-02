@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     AdminCategoryPermission, AdminRequest, Business, Category, Comment, ContactMessage, Event, Favorite,
-    Job, Like, LoginHistory, News, NewsletterSubscriber, Notification, PostImage, Profile, Project, Property,
-    Report, Review, Share,
+    Job, Like, LoginHistory, News, NewsletterSubscriber, Notification, PostImage, PostVideo, Profile,
+    Project, Property, Report, Review, Share, SiteSettings, TranslationCache,
 )
 
 
@@ -183,7 +183,7 @@ class ProjectAdmin(ImagePreviewMixin, admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('label', 'key', 'listing_model', 'business_subcategory', 'is_active', 'order')
+    list_display = ('label', 'key', 'parent', 'listing_model', 'business_subcategory', 'is_active', 'order')
     list_filter = ('listing_model', 'is_active')
     list_editable = ('is_active', 'order')
     search_fields = ('label', 'key')
@@ -270,6 +270,19 @@ class PostImageAdmin(admin.ModelAdmin):
     list_filter = ('content_type',)
 
 
+@admin.register(PostVideo)
+class PostVideoAdmin(admin.ModelAdmin):
+    list_display = ('content_type', 'object_id', 'order', 'uploaded_by', 'created_at')
+    list_filter = ('content_type',)
+
+
+@admin.register(TranslationCache)
+class TranslationCacheAdmin(admin.ModelAdmin):
+    list_display = ('content_type', 'object_id', 'field_name', 'language', 'created_at')
+    list_filter = ('language', 'field_name')
+    search_fields = ('source_text', 'translated_text')
+
+
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('subject', 'name', 'email', 'is_read', 'created_at')
@@ -287,6 +300,23 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
     search_fields = ('email',)
     list_editable = ('is_active',)
     ordering = ('-subscribed_at',)
+
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    """
+    The primary editing surface is the Super Admin dashboard's Site Theme
+    panel (dashboard/site_settings.html) — this registration just keeps the
+    single row visible/editable from /admin/ too, for developer convenience.
+    """
+    list_display = ('default_palette', 'enforce_palette', 'updated_by', 'updated_at')
+    readonly_fields = ('updated_at',)
+
+    def has_add_permission(self, request):
+        return not SiteSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 # --- Admin branding -------------------------------------------------------

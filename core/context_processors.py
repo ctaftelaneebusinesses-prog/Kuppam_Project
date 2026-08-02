@@ -27,3 +27,35 @@ def unread_messages(request):
         return {}
     from .models import ContactMessage
     return {'unread_message_count': ContactMessage.objects.filter(is_read=False).count()}
+
+
+def category_tree(request):
+    """
+    Active top-level categories (with their active subcategories prefetched)
+    for the header nav dropdown and footer "Categories" list — see
+    partials/nav_categories.html. Replaces what used to be hardcoded links,
+    so Super Admin category/subcategory changes cascade there automatically.
+    """
+    from django.db.models import Prefetch
+    from .models import Category
+    top_categories = (
+        Category.objects.filter(parent=None, is_active=True)
+        .prefetch_related(Prefetch('children', queryset=Category.objects.filter(is_active=True).order_by('order', 'label')))
+        .order_by('order', 'label')
+    )
+    return {'nav_category_tree': top_categories}
+
+
+def site_theme(request):
+    """
+    Site-wide palette default/enforce flags (see Super Admin's Site Theme
+    panel), read on every page load so base.html's anti-flash script and
+    palette-switcher.js can apply them before a visitor's own localStorage
+    choice is considered.
+    """
+    from .models import SiteSettings
+    settings_obj = SiteSettings.load()
+    return {
+        'site_default_palette': settings_obj.default_palette,
+        'site_enforce_palette': settings_obj.enforce_palette,
+    }

@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -7,16 +9,17 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 
-def unique_slug_for(model_cls, text, instance_pk=None):
+def unique_slug_for(model_cls, text, instance_pk=None, field_name='slug', max_length=200):
     """
     Builds a unique slug for `text` within `model_cls`, appending -2, -3, ...
-    on collision. Used by every listing model's save() to auto-fill slug.
+    on collision. Used by every listing model's save() to auto-fill slug
+    (and by Category, via field_name='key', max_length=50, to auto-fill its key).
     """
-    base = slugify(text)[:200] or 'listing'
+    base = slugify(text)[:max_length] or 'item'
     slug = base
     n = 1
     qs = model_cls.objects.all()
-    while qs.filter(slug=slug).exclude(pk=instance_pk).exists():
+    while qs.filter(**{field_name: slug}).exclude(pk=instance_pk).exists():
         n += 1
         slug = f'{base}-{n}'
     return slug
@@ -94,17 +97,34 @@ class Profile(models.Model):
         return self.role == UserRole.ADMIN
 
     def can_manage_category(self, category):
-        """Whether this user may create/edit/delete listings in `category`."""
+        """
+        Whether this user may create/edit/delete listings in `category`. A
+        permission granted on a parent category also covers its subcategories,
+        so Super Admins don't need to re-grant access one subcategory at a time.
+        """
         if self.is_super_admin:
             return True
         if not self.is_admin or self.is_suspended:
             return False
-        return AdminCategoryPermission.objects.filter(admin_id=self.user_id, category=category).exists()
+        granted_ids = set(AdminCategoryPermission.objects.filter(admin_id=self.user_id).values_list('category_id', flat=True))
+        node = category
+        while node is not None:
+            if node.id in granted_ids:
+                return True
+            node = node.parent
+        return False
 
     def managed_category_ids(self):
         if self.is_super_admin:
             return list(Category.objects.filter(is_active=True).values_list('id', flat=True))
         return list(AdminCategoryPermission.objects.filter(admin_id=self.user_id).values_list('category_id', flat=True))
+
+    def managed_listing_models(self):
+        """Which of the 6 listing_model keys this admin can bulk-upload/manage into."""
+        if self.is_super_admin:
+            return {choice[0] for choice in Category.LISTING_MODEL_CHOICES}
+        ids = self.managed_category_ids()
+        return set(Category.objects.filter(id__in=ids).values_list('listing_model', flat=True))
 
 
 # ---------------------------------------------------------------------------
@@ -123,15 +143,28 @@ class Category(models.Model):
 
     key = models.SlugField(max_length=50, unique=True)
     label = models.CharField(max_length=100)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='children',
+        help_text='Leave blank for a top-level category; set this to nest as a subcategory.'
+    )
     listing_model = models.CharField(
-        max_length=20, choices=LISTING_MODEL_CHOICES,
-        help_text='Which listing table this category publishes into'
+        max_length=20, choices=LISTING_MODEL_CHOICES, blank=True,
+        help_text='Which listing table this category publishes into. Subcategories inherit '
+                   "their parent's value automatically if left blank."
     )
     business_subcategory = models.CharField(
         max_length=20, blank=True,
         help_text="Matching Business.category value, only used when listing_model = 'business'"
     )
     icon = models.CharField(max_length=50, blank=True, default='bi-tag')
+    image = models.CharField(
+        max_length=200, blank=True,
+        help_text="Static path for the homepage service card, e.g. 'images/services/real-estate.jpg'"
+    )
+    description = models.CharField(
+        max_length=300, blank=True,
+        help_text='Short blurb shown on the homepage service card (top-level categories only).'
+    )
     is_active = models.BooleanField(default=True)
     order = models.PositiveSmallIntegerField(default=0)
 
@@ -140,7 +173,81 @@ class Category(models.Model):
         verbose_name_plural = 'Categories'
 
     def __str__(self):
-        return self.label
+        return f'{self.parent.label} → {self.label}' if self.parent_id else self.label
+
+    def save(self, *args, **kwargs):
+        if self.parent_id and not self.listing_model:
+            self.listing_model = self.parent.listing_model
+        super().save(*args, **kwargs)
+
+    @property
+    def active_children(self):
+        return self.children.filter(is_active=True)
+
+    #: Which model + field each listing_model counts/filters against. Business,
+    #: Property and Project have a real choice field a business_subcategory
+    #: value can match against; Job/Event/News don't have an equivalent split,
+    #: so a category using one of those listing_models is just counted as-is.
+    _LISTING_COUNT_MAP = {
+        'business': ('Business', 'category'),
+        'property': ('Property', 'property_type'),
+        'job': ('Job', None),
+        'event': ('Event', None),
+        'news': ('News', None),
+        'project': ('Project', 'project_status'),
+    }
+
+    @property
+    def listing_count(self):
+        """
+        Live public-listing count for this category, used by the homepage
+        service cards. Mirrors the matching logic the dedicated directory
+        pages already use (see DIRECTORY_CATEGORIES / GENERAL_BUSINESS_
+        CATEGORY_CHOICES in views.py): a category with its own or its
+        children's business_subcategory values filters to just those values;
+        a category with none set (the broad "catch-all" card, e.g.
+        Businesses) counts everything NOT claimed by any other active
+        category sharing its listing_model.
+        """
+        model_name, field_name = self._LISTING_COUNT_MAP.get(self.listing_model, (None, None))
+        if not model_name:
+            return 0
+        model = globals()[model_name]
+        qs = model.objects.filter(is_active=True, status=ListingStatus.APPROVED)
+        if not field_name:
+            return qs.count()
+
+        own_values = [
+            c.business_subcategory for c in [self, *self.active_children] if c.business_subcategory
+        ]
+        if own_values:
+            return qs.filter(**{f'{field_name}__in': own_values}).count()
+
+        claimed = set(
+            Category.objects.filter(listing_model=self.listing_model, is_active=True)
+            .exclude(pk=self.pk).exclude(parent_id=self.pk)
+            .exclude(business_subcategory='')
+            .values_list('business_subcategory', flat=True)
+        )
+        if claimed:
+            return qs.exclude(**{f'{field_name}__in': claimed}).count()
+        return qs.count()
+
+    @property
+    def as_json(self):
+        """Serialized for the Manage Categories edit-modal's JS (see dashboard/categories.html)."""
+        return json.dumps({
+            'pk': self.pk,
+            'parent': self.parent_id,
+            'label': self.label,
+            'listing_model': self.listing_model,
+            'business_subcategory': self.business_subcategory,
+            'icon': self.icon,
+            'image': self.image,
+            'description': self.description,
+            'order': self.order,
+            'is_active': self.is_active,
+        })
 
 
 # ---------------------------------------------------------------------------
@@ -731,6 +838,29 @@ class PostImage(models.Model):
         super().delete(*args, **kwargs)
 
 
+class PostVideo(models.Model):
+    """
+    Gallery video clips for a listing, alongside its PostImage photo gallery.
+    Manageable by the post's owner (via My Listings) or any Admin/Super Admin
+    (via the Posts dashboard, for moderation).
+    """
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=LISTING_CONTENT_TYPE_LIMIT)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    video = models.FileField(upload_to='post_gallery_videos/')
+    order = models.PositiveSmallIntegerField(default=0)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+        indexes = [models.Index(fields=['content_type', 'object_id'])]
+
+    def delete(self, *args, **kwargs):
+        self.video.delete(save=False)
+        super().delete(*args, **kwargs)
+
+
 # ---------------------------------------------------------------------------
 # Notifications & activity
 # ---------------------------------------------------------------------------
@@ -804,6 +934,81 @@ class NewsletterSubscriber(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class PaletteChoice(models.TextChoices):
+    """
+    Mirrors the looks the front-end theme switcher offers (tokens.css /
+    palette-switcher.js) — 4 color palettes plus 3 weather effects (Winter/
+    Spring/Autumn, which don't change colors, only the canvas overlay) —
+    kept as the single source of truth for the choice set, since it also
+    drives the Super Admin's site-wide override below.
+    """
+    DEFAULT = 'default', 'Default (OneTownCity Amber)'
+    SUMMER_SILK = 'summer-silk', 'Summer Silk'
+    RAINY_VELVET = 'rainy-velvet', 'Rainy Velvet'
+    NORDIC_AURORA = 'nordic-aurora', 'Nordic Aurora'
+    WINTER = 'winter', 'Snow (Christmas)'
+    SPRING = 'spring', 'Spring'
+    AUTUMN = 'autumn', 'Autumn'
+
+
+class SiteSettings(models.Model):
+    """
+    Single-row site-wide configuration, edited from the Super Admin's Site
+    Theme panel (dashboard/site_settings.html). A visitor's own palette
+    switcher choice (persisted in their browser's localStorage) still wins
+    over `default_palette` unless `enforce_palette` is on — that distinction
+    is what makes this the Super Admin's "rewrite the site's theme for
+    everyone" control, versus every other role's per-browser preference.
+    """
+    default_palette = models.CharField(max_length=20, choices=PaletteChoice.choices, default=PaletteChoice.DEFAULT)
+    enforce_palette = models.BooleanField(
+        default=False,
+        help_text="When on, visitors can't override this with their own theme switcher.",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+
+    class Meta:
+        verbose_name = 'Site Settings'
+        verbose_name_plural = 'Site Settings'
+
+    def __str__(self):
+        return 'Site Settings'
+
+    @classmethod
+    def load(cls):
+        """Always the same row (pk=1) — a lightweight singleton without a dedicated migration-time fixture."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+# ---------------------------------------------------------------------------
+# Dynamic-content translation cache (Telugu/Hindi/Tamil UI language support)
+# ---------------------------------------------------------------------------
+
+class TranslationCache(models.Model):
+    """
+    Caches a machine translation of one field of one listing into one target
+    language, so a given string is only ever sent to the translation service
+    once. Populated lazily by core.i18n_utils.translate_field() the first
+    time a listing is viewed in a non-English language.
+    """
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=LISTING_CONTENT_TYPE_LIMIT)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    field_name = models.CharField(max_length=50)
+    language = models.CharField(max_length=5)
+    source_text = models.TextField()
+    translated_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('content_type', 'object_id', 'field_name', 'language')
+        indexes = [models.Index(fields=['content_type', 'object_id', 'field_name', 'language'])]
+        verbose_name = 'Translation cache entry'
+        verbose_name_plural = 'Translation cache entries'
 
 
 from . import signals  # noqa: E402,F401  (registers post_save/post_delete counter updates)

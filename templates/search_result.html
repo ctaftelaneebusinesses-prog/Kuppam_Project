@@ -75,9 +75,9 @@
                         View All <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
-                <div class="row g-4">
+                <div class="hk-grid-auto">
                     {% for item in result.items %}
-                    <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+                    <div data-aos="fade-up">
                         {% include result.card_partial with business=item property=item job=item event=item article=item project=item %}
                     </div>
                     {% endfor %}

@@ -1,0 +1,362 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OneTownCity\n"
+"Language: te\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "About Us"
+msgstr "మా గురించి"
+
+msgid "Address"
+msgstr "చిరునామా"
+
+msgid "Affordable Pricing"
+msgstr "సరసమైన ధర"
+
+msgid "All Categories"
+msgstr "అన్ని వర్గాలు"
+
+msgid "Back to OneTownCity News"
+msgstr "తిరిగి OneTownCity వార్తలకు"
+
+msgid "Beyond the Directory"
+msgstr "బియాండ్ ది డైరెక్టరీ"
+
+msgid "Built to rank, with secure and scalable architecture."
+msgstr ""
+"సురక్షితమైన మరియు స్కేలబుల్ ఆర్కిటెక్చర్‌తో ర్యాంక్‌కు నిర్మించబడింది."
+
+msgid "Business Website Development"
+msgstr "వ్యాపార వెబ్‌సైట్ అభివృద్ధి"
+
+msgid "Businesses"
+msgstr "వ్యాపారాలు"
+
+msgid "Call Center & BPO Services"
+msgstr "కాల్ సెంటర్ & BPO సేవలు"
+
+msgid "Categories"
+msgstr "వర్గాలు"
+
+msgid "Change language"
+msgstr "భాషను మార్చండి"
+
+msgid "Chat with OneTownCity on WhatsApp"
+msgstr "WhatsAppలో OneTownCityతో చాట్ చేయండి"
+
+msgid "Community Members"
+msgstr "సంఘం సభ్యులు"
+
+msgid "Contact"
+msgstr "సంప్రదించండి"
+
+msgid "Contact Us Today"
+msgstr "ఈరోజు మమ్మల్ని సంప్రదించండి"
+
+msgid "Corporate Businesses"
+msgstr "కార్పొరేట్ వ్యాపారాలు"
+
+msgid "Custom Web Applications"
+msgstr "అనుకూల వెబ్ అప్లికేషన్లు"
+
+msgid "Custom-built designs that look great on every device."
+msgstr "ప్రతి పరికరంలో అద్భుతంగా కనిపించే కస్టమ్-బిల్ట్ డిజైన్‌లు."
+
+msgid "Dashboard"
+msgstr "డాష్‌బోర్డ్"
+
+msgid "Digital Solutions"
+msgstr "డిజిటల్ సొల్యూషన్స్"
+
+msgid "Dismiss"
+msgstr "తొలగించు"
+
+msgid "E-Commerce Website Development"
+msgstr "ఇ-కామర్స్ వెబ్‌సైట్ అభివృద్ధి"
+
+msgid "Educational Institutions"
+msgstr "విద్యా సంస్థలు"
+
+msgid "Email for newsletter"
+msgstr "వార్తాలేఖ కోసం ఇమెయిల్"
+
+msgid ""
+"End-to-end web development for startups, businesses, educational "
+"institutions, and organizations building a strong online presence."
+msgstr ""
+"స్టార్టప్‌లు, వ్యాపారాలు, విద్యా సంస్థలు మరియు సంస్థల కోసం ఎండ్-టు-ఎండ్ వెబ్"
+" అభివృద్ధి."
+
+msgid "Events"
+msgstr "ఈవెంట్స్"
+
+msgid "Everything Kuppam has to offer, organized in one place"
+msgstr "కుప్పం అందించేవన్నీ ఒకే చోట నిర్వహించబడతాయి"
+
+msgid "Experienced developers, priced for local businesses."
+msgstr "అనుభవజ్ఞులైన డెవలపర్‌లు, స్థానిక వ్యాపారాల కోసం ధర నిర్ణయించారు."
+
+msgid "Explore Categories"
+msgstr "వర్గాలను అన్వేషించండి"
+
+msgid "Explore {{ name }}"
+msgstr "{{ name }}ని అన్వేషించండి"
+
+msgid "Explore, track, and connect with your community on OneTownCity."
+msgstr ""
+"OneTownCityలో మీ సంఘంతో అన్వేషించండి, ట్రాక్ చేయండి మరియు కనెక్ట్ చేయండి."
+
+msgid "Fast Performance"
+msgstr "వేగవంతమైన పనితీరు"
+
+msgid "Featured"
+msgstr "ఫీచర్ చేయబడింది"
+
+msgid "Get the latest Kuppam listings and news in your inbox."
+msgstr "మీ ఇన్‌బాక్స్‌లో తాజా కుప్పం జాబితాలు మరియు వార్తలను పొందండి."
+
+msgid "Healthcare"
+msgstr "ఆరోగ్య సంరక్షణ"
+
+msgid "Hi OneTownCity! I'd like some help finding..."
+msgstr "హాయ్ OneTownCity! నేను కనుగొనడంలో కొంత సహాయం చేయాలనుకుంటున్నాను..."
+
+msgid "History"
+msgstr "చరిత్ర"
+
+msgid "Home"
+msgstr "హోమ్"
+
+msgid "Industries We Serve"
+msgstr "మేము సేవలందిస్తున్న పరిశ్రమలు"
+
+msgid "Job Description"
+msgstr "ఉద్యోగ వివరణ"
+
+msgid "Jobs"
+msgstr "ఉద్యోగాలు"
+
+msgid "Language"
+msgstr "భాష"
+
+msgid "Logout"
+msgstr "లాగ్అవుట్"
+
+msgid "Manufacturing"
+msgstr "తయారీ"
+
+msgid "Mark all read"
+msgstr "అన్నీ చదివినట్లు గుర్తు పెట్టండి"
+
+msgid "Modern & Responsive"
+msgstr "ఆధునిక & రెస్పాన్సివ్"
+
+msgid "My Favorites"
+msgstr "నా ఇష్టమైనవి"
+
+msgid "My Listings"
+msgstr "నా జాబితాలు"
+
+msgid ""
+"Need help finding a business, job or property in Kuppam? Chat with us on "
+"WhatsApp."
+msgstr ""
+"కుప్పంలో వ్యాపారం, ఉద్యోగం లేదా ఆస్తిని కనుగొనడంలో సహాయం కావాలా? WhatsAppలో "
+"మాతో చాట్ చేయండి."
+
+msgid "New"
+msgstr "కొత్తది"
+
+msgid "No further details have been added for this project yet."
+msgstr "ఈ ప్రాజెక్ట్‌కి సంబంధించిన మరిన్ని వివరాలు ఇంకా జోడించబడలేదు."
+
+msgid "No notifications yet."
+msgstr "ఇంకా నోటిఫికేషన్‌లు లేవు."
+
+msgid "Notifications"
+msgstr "నోటిఫికేషన్‌లు"
+
+msgid ""
+"One clean interface for local listings, real estate, and upcoming projects. "
+"Tap to view image galleries, access Google links instantly, and share real "
+"community feedback."
+msgstr ""
+"స్థానిక జాబితాలు, రియల్ ఎస్టేట్ మరియు రాబోయే ప్రాజెక్ట్‌ల కోసం ఒక క్లీన్ "
+"ఇంటర్‌ఫేస్. చిత్ర గ్యాలరీలను వీక్షించడానికి, Google లింక్‌లను తక్షణమే "
+"యాక్సెస్ చేయడానికి మరియు నిజమైన సంఘం అభిప్రాయాన్ని పంచుకోవడానికి నొక్కండి."
+
+msgid "OneTownCity News"
+msgstr "OneTownCity వార్తలు"
+
+msgid "OneTownCity. All rights reserved. Powered by CraftLanee."
+msgstr ""
+"OneTownCity. అన్ని హక్కులు ప్రత్యేకించబడ్డాయి. CraftLanee ద్వారా ఆధారితం."
+
+msgid "Open Jobs"
+msgstr "ఉద్యోగాలు తెరవండి"
+
+msgid "Open in Google Maps"
+msgstr "Google Mapsలో తెరవండి"
+
+msgid "Open menu"
+msgstr "మెనుని తెరవండి"
+
+msgid "Optimized for speed with ongoing technical support."
+msgstr "Optimized for speed with ongoing technical support."
+
+msgid "Our Services"
+msgstr "మా సేవలు"
+
+msgid "Palette"
+msgstr "పాలెట్"
+
+msgid "Past Event"
+msgstr "గత ఈవెంట్"
+
+msgid "Phone"
+msgstr "ఫోన్"
+
+msgid "Powered by"
+msgstr "ద్వారా ఆధారితం"
+
+msgid "Powered by CraftLanee"
+msgstr "CraftLanee ద్వారా ఆధారితం"
+
+msgid "Privacy Policy"
+msgstr "గోప్యతా విధానం"
+
+msgid "Properties"
+msgstr "లక్షణాలు"
+
+msgid "Properties Listed"
+msgstr "లక్షణాలు జాబితా చేయబడ్డాయి"
+
+msgid "Quick Links"
+msgstr "త్వరిత లింక్‌లు"
+
+msgid "Read More"
+msgstr "మరింత చదవండి"
+
+msgid "Ready to build your digital presence?"
+msgstr "మీ డిజిటల్ ఉనికిని నిర్మించడానికి సిద్ధంగా ఉన్నారా?"
+
+msgid "Real Estate"
+msgstr "రియల్ ఎస్టేట్"
+
+msgid "Restaurants"
+msgstr "రెస్టారెంట్లు"
+
+msgid "Restaurants & Cafés"
+msgstr "రెస్టారెంట్లు & కేఫ్‌లు"
+
+msgid "Retail & E-Commerce"
+msgstr "రిటైల్ & ఇ-కామర్స్"
+
+msgid "SEO Optimization"
+msgstr "SEO ఆప్టిమైజేషన్"
+
+msgid "SEO-Friendly"
+msgstr "SEO-స్నేహపూర్వక"
+
+msgid "Salary not disclosed"
+msgstr "జీతం వెల్లడించలేదు"
+
+msgid "Save to favorites"
+msgstr "ఇష్టమైన వాటికి సేవ్ చేయండి"
+
+msgid "School & College Management Systems"
+msgstr "పాఠశాల & కళాశాల నిర్వహణ వ్యవస్థలు"
+
+msgid "Scroll down"
+msgstr "క్రిందికి స్క్రోల్ చేయండి"
+
+msgid "Search"
+msgstr "శోధించండి"
+
+msgid "Search shops, jobs, restaurants..."
+msgstr "దుకాణాలు, ఉద్యోగాలు, రెస్టారెంట్‌లను శోధించండి..."
+
+msgid "Services"
+msgstr "సేవలు"
+
+msgid "Share"
+msgstr "షేర్ చేయండి"
+
+msgid "Sign In"
+msgstr "సైన్ ఇన్ చేయండి"
+
+msgid "Sign in to save"
+msgstr "సేవ్ చేయడానికి సైన్ ఇన్ చేయండి"
+
+msgid "Startups"
+msgstr "స్టార్టప్‌లు"
+
+msgid "Stay Updated"
+msgstr "అప్‌డేట్‌గా ఉండండి"
+
+msgid "Switch theme palette"
+msgstr "థీమ్ పాలెట్‌ని మార్చండి"
+
+msgid "Terms of Service"
+msgstr "సేవా నిబంధనలు"
+
+msgid "The One-Stop City Engine"
+msgstr "వన్-స్టాప్ సిటీ ఇంజిన్"
+
+msgid "Theme"
+msgstr "థీమ్"
+
+msgid "Theme Palette"
+msgstr "థీమ్ పాలెట్"
+
+msgid "Toggle dark mode"
+msgstr "డార్క్ మోడ్‌ని టోగుల్ చేయండి"
+
+msgid "Total Businesses"
+msgstr "మొత్తం వ్యాపారాలు"
+
+msgid "UI/UX Design"
+msgstr "UI/UX డిజైన్"
+
+msgid "Upcoming Projects"
+msgstr "రాబోయే ప్రాజెక్ట్‌లు"
+
+msgid "View All"
+msgstr "అన్నీ వీక్షించండి"
+
+msgid "View Details"
+msgstr "వివరాలను వీక్షించండి"
+
+msgid "View all notifications"
+msgstr "అన్ని నోటిఫికేషన్‌లను వీక్షించండి"
+
+msgid "Website Development &"
+msgstr "వెబ్‌సైట్ అభివృద్ధి &"
+
+msgid "Website Hosting & Deployment"
+msgstr "వెబ్‌సైట్ హోస్టింగ్ & విస్తరణ"
+
+msgid "Website Maintenance & Support"
+msgstr "వెబ్‌సైట్ నిర్వహణ & మద్దతు"
+
+msgid "Website development and digital solutions"
+msgstr "వెబ్‌సైట్ అభివృద్ధి మరియు డిజిటల్ పరిష్కారాలు"
+
+msgid "What's Here"
+msgstr "ఇక్కడ ఏముంది"
+
+msgid "Your email address"
+msgstr "మీ ఇమెయిల్ చిరునామా"
+
+msgid ""
+"Your trusted local information portal for Kuppam — businesses, jobs, real "
+"estate, and everything in between."
+msgstr ""
+"కుప్పం కోసం మీ విశ్వసనీయ స్థానిక సమాచార పోర్టల్ — వ్యాపారాలు, ఉద్యోగాలు, "
+"రియల్ ఎస్టేట్ మరియు మధ్యలో ఉన్న ప్రతిదీ."
+
+msgid "ago"
+msgstr "క్రితం"

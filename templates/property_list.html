@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ page_title }}{% endblock %}
+{% block body_attrs %}data-category-bg="realestate"{% endblock %}
 
 {% block content %}
 <section class="container py-5">
@@ -65,9 +66,9 @@
 
     <!-- Property Grid -->
     {% if page_obj %}
-    <div class="row g-4">
+    <div class="hk-grid-auto">
         {% for property in page_obj %}
-        <div class="col-sm-6 col-lg-4" data-aos="fade-up">
+        <div data-aos="fade-up">
             {% include 'partials/property_card.html' with property=property %}
         </div>
         {% endfor %}
