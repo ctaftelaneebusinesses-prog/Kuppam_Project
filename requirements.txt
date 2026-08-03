@@ -13,3 +13,4 @@ django-redis==5.4.0
 deep-translator==1.11.4
 reportlab==4.2.5
 polib==1.2.0
+pywebpush==2.3.0

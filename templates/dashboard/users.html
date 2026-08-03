@@ -98,6 +98,9 @@
                                     <i class="bi {% if profile.is_suspended %}bi-play-circle{% else %}bi-pause-circle{% endif %}"></i>
                                 </button>
                                 {% endif %}
+                                <button type="submit" formaction="{% url 'core:dashboard_user_promote_super_admin' profile.user_id %}" class="hk-row-action-btn hkPromoteBtn" title="{% trans 'Promote to Super Admin' %}">
+                                    <i class="bi bi-shield-fill-plus"></i>
+                                </button>
                                 {% endif %}
                             </div>
                         </td>
@@ -149,6 +152,14 @@
             }
         });
     }
+
+    document.querySelectorAll('.hkPromoteBtn').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            if (!confirm('Grant this user full Super Admin access? They will be able to manage every user, listing, and category.')) {
+                e.preventDefault();
+            }
+        });
+    });
 })();
 </script>
 {% endblock %}

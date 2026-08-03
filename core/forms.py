@@ -65,7 +65,10 @@ class RegisterForm(forms.Form):
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
     )
     phone_number = forms.CharField(
-        max_length=15, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mobile Number'})
+        max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Mobile Number', 'maxlength': '10', 'inputmode': 'numeric',
+        }),
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
@@ -77,16 +80,16 @@ class RegisterForm(forms.Form):
         required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
     address = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Address'})
+        required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Address'})
     )
     city = forms.CharField(
-        max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'})
+        required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'})
     )
     state = forms.CharField(
-        max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'})
+        required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'})
     )
     pincode = forms.CharField(
-        max_length=10, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pincode'})
+        required=False, max_length=10, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pincode'})
     )
 
     def clean_email(self):
@@ -94,6 +97,12 @@ class RegisterForm(forms.Form):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError('An account with this email already exists. Try signing in instead.')
         return email
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data['phone_number'].strip()
+        if not phone.isdigit() or len(phone) != 10:
+            raise forms.ValidationError('Enter a valid 10-digit phone number.')
+        return phone
 
     def clean_password(self):
         password = self.cleaned_data['password']
@@ -157,18 +166,32 @@ class ExcelUploadForm(forms.Form):
 # ---------------------------------------------------------------------------
 
 class ProfileCompletionForm(forms.ModelForm):
+    full_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'})
+    )
+    phone_number = forms.CharField(
+        max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Mobile Number', 'maxlength': '10', 'inputmode': 'numeric',
+        }),
+    )
+
     class Meta:
         model = Profile
         fields = ['full_name', 'phone_number', 'profile_photo', 'address', 'city', 'state', 'pincode']
         widgets = {
-            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mobile Number'}),
             'profile_photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Address'}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'}),
             'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'}),
             'pincode': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pincode'}),
         }
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data['phone_number'].strip()
+        if not phone.isdigit() or len(phone) != 10:
+            raise forms.ValidationError('Enter a valid 10-digit phone number.')
+        return phone
 
 
 class AdminRequestForm(forms.Form):

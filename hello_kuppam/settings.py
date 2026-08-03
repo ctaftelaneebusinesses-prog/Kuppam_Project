@@ -213,6 +213,18 @@ SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY', '')
 # the post gallery. Created by `python manage.py ensure_supabase_bucket`.
 SUPABASE_STORAGE_BUCKET = os.getenv('SUPABASE_STORAGE_BUCKET', 'media')
 
+# ------------------------------------------------------------------
+# WEB PUSH (desktop + mobile browser notifications)
+# ------------------------------------------------------------------
+# VAPID keypair identifying this server to browser push services (Chrome/
+# FCM, Firefox/autopush, etc). Generate once via py-vapid and keep it
+# constant across deploys — see .env.example — since rotating it silently
+# invalidates every visitor's existing subscription. Same pair is safe to
+# reuse between dev and prod.
+VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY', '')
+VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY', '')
+VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', '')
+
 # Public-facing login for Google/Supabase-authenticated users (Content
 # Providers, Normal Users, and the Super Admin's app-facing session).
 # Kept separate from LOGIN_URL/'core:admin_login', which continues to

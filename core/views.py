@@ -233,7 +233,20 @@ def _detail_qs(request, model_cls):
     return _public_qs(model_cls)
 
 
-def _bump_views(model_cls, pk):
+def _bump_views(request, model_cls, pk):
+    """
+    Counts one view per browsing session per listing. Without this, a single
+    visitor reloading the page, hitting back/forward, or the browser's own
+    link-hover prefetching each fired another unconditional increment, so
+    "1 real visit" could show up as 3-4 views.
+    """
+    seen = request.session.setdefault('viewed_listings', [])
+    key = f'{model_cls.__name__}:{pk}'
+    if key in seen:
+        return
+    seen.append(key)
+    request.session.modified = True
+
     model_cls.objects.filter(pk=pk).update(view_count=F('view_count') + 1)
     PostView.objects.create(content_type=ContentType.objects.get_for_model(model_cls), object_id=pk)
 
@@ -584,7 +597,7 @@ def business_detail(request, slug):
     public URL (e.g. /businesses/sri-medicals/).
     """
     business = get_object_or_404(_detail_qs(request, Business), slug=slug)
-    _bump_views(Business, business.pk)
+    _bump_views(request, Business, business.pk)
     related_businesses = _public_qs(Business).filter(category=business.category).exclude(pk=business.pk)[:3]
 
     context = {
@@ -688,7 +701,7 @@ def property_detail(request, slug):
     Detail page for a single property listing.
     """
     property_obj = get_object_or_404(_detail_qs(request, Property), slug=slug)
-    _bump_views(Property, property_obj.pk)
+    _bump_views(request, Property, property_obj.pk)
     related_properties = _public_qs(Property).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk)[:3]
 
     context = {
@@ -732,7 +745,7 @@ def job_detail(request, slug):
     Detail page for a single job listing.
     """
     job = get_object_or_404(_detail_qs(request, Job), slug=slug)
-    _bump_views(Job, job.pk)
+    _bump_views(request, Job, job.pk)
     related_jobs = _public_qs(Job).filter(company=job.company).exclude(pk=job.pk)[:3]
 
     context = {
@@ -776,7 +789,7 @@ def event_detail(request, slug):
     Detail page for a single event listing.
     """
     event = get_object_or_404(_detail_qs(request, Event), slug=slug)
-    _bump_views(Event, event.pk)
+    _bump_views(request, Event, event.pk)
     related_events = _public_qs(Event).exclude(pk=event.pk)[:3]
 
     context = {
@@ -820,7 +833,7 @@ def news_detail(request, slug):
     Detail page for a single news article.
     """
     article = get_object_or_404(_detail_qs(request, News), slug=slug)
-    _bump_views(News, article.pk)
+    _bump_views(request, News, article.pk)
     related_articles = _public_qs(News).exclude(pk=article.pk)[:3]
 
     context = {
@@ -865,7 +878,7 @@ def project_detail(request, slug):
     Detail page for a single upcoming project.
     """
     project = get_object_or_404(_detail_qs(request, Project), slug=slug)
-    _bump_views(Project, project.pk)
+    _bump_views(request, Project, project.pk)
     related_projects = _public_qs(Project).exclude(pk=project.pk)[:3]
 
     context = {
@@ -1705,7 +1718,7 @@ def listing_submit(request, category_key):
             obj = form.save(commit=False)
             obj.owner = request.user
             obj.listing_category = category
-            if profile.is_super_admin:
+            if profile.is_super_admin or category.listing_model == 'news':
                 obj.status = ListingStatus.APPROVED
                 obj.reviewed_by = request.user
                 obj.reviewed_at = timezone.now()
@@ -1747,11 +1760,11 @@ def listing_edit(request, model_key, pk):
         form = form_cls(request.POST, request.FILES, instance=obj)
         if form.is_valid():
             obj = form.save(commit=False)
-            if not profile.is_super_admin:
+            if not profile.is_super_admin and model_key != 'news':
                 obj.status = ListingStatus.PENDING
                 obj.rejection_reason = ''
             obj.save()
-            note = '' if profile.is_super_admin else ' It will be reviewed again before going live.'
+            note = '' if profile.is_super_admin or model_key == 'news' else ' It will be reviewed again before going live.'
             messages.success(request, f'Listing updated.{note}')
             return redirect('core:my_listings')
     else:
@@ -2222,6 +2235,34 @@ def dashboard_user_toggle_suspend(request, user_id):
     profile.save(update_fields=['is_suspended'])
     messages.success(request, f'{profile.user.email} is now {"suspended" if profile.is_suspended else "unsuspended"}.')
     return redirect('core:dashboard_users')
+
+
+@super_admin_required
+@require_POST
+def dashboard_user_promote_super_admin(request, user_id):
+    """
+    Lets an existing Super Admin promote another already-registered user to
+    Super Admin, mirroring the create_super_admin management command (same
+    role/is_staff/is_superuser fields) but reachable from Manage Users
+    instead of the terminal. The target must have signed in with Google at
+    least once already, since that's what creates their Profile row.
+    """
+    profile = get_object_or_404(Profile, user_id=user_id)
+    if profile.role == UserRole.SUPER_ADMIN:
+        messages.info(request, f'{profile.user.email} is already a Super Admin.')
+        return redirect('core:dashboard_users')
+
+    profile.role = UserRole.SUPER_ADMIN
+    profile.is_blocked = False
+    profile.is_suspended = False
+    profile.save(update_fields=['role', 'is_blocked', 'is_suspended'])
+
+    profile.user.is_staff = True
+    profile.user.is_superuser = True
+    profile.user.save(update_fields=['is_staff', 'is_superuser'])
+
+    messages.success(request, f'{profile.user.email} is now a Super Admin.')
+    return redirect(_safe_next(request, reverse('core:dashboard_users')))
 
 
 @super_admin_required

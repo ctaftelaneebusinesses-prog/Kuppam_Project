@@ -52,6 +52,13 @@
                 </button>
             </form>
             {% endif %}
+            <form method="post" action="{% url 'core:dashboard_user_promote_super_admin' viewed_profile.user_id %}" onsubmit="return confirm('Grant this user full Super Admin access? They will be able to manage every user, listing, and category.');">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-shield-fill-plus"></i> {% trans "Promote to Super Admin" %}
+                </button>
+            </form>
             {% endif %}
         </div>
     </div>

@@ -99,6 +99,7 @@ urlpatterns = [
     path('dashboard/users/<int:user_id>/', views.dashboard_user_detail, name='dashboard_user_detail'),
     path('dashboard/users/<int:user_id>/block/', views.dashboard_user_toggle_block, name='dashboard_user_toggle_block'),
     path('dashboard/users/<int:user_id>/suspend/', views.dashboard_user_toggle_suspend, name='dashboard_user_toggle_suspend'),
+    path('dashboard/users/<int:user_id>/promote/', views.dashboard_user_promote_super_admin, name='dashboard_user_promote_super_admin'),
     path('dashboard/users/bulk-delete/', views.dashboard_users_bulk_delete, name='dashboard_users_bulk_delete'),
     path('dashboard/users/export/excel/', views.dashboard_users_export_excel, name='dashboard_users_export_excel'),
     path('dashboard/users/export/pdf/', views.dashboard_users_export_pdf, name='dashboard_users_export_pdf'),

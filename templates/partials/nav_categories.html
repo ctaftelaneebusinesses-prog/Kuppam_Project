@@ -7,9 +7,6 @@
     <ul class="dropdown-menu hk-nav-cat-menu">
         {% for cat in nav_category_tree %}
         <li><a class="dropdown-item fw-semibold" href="{{ cat.list_url }}"><i class="bi {{ cat.icon }}"></i> {{ cat.label|dyntrans }}</a></li>
-        {% for sub in cat.children.all %}
-        <li><a class="dropdown-item ps-4 small" href="{{ sub.list_url }}"><i class="bi {{ sub.icon }}"></i> {{ sub.label|dyntrans }}</a></li>
-        {% endfor %}
         {% endfor %}
     </ul>
 </li>

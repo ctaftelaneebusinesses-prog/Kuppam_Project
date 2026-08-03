@@ -974,6 +974,29 @@ class Notification(models.Model):
         return self.message
 
 
+class PushSubscription(models.Model):
+    """
+    One row per browser/device a user has granted Web Push permission on
+    (the Push API subscription endpoint + encryption keys the browser hands
+    back from `pushManager.subscribe()`). A user with the site open on both
+    their phone and their desktop gets two rows here, and a real OS-level
+    notification on both — unlike the in-app bell, which only ever shows
+    what's already happened by the time someone loads the page.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='push_subscriptions')
+    endpoint = models.URLField(max_length=500, unique=True)
+    p256dh = models.CharField(max_length=255)
+    auth = models.CharField(max_length=255)
+    user_agent = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user} — {self.user_agent[:40] or self.endpoint[:40]}'
+
+
 class LoginHistory(models.Model):
     EVENT_CHOICES = [('login', 'Login'), ('logout', 'Logout')]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='login_history')
