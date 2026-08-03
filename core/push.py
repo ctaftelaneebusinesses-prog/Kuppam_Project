@@ -15,6 +15,7 @@ import json
 import logging
 
 from django.conf import settings
+from django.urls import reverse
 
 from .models import Notification, PushSubscription
 
@@ -57,16 +58,27 @@ def notify(recipient, type, message, url=''):
     Creates the in-app Notification row for `recipient` and, if they have
     any push subscriptions, fires a real Web Push alongside it. Use this
     (or notify_bulk) instead of `Notification.objects.create(...)` directly.
+
+    The push's click-through target is notification_open (mark-read +
+    redirect), not the raw `url`, so clicking a push notification behaves
+    exactly like clicking it in the in-app bell tray — one open, one place
+    that marks it read.
     """
-    Notification.objects.create(recipient=recipient, type=type, message=message, url=url)
-    send_web_push_to_user(recipient, 'OneTownCity', message, url)
+    notification = Notification.objects.create(recipient=recipient, type=type, message=message, url=url)
+    send_web_push_to_user(
+        notification.recipient_id, 'OneTownCity', message,
+        reverse('core:notification_open', args=[notification.pk]),
+    )
 
 
 def notify_bulk(recipients, type, message, url=''):
     """Same as notify(), for a list/queryset of recipients (e.g. every Super Admin)."""
     recipients = list(recipients)
-    Notification.objects.bulk_create([
+    notifications = Notification.objects.bulk_create([
         Notification(recipient=user, type=type, message=message, url=url) for user in recipients
     ])
-    for user in recipients:
-        send_web_push_to_user(user, 'OneTownCity', message, url)
+    for notification in notifications:
+        send_web_push_to_user(
+            notification.recipient_id, 'OneTownCity', message,
+            reverse('core:notification_open', args=[notification.pk]),
+        )

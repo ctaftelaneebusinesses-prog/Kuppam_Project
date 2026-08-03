@@ -4,7 +4,8 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from .context_processors import CATEGORY_TREE_CACHE_KEY, SITE_THEME_CACHE_KEY
-from .models import Category, Comment, Favorite, Like, Notification, Review, Share, SiteSettings
+from .models import Category, Comment, Favorite, Like, Review, Share, SiteSettings
+from .push import notify
 
 
 def _target(instance):
@@ -48,10 +49,9 @@ def on_comment_changed(sender, instance, created=False, **kwargs):
         obj = _target(instance)
         owner_id = getattr(obj, 'owner_id', None)
         if owner_id and owner_id != instance.user_id:
-            Notification.objects.create(
-                recipient_id=owner_id,
-                type='new_comment',
-                message=f'{instance.user.get_username()} commented on your listing "{obj}"',
+            notify(
+                owner_id, 'new_comment',
+                f'{instance.user.get_username()} commented on your listing "{obj}"',
                 url=obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else '',
             )
 
@@ -75,9 +75,8 @@ def on_review_changed(sender, instance, created=False, **kwargs):
         obj = _target(instance)
         owner_id = getattr(obj, 'owner_id', None)
         if owner_id and owner_id != instance.user_id:
-            Notification.objects.create(
-                recipient_id=owner_id,
-                type='new_review',
-                message=f'{instance.user.get_username()} left a {instance.rating}-star review on "{obj}"',
+            notify(
+                owner_id, 'new_review',
+                f'{instance.user.get_username()} left a {instance.rating}-star review on "{obj}"',
                 url=obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else '',
             )

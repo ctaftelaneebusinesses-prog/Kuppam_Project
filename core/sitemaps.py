@@ -5,13 +5,13 @@ from .models import Business, Event, Job, ListingStatus, News, Project, Property
 
 
 class StaticViewSitemap(Sitemap):
-    """Fixed pages that never change URL — home, about, history, directory categories."""
+    """Fixed pages that never change URL — home, about, directory categories."""
     priority = 0.6
     changefreq = 'weekly'
 
     def items(self):
         return [
-            'core:home', 'core:about', 'core:history', 'core:contact',
+            'core:home', 'core:about', 'core:contact',
             'core:business_list', 'core:restaurant_list', 'core:hospital_list',
             'core:education_list', 'core:transport_list',
             'core:property_list', 'core:job_list', 'core:event_list',

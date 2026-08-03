@@ -162,8 +162,9 @@ from .models import (
     AdminCategoryPermission, AdminRequest, AdminRequestStatus, Business, Category, Comment,
     ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News,
     NewsletterSubscriber, Notification, PostImage, PostVideo, PostView, Profile, Project, Property,
-    Report, Review, Share, SiteSettings, UserRole, unique_slug_for,
+    PushSubscription, Report, Review, Share, SiteSettings, UserRole, unique_slug_for,
 )
+from .push import notify, notify_bulk
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
 User = get_user_model()
@@ -384,6 +385,17 @@ CATEGORIES = [
         'count_fn': lambda: _public_qs(Project).count(),
     },
 ]
+
+
+def service_worker(request):
+    """
+    Serves static/js/sw.js at the site root (/sw.js) instead of under
+    /static/js/ — a service worker's default registration scope is the
+    directory it's served from, and Web Push needs it covering the whole
+    site, not just /static/js/.
+    """
+    sw_path = settings.STATICFILES_DIRS[0] / 'js' / 'sw.js'
+    return HttpResponse(sw_path.read_text(encoding='utf-8'), content_type='application/javascript')
 
 
 def robots_txt(request):
@@ -1125,30 +1137,6 @@ def about(request):
     return render(request, 'about.html', context)
 
 
-def history(request):
-    """History of Kuppam: a static, chronologically-ordered editorial page."""
-    gallery_images = [
-        {'file': 'images/history/gallery-engineering-college.png', 'caption': 'Kuppam Engineering College'},
-        {'file': 'images/history/gallery-university-entrance.png', 'caption': 'Dravidian University entrance, Kuppam'},
-        {'file': 'images/history/gallery-railway-alt.png', 'caption': 'Kuppam Railway Station'},
-        {'file': 'images/history/ancient-temple.jpg', 'caption': 'Sri Subrahmanya Swamy Temple, Kuppam'},
-        {'file': 'images/history/gallery-tomato.jpg', 'caption': 'Tomato cultivation, South India'},
-        {'file': 'images/history/gallery-kanipakam-temple.jpg', 'caption': 'Kanipakam Temple gopuram, Chittoor district'},
-        {'file': 'images/history/gallery-horsley-blue-mountains.jpg', 'caption': 'Blue mountains, Horsley Hills'},
-        {'file': 'images/history/gallery-horsley-rocky.jpg', 'caption': 'Rocky terrain, Horsley Hills'},
-        {'file': 'images/history/gallery-horsley-view2.jpg', 'caption': 'View from Horsley Hills'},
-        {'file': 'images/history/gallery-gangamma-jatara.png', 'caption': 'Gangamma Jatara festival, Kuppam'},
-        {'file': 'images/history/gallery-lush-fields.jpg', 'caption': 'Lush green fields near the hills', 'wide': True},
-        {'file': 'images/history/gallery-horsley-hdr.jpg', 'caption': 'Horsley Hills, wide panorama', 'wide': True},
-        {'file': 'images/history/tourism-horsley.jpg', 'caption': 'Horsley Hills, ultra-wide panorama', 'wide': True},
-    ]
-    context = {
-        'page_title': 'History of Kuppam - OneTownCity',
-        'gallery_images': gallery_images,
-    }
-    return render(request, 'history.html', context)
-
-
 def privacy_policy(request):
     """Static privacy policy page, linked from the footer."""
     return render(request, 'privacy_policy.html', {'page_title': 'Privacy Policy - OneTownCity'})
@@ -1181,12 +1169,9 @@ def _unique_username(base_text):
     return username
 
 
-def _notify_super_admins(message, url=''):
+def _notify_super_admins(message, url='', type='admin_request_submitted'):
     admins = User.objects.filter(profile__role=UserRole.SUPER_ADMIN)
-    Notification.objects.bulk_create([
-        Notification(recipient=admin_user, type='admin_request_submitted', message=message, url=url)
-        for admin_user in admins
-    ])
+    notify_bulk(admins, type, message, url=url)
 
 
 def _post_login_redirect(profile):
@@ -1645,6 +1630,46 @@ def notification_open(request, pk):
 
 
 @onboarding_required
+@require_POST
+def push_subscribe(request):
+    """
+    Saves (or refreshes) the browser's Push API subscription for the signed-
+    in user — called by static/js/push-notifications.js right after
+    `pushManager.subscribe()` succeeds. One row per browser/device; the
+    endpoint URL is unique per subscription so re-subscribing the same
+    browser just updates its keys instead of duplicating the row.
+    """
+    try:
+        data = json.loads(request.body)
+        keys = data['keys']
+        endpoint = data['endpoint']
+    except (KeyError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Malformed subscription payload.'}, status=400)
+
+    PushSubscription.objects.update_or_create(
+        endpoint=endpoint,
+        defaults={
+            'user': request.user,
+            'p256dh': keys.get('p256dh', ''),
+            'auth': keys.get('auth', ''),
+            'user_agent': request.META.get('HTTP_USER_AGENT', '')[:255],
+        },
+    )
+    return JsonResponse({'ok': True})
+
+
+@require_POST
+def push_unsubscribe(request):
+    """Drops a subscription (called when the browser reports it's no longer valid, or on explicit opt-out)."""
+    try:
+        endpoint = json.loads(request.body)['endpoint']
+    except (KeyError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Malformed payload.'}, status=400)
+    PushSubscription.objects.filter(endpoint=endpoint).delete()
+    return JsonResponse({'ok': True})
+
+
+@onboarding_required
 def notifications_unread_count(request):
     """Polled by notification-tray.js to keep the bell badge live without a full reload."""
     return JsonResponse({'count': request.user.notifications.filter(is_read=False).count()})
@@ -1729,7 +1754,8 @@ def listing_submit(request, category_key):
                 obj.save()
                 _notify_super_admins(
                     f'New {category.label} listing submitted: "{obj}"',
-                    url=reverse('core:dashboard_pending_listings'),
+                    url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
+                    type='listing_submitted',
                 )
                 messages.success(request, 'Your listing was submitted and is pending approval.', extra_tags='celebrate-confetti')
             return redirect('core:my_listings')
@@ -1794,7 +1820,16 @@ def listing_delete(request, model_key, pk):
     if not _can_manage_post(profile, obj):
         messages.error(request, 'You can only delete your own listings.')
         return redirect('core:my_listings')
+
+    owner, title = obj.owner, str(obj)
     obj.delete()
+    if owner and owner.id != request.user.id:
+        notify(
+            owner, 'listing_deleted',
+            f'Your listing "{title}" was deleted by a Super Admin.' if profile.is_super_admin
+            else f'Your listing "{title}" was deleted by an admin.',
+            url=reverse('core:my_listings'),
+        )
     messages.success(request, 'Listing deleted.')
     return redirect(_safe_next(request, reverse('core:my_listings')))
 
@@ -2399,23 +2434,23 @@ def dashboard_admin_request_detail(request, pk):
                     )
                 applicant_profile.role = UserRole.ADMIN
                 applicant_profile.save(update_fields=['role'])
-                Notification.objects.create(
-                    recipient=admin_request.user, type='admin_request_approved',
-                    message='Your request to become a Content Provider has been approved!',
+                notify(
+                    admin_request.user, 'admin_request_approved',
+                    'Your request to become a Content Provider has been approved!',
                     url=reverse('core:my_listings'),
                 )
             elif action == 'reject':
                 admin_request.status = AdminRequestStatus.REJECTED
-                Notification.objects.create(
-                    recipient=admin_request.user, type='admin_request_rejected',
-                    message=f'Your request was rejected: {note}' if note else 'Your request was rejected.',
+                notify(
+                    admin_request.user, 'admin_request_rejected',
+                    f'Your request was rejected: {note}' if note else 'Your request was rejected.',
                     url=reverse('core:admin_request_pending'),
                 )
             else:
                 admin_request.status = AdminRequestStatus.CHANGES_REQUESTED
-                Notification.objects.create(
-                    recipient=admin_request.user, type='admin_request_changes_requested',
-                    message=f'Changes requested on your request: {note}' if note else 'Changes were requested on your request.',
+                notify(
+                    admin_request.user, 'admin_request_changes_requested',
+                    f'Changes requested on your request: {note}' if note else 'Changes were requested on your request.',
                     url=reverse('core:admin_request_pending'),
                 )
             admin_request.save()
@@ -2523,7 +2558,7 @@ def dashboard_site_settings(request):
 
 @super_admin_required
 def dashboard_pending_listings(request):
-    status_filter = request.GET.get('status', ListingStatus.PENDING)
+    status_filter = request.GET.get('status', '')
     items = []
     for key, model_cls in LISTING_MODELS.items():
         qs = model_cls.objects.select_related('owner', 'listing_category')
@@ -2572,8 +2607,8 @@ def _apply_listing_review(obj, action, note, actor):
     obj.save()
 
     if obj.owner_id:
-        Notification.objects.create(
-            recipient_id=obj.owner_id, type=notif_type, message=notif_message,
+        notify(
+            obj.owner, notif_type, notif_message,
             url=obj.get_absolute_url() if obj.status == ListingStatus.APPROVED else reverse('core:my_listings'),
         )
 
@@ -2947,7 +2982,15 @@ def dashboard_posts_bulk_action(request):
             obj.is_featured = False
             obj.save(update_fields=['is_featured'])
         elif action == 'delete':
+            owner, title = obj.owner, str(obj)
             obj.delete()
+            if owner and owner.id != request.user.id:
+                notify(
+                    owner, 'listing_deleted',
+                    f'Your listing "{title}" was deleted by a Super Admin.' if request.profile.is_super_admin
+                    else f'Your listing "{title}" was deleted by an admin.',
+                    url=reverse('core:my_listings'),
+                )
         count += 1
 
     messages.success(request, f'{count} post(s) {BULK_ACTION_LABELS[action]}.')

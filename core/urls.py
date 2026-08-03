@@ -6,7 +6,6 @@ app_name = 'core'
 urlpatterns = [
     path('', views.home, name='home'),
     path('search/', views.search, name='search'),
-    path('history/', views.history, name='history'),
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
     path('newsletter/subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
@@ -82,6 +81,8 @@ urlpatterns = [
     path('notifications/read-all/', views.notifications_mark_all_read, name='notifications_mark_all_read'),
     path('notifications/<int:pk>/open/', views.notification_open, name='notification_open'),
     path('notifications/unread-count/', views.notifications_unread_count, name='notifications_unread_count'),
+    path('push/subscribe/', views.push_subscribe, name='push_subscribe'),
+    path('push/unsubscribe/', views.push_unsubscribe, name='push_unsubscribe'),
 
     # Content Provider (Admin) — "My Listings" + submission wizard
     path('dashboard/my-listings/', views.my_listings, name='my_listings'),

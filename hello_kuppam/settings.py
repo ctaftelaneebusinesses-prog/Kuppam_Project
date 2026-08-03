@@ -76,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.supabase_config',
+                'core.context_processors.push_config',
                 'core.context_processors.notifications',
                 'core.context_processors.unread_messages',
                 'core.context_processors.site_theme',

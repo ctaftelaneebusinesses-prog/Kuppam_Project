@@ -10,6 +10,11 @@ def supabase_config(request):
     }
 
 
+def push_config(request):
+    """Exposes the public VAPID key to every template (needed by push-notifications.js to subscribe)."""
+    return {'VAPID_PUBLIC_KEY': settings.VAPID_PUBLIC_KEY}
+
+
 def notifications(request):
     """Unread notification count/list for the bell icon in the navbar."""
     if not request.user.is_authenticated:

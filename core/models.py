@@ -953,6 +953,8 @@ class Notification(models.Model):
         ('listing_approved', 'Listing Approved'),
         ('listing_rejected', 'Listing Rejected'),
         ('listing_changes_requested', 'Listing Changes Requested'),
+        ('listing_submitted', 'New Listing Submitted'),
+        ('listing_deleted', 'Listing Deleted'),
         ('admin_request_submitted', 'New Admin Request'),
         ('admin_request_approved', 'Admin Request Approved'),
         ('admin_request_rejected', 'Admin Request Rejected'),

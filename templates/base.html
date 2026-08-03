@@ -74,9 +74,6 @@
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">{% trans "Home" %}</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'core:history' %}">{% trans "History" %}</a>
-                </li>
                 {% include 'partials/nav_categories.html' %}
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}">{% trans "About Us" %}</a>
@@ -187,9 +184,6 @@
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}"><i class="bi bi-house"></i> {% trans "Home" %}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'core:history' %}"><i class="bi bi-clock-history"></i> {% trans "History" %}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'core:home' %}#categories"><i class="bi bi-grid"></i> {% trans "Services" %}</a>
@@ -396,6 +390,13 @@
     <script src="{% static 'js/toasts.js' %}"></script>
     <script src="{% static 'js/palette-switcher.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    {% if user.is_authenticated %}
+    <script>
+        window.HK_USER_AUTHENTICATED = true;
+        window.HK_VAPID_PUBLIC_KEY = '{{ VAPID_PUBLIC_KEY|escapejs }}';
+    </script>
+    <script src="{% static 'js/push-notifications.js' %}"></script>
+    {% endif %}
 
     {% block extra_js %}{% endblock %}
 </body>

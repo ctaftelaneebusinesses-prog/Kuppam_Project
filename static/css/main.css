@@ -1054,6 +1054,59 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
     }
 }
 
+/* --- Push-notification "Enable" prompt --------------------------------------------------
+   Injected by static/js/push-notifications.js, once per browser (dismissal
+   is remembered in localStorage) — a bottom-anchored bar rather than the
+   top-right .hk-toast-stack so it doesn't collide with real toasts, and
+   persistent (no auto-dismiss timer) since it's a decision, not a status
+   message. --------------------------------------------------------------- */
+.hk-push-banner {
+    position: fixed;
+    left: 50%;
+    bottom: var(--hk-space-4);
+    z-index: var(--hk-z-toast);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .85rem 1.25rem;
+    width: min(560px, calc(100vw - 2rem));
+    padding: .9rem 1.1rem;
+    border-radius: var(--hk-radius-lg);
+    background: var(--hk-surface);
+    border: 1px solid var(--hk-border-soft);
+    box-shadow: var(--hk-shadow-hover);
+    transform: translate(-50%, 16px);
+    opacity: 0;
+    transition: transform .3s var(--hk-ease-out), opacity .3s var(--hk-ease-out);
+    pointer-events: none;
+}
+
+.hk-push-banner.is-visible {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hk-push-banner-text {
+    flex: 1 1 260px;
+    font-size: .85rem;
+    color: var(--hk-ink);
+    line-height: 1.45;
+}
+
+.hk-push-banner-text i {
+    color: var(--bs-primary);
+    margin-right: .3rem;
+}
+
+.hk-push-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex: none;
+    margin-left: auto;
+}
+
 /* --- Hero ---------------------------------------------------------------
    .hk-hero is the shared compact gradient banner (About page, etc).
    .hk-hero-fullscreen is an additive modifier used only on the homepage,
@@ -3639,65 +3692,102 @@ html[data-theme="dark"] .hk-solutions-media-frame {
     background: rgba(255, 255, 255, .04);
 }
 
-/* --- Digital Solutions service cards (Home) — glass micro-cards replacing
-   a plain checklist, gold-tinted icon chip, gold border/glow on hover. ---- */
-.hk-solution-card {
+/* --- Digital Solutions single-service feature block (Home) — replaces the
+   old multi-card grid now that there's exactly one service to show. A tall
+   "split hero" panel (badge, headline, description, benefit list, CTA) that
+   fills the same column height as .hk-solutions-media-frame beside it,
+   instead of one small card floating in a mostly-empty half. ------------- */
+.hk-service-feature {
     display: flex;
-    align-items: flex-start;
-    gap: var(--hk-space-3);
-    height: 100%;
-    padding: var(--hk-space-4);
-    border-radius: var(--hk-radius-lg);
-    border: 1px solid var(--hk-border-soft);
-    background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, 0) 100%);
-    box-shadow: var(--hk-shadow-sm);
-    transition: transform var(--hk-duration-base) var(--hk-ease-out),
-                box-shadow var(--hk-duration-base) var(--hk-ease-out),
-                border-color var(--hk-duration-base) var(--hk-ease-out),
-                background var(--hk-duration-base) var(--hk-ease-out);
-}
-
-.hk-solution-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--hk-shadow-hover);
-    border-color: var(--hk-gold-400);
-    background: linear-gradient(180deg, rgba(240, 169, 58, .08) 0%, rgba(255, 255, 255, 0) 100%);
-}
-
-.hk-solution-icon {
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    flex: none;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--hk-radius-md);
+    height: 100%;
+    padding: var(--hk-space-6) var(--hk-space-5);
+    border-radius: var(--hk-radius-2xl);
+    border: 1px solid var(--hk-border-soft);
+    background: linear-gradient(160deg, rgba(240, 169, 58, .06) 0%, rgba(255, 255, 255, 0) 55%);
+    box-shadow: var(--hk-shadow-md);
+    transition: transform var(--hk-duration-slow) var(--hk-ease-out),
+                box-shadow var(--hk-duration-slow) var(--hk-ease-out);
+}
+
+.hk-service-feature:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--hk-shadow-hover);
+}
+
+.hk-service-feature-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    padding: 7px 16px;
+    margin-bottom: var(--hk-space-4);
+    border-radius: var(--hk-radius-pill);
     background: var(--hk-gold-bg);
     color: var(--hk-gold-600);
-    font-size: 1.05rem;
-    transition: transform var(--hk-duration-base) var(--hk-ease-out);
-}
-
-.hk-solution-card:hover .hk-solution-icon {
-    transform: scale(1.08);
-}
-
-.hk-solution-card-title {
-    margin: 0;
-    padding-top: 2px;
-    font-size: var(--hk-text-sm);
+    font-size: var(--hk-text-xs);
     font-weight: 700;
+    letter-spacing: var(--hk-tracking-wide);
+    text-transform: uppercase;
+}
+
+.hk-service-feature-title {
+    margin-bottom: var(--hk-space-3);
+    font-size: var(--hk-text-3xl);
+    font-weight: 800;
     letter-spacing: var(--hk-tracking-tight);
-    line-height: var(--hk-leading-snug);
+    line-height: var(--hk-leading-tight);
     color: var(--hk-ink);
 }
 
-html[data-theme="dark"] .hk-solution-icon {
-    color: var(--hk-gold-300);
+.hk-service-feature-desc {
+    margin-bottom: var(--hk-space-5);
+    max-width: 52ch;
+    font-size: var(--hk-text-base);
+    line-height: var(--hk-leading-normal);
+    color: var(--hk-ink-soft);
 }
 
-html[data-theme="dark"] .hk-solution-card:hover {
-    background: linear-gradient(180deg, rgba(240, 169, 58, .10) 0%, rgba(255, 255, 255, .02) 100%);
+.hk-service-feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hk-space-3);
+    margin: 0 0 var(--hk-space-6);
+    padding: 0;
+    list-style: none;
+}
+
+.hk-service-feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--hk-space-3);
+    font-size: var(--hk-text-sm);
+    font-weight: 600;
+    color: var(--hk-ink);
+}
+
+.hk-service-feature-list li i {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: var(--hk-gold-bg);
+    color: var(--hk-gold-600);
+    font-size: .7rem;
+}
+
+.hk-service-feature-cta {
+    width: fit-content;
+}
+
+html[data-theme="dark"] .hk-service-feature-badge,
+html[data-theme="dark"] .hk-service-feature-list li i {
+    color: var(--hk-gold-300);
 }
 
 /* --- Digital Solutions section divider + industry pills (Home) ---------- */
@@ -5869,430 +5959,6 @@ body.hk-dashboard-active .hk-whatsapp-fab-wrap {
     color: #D8DAE8;
 }
 
-/* --- History of Kuppam page ------------------------------------------------------------ */
-
-/* Full-bleed photographic hero — a stack of absolutely-positioned slides
-   crossfades behind the overlay (see hkHistoryHeroSlides in history.html);
-   each slide gets its own slow Ken Burns zoom/pan so the cycle never looks
-   like a hard cut even while the opacity transition is mid-flight. */
-.hk-history-hero {
-    position: relative;
-    min-height: 86vh;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    color: #fff;
-    background: var(--hk-gray-950);
-}
-
-.hk-history-hero-slides {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-}
-
-.hk-history-hero-slide {
-    position: absolute;
-    inset: -2%; /* slight overscan so the pan/zoom never reveals an edge */
-    background-size: cover;
-    background-position: center;
-    opacity: 0;
-    transform: scale(1);
-    transition: opacity 2s var(--hk-ease-in-out);
-    will-change: opacity, transform;
-}
-
-.hk-history-hero-slide.is-active {
-    opacity: 1;
-}
-
-.hk-history-hero-slide-pan-a.is-active {
-    animation: hk-history-zoom-in 8s linear forwards;
-}
-
-.hk-history-hero-slide-pan-b.is-active {
-    animation: hk-history-zoom-pan 8s linear forwards;
-}
-
-@keyframes hk-history-zoom-in {
-    from { transform: scale(1); }
-    to   { transform: scale(1.15); }
-}
-
-@keyframes hk-history-zoom-pan {
-    from { transform: scale(1.15) translate(0, 0); }
-    to   { transform: scale(1.04) translate(-2.5%, -1.5%); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .hk-history-hero-slide,
-    .hk-history-hero-slide.is-active {
-        animation: none;
-        transition: opacity .4s ease;
-        transform: none;
-    }
-}
-
-.hk-history-hero-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    /* Kept light enough that the historical photo underneath actually reads —
-       previously near-opaque black (.82-.96) crushed it to an almost
-       invisible dark silhouette. Still darkens top-to-bottom for the white
-       badge/heading/sub-text contrast. */
-    background: linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(2,6,23,.4) 55%, rgba(15,23,42,.72) 100%);
-}
-
-.hk-history-hero-content {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-}
-
-.hk-history-hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 1.1rem;
-    padding: .45rem 1.1rem;
-    border-radius: var(--hk-radius-pill);
-    background: rgba(255, 255, 255, .1);
-    border: 1px solid rgba(255, 255, 255, .2);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: #fff;
-    font-size: var(--hk-text-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: var(--hk-tracking-widest);
-}
-
-.hk-history-hero-content h1 {
-    color: #fff;
-    font-size: var(--hk-text-5xl);
-    font-weight: 800;
-    letter-spacing: var(--hk-tracking-tightest);
-    line-height: var(--hk-leading-tight);
-    text-shadow: 0 2px 24px rgba(0,0,0,.45);
-}
-
-.hk-history-hero-sub {
-    max-width: 42rem;
-    margin-left: auto;
-    margin-right: auto;
-    color: #F1F5F9;
-    font-weight: 600;
-    line-height: var(--hk-leading-normal);
-    text-shadow: 0 1px 12px rgba(0,0,0,.35);
-}
-
-.hk-history-scroll-cue {
-    position: absolute;
-    left: 50%;
-    bottom: 26px;
-    transform: translateX(-50%);
-    z-index: 2;
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .08);
-    border: 1px solid rgba(255, 255, 255, .3);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    color: rgba(255,255,255,.9);
-    font-size: 1.1rem;
-    animation: hk-bounce 2s infinite;
-    transition: background-color .3s ease;
-}
-
-.hk-history-scroll-cue:hover {
-    background: rgba(255, 255, 255, .18);
-    color: #fff;
-}
-
-.hk-history-toc {
-    position: sticky;
-    top: 76px;
-    z-index: 5;
-    background: var(--hk-surface);
-    border-bottom: 1px solid var(--hk-border-soft);
-    padding: 14px 0;
-    overflow-x: auto;
-    white-space: nowrap;
-    scrollbar-width: thin;
-}
-
-.hk-history-toc a {
-    display: inline-block;
-    margin-right: 8px;
-    padding: 7px 16px;
-    border-radius: var(--hk-radius-pill);
-    background: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary);
-    font-size: .82rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color .2s ease, color .2s ease;
-}
-
-.hk-history-toc a:hover {
-    background: var(--bs-primary);
-    color: #fff;
-}
-
-.hk-history-section {
-    padding: calc(var(--hk-section-py) * .8) 0;
-    scroll-margin-top: 135px;
-}
-
-.hk-history-section:nth-of-type(even) {
-    background-color: var(--hk-gray-50);
-}
-
-/* Premium photo "mat" frame — a light card wrapper around every
-   .hk-history-media panel, shared by all History sections (kept white/light
-   per-page, not the dark showcase treatment used on the homepage hero). */
-.hk-history-frame {
-    padding: .5rem;
-    border-radius: var(--hk-radius-2xl);
-    border: 1px solid var(--hk-border-soft);
-    background: var(--hk-surface);
-    box-shadow: var(--hk-shadow-md);
-    transition: transform var(--hk-duration-slow) var(--hk-ease-out),
-                box-shadow var(--hk-duration-base) var(--hk-ease-out);
-}
-
-.hk-history-frame:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: var(--hk-shadow-hover);
-}
-
-/* Real-photo media panel (replaces the old gradient/icon placeholder) */
-.hk-history-media {
-    position: relative;
-    border-radius: var(--hk-radius-xl);
-    overflow: hidden;
-    aspect-ratio: 4 / 3;
-}
-
-.hk-history-media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform .5s ease;
-}
-
-.hk-history-media.hk-history-media-contain {
-    background: var(--bs-primary-bg-subtle);
-}
-
-.hk-history-media.hk-history-media-contain img {
-    object-fit: contain;
-    padding: 2.5rem;
-}
-
-.hk-history-media:hover img {
-    transform: scale(1.06);
-}
-
-.hk-history-media-tag {
-    position: absolute;
-    bottom: 14px;
-    left: 14px;
-    z-index: 2;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    font-size: .66rem;
-    font-weight: 600;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, .9);
-    background: rgba(0, 0, 0, .45);
-    border: 1px solid rgba(255, 255, 255, .12);
-    padding: 6px 12px;
-    border-radius: var(--hk-radius-md);
-}
-
-.hk-history-icon {
-    width: 52px;
-    height: 52px;
-    min-width: 52px;
-    border-radius: var(--bs-border-radius-lg);
-    background: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary);
-    border: 1px solid var(--bs-primary-border-subtle);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    box-shadow: var(--hk-elevation-2);
-}
-
-/* Typography hierarchy shared by every History section — tighter tracking
-   on headings, wider/calmer rhythm on body copy — applied once here so no
-   individual section's markup needs a special heading/paragraph class. */
-.hk-history-section h2 {
-    font-weight: 800;
-    letter-spacing: var(--hk-tracking-tight);
-}
-
-.hk-history-section p.text-muted {
-    line-height: var(--hk-leading-normal);
-    letter-spacing: .01em;
-}
-
-.hk-history-note {
-    background: var(--hk-gradient-soft);
-    border-radius: var(--hk-radius-card);
-    padding: 1.25rem 1.5rem;
-    font-size: .92rem;
-    color: var(--hk-ink-soft);
-}
-
-/* --- Vertical timeline (chronological quick index) --------------------------------------
-   Base rules stay theme-neutral (same --hk-surface/--hk-ink tokens as every
-   other card); html[data-theme="dark"] overrides below layer on the glass
-   node + gradient-track treatment so it reads as part of the same premium
-   dark canvas as the homepage category cards, without touching the DOM. */
-.hk-timeline {
-    position: relative;
-    max-width: 900px;
-    margin: 0 auto;
-    padding-left: 2px;
-}
-
-.hk-timeline::before {
-    content: "";
-    position: absolute;
-    left: 27px;
-    top: 6px;
-    bottom: 6px;
-    width: 3px;
-    border-radius: 3px;
-    background: var(--hk-gradient);
-}
-
-html[data-theme="dark"] .hk-timeline::before {
-    width: 2px;
-    background: linear-gradient(180deg, var(--hk-violet-400) 0%, var(--hk-brand-orange-500) 55%, rgba(242, 132, 29, .15) 100%);
-    box-shadow: 0 0 16px rgba(124, 99, 232, .35);
-}
-
-.hk-timeline-item {
-    position: relative;
-    display: flex;
-    gap: 1.25rem;
-    padding-bottom: 2rem;
-    text-decoration: none;
-    color: inherit;
-}
-
-.hk-timeline-item:last-child {
-    padding-bottom: 0;
-}
-
-.hk-timeline-icon {
-    position: relative;
-    z-index: 1;
-    width: 56px;
-    height: 56px;
-    min-width: 56px;
-    border-radius: var(--hk-radius-lg);
-    background: var(--hk-surface);
-    border: 3px solid var(--bs-primary);
-    color: var(--bs-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    box-shadow: var(--hk-shadow-sm);
-    transition: background-color .3s ease, color .3s ease, border-color .3s ease, transform .3s var(--hk-ease-out);
-}
-
-.hk-timeline-item:hover .hk-timeline-icon {
-    background: var(--hk-gradient);
-    color: #fff;
-    transform: scale(1.08);
-}
-
-html[data-theme="dark"] .hk-timeline-icon {
-    background: rgba(18, 19, 27, .92);
-    border: 1px solid rgba(255, 255, 255, .1);
-    color: var(--hk-brand-orange-500);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 0 20px rgba(99, 102, 241, .15);
-}
-
-html[data-theme="dark"] .hk-timeline-item:hover .hk-timeline-icon {
-    background: rgba(18, 19, 27, .92);
-    color: var(--hk-brand-orange-500);
-    border-color: rgba(242, 132, 29, .4);
-    transform: scale(1.1);
-}
-
-.hk-timeline-body {
-    background: var(--hk-surface);
-    border: 1px solid transparent;
-    border-radius: var(--hk-radius-xl);
-    box-shadow: var(--hk-shadow-sm);
-    padding: 20px 24px;
-    flex: 1;
-    transition: box-shadow .3s ease, transform .3s var(--hk-ease-out), border-color .3s ease, background-color .3s ease;
-}
-
-.hk-timeline-item:hover .hk-timeline-body {
-    box-shadow: var(--hk-shadow-hover);
-    transform: translateX(4px);
-}
-
-html[data-theme="dark"] .hk-timeline-body {
-    background: linear-gradient(180deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, 0) 100%);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-color: rgba(255, 255, 255, .06);
-}
-
-html[data-theme="dark"] .hk-timeline-item:hover .hk-timeline-body {
-    border-color: rgba(255, 255, 255, .15);
-    background: linear-gradient(180deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, .015) 100%);
-    transform: translateX(4px) translateY(-2px);
-}
-
-.hk-timeline-period {
-    font-size: .68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .12em;
-    color: var(--bs-primary);
-    display: block;
-    margin-bottom: 4px;
-}
-
-html[data-theme="dark"] .hk-timeline-period {
-    color: var(--hk-brand-orange-500);
-}
-
-.hk-timeline-title {
-    font-weight: 800;
-    font-size: 1.05rem;
-    letter-spacing: var(--hk-tracking-tight);
-    color: var(--hk-ink);
-    margin-bottom: 4px;
-}
-
-.hk-timeline-summary {
-    font-size: .85rem;
-    line-height: 1.6;
-    letter-spacing: .01em;
-    color: var(--hk-ink-soft);
-    margin-bottom: 0;
-}
-
 /* --- Gallery of Kuppam ------------------------------------------------------------------ */
 .hk-gallery-item {
     position: relative;
@@ -6582,10 +6248,6 @@ html[data-theme="dark"] .hk-dashboard-main .pagination .page-link:hover {
 /* --- Sitewide dark theme: remaining components that use a literal color
    instead of a token (everything else already flips via the tokens redefined
    at the top of this file under html[data-theme="dark"]) ------------------- */
-html[data-theme="dark"] .hk-history-section:nth-of-type(even) {
-    background-color: var(--hk-dark-surface-2);
-}
-
 html[data-theme="dark"] .hk-card-icon-btn,
 html[data-theme="dark"] .hk-meta-item,
 html[data-theme="dark"] .hk-description-box,
@@ -6621,15 +6283,6 @@ html[data-theme="dark"] .hk-skeleton::after {
 
 html[data-theme="dark"] .breadcrumb-item + .breadcrumb-item::before {
     color: var(--hk-ink-soft);
-}
-
-html[data-theme="dark"] .hk-history-toc {
-    border-bottom-color: var(--hk-border-soft);
-}
-
-html[data-theme="dark"] .hk-history-toc a {
-    background: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary);
 }
 
 html[data-theme="dark"] .navbar-toggler-icon {
