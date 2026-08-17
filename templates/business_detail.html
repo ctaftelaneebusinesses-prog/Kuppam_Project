@@ -3,6 +3,11 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ business.description|default:business.name|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ business.name }} — OneTownCity{% endblock %}
+{% block og_description %}{{ business.description|default:business.name|truncatechars:160 }}{% endblock %}
+{% block og_image %}{{ business.display_image }}{% endblock %}
+{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ business.get_absolute_url }}{% endblock %}
+{% block schema %}<script type="application/ld+json">{{ schema_json }}</script>{% endblock %}
 
 {% block content %}
 <section class="container py-5">

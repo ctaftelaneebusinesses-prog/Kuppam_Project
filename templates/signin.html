@@ -41,20 +41,23 @@
                 <!-- Sign In -->
                 <div class="tab-pane fade {% if active_tab != 'register' %}show active{% endif %}" id="signin-pane" role="tabpanel">
                     {% if login_form.non_field_errors %}
-                        <div class="alert alert-danger">{{ login_form.non_field_errors }}</div>
+                        <div class="alert alert-danger" role="alert">{{ login_form.non_field_errors }}</div>
                     {% endif %}
 
-                    <form method="post" action="{% url 'core:password_login' %}">
+                    <form method="post" action="{% url 'core:password_login' %}" novalidate>
                         {% csrf_token %}
                         <div class="form-floating mb-3 {% if login_form.username.errors %}hk-field-invalid{% endif %}">
                             {{ login_form.username }}
                             <label for="{{ login_form.username.id_for_label }}">Username</label>
-                            {% if login_form.username.errors %}<div class="hk-field-error">{{ login_form.username.errors|striptags }}</div>{% endif %}
+                            {% if login_form.username.errors %}<div class="hk-field-error" role="alert">{{ login_form.username.errors|striptags }}</div>{% endif %}
                         </div>
-                        <div class="form-floating mb-3 {% if login_form.password.errors %}hk-field-invalid{% endif %}">
+                        <div class="form-floating mb-3 hk-password-field {% if login_form.password.errors %}hk-field-invalid{% endif %}">
                             {{ login_form.password }}
                             <label for="{{ login_form.password.id_for_label }}">Password</label>
-                            {% if login_form.password.errors %}<div class="hk-field-error">{{ login_form.password.errors|striptags }}</div>{% endif %}
+                            <button type="button" class="hk-password-toggle" data-toggle-password="{{ login_form.password.id_for_label }}" aria-label="Show password" aria-pressed="false">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% if login_form.password.errors %}<div class="hk-field-error" role="alert">{{ login_form.password.errors|striptags }}</div>{% endif %}
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-lg hk-cta-btn">
                             <i class="bi bi-box-arrow-in-right"></i> Log In
@@ -81,23 +84,44 @@
                 <!-- Register -->
                 <div class="tab-pane fade {% if active_tab == 'register' %}show active{% endif %}" id="register-pane" role="tabpanel">
                     {% if register_form.non_field_errors %}
-                        <div class="alert alert-danger">{{ register_form.non_field_errors }}</div>
+                        <div class="alert alert-danger" role="alert">{{ register_form.non_field_errors }}</div>
                     {% endif %}
 
-                    <form method="post" action="{% url 'core:register' %}" enctype="multipart/form-data">
+                    <form method="post" action="{% url 'core:register' %}" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
                         {% for field in register_form %}
                         {% if field.field.widget.input_type == 'file' %}
                         <div class="mb-3">
                             <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                             {{ field }}
-                            {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
+                            {% if field.errors %}<div class="hk-field-error" role="alert">{{ field.errors|striptags }}</div>{% endif %}
                         </div>
+                        {% elif field.field.widget.input_type == 'password' %}
+                        <div class="form-floating mb-3 hk-password-field {% if field.errors %}hk-field-invalid{% endif %}">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <button type="button" class="hk-password-toggle" data-toggle-password="{{ field.id_for_label }}" aria-label="Show password" aria-pressed="false">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% if field.errors %}<div class="hk-field-error" role="alert">{{ field.errors|striptags }}</div>{% endif %}
+                        </div>
+                        {% if field.name == 'password' %}
+                        <div class="hk-password-strength" data-password-strength-for="{{ field.id_for_label }}" aria-hidden="true">
+                            <div class="hk-password-strength-bar"><span></span></div>
+                            <ul class="hk-password-checklist">
+                                <li data-rule="length">At least 8 characters</li>
+                                <li data-rule="upper">One uppercase letter</li>
+                                <li data-rule="lower">One lowercase letter</li>
+                                <li data-rule="number">One number</li>
+                                <li data-rule="special">One special character</li>
+                            </ul>
+                        </div>
+                        {% endif %}
                         {% else %}
                         <div class="form-floating mb-3 {% if field.errors %}hk-field-invalid{% endif %}">
                             {{ field }}
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
+                            {% if field.errors %}<div class="hk-field-error" role="alert">{{ field.errors|striptags }}</div>{% endif %}
                         </div>
                         {% endif %}
                         {% endfor %}
@@ -116,6 +140,20 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    document.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = document.getElementById(btn.getAttribute('data-toggle-password'));
+            if (!input) return;
+            var icon = btn.querySelector('i');
+            var showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            icon.classList.toggle('bi-eye', showing);
+            icon.classList.toggle('bi-eye-slash', !showing);
+            btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+        });
+    });
+</script>
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     const supabase = createClient('{{ SUPABASE_URL }}', '{{ SUPABASE_ANON_KEY }}');

@@ -44,10 +44,15 @@ class PasswordLoginForm(AuthenticationForm):
     AdminLoginForm, which exclusively guards the Django /admin/ backend).
     """
     username = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username', 'autofocus': True})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Username', 'autofocus': True, 'autocomplete': 'username',
+        })
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control', 'placeholder': 'Password', 'id': 'id_login_password',
+            'autocomplete': 'current-password',
+        })
     )
 
 
@@ -59,37 +64,52 @@ class RegisterForm(forms.Form):
     the moment it's created.
     """
     full_name = forms.CharField(
-        max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'})
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name', 'autocomplete': 'name'}),
     )
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email', 'autocomplete': 'email'})
     )
     phone_number = forms.CharField(
         max_length=10,
         widget=forms.TextInput(attrs={
             'class': 'form-control', 'placeholder': 'Mobile Number', 'maxlength': '10', 'inputmode': 'numeric',
+            'autocomplete': 'tel',
         }),
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control', 'placeholder': 'Password', 'autocomplete': 'new-password',
+        })
     )
     confirm_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control', 'placeholder': 'Confirm Password', 'autocomplete': 'new-password',
+            'data-match': 'id_password',
+        })
     )
     profile_photo = forms.ImageField(
         required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
     address = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Address'})
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control', 'rows': 2, 'placeholder': 'Address', 'autocomplete': 'street-address',
+        }),
     )
     city = forms.CharField(
-        required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'})
+        required=False, max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City', 'autocomplete': 'address-level2'}),
     )
     state = forms.CharField(
-        required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'})
+        required=False, max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State', 'autocomplete': 'address-level1'}),
     )
     pincode = forms.CharField(
-        required=False, max_length=10, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pincode'})
+        required=False, max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Pincode', 'inputmode': 'numeric', 'autocomplete': 'postal-code',
+        }),
     )
 
     def clean_email(self):

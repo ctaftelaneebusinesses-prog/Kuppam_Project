@@ -137,6 +137,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import validate_email
 from django.db.models import Count, F, Prefetch, ProtectedError, Q
 from django.db.models.functions import TruncDate
@@ -145,6 +146,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
@@ -220,6 +222,18 @@ def _safe_next(request, fallback):
 def _public_qs(model_cls):
     """Base queryset for anything shown to the public: active AND approved."""
     return model_cls.objects.filter(is_active=True, status=ListingStatus.APPROVED)
+
+
+def _ld_json(data):
+    """
+    Serializes a dict to a JSON-LD payload for embedding in a
+    <script type="application/ld+json"> tag. Escapes <, >, & the same way
+    Django's json_script does — listing text (name/description/etc.) is
+    owner-submitted and could otherwise contain a literal "</script>" that
+    breaks out of the tag.
+    """
+    json_str = json.dumps(data, cls=DjangoJSONEncoder)
+    return mark_safe(json_str.replace('&', '\\u0026').replace('<', '\\u003c').replace('>', '\\u003e'))
 
 
 def _detail_qs(request, model_cls):
@@ -612,10 +626,37 @@ def business_detail(request, slug):
     _bump_views(request, Business, business.pk)
     related_businesses = _public_qs(Business).filter(category=business.category).exclude(pk=business.pk)[:3]
 
+    schema = {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        'name': business.name,
+        'image': business.display_image,
+        'url': request.build_absolute_uri(business.get_absolute_url()),
+        'telephone': business.phone_number,
+        'address': {
+            '@type': 'PostalAddress',
+            'streetAddress': business.address,
+            'addressLocality': 'Kuppam',
+            'addressRegion': 'Andhra Pradesh',
+            'addressCountry': 'IN',
+        },
+    }
+    if business.description:
+        schema['description'] = business.description
+    if business.website:
+        schema['sameAs'] = business.website
+    if business.review_count:
+        schema['aggregateRating'] = {
+            '@type': 'AggregateRating',
+            'ratingValue': str(business.avg_rating),
+            'reviewCount': business.review_count,
+        }
+
     context = {
         'page_title': f'{business.name} - OneTownCity',
         'business': business,
         'related_businesses': related_businesses,
+        'schema_json': _ld_json(schema),
         **_community_context(request, business),
     }
     return render(request, 'business_detail.html', context)
@@ -716,10 +757,27 @@ def property_detail(request, slug):
     _bump_views(request, Property, property_obj.pk)
     related_properties = _public_qs(Property).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk)[:3]
 
+    schema = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        'name': property_obj.title,
+        'image': property_obj.display_image,
+        'description': property_obj.description or property_obj.title,
+        'url': request.build_absolute_uri(property_obj.get_absolute_url()),
+        'offers': {
+            '@type': 'Offer',
+            'price': str(property_obj.price),
+            'priceCurrency': 'INR',
+            'availability': 'https://schema.org/InStock',
+            'url': request.build_absolute_uri(property_obj.get_absolute_url()),
+        },
+    }
+
     context = {
         'page_title': f'{property_obj.title} - OneTownCity',
         'property': property_obj,
         'related_properties': related_properties,
+        'schema_json': _ld_json(schema),
         **_community_context(request, property_obj),
     }
     return render(request, 'property_detail.html', context)
@@ -760,10 +818,32 @@ def job_detail(request, slug):
     _bump_views(request, Job, job.pk)
     related_jobs = _public_qs(Job).filter(company=job.company).exclude(pk=job.pk)[:3]
 
+    schema = {
+        '@context': 'https://schema.org',
+        '@type': 'JobPosting',
+        'title': job.job_title,
+        'description': job.description or job.job_title,
+        'datePosted': job.created_at.date().isoformat(),
+        'hiringOrganization': {
+            '@type': 'Organization',
+            'name': job.company,
+        },
+        'jobLocation': {
+            '@type': 'Place',
+            'address': {
+                '@type': 'PostalAddress',
+                'addressLocality': job.location or 'Kuppam',
+                'addressRegion': 'Andhra Pradesh',
+                'addressCountry': 'IN',
+            },
+        },
+    }
+
     context = {
         'page_title': f'{job.job_title} at {job.company} - OneTownCity',
         'job': job,
         'related_jobs': related_jobs,
+        'schema_json': _ld_json(schema),
         **_community_context(request, job),
     }
     return render(request, 'job_detail.html', context)
@@ -804,10 +884,32 @@ def event_detail(request, slug):
     _bump_views(request, Event, event.pk)
     related_events = _public_qs(Event).exclude(pk=event.pk)[:3]
 
+    schema = {
+        '@context': 'https://schema.org',
+        '@type': 'Event',
+        'name': event.title,
+        'startDate': event.event_date.isoformat(),
+        'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+        'eventStatus': 'https://schema.org/EventScheduled',
+        'location': {
+            '@type': 'Place',
+            'name': event.location,
+            'address': {
+                '@type': 'PostalAddress',
+                'addressLocality': 'Kuppam',
+                'addressRegion': 'Andhra Pradesh',
+                'addressCountry': 'IN',
+            },
+        },
+        'image': event.display_image,
+        'description': event.description or event.title,
+    }
+
     context = {
         'page_title': f'{event.title} - OneTownCity',
         'event': event,
         'related_events': related_events,
+        'schema_json': _ld_json(schema),
         **_community_context(request, event),
     }
     return render(request, 'event_detail.html', context)
@@ -848,10 +950,30 @@ def news_detail(request, slug):
     _bump_views(request, News, article.pk)
     related_articles = _public_qs(News).exclude(pk=article.pk)[:3]
 
+    schema = {
+        '@context': 'https://schema.org',
+        '@type': 'NewsArticle',
+        'headline': article.title[:110],
+        'image': [article.display_image],
+        'datePublished': article.published_date.isoformat(),
+        'dateModified': article.updated_at.date().isoformat(),
+        'author': {
+            '@type': 'Organization',
+            'name': article.source or 'OneTownCity',
+        },
+        'publisher': {
+            '@type': 'Organization',
+            'name': 'OneTownCity',
+        },
+        'description': (article.content or article.title)[:200],
+        'mainEntityOfPage': request.build_absolute_uri(article.get_absolute_url()),
+    }
+
     context = {
         'page_title': f'{article.title} - OneTownCity',
         'article': article,
         'related_articles': related_articles,
+        'schema_json': _ld_json(schema),
         **_community_context(request, article),
     }
     return render(request, 'news_detail.html', context)

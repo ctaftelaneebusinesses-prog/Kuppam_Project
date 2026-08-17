@@ -42,6 +42,31 @@
     <meta property="og:site_name" content="OneTownCity">
     <meta property="og:title" content="{% block og_title %}OneTownCity — The Smart City Network{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Explore your city with absolute clarity. Discover verified real estate, businesses, shopping, and upcoming projects on OneTownCity. View image streams, access Google links instantly, and interact with your community.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/history/intro-landscape.jpg' %}{% endblock %}">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+
+    <!-- Twitter/X falls back to the og:title/og:description/og:image tags above
+         when their twitter: equivalents are absent, so summary_large_image is
+         the only tag needed here. -->
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
+
+    {% block schema %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "OneTownCity",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'core:home' %}",
+        "description": "Hyperlocal community platform for Kuppam — business directory, real estate, jobs, events, and news.",
+        "areaServed": {
+            "@type": "City",
+            "name": "Kuppam"
+        }
+    }
+    </script>
+    {% endblock %}
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

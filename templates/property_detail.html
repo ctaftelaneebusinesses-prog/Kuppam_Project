@@ -4,6 +4,11 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ property.description|default:property.title|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ property.title }} — OneTownCity{% endblock %}
+{% block og_description %}{{ property.description|default:property.title|truncatechars:160 }}{% endblock %}
+{% block og_image %}{{ property.display_image }}{% endblock %}
+{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ property.get_absolute_url }}{% endblock %}
+{% block schema %}<script type="application/ld+json">{{ schema_json }}</script>{% endblock %}
 
 {% block content %}
 <section class="container py-5">
