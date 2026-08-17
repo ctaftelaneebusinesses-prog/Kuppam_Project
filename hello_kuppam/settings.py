@@ -98,10 +98,14 @@ DATABASES = {
     'default': dj_database_url.parse(
         os.getenv('DATABASE_URL'),
         # Persistent connections pin one Supabase pooler slot (15 total in
-        # session mode) per process for their whole lifetime. Runserver's
-        # autoreloader spawns a new process per code change, so a nonzero
-        # value here exhausts the pool after a handful of reloads.
-        conn_max_age=0 if DEBUG else 600,
+        # session mode, the only mode this project's Supabase plan exposes)
+        # per thread for their whole lifetime. With 2 gunicorn workers x 4
+        # threads that's up to 8 slots held continuously, and a killed/
+        # restarted worker (OOM, timeout) doesn't release its slot cleanly —
+        # a couple of crash cycles is enough to exhaust the pool and start
+        # 500ing every request. Keeping this at 0 closes each connection
+        # right after its request instead of holding it for minutes.
+        conn_max_age=0,
     )
 }
 # ------------------------------------------------------------------
