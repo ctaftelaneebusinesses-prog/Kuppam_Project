@@ -6213,6 +6213,79 @@ body.hk-dashboard-active .hk-whatsapp-fab-wrap {
     margin-top: .35rem;
 }
 
+/* Password strength meter (register form) — hidden until the field has a
+   value, so it doesn't clutter the form before the user starts typing. */
+.hk-password-strength {
+    margin-top: -.75rem;
+    margin-bottom: 1rem;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height .2s ease, opacity .2s ease, margin .2s ease;
+}
+
+.hk-password-strength.is-visible {
+    max-height: 10rem;
+    opacity: 1;
+}
+
+.hk-password-strength-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--hk-border-soft);
+    overflow: hidden;
+    margin-bottom: .5rem;
+}
+
+.hk-password-strength-bar > span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: transparent;
+    transition: width .2s ease, background-color .2s ease;
+}
+
+.hk-password-checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .25rem .75rem;
+    font-size: .78rem;
+    color: var(--hk-ink-soft);
+}
+
+.hk-password-checklist li {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    transition: color .15s ease;
+}
+
+.hk-password-checklist li::before {
+    content: "\25CB";
+    font-size: .7rem;
+    color: var(--hk-border-soft);
+}
+
+.hk-password-checklist li.is-met {
+    color: var(--hk-emerald);
+}
+
+.hk-password-checklist li.is-met::before {
+    content: "\2713";
+    color: var(--hk-emerald);
+}
+
+/* Submit-button loading state — prevents duplicate submissions while the
+   POST round-trip (full page reload) is in flight. */
+.hk-btn-loading {
+    opacity: .85;
+    cursor: progress;
+    pointer-events: none;
+}
+
 html[data-theme="dark"] .form-control,
 html[data-theme="dark"] .form-select,
 html[data-theme="dark"] .form-floating > .form-control,

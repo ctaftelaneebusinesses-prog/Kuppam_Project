@@ -151,8 +151,176 @@
             icon.classList.toggle('bi-eye', showing);
             icon.classList.toggle('bi-eye-slash', !showing);
             btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            btn.setAttribute('aria-pressed', showing ? 'false' : 'true');
         });
     });
+</script>
+<script>
+(function () {
+    'use strict';
+
+    function fieldWrapper(input) {
+        return input.closest('.form-floating, .mb-3');
+    }
+
+    function setFieldState(input, message) {
+        var wrapper = fieldWrapper(input);
+        if (!wrapper) return;
+        var errorEl = wrapper.querySelector('.hk-field-error');
+        if (message) {
+            if (!errorEl) {
+                errorEl = document.createElement('div');
+                errorEl.className = 'hk-field-error';
+                errorEl.setAttribute('role', 'alert');
+                wrapper.appendChild(errorEl);
+            }
+            if (!errorEl.id) errorEl.id = (input.id || input.name) + '-error';
+            errorEl.textContent = message;
+            wrapper.classList.add('hk-field-invalid');
+            input.setAttribute('aria-invalid', 'true');
+            input.setAttribute('aria-describedby', errorEl.id);
+        } else {
+            wrapper.classList.remove('hk-field-invalid');
+            input.setAttribute('aria-invalid', 'false');
+            if (errorEl) errorEl.textContent = '';
+        }
+    }
+
+    function validateField(input) {
+        var raw = input.value;
+        var value = raw.trim();
+        if (input.hasAttribute('required') && value === '') return 'This field is required.';
+        if (value === '') return '';
+        if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            return 'Enter a valid email address.';
+        }
+        if (input.name === 'phone_number' && !/^\d{10}$/.test(value)) {
+            return 'Enter a valid 10-digit phone number.';
+        }
+        if (input.name === 'password' && input.form.querySelector('[name="confirm_password"]') && value.length < 8) {
+            return 'Password must be at least 8 characters.';
+        }
+        if (input.name === 'confirm_password') {
+            var matchId = input.getAttribute('data-match');
+            var target = matchId ? document.getElementById(matchId) : null;
+            if (target && raw !== target.value) return 'Passwords do not match.';
+        }
+        return '';
+    }
+
+    function validateAndShow(input) {
+        var message = validateField(input);
+        setFieldState(input, message);
+        return !message;
+    }
+
+    var STRENGTH_RULES = [
+        { key: 'length', test: function (v) { return v.length >= 8; } },
+        { key: 'upper', test: function (v) { return /[A-Z]/.test(v); } },
+        { key: 'lower', test: function (v) { return /[a-z]/.test(v); } },
+        { key: 'number', test: function (v) { return /[0-9]/.test(v); } },
+        { key: 'special', test: function (v) { return /[^A-Za-z0-9]/.test(v); } },
+    ];
+
+    function updateStrengthMeter(input) {
+        var meter = document.querySelector('[data-password-strength-for="' + input.id + '"]');
+        if (!meter) return;
+        var value = input.value;
+        var passed = 0;
+        STRENGTH_RULES.forEach(function (rule) {
+            var ok = rule.test(value);
+            if (ok) passed++;
+            var li = meter.querySelector('[data-rule="' + rule.key + '"]');
+            if (li) li.classList.toggle('is-met', ok);
+        });
+        var bar = meter.querySelector('.hk-password-strength-bar > span');
+        if (bar) {
+            bar.style.width = value ? Math.max(20, (passed / STRENGTH_RULES.length) * 100) + '%' : '0%';
+            var color = 'transparent';
+            if (value) color = passed <= 2 ? 'var(--hk-red-600)' : passed <= 3 ? 'var(--bs-warning)' : 'var(--hk-emerald)';
+            bar.style.background = color;
+        }
+        meter.classList.toggle('is-visible', value.length > 0);
+    }
+
+    function setLoading(form, loading) {
+        var btn = form.querySelector('button[type="submit"]');
+        if (!btn) return;
+        if (loading) {
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.classList.add('hk-btn-loading');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Please wait…';
+        } else {
+            btn.disabled = false;
+            btn.classList.remove('hk-btn-loading');
+            if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+        }
+    }
+
+    document.querySelectorAll('.hk-auth-form-card form').forEach(function (form) {
+        var fields = form.querySelectorAll(
+            'input:not([type=hidden]):not([type=file]):not([type=checkbox]), textarea'
+        );
+
+        fields.forEach(function (input) {
+            input.addEventListener('blur', function () {
+                input.dataset.touched = '1';
+                if (input.type !== 'password') {
+                    var trimmed = input.value.trim();
+                    if (trimmed !== input.value) input.value = trimmed;
+                }
+                validateAndShow(input);
+            });
+            input.addEventListener('input', function () {
+                if (input.dataset.touched === '1') validateAndShow(input);
+                if (input.name === 'password') updateStrengthMeter(input);
+            });
+        });
+
+        var passwordInput = form.querySelector('[name="password"]');
+        var confirmInput = form.querySelector('[name="confirm_password"]');
+        if (passwordInput && confirmInput) {
+            passwordInput.addEventListener('input', function () {
+                if (confirmInput.dataset.touched === '1') validateAndShow(confirmInput);
+            });
+        }
+
+        form.addEventListener('submit', function (e) {
+            var valid = true;
+            var firstInvalid = null;
+            fields.forEach(function (input) {
+                input.dataset.touched = '1';
+                if (input.type !== 'password') {
+                    var trimmed = input.value.trim();
+                    if (trimmed !== input.value) input.value = trimmed;
+                }
+                if (!validateAndShow(input)) {
+                    valid = false;
+                    if (!firstInvalid) firstInvalid = input;
+                }
+            });
+            if (!valid) {
+                e.preventDefault();
+                if (firstInvalid) firstInvalid.focus();
+                return;
+            }
+            setLoading(form, true);
+        });
+    });
+
+    var googleBtn = document.getElementById('google-signin-btn');
+    if (googleBtn) {
+        var googleBtnOriginal = googleBtn.innerHTML;
+        googleBtn.addEventListener('click', function () {
+            googleBtn.disabled = true;
+        });
+        window.addEventListener('hk:google-signin-error', function () {
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = googleBtnOriginal;
+        });
+    }
+})();
 </script>
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -167,6 +335,7 @@
             const box = document.getElementById('signin-error');
             box.textContent = error.message;
             box.classList.remove('d-none');
+            window.dispatchEvent(new Event('hk:google-signin-error'));
         }
     });
 </script>
