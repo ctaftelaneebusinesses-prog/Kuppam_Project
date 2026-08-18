@@ -3599,6 +3599,11 @@ html[data-theme="dark"] .hk-industry-pill:hover {
         left: 0;
         width: 46%;
         height: calc(100vh - 96px);
+        /* Forces this onto its own GPU compositing layer immediately on
+           load — without it, Chrome on Windows sometimes leaves a freshly
+           created position:fixed layer unpainted (blank) until the next
+           scroll event nudges the compositor into redrawing it. */
+        transform: translateZ(0);
     }
     .hk-auth-brand.hk-auth-brand--pinned-bottom {
         position: absolute;
