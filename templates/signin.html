@@ -338,6 +338,29 @@
         brand.classList.toggle('hk-auth-brand--pinned-bottom', pastShellEnd);
     }
 
+    // Switching to the Register tab makes the form pane much taller (9
+    // fields vs. Sign In's 2), changing the page's overall height even
+    // though .hk-auth-brand itself is position:fixed and shouldn't be
+    // affected. Chrome on Windows sometimes fails to repaint an already-
+    // painted fixed layer after a DOM change like this, leaving it blank
+    // until an actual scroll event forces a redraw — same bug the
+    // transform:translateZ(0) hack in main.css works around for the very
+    // first page paint, but that only covers page load, not a later tab
+    // switch. Nudging transform again here forces Chrome to repaint.
+    function nudgeRepaint() {
+        updateBrandPin();
+        requestAnimationFrame(function () {
+            brand.style.transform = 'translateZ(0.01px)';
+            requestAnimationFrame(function () {
+                brand.style.transform = '';
+            });
+        });
+    }
+
+    document.querySelectorAll('#authTabs button[data-bs-toggle="pill"]').forEach(function (tabBtn) {
+        tabBtn.addEventListener('shown.bs.tab', nudgeRepaint);
+    });
+
     window.addEventListener('scroll', updateBrandPin, { passive: true });
     window.addEventListener('resize', updateBrandPin);
     updateBrandPin();

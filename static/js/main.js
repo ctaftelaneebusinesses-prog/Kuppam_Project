@@ -38,6 +38,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // titles included) stays invisible forever. Fall back to revealing it
     // immediately rather than leaving it permanently hidden.
     if (window.AOS) {
+        // Anything already on-screen at load shouldn't play its entrance
+        // animation — that just reads as an unwanted jump right after the
+        // page paints. Strip data-aos from whatever's already in the
+        // initial viewport before AOS.init() scans for it, so it renders
+        // in its final position immediately; content further down the
+        // page still gets the normal reveal-on-scroll animation.
+        var initialViewportHeight = window.innerHeight;
+        document.querySelectorAll('[data-aos]').forEach(function (el) {
+            if (el.getBoundingClientRect().top < initialViewportHeight) {
+                el.removeAttribute('data-aos');
+            }
+        });
         AOS.init({ duration: 650, easing: 'ease-out-cubic', once: true, offset: 60 });
     } else {
         document.querySelectorAll('[data-aos]').forEach(function (el) {
