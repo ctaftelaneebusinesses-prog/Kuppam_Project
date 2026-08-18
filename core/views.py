@@ -339,13 +339,13 @@ GENERAL_BUSINESS_CATEGORY_CHOICES = [
 # manage it from the "Manage Categories" dashboard instead of editing code.
 CATEGORIES = [
     {
-        'name': 'Real Estate', 'icon': 'bi-house-door', 'slug': 'real-estate',
+        'name': 'Property Listing', 'icon': 'bi-house-door', 'slug': 'real-estate',
         'image': 'images/services/real-estate.jpg',
         'description': 'Find houses, apartments, plots, villas, rental properties, and commercial spaces available in your location.',
         'count_fn': lambda: _public_qs(Property).count(),
     },
     {
-        'name': 'Businesses', 'icon': 'bi-shop', 'slug': 'shops',
+        'name': 'Nearby Shops', 'icon': 'bi-shop', 'slug': 'shops',
         'image': 'images/services/business.jpg',
         'description': 'Explore car garages, clothing and textile shops, stationery shops, supermarkets, salons, and other local businesses across the city.',
         'count_fn': lambda: _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES).count(),
@@ -544,7 +544,7 @@ def search(request):
 
         sections = [
             _section(
-                'business', 'Businesses', 'bi-shop',
+                'business', 'Nearby Shops', 'bi-shop',
                 _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES),
                 'core:business_list', 'partials/business_card.html', 'business',
             ),

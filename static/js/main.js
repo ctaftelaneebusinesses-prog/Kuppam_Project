@@ -370,7 +370,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 // finish capturing the submission first.
                 setTimeout(function () {
                     submitBtn.dataset.hkOriginalHtml = submitBtn.innerHTML;
-                    submitBtn.innerHTML = submitBtn.classList.contains('hk-card-icon-btn')
+                    // Icon-only buttons (funnel/toggle/delete row actions etc.) have
+                    // no room for the "Please wait…" label — it just wraps into a
+                    // cramped, broken-looking pill. Detect "icon-only" generically
+                    // via empty textContent rather than hardcoding every such
+                    // button's class name one at a time.
+                    submitBtn.innerHTML = submitBtn.textContent.trim() === ''
                         ? '<span class="spinner-border spinner-border-sm"></span>'
                         : '<span class="spinner-border spinner-border-sm me-2"></span>Please wait…';
                     submitBtn.disabled = true;

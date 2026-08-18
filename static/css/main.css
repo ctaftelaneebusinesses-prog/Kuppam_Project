@@ -4859,7 +4859,9 @@ html[data-theme="dark"] .hk-dash-profile-name {
 }
 
 .hk-table-toolbar .hk-bulkbar-apply-btn:disabled {
-    opacity: .4;
+    opacity: 1;
+    background: #F8F9FD;
+    color: var(--hk-ink-soft);
     filter: none;
     box-shadow: none;
     cursor: not-allowed;

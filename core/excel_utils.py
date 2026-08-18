@@ -381,7 +381,7 @@ def parse_project_row(row):
 UPLOAD_CONFIGS = {
     'businesses': {
         'key': 'businesses',
-        'label': 'Businesses',
+        'label': 'Nearby Shops',
         'icon': 'bi-shop',
         'model': Business,
         'required_columns': ['Business Name', 'Category', 'Address', 'Phone Number'],

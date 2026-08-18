@@ -310,8 +310,8 @@
                         {% for cat in nav_category_tree %}
                         <li><a href="{{ cat.list_url }}">{{ cat.label|dyntrans }}</a></li>
                         {% empty %}
-                        <li><a href="{% url 'core:property_list' %}">{% trans "Real Estate" %}</a></li>
-                        <li><a href="{% url 'core:business_list' %}">{% trans "Businesses" %}</a></li>
+                        <li><a href="{% url 'core:property_list' %}">{% trans "Property Listing" %}</a></li>
+                        <li><a href="{% url 'core:business_list' %}">{% trans "Nearby Shops" %}</a></li>
                         <li><a href="{% url 'core:job_list' %}">{% trans "Jobs" %}</a></li>
                         <li><a href="{% url 'core:event_list' %}">{% trans "Events" %}</a></li>
                         <li><a href="{% url 'core:news_list' %}">{% trans "OneTownCity News" %}</a></li>
