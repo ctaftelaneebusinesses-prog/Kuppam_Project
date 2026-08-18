@@ -7,30 +7,13 @@
          never flickers light-then-dark (or vice versa) on load. -->
     <script>
         (function () {
-            // Server-rendered site-wide default (Super Admin's Site Theme panel,
-            // see core/context_processors.py:site_theme) — a visitor's own
-            // localStorage choice still wins unless enforce_palette is on, and
-            // the Super Admin's own personal switcher is never locked out of
-            // their own session even when they've enforced it for everyone else.
-            var sitePalette = '{{ site_default_palette|default:"default" }}';
-            var enforce = {{ site_enforce_palette|yesno:"true,false" }};
-            var isSuperAdmin = {% if user.is_authenticated and user.profile.is_super_admin %}true{% else %}false{% endif %};
-            window.HK_SITE_DEFAULT_PALETTE = sitePalette;
-            window.HK_SITE_ENFORCE_PALETTE = enforce && !isSuperAdmin;
-
             var theme = null;
-            var localPalette = null;
             try {
                 theme = localStorage.getItem('hkTheme');
-                localPalette = localStorage.getItem('hkPalette');
             } catch (e) {}
 
             if (theme === 'dark' || theme === 'light') {
                 document.documentElement.setAttribute('data-theme', theme);
-            }
-            var effectivePalette = (window.HK_SITE_ENFORCE_PALETTE || !localPalette) ? sitePalette : localPalette;
-            if (effectivePalette && effectivePalette !== 'default') {
-                document.documentElement.setAttribute('data-palette', effectivePalette);
             }
         })();
     </script>
@@ -112,19 +95,6 @@
                 <button type="button" class="hk-theme-toggle d-none d-lg-inline-flex" id="hkThemeToggle" title="{% trans 'Toggle dark mode' %}" aria-label="{% trans 'Toggle dark mode' %}">
                     <i class="bi bi-moon-stars" id="hkThemeIcon"></i>
                 </button>
-
-                <!-- Luxury palette switcher: floating panel of the 4 seasonal
-                     looks (see palette-switcher.js). Hidden on mobile — the
-                     drawer below carries an inline row version instead. -->
-                <div class="hk-palette-switcher d-none d-lg-block" data-palette-switcher>
-                    <button type="button" class="hk-theme-toggle" data-palette-trigger title="{% trans 'Switch theme palette' %}" aria-label="{% trans 'Switch theme palette' %}" aria-haspopup="true" aria-expanded="false">
-                        <span class="hk-palette-swatch-dot"></span>
-                    </button>
-                    <div class="hk-palette-panel" role="menu">
-                        <div class="hk-palette-panel-label">{% trans "Theme Palette" %}</div>
-                        {% include 'partials/palette_options.html' %}
-                    </div>
-                </div>
 
                 <!-- Language switcher: posts to Django's built-in set_language
                      view (see language_options.html) — a full page reload in
@@ -249,13 +219,6 @@
                 <button type="button" class="hk-theme-toggle" id="hkThemeToggleMobile" title="{% trans 'Toggle dark mode' %}" aria-label="{% trans 'Toggle dark mode' %}">
                     <i class="bi bi-moon-stars" id="hkThemeIconMobile"></i>
                 </button>
-            </div>
-
-            <div class="px-2 mt-3" data-palette-switcher>
-                <span class="text-secondary small fw-semibold d-block mb-2">{% trans "Palette" %}</span>
-                <div class="hk-palette-row-mobile">
-                    {% include 'partials/palette_options.html' %}
-                </div>
             </div>
 
             <div class="px-2 mt-3">
@@ -409,7 +372,6 @@
 
     <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/aos/aos.js' %}"></script>
-    <script src="{% static 'js/seasonal-canvas.js' %}"></script>
     <script src="{% static 'js/world-scene.js' %}"></script>
     <script src="{% static 'js/celebrations.js' %}"></script>
     <script src="{% static 'js/toasts.js' %}"></script>

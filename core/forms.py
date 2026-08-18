@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 
 from .models import (
-    Business, Category, Event, Job, News, Profile, Project, Property, SiteSettings,
+    Business, Category, Event, Job, News, Profile, Project, Property,
 )
 
 User = get_user_model()
@@ -417,11 +417,3 @@ class CategoryForm(forms.ModelForm):
 # Super Admin: site-wide theme override
 # ---------------------------------------------------------------------------
 
-class SiteSettingsForm(forms.ModelForm):
-    class Meta:
-        model = SiteSettings
-        fields = ['default_palette', 'enforce_palette']
-        widgets = {
-            'default_palette': forms.RadioSelect,
-            'enforce_palette': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }

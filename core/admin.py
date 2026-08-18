@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from .models import (
     AdminCategoryPermission, AdminRequest, Business, Category, Comment, ContactMessage, Event, Favorite,
     Job, Like, LoginHistory, News, NewsletterSubscriber, Notification, PostImage, PostVideo, Profile,
-    Project, Property, Report, Review, Share, SiteSettings, TranslationCache,
+    Project, Property, Report, Review, Share, TranslationCache,
 )
 
 
@@ -302,21 +302,6 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
     ordering = ('-subscribed_at',)
 
 
-@admin.register(SiteSettings)
-class SiteSettingsAdmin(admin.ModelAdmin):
-    """
-    The primary editing surface is the Super Admin dashboard's Site Theme
-    panel (dashboard/site_settings.html) — this registration just keeps the
-    single row visible/editable from /admin/ too, for developer convenience.
-    """
-    list_display = ('default_palette', 'enforce_palette', 'updated_by', 'updated_at')
-    readonly_fields = ('updated_at',)
-
-    def has_add_permission(self, request):
-        return not SiteSettings.objects.exists()
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 
 # --- Admin branding -------------------------------------------------------

@@ -158,13 +158,13 @@ from .export_utils import build_posts_pdf, build_posts_workbook, build_users_pdf
 from .forms import (
     AdminLoginForm, AdminRequestForm, AdminRequestReviewForm, CategoryForm, CommentForm, ContactForm,
     ExcelUploadForm, LISTING_SUBMIT_FORMS, PasswordLoginForm, ProfileCompletionForm,
-    RegisterForm, ReportForm, ReviewForm, SiteSettingsForm,
+    RegisterForm, ReportForm, ReviewForm,
 )
 from .models import (
     AdminCategoryPermission, AdminRequest, AdminRequestStatus, Business, Category, Comment,
     ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News,
     NewsletterSubscriber, Notification, PostImage, PostVideo, PostView, Profile, Project, Property,
-    PushSubscription, Report, Review, Share, SiteSettings, UserRole, unique_slug_for,
+    PushSubscription, Report, Review, Share, UserRole, unique_slug_for,
 )
 from .push import notify, notify_bulk
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
@@ -2647,34 +2647,6 @@ def dashboard_categories(request):
         'top_categories': top_categories,
         'listing_model_choices': Category.LISTING_MODEL_CHOICES,
         'active_nav': 'categories',
-    })
-
-
-@super_admin_required
-def dashboard_site_settings(request):
-    """
-    Super Admin's site-wide theme override — the one control from the
-    original brief that touches every visitor's page, not just the admin's
-    own session (see SiteSettings.load() and the site_theme context
-    processor that feeds base.html's anti-flash script + palette-switcher.js).
-    """
-    settings_obj = SiteSettings.load()
-    if request.method == 'POST':
-        form = SiteSettingsForm(request.POST, instance=settings_obj)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.updated_by = request.user
-            obj.save()
-            messages.success(request, 'Site theme updated for all visitors.')
-            return redirect('core:dashboard_site_settings')
-    else:
-        form = SiteSettingsForm(instance=settings_obj)
-
-    return render(request, 'dashboard/site_settings.html', {
-        'page_title': 'Site Theme - OneTownCity',
-        'form': form,
-        'settings_obj': settings_obj,
-        'active_nav': 'site_theme',
     })
 
 

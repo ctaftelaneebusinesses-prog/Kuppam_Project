@@ -55,9 +55,6 @@
                 <a class="nav-link hk-dash-link {% if active_nav == 'categories' %}active{% endif %}" href="{% url 'core:dashboard_categories' %}">
                     <i class="bi bi-tags"></i> {% trans "Categories" %}
                 </a>
-                <a class="nav-link hk-dash-link {% if active_nav == 'site_theme' %}active{% endif %}" href="{% url 'core:dashboard_site_settings' %}">
-                    <i class="bi bi-palette2"></i> {% trans "Site Theme" %}
-                </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'messages' %}active{% endif %}" href="{% url 'core:dashboard_messages' %}">
                     <i class="bi bi-envelope"></i> {% trans "Contact Messages" %}
                     {% if unread_message_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_message_count }}</span>{% endif %}
@@ -81,30 +78,6 @@
                     {% if unread_notification_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_notification_count }}</span>{% endif %}
                 </a>
             </nav>
-
-            <div class="hk-weather-season-picker" role="group" aria-label="{% trans 'Seasonal background theme' %}">
-                <div class="hk-weather-season-head">
-                    <i class="bi bi-clouds"></i>
-                    <span>{% trans "Seasonal Theme" %}</span>
-                </div>
-                <div class="hk-weather-season-options">
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="none" aria-pressed="true" title="{% trans 'No seasonal effect' %}">
-                        <i class="bi bi-slash-circle"></i>
-                    </button>
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="rain" aria-pressed="false" title="{% trans 'Rainy season' %}">
-                        <i class="bi bi-cloud-rain-heavy"></i>
-                    </button>
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="winter" aria-pressed="false" title="{% trans 'Snow (Christmas)' %}">
-                        <i class="bi bi-snow2"></i>
-                    </button>
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="spring" aria-pressed="false" title="{% trans 'Spring season' %}">
-                        <i class="bi bi-flower1"></i>
-                    </button>
-                    <button type="button" class="hk-weather-season-option" data-weather-season-option="autumn" aria-pressed="false" title="{% trans 'Autumn season' %}">
-                        <i class="bi bi-tree-fill"></i>
-                    </button>
-                </div>
-            </div>
 
             <div class="hk-dash-sidebar-footer">
                 <a href="{% url 'core:home' %}" class="nav-link hk-dash-link">
@@ -140,5 +113,4 @@
     </main>
 </div>
 <script src="{% static 'js/weather-widget.js' %}"></script>
-<script src="{% static 'js/weather-seasons.js' %}"></script>
 {% endblock %}

@@ -178,69 +178,6 @@ html[data-theme="dark"] .hk-navbar-solid {
     border-color: rgba(255, 255, 255, .1);
 }
 
-/* --- Navbar × seasonal theme sync ----------------------------------------
-   The glass navbar otherwise only reads the plain light/dark toggle (rules
-   above), so it stayed a fixed neutral shade while every other seasonal
-   surface (body wash, sidebar frost, seasonal canvas) already reacted to
-   data-palette. Placed after both .hk-navbar-solid rules above (same
-   attribute+class specificity as html[data-theme="dark"] .hk-navbar-solid)
-   so a palette always wins the tie, even for Rainy Velvet / Nordic Aurora,
-   which force data-theme="dark" alongside data-palette. Two treatments,
-   matching how each palette group already works elsewhere in this file:
-   - The 3 full color palettes (own --hk-surface/ink/border tokens, tokens.css)
-     get their own opaque-glass background-color, same technique as the
-     light/dark rules above — just palette-scoped instead of theme-scoped.
-   - The 4 weather effects (no surface tokens of their own — they're a wash
-     over whatever light/dark is already active) get a background-image tint
-     layered on top of the existing background-color, reusing the exact same
-     *-glow tokens the body wash already uses — one hue per season, not a
-     second color system. Deliberately a full-width edge-to-edge gradient
-     (90deg, no transparent stop) rather than the diagonal-fading-out style
-     used elsewhere (e.g. the sidebar frost tint) — the navbar is up to
-     1280px wide but only 64px tall, so a gradient that fades out partway
-     across the width left the far (right-hand icon cluster) side untinted.
-     background-image swaps instantly on change (can't be transitioned),
-     same tradeoff already accepted for the body wash; background-color
-     itself keeps animating via the .navbar transition rule above so
-     palette-to-palette swaps still fade smoothly. */
-html[data-palette="summer-silk"] .navbar:not(.hk-navbar-transparent),
-html[data-palette="summer-silk"] .hk-navbar-solid {
-    background-color: rgba(255, 253, 248, .8) !important;
-    border-color: var(--hk-border-soft);
-}
-
-html[data-palette="rainy-velvet"] .navbar:not(.hk-navbar-transparent),
-html[data-palette="rainy-velvet"] .hk-navbar-solid {
-    background-color: rgba(25, 29, 38, .68) !important;
-    border-color: rgba(160, 190, 230, .16);
-}
-
-html[data-palette="nordic-aurora"] .navbar:not(.hk-navbar-transparent),
-html[data-palette="nordic-aurora"] .hk-navbar-solid {
-    background-color: rgba(19, 31, 25, .68) !important;
-    border-color: rgba(140, 220, 190, .16);
-}
-
-html[data-palette="autumn"] .navbar:not(.hk-navbar-transparent),
-html[data-palette="autumn"] .hk-navbar-solid {
-    background-image: linear-gradient(90deg, var(--hk-autumn-glow-1), var(--hk-autumn-glow-2));
-}
-
-html[data-palette="spring"] .navbar:not(.hk-navbar-transparent),
-html[data-palette="spring"] .hk-navbar-solid {
-    background-image: linear-gradient(90deg, var(--hk-spring-glow-1), var(--hk-spring-glow-2));
-}
-
-html[data-palette="winter"] .navbar:not(.hk-navbar-transparent),
-html[data-palette="winter"] .hk-navbar-solid {
-    background-image: linear-gradient(90deg, var(--hk-winter-glow-1), var(--hk-winter-glow-2));
-}
-
-html[data-palette="rain"] .navbar:not(.hk-navbar-transparent),
-html[data-palette="rain"] .hk-navbar-solid {
-    background-image: linear-gradient(90deg, var(--hk-rain-glow-1), var(--hk-rain-glow-2));
-}
-
 .navbar .hk-theme-toggle {
     width: 36px;
     height: 36px;
@@ -262,91 +199,6 @@ html[data-theme="dark"] .navbar .hk-theme-toggle {
 html[data-theme="dark"] .navbar .hk-theme-toggle:hover {
     background: rgba(255, 255, 255, .08);
     color: #fff;
-}
-
-/* --- Round icon buttons (sun/moon, palette trigger, language trigger) ×
-   seasonal theme sync — same rationale as the navbar bar itself above, and
-   placed after the html[data-theme="dark"] rules for the same tie-break
-   reason (equal specificity, Rainy Velvet / Nordic Aurora force dark theme
-   alongside their own palette). Icon color is left alone: --hk-ink-soft is
-   already redefined per full palette in tokens.css, so the dark-theme
-   rule's `color: var(--hk-ink-soft)` above picks up each palette's own ink
-   tone for free — only the chip background/border needs a season color. */
-html[data-palette="summer-silk"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
-html[data-palette="summer-silk"] .hk-navbar-solid .hk-theme-toggle {
-    background: rgba(201, 122, 43, .16);
-    border-color: rgba(201, 122, 43, .32);
-}
-
-html[data-palette="summer-silk"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
-html[data-palette="summer-silk"] .hk-navbar-solid .hk-theme-toggle:hover {
-    background: rgba(201, 122, 43, .26);
-}
-
-html[data-palette="rainy-velvet"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
-html[data-palette="rainy-velvet"] .hk-navbar-solid .hk-theme-toggle {
-    background: rgba(111, 168, 220, .16);
-    border-color: rgba(111, 168, 220, .32);
-}
-
-html[data-palette="rainy-velvet"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
-html[data-palette="rainy-velvet"] .hk-navbar-solid .hk-theme-toggle:hover {
-    background: rgba(111, 168, 220, .26);
-}
-
-html[data-palette="nordic-aurora"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
-html[data-palette="nordic-aurora"] .hk-navbar-solid .hk-theme-toggle {
-    background: rgba(79, 216, 160, .16);
-    border-color: rgba(79, 216, 160, .32);
-}
-
-html[data-palette="nordic-aurora"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
-html[data-palette="nordic-aurora"] .hk-navbar-solid .hk-theme-toggle:hover {
-    background: rgba(79, 216, 160, .26);
-}
-
-html[data-palette="autumn"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
-html[data-palette="autumn"] .hk-navbar-solid .hk-theme-toggle {
-    background: rgba(217, 119, 6, .18);
-    border-color: rgba(217, 119, 6, .34);
-}
-
-html[data-palette="autumn"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
-html[data-palette="autumn"] .hk-navbar-solid .hk-theme-toggle:hover {
-    background: rgba(217, 119, 6, .28);
-}
-
-html[data-palette="spring"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
-html[data-palette="spring"] .hk-navbar-solid .hk-theme-toggle {
-    background: rgba(134, 239, 172, .24);
-    border-color: rgba(134, 239, 172, .4);
-}
-
-html[data-palette="spring"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
-html[data-palette="spring"] .hk-navbar-solid .hk-theme-toggle:hover {
-    background: rgba(134, 239, 172, .34);
-}
-
-html[data-palette="winter"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
-html[data-palette="winter"] .hk-navbar-solid .hk-theme-toggle {
-    background: rgba(191, 219, 254, .3);
-    border-color: rgba(191, 219, 254, .46);
-}
-
-html[data-palette="winter"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
-html[data-palette="winter"] .hk-navbar-solid .hk-theme-toggle:hover {
-    background: rgba(191, 219, 254, .4);
-}
-
-html[data-palette="rain"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle,
-html[data-palette="rain"] .hk-navbar-solid .hk-theme-toggle {
-    background: rgba(96, 165, 250, .18);
-    border-color: rgba(96, 165, 250, .34);
-}
-
-html[data-palette="rain"] .navbar:not(.hk-navbar-transparent) .hk-theme-toggle:hover,
-html[data-palette="rain"] .hk-navbar-solid .hk-theme-toggle:hover {
-    background: rgba(96, 165, 250, .28);
 }
 
 .hk-navbar-transparent .hk-theme-toggle {
@@ -374,57 +226,16 @@ html[data-palette="rain"] .hk-navbar-solid .hk-theme-toggle:hover {
     color: var(--hk-ink) !important;
 }
 
-/* --- Luxury palette switcher --------------------------------------------
-   Trigger reuses .hk-theme-toggle's exact sizing/glass treatment (see
-   above) so it sits flush with the dark/light toggle in every navbar state
-   (solid, transparent-over-hero, mobile drawer). The panel is a floating
-   card rendered in normal flow (not portaled — unlike .hk-select, this
-   trigger never sits inside an overflow:hidden hero) that scales+fades in
-   with the site's signature ease-out-expo curve. */
+/* --- Floating dropdown-panel switcher -------------------------------------
+   Generic pattern now used only by the language switcher (base.html,
+   palette-switcher.js) — trigger reuses .hk-theme-toggle's exact sizing/
+   glass treatment so it sits flush with the dark/light toggle in every
+   navbar state (solid, transparent-over-hero, mobile drawer). The panel is
+   a floating card rendered in normal flow (not portaled — unlike
+   .hk-select, this trigger never sits inside an overflow:hidden hero) that
+   scales+fades in with the site's signature ease-out-expo curve. */
 .hk-palette-switcher {
     position: relative;
-}
-
-.hk-palette-swatch-dot {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--hk-brand-gradient);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .4);
-    transition: background .3s var(--hk-ease-out);
-}
-
-/* The trigger's own dot was hardcoded to the brand gradient regardless of
-   which palette was active, so it never visually confirmed the selection —
-   same gradients as the dropdown's per-option swatches below (kept in sync
-   deliberately: this dot IS the "currently selected" preview, so it has to
-   read as the same color a visitor just picked from the list). */
-html[data-palette="summer-silk"] .hk-palette-swatch-dot {
-    background: linear-gradient(135deg, #F5E3C4 0%, #E0A94A 55%, #C97A2B 100%);
-}
-
-html[data-palette="rainy-velvet"] .hk-palette-swatch-dot {
-    background: linear-gradient(135deg, #3A4658 0%, #6FA8DC 55%, #1B212B 100%);
-}
-
-html[data-palette="nordic-aurora"] .hk-palette-swatch-dot {
-    background: linear-gradient(135deg, #1E3A2E 0%, #4FD8A0 55%, #16241C 100%);
-}
-
-html[data-palette="winter"] .hk-palette-swatch-dot {
-    background: linear-gradient(135deg, #FFFFFF 0%, #BFDBFE 55%, #60A5FA 100%);
-}
-
-html[data-palette="spring"] .hk-palette-swatch-dot {
-    background: linear-gradient(135deg, #F9A8D4 0%, #86EFAC 55%, #F472B6 100%);
-}
-
-html[data-palette="autumn"] .hk-palette-swatch-dot {
-    background: linear-gradient(135deg, #FBBF24 0%, #D97706 55%, #BE185D 100%);
-}
-
-html[data-palette="rain"] .hk-palette-swatch-dot {
-    background: linear-gradient(135deg, var(--hk-weather-rain-1), var(--hk-weather-rain-2));
 }
 
 .hk-palette-panel {
@@ -502,42 +313,6 @@ html[data-palette="rain"] .hk-palette-swatch-dot {
     background: var(--hk-gradient-soft);
 }
 
-.hk-palette-option-swatch {
-    flex: none;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), var(--hk-elevation-2);
-}
-
-.hk-palette-option[data-palette="default"] .hk-palette-option-swatch {
-    background: var(--hk-brand-gradient);
-}
-
-.hk-palette-option[data-palette="summer-silk"] .hk-palette-option-swatch {
-    background: linear-gradient(135deg, #F5E3C4 0%, #E0A94A 55%, #C97A2B 100%);
-}
-
-.hk-palette-option[data-palette="rainy-velvet"] .hk-palette-option-swatch {
-    background: linear-gradient(135deg, #3A4658 0%, #6FA8DC 55%, #1B212B 100%);
-}
-
-.hk-palette-option[data-palette="nordic-aurora"] .hk-palette-option-swatch {
-    background: linear-gradient(135deg, #1E3A2E 0%, #4FD8A0 55%, #16241C 100%);
-}
-
-.hk-palette-option[data-palette="winter"] .hk-palette-option-swatch {
-    background: linear-gradient(135deg, #FFFFFF 0%, #BFDBFE 55%, #60A5FA 100%);
-}
-
-.hk-palette-option[data-palette="spring"] .hk-palette-option-swatch {
-    background: linear-gradient(135deg, #F9A8D4 0%, #86EFAC 55%, #F472B6 100%);
-}
-
-.hk-palette-option[data-palette="autumn"] .hk-palette-option-swatch {
-    background: linear-gradient(135deg, #FBBF24 0%, #D97706 55%, #BE185D 100%);
-}
-
 .hk-palette-option-text {
     flex: 1;
     min-width: 0;
@@ -593,24 +368,6 @@ html[data-palette="rain"] .hk-palette-swatch-dot {
 .hk-palette-row-mobile .hk-palette-option-desc,
 .hk-palette-row-mobile .hk-palette-option-check {
     display: none;
-}
-
-/* Site Theme settings form (Super Admin only): same option recipe as the
-   switcher, laid out as selectable cards with a real radio input instead of
-   a dropdown list — a visible border so each choice reads as a form control
-   even before it's hovered/checked. */
-.hk-palette-option-form {
-    border-color: var(--hk-border-soft);
-}
-
-.hk-palette-option-form input[type="radio"] {
-    margin: 0;
-    accent-color: var(--bs-primary);
-}
-
-.hk-palette-option-form:has(input:checked) {
-    border-color: var(--hk-glow-ring-color);
-    background: var(--hk-gradient-soft);
 }
 
 .hk-navbar-transparent.hk-navbar-solid .hk-logo-shell {
@@ -1233,209 +990,60 @@ html[data-theme="dark"] body {
     background-attachment: fixed;
 }
 
-/* Rainy Velvet / Nordic Aurora are always dark-based regardless of the
-   plain light/dark toggle's current data-theme value (palette-switcher.js
-   forces data-theme to match on selection, but the toggle stays usable
-   afterward) — so their ambient glow is keyed off data-palette alone rather
-   than relying on data-theme="dark" also being present. They redefine
-   --hk-dark-glow-1/2 (tokens.css) to their own hue, so this is the same
-   gradient recipe as the dark-mode rule above, just palette-scoped. */
-html[data-palette="rainy-velvet"] body,
-html[data-palette="nordic-aurora"] body {
-    background-image:
-        radial-gradient(680px circle at 6% -10%, var(--hk-dark-glow-1), transparent 60%),
-        radial-gradient(620px circle at 96% 6%, var(--hk-dark-glow-2), transparent 60%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
-
-/* Summer Silk is light-based, so it needs its own warm bloom instead of the
-   dark one, independent of data-theme for the same reason as above. */
-html[data-palette="summer-silk"] body {
-    background-image:
-        radial-gradient(680px circle at 6% -10%, var(--hk-summer-glow-1), transparent 60%),
-        radial-gradient(620px circle at 96% 6%, var(--hk-summer-glow-2), transparent 60%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
-
-/* --- Seasonal canvas engine ----------------------------------------------
-   Single overlay canvas (seasonal-canvas.js) drawing the sun-orb/heat-bloom,
-   rain-streak, or aurora-ribbon animation for the active palette. Fixed +
-   full-viewport, sits above the body background but below every real UI
-   layer (navbar/dropdowns/modals all sit higher in --hk-z-*), and
-   pointer-events:none is the load-bearing rule that keeps it from ever
-   intercepting a click on the content underneath. */
-#hkSeasonalCanvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 1.1s var(--hk-ease-out);
-}
-
-#hkSeasonalCanvas.is-active {
-    opacity: 1;
-}
-
-/* Winter/Spring/Autumn ambient body wash — same "independent of data-theme"
-   rationale as the summer-silk/rainy-velvet/nordic-aurora glows above, just
-   a softer alpha since these 3 are meant to read as weather passing over
-   the page rather than a full color-scheme change. background-color (the
-   part that CAN interpolate) gets the 500ms transition; the gradient image
-   itself just swaps instantly on change, same as every other palette here. */
-html[data-palette="autumn"] body {
-    background-image:
-        radial-gradient(1000px circle at 50% -10%, var(--hk-autumn-glow-1), transparent 60%),
-        radial-gradient(800px circle at 100% 100%, var(--hk-autumn-glow-2), transparent 60%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    transition: background-color .5s ease;
-}
-
-html[data-palette="spring"] body {
-    background-image:
-        radial-gradient(1000px circle at 50% -10%, var(--hk-spring-glow-1), transparent 60%),
-        radial-gradient(800px circle at 100% 100%, var(--hk-spring-glow-2), transparent 60%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    transition: background-color .5s ease;
-}
-
-html[data-palette="winter"] body {
-    background-image:
-        radial-gradient(1000px circle at 50% -10%, var(--hk-winter-glow-1), transparent 60%),
-        radial-gradient(800px circle at 100% 100%, var(--hk-winter-glow-2), transparent 60%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    transition: background-color .5s ease;
-}
-
-/* --- Dashboard sidebar seasonal-effect picker (compact secondary surface
-   for the same navbar theme switcher above — see palette-switcher.js, which
-   wires [data-weather-season-option] into the exact same applyPalette()). */
-.hk-weather-season-picker {
-    border: 1px solid #E2E8F0;
-    border-radius: var(--hk-radius-lg);
-    padding: 10px 12px;
-    margin-bottom: 16px;
-    transition: border-color .3s ease;
-}
-
-.hk-weather-season-head {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: .7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--hk-ink-soft);
-    margin-bottom: 8px;
-}
-
-.hk-weather-season-options {
-    display: flex;
-    gap: 6px;
-}
-
-.hk-weather-season-option {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 32px;
-    border: 1px solid transparent;
-    border-radius: var(--hk-radius-sm);
-    background: transparent;
-    color: var(--hk-ink-soft);
-    font-size: .95rem;
-    transition: background .25s var(--hk-ease-out), border-color .25s var(--hk-ease-out), color .25s var(--hk-ease-out);
-}
-
-.hk-weather-season-option:hover {
-    background: var(--hk-gradient-soft);
-    color: var(--hk-ink);
-}
-
-.hk-weather-season-option.is-active {
-    border-color: var(--hk-glow-ring-color);
-    background: var(--hk-gradient-soft);
-    color: var(--bs-primary);
-}
-
-html[data-theme="dark"] .hk-weather-season-picker {
-    border-color: rgba(255, 255, 255, .08);
-}
-
-/* Frost tint on the sidebar itself while Winter is active — background-image
-   only, layered on top of whatever opaque background-color the light/dark
-   sidebar rules already set (main.css, dashboard section), never clobbering it. */
-html[data-palette="winter"] .hk-dashboard-sidebar {
-    background-image: linear-gradient(160deg, var(--hk-weather-frost-tint), transparent 65%);
-}
-
 /* --- Context-aware category backgrounds (9 service pages) ----------------
    Each listing page sets data-category-bg on <body> (see the body_attrs
    block in business_list.html etc.) and gets a soft ambient wash in that
-   category's color, plus a matching low-opacity floating watermark drawn on
-   the shared #hkSeasonalCanvas by seasonal-canvas.js. The seasonal palettes
-   (Summer Silk / Rainy Velvet / Nordic Aurora) are an explicit
-   super-override on top of this — html:not([data-palette]) is the guard
-   that steps aside the instant one is active, letting the palette's own
-   body background-image rules (above) take over instead of fighting them. */
-html:not([data-palette]) body[data-category-bg="business"] {
+   category's color, plus a matching low-opacity floating watermark drawn by
+   world-scene.js (below). */
+body[data-category-bg="business"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-business-rgb), .08), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-html:not([data-palette]) body[data-category-bg="restaurant"] {
+body[data-category-bg="restaurant"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-restaurant-rgb), .08), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-html:not([data-palette]) body[data-category-bg="realestate"] {
+body[data-category-bg="realestate"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-realestate-rgb), .08), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-html:not([data-palette]) body[data-category-bg="health"] {
+body[data-category-bg="health"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-health-rgb), .08), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-html:not([data-palette]) body[data-category-bg="projects"] {
+body[data-category-bg="projects"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-projects-rgb), .08), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-html:not([data-palette]) body[data-category-bg="events"] {
+body[data-category-bg="events"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-events-rgb), .09), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-html:not([data-palette]) body[data-category-bg="education"] {
+body[data-category-bg="education"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-education-rgb), .07), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-html:not([data-palette]) body[data-category-bg="transport"] {
+body[data-category-bg="transport"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-transport-rgb), .08), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-html:not([data-palette]) body[data-category-bg="news"] {
+body[data-category-bg="news"] {
     background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-news-rgb), .07), transparent 60%);
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -1451,8 +1059,7 @@ html:not([data-palette]) body[data-category-bg="news"] {
    cycle. Built by world-scene.js. z-index:-1 (behind the page's own paint)
    — safe because every real layout element on the site is itself
    z-index:auto/positive, so this always paints behind them regardless of
-   stacking order. Gated behind the same data-category-bg / seasonal-
-   palette-override rule as everything else in this system. */
+   stacking order. Gated behind data-category-bg. */
 .world-bg {
     position: fixed;
     inset: 0;

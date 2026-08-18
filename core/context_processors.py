@@ -36,11 +36,9 @@ def unread_messages(request):
 
 
 CATEGORY_TREE_CACHE_KEY = 'core:nav_category_tree'
-SITE_THEME_CACHE_KEY = 'core:site_theme'
-# Both are re-read on literally every page view (nav dropdown / anti-flash
-# script) but only change when a Super Admin edits categories or site theme
-# — cached with a short TTL as a safety net, and cleared immediately by
-# signals.py on save so admin edits still show up right away.
+# Re-read on literally every page view (nav dropdown) but only changes when a
+# Super Admin edits categories — cached with a short TTL as a safety net, and
+# cleared immediately by signals.py on save so admin edits still show up right away.
 CONTEXT_CACHE_TTL = 300
 
 
@@ -64,20 +62,3 @@ def category_tree(request):
     return {'nav_category_tree': top_categories}
 
 
-def site_theme(request):
-    """
-    Site-wide palette default/enforce flags (see Super Admin's Site Theme
-    panel), read on every page load so base.html's anti-flash script and
-    palette-switcher.js can apply them before a visitor's own localStorage
-    choice is considered.
-    """
-    theme = cache.get(SITE_THEME_CACHE_KEY)
-    if theme is None:
-        from .models import SiteSettings
-        settings_obj = SiteSettings.load()
-        theme = {
-            'site_default_palette': settings_obj.default_palette,
-            'site_enforce_palette': settings_obj.enforce_palette,
-        }
-        cache.set(SITE_THEME_CACHE_KEY, theme, CONTEXT_CACHE_TTL)
-    return theme

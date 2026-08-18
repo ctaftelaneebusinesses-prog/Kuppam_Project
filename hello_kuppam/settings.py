@@ -79,7 +79,6 @@ TEMPLATES = [
                 'core.context_processors.push_config',
                 'core.context_processors.notifications',
                 'core.context_processors.unread_messages',
-                'core.context_processors.site_theme',
                 'core.context_processors.category_tree',
             ],
         },

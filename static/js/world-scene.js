@@ -12,8 +12,6 @@
 //   - .world-bg (fixed, z-index:-1) > .world-ambient (day/night wash) +
 //     .world-actors (cleared/rebuilt per scene).
 //   - changeWorldScene(categoryKey) is the switcher, exposed globally.
-//   - Gated the same way as every other engine in this system: a seasonal
-//     palette (Summer Silk etc.) suppresses it outright.
 //   - This is a traditional multi-page Django site, so changeWorldScene()
 //     is called once on load from <body data-category-bg>, the practical
 //     equivalent of a live "category click" trigger.
@@ -202,8 +200,7 @@
     function changeWorldScene(categoryKey) {
         ensureRoot();
 
-        var suppressed = document.documentElement.hasAttribute('data-palette');
-        var config = (!suppressed && SCENES[categoryKey]) ? SCENES[categoryKey] : null;
+        var config = SCENES[categoryKey] || null;
         var nextKey = config ? categoryKey : null;
 
         if (activeCategory === nextKey) return;
@@ -220,11 +217,6 @@
     }
 
     window.changeWorldScene = changeWorldScene;
-    window.HKWorldScene = {
-        refresh: function () {
-            changeWorldScene(document.body.getAttribute('data-category-bg'));
-        },
-    };
 
     var initialCategory = document.body.getAttribute('data-category-bg');
     if (initialCategory) {
