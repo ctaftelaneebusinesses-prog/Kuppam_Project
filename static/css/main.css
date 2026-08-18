@@ -3947,6 +3947,10 @@ html[data-theme="dark"] .hk-industry-pill:hover {
 .hk-auth-shell {
     display: flex;
     min-height: calc(100vh - 96px);
+    /* Containing block for .hk-auth-brand's bottom-pinned fallback below —
+       so "position: absolute; bottom: 0" resolves against the shell's own
+       bottom edge, not the page's. */
+    position: relative;
 }
 
 .hk-auth-brand {
@@ -3970,7 +3974,17 @@ html[data-theme="dark"] .hk-industry-pill:hover {
    the panel needs its own width since it no longer sizes off flex-basis.
    top/height must match body's own navbar-clearance padding-top (line ~23) —
    the floating navbar's actual bottom edge sits at 96px (16px inset + 64px
-   height + 16px gap), so the panel starts flush below it. */
+   height + 16px gap), so the panel starts flush below it.
+
+   Fixed-to-viewport has no notion of "the shell it lives in", though, so on
+   a short viewport / tall Register form it would happily keep covering the
+   footer forever once the shell scrolls past. main.js watches scroll and
+   adds .hk-auth-brand--pinned-bottom once the shell's bottom edge is about
+   to pass under the fixed panel's own bottom edge, switching it to
+   position: absolute (anchored to .hk-auth-shell above) so it stops right
+   at the shell boundary and scrolls away with the page from there — the
+   same "stop at the container's end" behavior native position: sticky would
+   give for free if it engaged here. */
 @media (min-width: 992px) {
     .hk-auth-brand {
         position: fixed;
@@ -3978,6 +3992,11 @@ html[data-theme="dark"] .hk-industry-pill:hover {
         left: 0;
         width: 46%;
         height: calc(100vh - 96px);
+    }
+    .hk-auth-brand.hk-auth-brand--pinned-bottom {
+        position: absolute;
+        top: auto;
+        bottom: 0;
     }
     .hk-auth-form-pane {
         margin-left: 46%;

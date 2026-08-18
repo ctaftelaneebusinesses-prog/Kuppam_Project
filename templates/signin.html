@@ -322,6 +322,27 @@
     }
 })();
 </script>
+<script>
+(function () {
+    'use strict';
+    var shell = document.querySelector('.hk-auth-shell');
+    var brand = document.querySelector('.hk-auth-brand');
+    if (!shell || !brand) return;
+
+    function updateBrandPin() {
+        if (window.innerWidth < 992) {
+            brand.classList.remove('hk-auth-brand--pinned-bottom');
+            return;
+        }
+        var pastShellEnd = shell.getBoundingClientRect().bottom < window.innerHeight;
+        brand.classList.toggle('hk-auth-brand--pinned-bottom', pastShellEnd);
+    }
+
+    window.addEventListener('scroll', updateBrandPin, { passive: true });
+    window.addEventListener('resize', updateBrandPin);
+    updateBrandPin();
+})();
+</script>
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     const supabase = createClient('{{ SUPABASE_URL }}', '{{ SUPABASE_ANON_KEY }}');
