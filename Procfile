@@ -1,2 +1,2 @@
-web: gunicorn hello_kuppam.wsgi:application --workers ${WEB_CONCURRENCY:-2} --threads ${WEB_THREADS:-4} --worker-class gthread --timeout 30 --graceful-timeout 30 --max-requests 500 --max-requests-jitter 50 --preload --log-file -
+web: python3 -m gunicorn hello_kuppam.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --threads ${WEB_THREADS:-4} --worker-class gthread --timeout ${WEB_TIMEOUT:-30} --graceful-timeout ${WEB_GRACEFUL_TIMEOUT:-30} --max-requests ${WEB_MAX_REQUESTS:-500} --max-requests-jitter ${WEB_MAX_REQUESTS_JITTER:-50} --preload --access-logfile - --error-logfile -
 release: python manage.py migrate --noinput

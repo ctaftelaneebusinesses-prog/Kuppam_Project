@@ -1,0 +1,27 @@
+{
+  "name": "OneTownCity",
+  "short_name": "OneTownCity",
+  "description": "Discover businesses, services, property, jobs, events and local information across India.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020617",
+  "theme_color": "#f0a93a",
+  "lang": "en-IN",
+  "categories": ["business", "lifestyle", "shopping"],
+  "icons": [
+    {
+      "src": "/static/images/onetowncity-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/onetowncity-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

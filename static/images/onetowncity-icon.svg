@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>OneTownCity</title>
+  <rect width="512" height="512" rx="112" fill="#020617"/>
+  <circle cx="256" cy="238" r="138" fill="#f0a93a"/>
+  <path d="M256 128c-54 0-98 44-98 98s44 98 98 98 98-44 98-98-44-98-98-98Zm0 52c25 0 46 21 46 46s-21 46-46 46-46-21-46-46 21-46 46-46Z" fill="#020617"/>
+  <path d="M134 388h244" stroke="#fff" stroke-width="24" stroke-linecap="round"/>
+  <path d="M188 388v-42m68 42v-76m68 76v-52" stroke="#fff" stroke-width="18" stroke-linecap="round"/>
+</svg>

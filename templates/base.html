@@ -35,6 +35,8 @@
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <meta name="theme-color" content="#f0a93a">
     <title>{% block title %}{% if current_location %}OneTownCity {{ current_location.name }}{% else %}OneTownCity — Visual Local Engine & Discovery Portal{% endif %}{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}Explore{% if current_location %} {{ current_location.name }}{% endif %} with absolute clarity. Discover verified real estate, businesses, shopping, and upcoming projects on OneTownCity.{% endblock %}">
 
@@ -411,6 +413,7 @@
     <script src="{% static 'js/toasts.js' %}"></script>
     <script src="{% static 'js/palette-switcher.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/pwa.js' %}"></script>
     <script>
         window.HK_CURRENT_LOCATION = {{ current_location_data|default:'null'|safe }};
     </script>

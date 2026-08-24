@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f0a93a">
+  <title>OneTownCity is offline</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #020617; color: #f8fafc; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; text-align: center; }
+    main { width: min(88vw, 28rem); padding: 2rem; }
+    .mark { width: 5rem; height: 5rem; margin-bottom: 1.5rem; }
+    h1 { font-size: clamp(1.5rem, 5vw, 2.25rem); margin: 0 0 .75rem; }
+    p { color: #cbd5e1; line-height: 1.6; }
+    button { border: 0; border-radius: .5rem; padding: .75rem 1.25rem; background: #f0a93a; color: #020617; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <img class="mark" src="/static/images/onetowncity-icon.svg" alt="OneTownCity">
+    <h1>You are offline</h1>
+    <p>OneTownCity needs an internet connection to load the latest local information.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+  </main>
+</body>
+</html>

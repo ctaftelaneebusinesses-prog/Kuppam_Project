@@ -168,6 +168,19 @@ Site will be at `http://127.0.0.1:8000/`. Django admin at `/admin/`.
 
 ## 5. Deployment / Hosting
 
+For a complete deploy from a Linux/macOS shell, run:
+
+```bash
+chmod +x scripts/deploy.sh
+./scripts/deploy.sh
+```
+
+The script requires `DATABASE_URL`, `SECRET_KEY`, and `ALLOWED_HOSTS`, and
+refuses to run with `DEBUG=True` or a development secret. It installs the
+requirements, runs the production checks, applies migrations, collects static
+assets, and starts Gunicorn. `PORT`, `WEB_CONCURRENCY`, and `WEB_THREADS` can
+be overridden by the hosting platform.
+
 - **Process definition:** [Procfile](Procfile):
   ```
   web: gunicorn hello_kuppam.wsgi:application --log-file -

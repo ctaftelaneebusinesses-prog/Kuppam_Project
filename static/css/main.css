@@ -31,7 +31,7 @@ body {
        Clipping horizontal overflow here is the standard fix: it doesn't
        change any visible layout, it just stops the still-off-screen,
        about-to-animate-in copies from counting toward page width. */
-    overflow-x: hidden;
+    overflow: hidden !important;
 }
 
 body.hk-has-transparent-hero {
@@ -893,7 +893,10 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
 
 /* --- Mobile navigation drawer (Bootstrap Offcanvas, right-hand slide-in) ----- */
 .hk-nav-drawer {
-    width: min(320px, 86vw);
+    width: min(320px, 86vw) !important;
+    max-width: min(320px, 86vw);
+    overflow-x: hidden;
+    contain: layout paint;
     background: var(--hk-surface);
     border-left: 1px solid var(--hk-border-soft);
     z-index: var(--hk-z-drawer);

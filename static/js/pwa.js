@@ -1,0 +1,7 @@
+(function () {
+    'use strict';
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register('/sw.js', {scope: '/'}).catch(function (error) {
+        console.warn('OneTownCity service worker unavailable.', error);
+    });
+}());

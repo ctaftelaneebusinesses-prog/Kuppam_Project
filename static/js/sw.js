@@ -35,3 +35,16 @@ self.addEventListener('notificationclick', function (event) {
         })
     );
 });
+
+self.addEventListener('install', function (event) {
+    event.waitUntil(caches.open('onetowncity-shell-v1').then(function (cache) {
+        return cache.add('/static/offline.html');
+    }));
+});
+
+self.addEventListener('fetch', function (event) {
+    if (event.request.method !== 'GET' || event.request.mode !== 'navigate') return;
+    event.respondWith(fetch(event.request).catch(function () {
+        return caches.match('/static/offline.html');
+    }));
+});
