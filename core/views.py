@@ -138,6 +138,7 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.validators import validate_email
+from django.db import DatabaseError
 from django.db.models import Count, F, Prefetch, ProtectedError, Q
 from django.db.models.functions import TruncDate
 from django.http import Http404, HttpResponse, JsonResponse
@@ -162,8 +163,9 @@ from .models import (
     AdminCategoryPermission, AdminRequest, AdminRequestStatus, Business, Category, Comment,
     ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News,
     NewsletterSubscriber, Notification, PostImage, PostVideo, PostView, Profile, Project, Property,
-    PushSubscription, Report, Review, Share, SiteSettings, UserRole, unique_slug_for,
+    PushSubscription, Report, Review, Share, SiteSettings, UserRole, Location, unique_slug_for,
 )
+from .location_service import active_location, reverse_geocode, save_location, search_cities, serialize_location
 from .push import notify, notify_bulk
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
@@ -217,9 +219,11 @@ def _safe_next(request, fallback):
     return fallback
 
 
-def _public_qs(model_cls):
+def _public_qs(model_cls, request=None):
     """Base queryset for anything shown to the public: active AND approved."""
-    return model_cls.objects.filter(is_active=True, status=ListingStatus.APPROVED)
+    qs = model_cls.objects.filter(is_active=True, status=ListingStatus.APPROVED)
+    location = active_location(request) if request is not None else None
+    return qs.filter(city=location) if location else qs
 
 
 def _detail_qs(request, model_cls):
@@ -231,7 +235,40 @@ def _detail_qs(request, model_cls):
     profile = getattr(request.user, 'profile', None) if request.user.is_authenticated else None
     if profile and profile.is_super_admin:
         return model_cls.objects.all()
-    return _public_qs(model_cls)
+    return _public_qs(model_cls, request)
+
+
+def location_search(request):
+    query = request.GET.get('q', '')
+    try:
+        cities = search_cities(query)
+        payload = [{
+            **serialize_location(city, source='manual_selection'),
+            'state': city.state,
+        } for city in cities]
+    except DatabaseError:
+        return JsonResponse({'error': 'City search is temporarily unavailable.'}, status=503)
+    return JsonResponse(payload, safe=False)
+
+
+@require_POST
+def location_select(request):
+    try:
+        payload = json.loads(request.body or '{}')
+        city = Location.objects.get(pk=payload.get('cityId'), kind=Location.Kind.CITY, is_active=True)
+    except (ValueError, TypeError, Location.DoesNotExist, json.JSONDecodeError):
+        return JsonResponse({'error': 'Please choose a supported city.'}, status=400)
+    return JsonResponse(save_location(request, city, source='manual_selection'))
+
+
+@require_POST
+def location_reverse_geocode(request):
+    try:
+        payload = json.loads(request.body or '{}')
+        result = reverse_geocode(payload['latitude'], payload['longitude'])
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError, ValidationError, OSError):
+        return JsonResponse({'error': 'We could not resolve that location. Please choose a city manually.'}, status=400)
+    return JsonResponse(result)
 
 
 def _bump_views(request, model_cls, pk):
@@ -427,23 +464,23 @@ def home(request):
     # Fall back to the latest listings whenever nothing has been marked
     # "Featured" yet, so these sections never render as blank gaps on the
     # homepage while admins are still curating featured picks.
-    featured_businesses = _public_qs(Business).filter(is_featured=True)[:6] \
-        or _public_qs(Business).order_by('-created_at')[:6]
-    featured_properties = _public_qs(Property).filter(is_featured=True)[:6] \
-        or _public_qs(Property).order_by('-created_at')[:6]
-    featured_jobs = _public_qs(Job).filter(is_featured=True)[:6] \
-        or _public_qs(Job).order_by('-created_at')[:6]
-    featured_events = _public_qs(Event).filter(is_featured=True, event_date__gte=timezone.localdate())[:6] \
-        or _public_qs(Event).filter(event_date__gte=timezone.localdate()).order_by('event_date')[:6]
-    featured_news = _public_qs(News).filter(is_featured=True)[:6] \
-        or _public_qs(News).order_by('-created_at')[:6]
-    featured_projects = _public_qs(Project).filter(is_featured=True)[:6] \
-        or _public_qs(Project).order_by('-created_at')[:6]
+    featured_businesses = _public_qs(Business, request).filter(is_featured=True)[:6] \
+        or _public_qs(Business, request).order_by('-created_at')[:6]
+    featured_properties = _public_qs(Property, request).filter(is_featured=True)[:6] \
+        or _public_qs(Property, request).order_by('-created_at')[:6]
+    featured_jobs = _public_qs(Job, request).filter(is_featured=True)[:6] \
+        or _public_qs(Job, request).order_by('-created_at')[:6]
+    featured_events = _public_qs(Event, request).filter(is_featured=True, event_date__gte=timezone.localdate())[:6] \
+        or _public_qs(Event, request).filter(event_date__gte=timezone.localdate()).order_by('event_date')[:6]
+    featured_news = _public_qs(News, request).filter(is_featured=True)[:6] \
+        or _public_qs(News, request).order_by('-created_at')[:6]
+    featured_projects = _public_qs(Project, request).filter(is_featured=True)[:6] \
+        or _public_qs(Project, request).order_by('-created_at')[:6]
 
     stats = {
-        'businesses': _public_qs(Business).count(),
-        'properties': _public_qs(Property).count(),
-        'jobs': _public_qs(Job).count(),
+        'businesses': _public_qs(Business, request).count(),
+        'properties': _public_qs(Property, request).count(),
+        'jobs': _public_qs(Job, request).count(),
         'users': get_user_model().objects.count(),
     }
 
@@ -452,8 +489,9 @@ def home(request):
     # re-querying Category here — home.html never reads .children on these,
     # so the separate prefetch this used to run was pure waste on top of it.
     from .context_processors import category_tree
+    current = active_location(request)
     context = {
-        'page_title': 'OneTownCity — Visual Local Engine & Discovery Portal',
+        'page_title': f'OneTownCity {current.name}' if current else 'OneTownCity — Visual Local Engine & Discovery Portal',
         'categories': category_tree(request)['nav_category_tree'],
         'featured_businesses': featured_businesses,
         'featured_properties': featured_properties,
@@ -464,6 +502,12 @@ def home(request):
         'stats': stats,
     }
     return render(request, 'home.html', context)
+
+
+def city_home(request, city_slug):
+    city = get_object_or_404(Location, slug=city_slug, kind=Location.Kind.CITY, is_active=True)
+    save_location(request, city, source='manual_selection')
+    return home(request)
 
 
 # A category picked in the header/hero search box goes straight to that
@@ -531,22 +575,22 @@ def search(request):
         sections = [
             _section(
                 'business', 'Businesses', 'bi-shop',
-                _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES),
+                _public_qs(Business, request).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES),
                 'core:business_list', 'partials/business_card.html', 'business',
             ),
         ]
         for directory_key, config in DIRECTORY_CATEGORIES.items():
             sections.append(_section(
                 'business', config['label'], config['icon'],
-                _public_qs(Business).filter(category__in=config['categories']),
+                _public_qs(Business, request).filter(category__in=config['categories']),
                 SEARCH_CATEGORY_REDIRECT[directory_key], 'partials/business_card.html', 'business',
             ))
         sections += [
-            _section('property', 'Properties', 'bi-house-door', _public_qs(Property), 'core:property_list', 'partials/property_card.html', 'property'),
-            _section('job', 'Jobs', 'bi-briefcase', _public_qs(Job), 'core:job_list', 'partials/job_card.html', 'job'),
-            _section('event', 'Events', 'bi-calendar-event', _public_qs(Event), 'core:event_list', 'partials/event_card.html', 'event'),
-            _section('news', 'News', 'bi-newspaper', _public_qs(News), 'core:news_list', 'partials/news_card.html', 'article'),
-            _section('project', 'Upcoming Projects', 'bi-cone-striped', _public_qs(Project), 'core:project_list', 'partials/project_card.html', 'project'),
+            _section('property', 'Properties', 'bi-house-door', _public_qs(Property, request), 'core:property_list', 'partials/property_card.html', 'property'),
+            _section('job', 'Jobs', 'bi-briefcase', _public_qs(Job, request), 'core:job_list', 'partials/job_card.html', 'job'),
+            _section('event', 'Events', 'bi-calendar-event', _public_qs(Event, request), 'core:event_list', 'partials/event_card.html', 'event'),
+            _section('news', 'News', 'bi-newspaper', _public_qs(News, request), 'core:news_list', 'partials/news_card.html', 'article'),
+            _section('project', 'Upcoming Projects', 'bi-cone-striped', _public_qs(Project, request), 'core:project_list', 'partials/project_card.html', 'project'),
         ]
         results = [s for s in sections if s['count']]
         total_results = sum(s['count'] for s in sections)
@@ -572,7 +616,7 @@ def business_list(request):
     context) — so a listing only ever appears on the one page that matches
     its category. Supports search (by name or category) and pagination.
     """
-    businesses = _public_qs(Business).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES)
+    businesses = _public_qs(Business, request).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES)
 
     query = request.GET.get('q', '').strip()
     category = request.GET.get('category', '').strip()
@@ -610,7 +654,7 @@ def business_detail(request, slug):
     """
     business = get_object_or_404(_detail_qs(request, Business), slug=slug)
     _bump_views(request, Business, business.pk)
-    related_businesses = _public_qs(Business).filter(category=business.category).exclude(pk=business.pk)[:3]
+    related_businesses = _public_qs(Business, request).filter(category=business.category).exclude(pk=business.pk)[:3]
 
     context = {
         'page_title': f'{business.name} - OneTownCity',
@@ -637,7 +681,7 @@ def directory_list(request, category):
     if config is None:
         raise Http404('Unknown directory category')
 
-    businesses = _public_qs(Business).filter(category__in=config['categories'])
+    businesses = _public_qs(Business, request).filter(category__in=config['categories'])
 
     subcategory_choices = [
         (key, label) for key, label in Business.CATEGORY_CHOICES
@@ -680,7 +724,7 @@ def property_list(request):
     Properties listing page with search (by title or location), filter
     by type, and pagination.
     """
-    properties = _public_qs(Property)
+    properties = _public_qs(Property, request)
 
     query = request.GET.get('q', '').strip()
     property_type = request.GET.get('type', '').strip()
@@ -714,7 +758,7 @@ def property_detail(request, slug):
     """
     property_obj = get_object_or_404(_detail_qs(request, Property), slug=slug)
     _bump_views(request, Property, property_obj.pk)
-    related_properties = _public_qs(Property).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk)[:3]
+    related_properties = _public_qs(Property, request).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk)[:3]
 
     context = {
         'page_title': f'{property_obj.title} - OneTownCity',
@@ -730,7 +774,7 @@ def job_list(request):
     Jobs listing page with search (by job title, company or location)
     and pagination.
     """
-    jobs = _public_qs(Job)
+    jobs = _public_qs(Job, request)
 
     query = request.GET.get('q', '').strip()
 
@@ -758,7 +802,7 @@ def job_detail(request, slug):
     """
     job = get_object_or_404(_detail_qs(request, Job), slug=slug)
     _bump_views(request, Job, job.pk)
-    related_jobs = _public_qs(Job).filter(company=job.company).exclude(pk=job.pk)[:3]
+    related_jobs = _public_qs(Job, request).filter(company=job.company).exclude(pk=job.pk)[:3]
 
     context = {
         'page_title': f'{job.job_title} at {job.company} - OneTownCity',
@@ -774,7 +818,7 @@ def event_list(request):
     Events listing page with search (by title or location) and pagination.
     Upcoming events are shown first (model default ordering).
     """
-    events = _public_qs(Event)
+    events = _public_qs(Event, request)
 
     query = request.GET.get('q', '').strip()
 
@@ -802,7 +846,7 @@ def event_detail(request, slug):
     """
     event = get_object_or_404(_detail_qs(request, Event), slug=slug)
     _bump_views(request, Event, event.pk)
-    related_events = _public_qs(Event).exclude(pk=event.pk)[:3]
+    related_events = _public_qs(Event, request).exclude(pk=event.pk)[:3]
 
     context = {
         'page_title': f'{event.title} - OneTownCity',
@@ -818,7 +862,7 @@ def news_list(request):
     News listing page with search (by title or content) and pagination.
     Most recently published articles are shown first.
     """
-    articles = _public_qs(News)
+    articles = _public_qs(News, request)
 
     query = request.GET.get('q', '').strip()
 
@@ -846,7 +890,7 @@ def news_detail(request, slug):
     """
     article = get_object_or_404(_detail_qs(request, News), slug=slug)
     _bump_views(request, News, article.pk)
-    related_articles = _public_qs(News).exclude(pk=article.pk)[:3]
+    related_articles = _public_qs(News, request).exclude(pk=article.pk)[:3]
 
     context = {
         'page_title': f'{article.title} - OneTownCity',
@@ -863,7 +907,7 @@ def project_list(request):
     pagination. Featured/newest projects are shown first (model default
     ordering).
     """
-    projects = _public_qs(Project)
+    projects = _public_qs(Project, request)
 
     query = request.GET.get('q', '').strip()
 
@@ -891,7 +935,7 @@ def project_detail(request, slug):
     """
     project = get_object_or_404(_detail_qs(request, Project), slug=slug)
     _bump_views(request, Project, project.pk)
-    related_projects = _public_qs(Project).exclude(pk=project.pk)[:3]
+    related_projects = _public_qs(Project, request).exclude(pk=project.pk)[:3]
 
     context = {
         'page_title': f'{project.title} - OneTownCity',
@@ -1761,6 +1805,9 @@ def listing_submit(request, category_key):
             return redirect('core:my_listings')
     else:
         initial = {}
+        current = active_location(request)
+        if current:
+            initial['city'] = current.pk
         if category.listing_model == 'business' and category.business_subcategory:
             initial['category'] = category.business_subcategory
         form = form_cls(initial=initial)

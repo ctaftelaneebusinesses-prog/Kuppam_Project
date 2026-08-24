@@ -1,7 +1,5 @@
 // OneTownCity - Main JS
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('OneTownCity frontend loaded.');
-
     // Site-wide light/dark theme toggle. The initial theme is already applied
     // pre-paint by the inline anti-flash script in base.html; this wires up
     // every toggle button on the page (desktop navbar + mobile drawer both

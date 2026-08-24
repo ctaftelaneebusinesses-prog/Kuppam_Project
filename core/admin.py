@@ -3,8 +3,16 @@ from django.utils.html import format_html
 from .models import (
     AdminCategoryPermission, AdminRequest, Business, Category, Comment, ContactMessage, Event, Favorite,
     Job, Like, LoginHistory, News, NewsletterSubscriber, Notification, PostImage, PostVideo, Profile,
-    Project, Property, Report, Review, Share, SiteSettings, TranslationCache,
+    Project, Property, Report, Review, Share, SiteSettings, TranslationCache, Location,
 )
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'kind', 'parent', 'country_code', 'latitude', 'longitude', 'is_active')
+    list_filter = ('kind', 'is_active', 'country_code')
+    search_fields = ('name', 'aliases')
+    prepopulated_fields = {'slug': ('name',)}
 
 
 class ImagePreviewMixin:
@@ -38,7 +46,7 @@ class BusinessAdmin(ImagePreviewMixin, admin.ModelAdmin):
             'fields': ('name', 'category', 'description')
         }),
         ('Contact Details', {
-            'fields': ('address', 'phone_number')
+            'fields': ('city', 'address', 'phone_number')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -64,7 +72,7 @@ class PropertyAdmin(ImagePreviewMixin, admin.ModelAdmin):
             'fields': ('title', 'property_type', 'description')
         }),
         ('Pricing & Location', {
-            'fields': ('price', 'location')
+            'fields': ('city', 'price', 'location')
         }),
         ('Contact Details', {
             'fields': ('contact_number',)
@@ -93,7 +101,7 @@ class JobAdmin(ImagePreviewMixin, admin.ModelAdmin):
             'fields': ('job_title', 'company', 'description')
         }),
         ('Compensation & Location', {
-            'fields': ('salary', 'location')
+            'fields': ('city', 'salary', 'location')
         }),
         ('Contact Details', {
             'fields': ('contact_number',)
@@ -122,7 +130,7 @@ class EventAdmin(ImagePreviewMixin, admin.ModelAdmin):
             'fields': ('title', 'event_date', 'description')
         }),
         ('Location & Contact', {
-            'fields': ('location', 'contact_number')
+            'fields': ('city', 'location', 'contact_number')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -145,7 +153,7 @@ class NewsAdmin(ImagePreviewMixin, admin.ModelAdmin):
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'published_date', 'source', 'content')
+            'fields': ('title', 'city', 'published_date', 'source', 'content')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -168,7 +176,7 @@ class ProjectAdmin(ImagePreviewMixin, admin.ModelAdmin):
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'project_status', 'location', 'expected_completion', 'department', 'description')
+            'fields': ('title', 'project_status', 'city', 'location', 'expected_completion', 'department', 'description')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),

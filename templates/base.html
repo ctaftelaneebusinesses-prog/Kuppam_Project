@@ -35,13 +35,13 @@
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}OneTownCity — Visual Local Engine & Discovery Portal{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Explore your city with absolute clarity. Discover verified real estate, businesses, shopping, and upcoming projects on OneTownCity. View image streams, access Google links instantly, and interact with your community.{% endblock %}">
+    <title>{% block title %}{% if current_location %}OneTownCity {{ current_location.name }}{% else %}OneTownCity — Visual Local Engine & Discovery Portal{% endif %}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Explore{% if current_location %} {{ current_location.name }}{% endif %} with absolute clarity. Discover verified real estate, businesses, shopping, and upcoming projects on OneTownCity.{% endblock %}">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="OneTownCity">
-    <meta property="og:title" content="{% block og_title %}OneTownCity — The Smart City Network{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Explore your city with absolute clarity. Discover verified real estate, businesses, shopping, and upcoming projects on OneTownCity. View image streams, access Google links instantly, and interact with your community.{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}OneTownCity{% if current_location %} {{ current_location.name }}{% endif %} — The Smart City Network{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Discover verified real estate, businesses, shopping, and upcoming projects{% if current_location %} in {{ current_location.name }}{% endif %} on OneTownCity.{% endblock %}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -84,6 +84,9 @@
             </ul>
 
             <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm hk-location-trigger" id="hkLocationSelector" data-bs-toggle="modal" data-bs-target="#hkLocationModal" aria-label="{% trans 'Choose city' %}">
+                    <i class="bi bi-geo-alt-fill"></i> <span>{% if current_location %}{{ current_location.name }}{% else %}{% trans "Choose city" %}{% endif %}</span>
+                </button>
                 <button type="button" class="hk-theme-toggle d-none d-lg-inline-flex" id="hkThemeToggle" title="{% trans 'Toggle dark mode' %}" aria-label="{% trans 'Toggle dark mode' %}">
                     <i class="bi bi-moon-stars" id="hkThemeIcon"></i>
                 </button>
@@ -171,6 +174,24 @@
             </div>
         </div>
     </nav>
+
+    <div class="modal fade" id="hkLocationModal" tabindex="-1" aria-labelledby="hkLocationModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content hk-location-modal">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="hkLocationModalTitle">{% trans "Choose your city" %}</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+                </div>
+                <div class="modal-body">
+                    <button type="button" class="btn btn-outline-primary w-100 mb-3" id="hkUseCurrentLocation"><i class="bi bi-crosshair"></i> {% trans "Use my current location" %}</button>
+                    <label class="visually-hidden" for="hkLocationSearch">{% trans "Search city" %}</label>
+                    <input type="search" class="form-control form-control-lg" id="hkLocationSearch" placeholder="{% trans 'Search city...' %}" autocomplete="off">
+                    <p class="small mt-2 mb-2" id="hkLocationStatus" aria-live="polite"></p>
+                    <ul class="list-group" id="hkLocationResults" aria-live="polite"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Mobile navigation drawer -->
     <div class="offcanvas offcanvas-end hk-nav-drawer" tabindex="-1" id="hkNavDrawer">
@@ -390,6 +411,10 @@
     <script src="{% static 'js/toasts.js' %}"></script>
     <script src="{% static 'js/palette-switcher.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        window.HK_CURRENT_LOCATION = {{ current_location_data|default:'null'|safe }};
+    </script>
+    <script src="{% static 'js/location-selector.js' %}"></script>
     {% if user.is_authenticated %}
     <script>
         window.HK_USER_AUTHENTICATED = true;

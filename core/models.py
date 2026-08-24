@@ -316,6 +316,52 @@ class Category(models.Model):
 
 
 # ---------------------------------------------------------------------------
+# India location hierarchy
+# ---------------------------------------------------------------------------
+
+class Location(models.Model):
+    class Kind(models.TextChoices):
+        COUNTRY = 'country', 'Country'
+        STATE = 'state', 'State'
+        DISTRICT = 'district', 'District'
+        CITY = 'city', 'City'
+        LOCALITY = 'locality', 'Locality / Area'
+
+    parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True, related_name='children')
+    kind = models.CharField(max_length=20, choices=Kind.choices)
+    name = models.CharField(max_length=120)
+    slug = models.SlugField(max_length=140, unique=True)
+    country_code = models.CharField(max_length=2, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    aliases = models.JSONField(default=list, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(fields=['parent', 'kind', 'name'], name='unique_location_in_parent'),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def state(self):
+        node = self
+        while node and node.kind not in {self.Kind.STATE, self.Kind.COUNTRY}:
+            node = node.parent
+        return node.name if node and node.kind == self.Kind.STATE else ''
+
+    @property
+    def district(self):
+        node = self.parent
+        while node and node.kind not in {self.Kind.DISTRICT, self.Kind.STATE, self.Kind.COUNTRY}:
+            node = node.parent
+        return node.name if node and node.kind == self.Kind.DISTRICT else ''
+
+
+# ---------------------------------------------------------------------------
 # Admin (Content Provider) requests & granted permissions
 # ---------------------------------------------------------------------------
 
@@ -381,6 +427,11 @@ class ListingMixin(models.Model):
     listing_category = models.ForeignKey(
         Category, on_delete=models.PROTECT, null=True, blank=True, related_name='%(class)s_listings'
     )
+    city = models.ForeignKey(
+        Location, on_delete=models.PROTECT, null=True, blank=True, related_name='%(class)s_listings',
+        limit_choices_to={'kind': Location.Kind.CITY},
+        help_text='Canonical city for this listing. Leave blank only for legacy data pending classification.',
+    )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='%(class)s_listings'
     )
@@ -401,6 +452,9 @@ class ListingMixin(models.Model):
 
     class Meta:
         abstract = True
+        indexes = [
+            models.Index(fields=['status', 'is_active', 'city']),
+        ]
 
     @property
     def is_public(self):
@@ -452,6 +506,7 @@ class Business(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-is_featured', 'name']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Business'
         verbose_name_plural = 'Businesses'
 
@@ -525,6 +580,7 @@ class Property(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-is_featured', '-created_at']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Property'
         verbose_name_plural = 'Properties'
 
@@ -585,6 +641,7 @@ class Job(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-is_featured', '-created_at']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Job'
         verbose_name_plural = 'Jobs'
 
@@ -633,6 +690,7 @@ class Event(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['event_date']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Event'
         verbose_name_plural = 'Events'
 
@@ -684,6 +742,7 @@ class News(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-published_date']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'News Article'
         verbose_name_plural = 'News'
 
@@ -739,6 +798,7 @@ class Project(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-is_featured', '-created_at']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Upcoming Project'
         verbose_name_plural = 'Upcoming Projects'
 

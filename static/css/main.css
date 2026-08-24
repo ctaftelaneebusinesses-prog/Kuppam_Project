@@ -6335,3 +6335,32 @@ html[data-theme="dark"] .hk-whatsapp-tooltip {
     background: rgba(10, 11, 22, .92);
     border-color: rgba(255, 255, 255, .08);
 }
+
+.hk-location-trigger {
+    border: 1px solid var(--hk-border-soft);
+    color: inherit;
+    white-space: nowrap;
+}
+
+.hk-location-trigger:hover,
+.hk-location-trigger:focus-visible {
+    border-color: var(--hk-primary);
+    color: var(--hk-primary);
+}
+
+.hk-location-modal .modal-content {
+    border-radius: 8px;
+}
+
+.hk-location-modal #hkLocationResults {
+    max-height: 45vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 575.98px) {
+    .hk-location-trigger {
+        max-width: 42vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

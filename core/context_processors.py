@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.core.cache import cache
 
@@ -7,6 +9,21 @@ def supabase_config(request):
     return {
         'SUPABASE_URL': settings.SUPABASE_URL,
         'SUPABASE_ANON_KEY': settings.SUPABASE_ANON_KEY,
+    }
+
+
+def location(request):
+    from .location_service import active_location
+    current = active_location(request)
+    return {
+        'current_location': current,
+        'current_location_data': json.dumps({
+            'cityId': current.pk,
+            'city': current.name,
+            'state': current.state,
+            'latitude': float(current.latitude) if current.latitude is not None else None,
+            'longitude': float(current.longitude) if current.longitude is not None else None,
+        }) if current else 'null',
     }
 
 

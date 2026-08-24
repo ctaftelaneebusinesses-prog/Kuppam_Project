@@ -5,7 +5,11 @@ app_name = 'core'
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('c/<slug:city_slug>/', views.city_home, name='city_home'),
     path('search/', views.search, name='search'),
+    path('api/locations/search/', views.location_search, name='location_search'),
+    path('api/locations/select/', views.location_select, name='location_select'),
+    path('api/locations/reverse-geocode/', views.location_reverse_geocode, name='location_reverse_geocode'),
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
     path('newsletter/subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
