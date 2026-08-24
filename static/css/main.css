@@ -6358,6 +6358,14 @@ html[data-theme="dark"] .hk-whatsapp-tooltip {
 }
 
 @media (max-width: 575.98px) {
+    body {
+        overflow-x: clip;
+    }
+
+    [data-aos] {
+        transform: none !important;
+    }
+
     .hk-location-trigger {
         max-width: 42vw;
         overflow: hidden;
