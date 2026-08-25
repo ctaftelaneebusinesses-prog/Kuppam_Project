@@ -238,10 +238,11 @@ class AdminRequestReviewForm(forms.Form):
 class BusinessSubmitForm(forms.ModelForm):
     class Meta:
         model = Business
-        fields = ['name', 'category', 'address', 'phone_number', 'description', 'website', 'maps_link', 'image', 'image_url']
+        fields = ['name', 'category', 'city', 'address', 'phone_number', 'description', 'website', 'maps_link', 'image', 'image_url']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Business Name'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Full Address'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
@@ -255,12 +256,13 @@ class BusinessSubmitForm(forms.ModelForm):
 class PropertySubmitForm(forms.ModelForm):
     class Meta:
         model = Property
-        fields = ['title', 'property_type', 'price', 'location', 'contact_number', 'description', 'image', 'image_url']
+        fields = ['title', 'property_type', 'price', 'location', 'city', 'contact_number', 'description', 'image', 'image_url']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Property Title'}),
             'property_type': forms.Select(attrs={'class': 'form-select'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price (₹)'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Location'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -271,11 +273,12 @@ class PropertySubmitForm(forms.ModelForm):
 class JobSubmitForm(forms.ModelForm):
     class Meta:
         model = Job
-        fields = ['job_title', 'company', 'location', 'salary', 'contact_number', 'description', 'image', 'image_url']
+        fields = ['job_title', 'company', 'location', 'city', 'salary', 'contact_number', 'description', 'image', 'image_url']
         widgets = {
             'job_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Job Title'}),
             'company': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Location'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'salary': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Salary (optional)'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
@@ -287,11 +290,12 @@ class JobSubmitForm(forms.ModelForm):
 class EventSubmitForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['title', 'event_date', 'location', 'contact_number', 'description', 'image', 'image_url']
+        fields = ['title', 'event_date', 'location', 'city', 'contact_number', 'description', 'image', 'image_url']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Event Title'}),
             'event_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venue / Location'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number (optional)'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -302,9 +306,10 @@ class EventSubmitForm(forms.ModelForm):
 class NewsSubmitForm(forms.ModelForm):
     class Meta:
         model = News
-        fields = ['title', 'content', 'source', 'image', 'image_url']
+        fields = ['title', 'city', 'content', 'source', 'image', 'image_url']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'News Title'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 6, 'placeholder': 'Content'}),
             'source': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Source (optional)'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -315,11 +320,12 @@ class NewsSubmitForm(forms.ModelForm):
 class ProjectSubmitForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'project_status', 'location', 'expected_completion', 'department', 'description', 'image', 'image_url']
+        fields = ['title', 'project_status', 'location', 'city', 'expected_completion', 'department', 'description', 'image', 'image_url']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project Title'}),
             'project_status': forms.Select(attrs={'class': 'form-select'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Area / Locality'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'expected_completion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'department': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Executing Department/Agency (optional)'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),

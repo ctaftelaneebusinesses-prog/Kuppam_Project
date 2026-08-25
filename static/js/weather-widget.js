@@ -9,10 +9,6 @@
     var conditionEl = document.getElementById('hkWeatherCondition');
     var windEl = document.getElementById('hkWeatherWind');
 
-    // Kuppam, Chittoor district, Andhra Pradesh — used when geolocation is
-    // unavailable or denied.
-    var FALLBACK_COORDS = { latitude: 12.75, longitude: 78.23 };
-
     // WMO weather codes as returned by Open-Meteo's `weather_code` field.
     var WEATHER_CODES = {
         0: ['Clear sky', '☀️'],
@@ -89,23 +85,15 @@
     }
 
     function resolveCoordsAndFetch() {
-        if (!('geolocation' in navigator)) {
-            fetchWeather(FALLBACK_COORDS);
+        var location = window.HK_CURRENT_LOCATION;
+        if (!location || location.latitude === null || location.longitude === null) {
+            renderError();
             return;
         }
-
-        navigator.geolocation.getCurrentPosition(
-            function (position) {
-                fetchWeather({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                });
-            },
-            function () {
-                fetchWeather(FALLBACK_COORDS);
-            },
-            { timeout: 8000, maximumAge: 600000 }
-        );
+        fetchWeather({
+            latitude: location.latitude,
+            longitude: location.longitude
+        });
     }
 
     resolveCoordsAndFetch();
