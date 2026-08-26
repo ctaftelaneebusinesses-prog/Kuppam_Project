@@ -129,8 +129,32 @@ a {
     height: 100%;
 }
 
+/* Below lg, .hk-navbar-inner's contents wrap onto a second row (brand pill,
+   then the location button + hamburger below it) — but .navbar's height
+   above stays a hardcoded 64px with overflow: visible, so that second row
+   was rendering ~20px below the navbar's own white/glass background box
+   instead of inside it: no backdrop behind it at all, just sitting directly
+   on whatever page content happened to be underneath (misread as the
+   navbar being "see-through" — it wasn't transparency, the box was
+   genuinely too short to contain its own content). min-height instead of a
+   fixed height lets the box grow to actually fit both rows. */
+@media (max-width: 991.98px) {
+    .navbar {
+        height: auto;
+        min-height: 64px;
+    }
+}
+
+/* .72 alpha relies on the backdrop-filter blur below to make whatever
+   scrolls underneath unrecognizable — without it (older browsers, some
+   Android WebViews, "reduce transparency" accessibility settings, or just
+   a phone where it renders weakly) that content just fades through instead
+   of blurring, visible as page content "ghosting" through the navbar as
+   you scroll any page, not just the homepage. Raised to a near-opaque .96
+   so the navbar reads correctly with or without the blur actually
+   compositing. */
 .navbar:not(.hk-navbar-transparent) {
-    background-color: rgba(255, 255, 255, .72) !important;
+    background-color: rgba(255, 255, 255, .96) !important;
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     box-shadow: var(--hk-elevation-4) !important;
@@ -138,7 +162,7 @@ a {
 }
 
 html[data-theme="dark"] .navbar:not(.hk-navbar-transparent) {
-    background-color: rgba(15, 23, 42, .6) !important;
+    background-color: rgba(15, 23, 42, .94) !important;
     border-color: rgba(255, 255, 255, .1);
 }
 
@@ -166,7 +190,7 @@ html[data-theme="dark"] .navbar:not(.hk-navbar-transparent) {
 }
 
 .hk-navbar-solid {
-    background-color: rgba(255, 255, 255, 0.72) !important;
+    background-color: rgba(255, 255, 255, 0.96) !important;
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     box-shadow: var(--hk-elevation-4) !important;
@@ -174,7 +198,7 @@ html[data-theme="dark"] .navbar:not(.hk-navbar-transparent) {
 }
 
 html[data-theme="dark"] .hk-navbar-solid {
-    background-color: rgba(15, 23, 42, .6) !important;
+    background-color: rgba(15, 23, 42, .94) !important;
     border-color: rgba(255, 255, 255, .1);
 }
 
@@ -4093,6 +4117,15 @@ html[data-theme="dark"] .hk-nav-drawer .hk-navbar-craftlanee-logo-light {
    mobile bar itself moved up to .hk-dash-mainbar so it spans the full row,
    not just the mobile-only sub-block. */
 .hk-dash-mainbar {
+    /* This row's two children (hamburger+title, and the weather chip pinned
+       right via ms-auto) never shrink — on narrow phones their combined
+       width doesn't fit in one line, and since body has overflow-x: hidden,
+       the excess was silently clipped instead of visible/scrollable (the
+       weather chip's temperature/condition/wind text was getting cut off
+       on the right). Wrapping lets the chip drop to its own line instead of
+       losing content. */
+    flex-wrap: wrap;
+    row-gap: .5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--hk-border-soft);
 }
@@ -4324,6 +4357,17 @@ html[data-theme="dark"] .hk-weather-widget {
     --hk-glow-ring-color: rgba(15, 76, 129, .35);
     background: var(--bs-body-bg);
     color: var(--bs-body-color);
+    /* .hk-dashboard-main is a flex item of .hk-dashboard (display: flex) and
+       is effectively the ONLY item in that row at every width — the sidebar
+       is always taken out of flow (position: fixed on desktop, Bootstrap's
+       .offcanvas-lg fixed-and-hidden below lg). A flex item still can't
+       shrink past its content's intrinsic width by default (min-width: auto),
+       so a wide table (e.g. Manage Users) was forcing this whole column
+       wider than the viewport instead of staying put and letting its own
+       .table-responsive scroll internally — and since body has
+       overflow-x: hidden (see body{} above), that overflow wasn't even
+       reachable via a page-level scrollbar, just silently clipped. */
+    min-width: 0;
 }
 
 .hk-dash-topbar {
@@ -4562,6 +4606,25 @@ html[data-theme="dark"] .hk-weather-widget {
 .hk-dashboard-main .card-header {
     border-radius: var(--hk-radius-card) var(--hk-radius-card) 0 0 !important;
     border-bottom: 1px solid var(--hk-border-soft);
+}
+
+/* Overview's "Recent Admin Requests" / "Recent Logins" / "Recent Contact
+   Messages" cards each render a `d-flex justify-content-between` row: a
+   free-text span (name, email, or a spam submission's subject/URL) next to
+   a fixed badge or timestamp. A flex item can't shrink below its content's
+   intrinsic width by default, and a long unbroken token (a URL with no
+   spaces is the real-world case that surfaced this — see contact form spam)
+   doesn't wrap on its own — so it was forcing the whole row wider than its
+   card and pushing the badge/timestamp out past the visible edge, silently
+   clipped by body's overflow-x: hidden instead of visible or reachable. */
+.hk-dashboard-main .list-group-item > span:first-child {
+    min-width: 0;
+    overflow-wrap: break-word;
+}
+
+.hk-dashboard-main .list-group-item .badge {
+    flex-shrink: 0;
+    margin-left: .5rem;
 }
 
 .hk-dashboard-main .table thead.table-light th {
@@ -6095,8 +6158,48 @@ html[data-theme="dark"] .hk-whatsapp-tooltip {
 
 .hk-location-trigger:hover,
 .hk-location-trigger:focus-visible {
-    border-color: var(--hk-primary);
-    color: var(--hk-primary);
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+}
+
+/* Unlike the nav links, .hk-location-trigger's "color: inherit" doesn't
+   reliably pick up a light color from an ancestor in dark mode, leaving its
+   pin icon/text the same near-black as the now-dark glass navbar background
+   — invisible. Every other navbar action button (.hk-theme-toggle, the
+   language switcher) already sets its own explicit dark-theme color for
+   this reason; this one was missing it. */
+html[data-theme="dark"] .navbar .hk-location-trigger {
+    color: var(--hk-ink-soft);
+    border-color: rgba(255, 255, 255, .1);
+}
+
+html[data-theme="dark"] .navbar .hk-location-trigger:hover,
+html[data-theme="dark"] .navbar .hk-location-trigger:focus-visible {
+    color: #fff;
+    border-color: var(--bs-primary);
+}
+
+/* Same gap, different navbar state: on the homepage hero the navbar starts
+   transparent over a dark background image (.hk-navbar-transparent, see the
+   .navbar-brand/.nav-link white-text rules above) regardless of the site's
+   light/dark theme — this button needs its own white treatment there too,
+   then to hand back off to the normal ink color once .hk-navbar-solid is
+   added on scroll (mirrors .hk-theme-toggle's same two extra states). */
+.hk-navbar-transparent .hk-location-trigger {
+    color: #fff;
+    border-color: rgba(255, 255, 255, .3);
+}
+
+.hk-navbar-transparent .hk-location-trigger:hover,
+.hk-navbar-transparent .hk-location-trigger:focus-visible {
+    color: #fff;
+    border-color: #fff;
+    background-color: rgba(255, 255, 255, .16);
+}
+
+.hk-navbar-transparent.hk-navbar-solid .hk-location-trigger {
+    color: var(--hk-ink);
+    border-color: var(--hk-border-soft);
 }
 
 .hk-location-modal .modal-content {

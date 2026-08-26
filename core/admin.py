@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    AdminCategoryPermission, AdminRequest, Business, Category, Comment, ContactMessage, Event, Favorite,
-    Job, Like, LoginHistory, News, NewsletterSubscriber, Notification, PostImage, PostVideo, Profile,
-    Project, Property, Report, Review, Share, TranslationCache, Location,
+    AdminCategoryPermission, AdminCityPermission, AdminRequest, AuditLog, Business, Category, Comment,
+    ContactMessage, Event, Favorite, Job, Like, LoginHistory, News, NewsletterSubscriber, Notification,
+    Permission, PlatformModule, PlatformSettings, PostImage, PostVideo, Profile, Project, Property,
+    Report, Review, RolePermission, Share, TranslationCache, Location,
 )
 
 
@@ -217,6 +218,45 @@ class AdminCategoryPermissionAdmin(admin.ModelAdmin):
     list_display = ('admin', 'category', 'granted_by', 'granted_at')
     list_filter = ('category',)
     search_fields = ('admin__email', 'admin__username')
+
+
+@admin.register(AdminCityPermission)
+class AdminCityPermissionAdmin(admin.ModelAdmin):
+    list_display = ('admin', 'city', 'granted_by', 'granted_at')
+    list_filter = ('city',)
+    search_fields = ('admin__email', 'admin__username')
+
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ('label', 'key', 'group')
+    list_filter = ('group',)
+    search_fields = ('key', 'label')
+
+
+@admin.register(RolePermission)
+class RolePermissionAdmin(admin.ModelAdmin):
+    list_display = ('role', 'permission', 'is_granted', 'updated_by', 'updated_at')
+    list_filter = ('role', 'is_granted')
+
+
+@admin.register(PlatformModule)
+class PlatformModuleAdmin(admin.ModelAdmin):
+    list_display = ('label', 'key', 'is_enabled', 'updated_by', 'updated_at')
+    list_filter = ('is_enabled',)
+    search_fields = ('key', 'label')
+
+
+@admin.register(PlatformSettings)
+class PlatformSettingsAdmin(admin.ModelAdmin):
+    list_display = ('site_name', 'maintenance_mode', 'auto_approve_listings', 'updated_by', 'updated_at')
+
+
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = ('actor', 'action', 'description', 'ip_address', 'created_at')
+    list_filter = ('action',)
+    search_fields = ('action', 'description', 'actor__email')
 
 
 @admin.register(Notification)

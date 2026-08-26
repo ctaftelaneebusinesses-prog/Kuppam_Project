@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.MaintenanceModeMiddleware',
 ]
 
 ROOT_URLCONF = 'hello_kuppam.urls'
@@ -240,3 +241,4 @@ VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', '')
 # gate the existing username/password staff login for Django's own
 # /admin/ backend and the Excel upload tools — that flow is untouched.
 GOOGLE_LOGIN_URL = 'core:google_login'
+

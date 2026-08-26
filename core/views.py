@@ -157,15 +157,16 @@ from .decorators import (
 from .excel_utils import UPLOAD_CONFIGS, ExcelValidationError, build_sample_workbook, process_excel_upload
 from .export_utils import build_posts_pdf, build_posts_workbook, build_users_pdf, build_users_workbook
 from .forms import (
-    AdminLoginForm, AdminRequestForm, AdminRequestReviewForm, CategoryForm, CommentForm, ContactForm,
-    ExcelUploadForm, LISTING_SUBMIT_FORMS, PasswordLoginForm, ProfileCompletionForm,
-    RegisterForm, ReportForm, ReviewForm,
+    AdminLoginForm, AdminRequestForm, AdminRequestReviewForm, CategoryForm, CityAdminForm, CommentForm,
+    ContactForm, ExcelUploadForm, LISTING_SUBMIT_FORMS, PasswordLoginForm, PlatformSettingsForm,
+    ProfileCompletionForm, RegisterForm, ReportForm, ReviewForm,
 )
 from .models import (
-    AdminCategoryPermission, AdminRequest, AdminRequestStatus, Business, Category, Comment,
-    ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory, News,
-    NewsletterSubscriber, Notification, PostImage, PostVideo, PostView, Profile, Project, Property,
-    PushSubscription, Report, Review, Share, UserRole, Location, unique_slug_for,
+    AdminCategoryPermission, AdminCityPermission, AdminRequest, AdminRequestStatus, AuditLog, Business,
+    Category, Comment, ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus, LoginHistory,
+    News, NewsletterSubscriber, Notification, Permission, PlatformModule, PlatformSettings, PostImage,
+    PostVideo, PostView, Profile, Project, Property, PushSubscription, Report, Review, RolePermission,
+    Share, UserRole, Location, unique_slug_for,
 )
 from .location_service import active_location, reverse_geocode, save_location, search_cities, serialize_location
 from .push import notify, notify_bulk
@@ -1335,6 +1336,17 @@ def _unique_username(base_text):
     return username
 
 
+def log_audit(request, action, description):
+    """Records one row in the Super Admin's Audit Logs screen for a sensitive/
+    destructive action. See dashboard_audit_logs."""
+    AuditLog.objects.create(
+        actor=request.user if request.user.is_authenticated else None,
+        action=action,
+        description=description[:300],
+        ip_address=_client_ip(request),
+    )
+
+
 def _notify_super_admins(message, url='', type='admin_request_submitted'):
     admins = User.objects.filter(profile__role=UserRole.SUPER_ADMIN)
     notify_bulk(admins, type, message, url=url)
@@ -1909,7 +1921,7 @@ def listing_submit(request, category_key):
             obj = form.save(commit=False)
             obj.owner = request.user
             obj.listing_category = category
-            if profile.is_super_admin or category.listing_model == 'news':
+            if profile.is_super_admin or category.listing_model == 'news' or PlatformSettings.load().auto_approve_listings:
                 obj.status = ListingStatus.APPROVED
                 obj.reviewed_by = request.user
                 obj.reviewed_at = timezone.now()
@@ -1955,7 +1967,7 @@ def listing_edit(request, model_key, pk):
         form = form_cls(request.POST, request.FILES, instance=obj)
         if form.is_valid():
             obj = form.save(commit=False)
-            if not profile.is_super_admin and model_key != 'news':
+            if not profile.is_super_admin and model_key != 'news' and not PlatformSettings.load().auto_approve_listings:
                 obj.status = ListingStatus.PENDING
                 obj.rejection_reason = ''
             obj.save()
@@ -2365,17 +2377,31 @@ def _filtered_profiles(request):
     return profiles, query, role_filter
 
 
+#: Drives the page heading/sidebar-highlight for the Sub Admins and Content
+#: Providers sidebar links, which both just deep-link into this same
+#: role-filtered Manage Users view rather than being separate pages.
+_ROLE_FILTER_VIEW_META = {
+    UserRole.SUB_ADMIN: ('sub_admins', 'Sub Admins', 'View, filter, and moderate every Sub Admin account.'),
+    UserRole.ADMIN: ('content_providers', 'Content Providers', 'View, filter, and moderate every Content Provider account.'),
+}
+
+
 @super_admin_required
 def dashboard_users(request):
     profiles, query, role_filter = _filtered_profiles(request)
+    active_nav, heading, subheading = _ROLE_FILTER_VIEW_META.get(
+        role_filter, ('users', 'Manage Users', 'View, filter, and moderate every registered account.')
+    )
 
     context = {
-        'page_title': 'Manage Users - OneTownCity',
+        'page_title': f'{heading} - OneTownCity',
+        'heading': heading,
+        'subheading': subheading,
         'profiles': profiles,
         'query': query,
         'role_filter': role_filter,
         'role_choices': UserRole.choices,
-        'active_nav': 'users',
+        'active_nav': active_nav,
     }
     return render(request, 'dashboard/users.html', context)
 
@@ -2427,6 +2453,7 @@ def dashboard_user_toggle_block(request, user_id):
     profile = get_object_or_404(Profile, user_id=user_id)
     profile.is_blocked = not profile.is_blocked
     profile.save(update_fields=['is_blocked'])
+    log_audit(request, 'user.toggle_block', f'{profile.user.email} is now {"blocked" if profile.is_blocked else "unblocked"}')
     messages.success(request, f'{profile.user.email} is now {"blocked" if profile.is_blocked else "unblocked"}.')
     return redirect('core:dashboard_users')
 
@@ -2437,6 +2464,7 @@ def dashboard_user_toggle_suspend(request, user_id):
     profile = get_object_or_404(Profile, user_id=user_id)
     profile.is_suspended = not profile.is_suspended
     profile.save(update_fields=['is_suspended'])
+    log_audit(request, 'user.toggle_suspend', f'{profile.user.email} is now {"suspended" if profile.is_suspended else "unsuspended"}')
     messages.success(request, f'{profile.user.email} is now {"suspended" if profile.is_suspended else "unsuspended"}.')
     return redirect('core:dashboard_users')
 
@@ -2465,6 +2493,7 @@ def dashboard_user_promote_super_admin(request, user_id):
     profile.user.is_superuser = True
     profile.user.save(update_fields=['is_staff', 'is_superuser'])
 
+    log_audit(request, 'user.promote_super_admin', f'{profile.user.email} promoted to Super Admin')
     messages.success(request, f'{profile.user.email} is now a Super Admin.')
     return redirect(_safe_next(request, reverse('core:dashboard_users')))
 
@@ -2492,7 +2521,9 @@ def dashboard_users_bulk_delete(request):
     skipped = len(requested_ids) - len(deletable_ids)
 
     if deletable_ids:
+        emails = list(User.objects.filter(id__in=deletable_ids).values_list('email', flat=True))
         User.objects.filter(id__in=deletable_ids).delete()
+        log_audit(request, 'user.bulk_delete', f'Deleted {len(deletable_ids)} user(s): {", ".join(emails)}')
         messages.success(request, f'{len(deletable_ids)} user(s) deleted.')
     if skipped:
         messages.warning(request, f'{skipped} user(s) were skipped (Super Admin accounts and your own account can\'t be bulk-deleted).')
@@ -2608,6 +2639,7 @@ def dashboard_admin_request_detail(request, pk):
                     'Your request to become a Content Provider has been approved!',
                     url=reverse('core:my_listings'),
                 )
+                log_audit(request, 'admin_request.approve', f'Approved Content Provider request from {admin_request.user.email}')
             elif action == 'reject':
                 admin_request.status = AdminRequestStatus.REJECTED
                 notify(
@@ -2615,6 +2647,7 @@ def dashboard_admin_request_detail(request, pk):
                     f'Your request was rejected: {note}' if note else 'Your request was rejected.',
                     url=reverse('core:admin_request_pending'),
                 )
+                log_audit(request, 'admin_request.reject', f'Rejected Content Provider request from {admin_request.user.email}')
             else:
                 admin_request.status = AdminRequestStatus.CHANGES_REQUESTED
                 notify(
@@ -2622,6 +2655,7 @@ def dashboard_admin_request_detail(request, pk):
                     f'Changes requested on your request: {note}' if note else 'Changes were requested on your request.',
                     url=reverse('core:admin_request_pending'),
                 )
+                log_audit(request, 'admin_request.changes_requested', f'Requested changes on request from {admin_request.user.email}')
             admin_request.save()
             messages.success(request, 'Request updated.')
             return redirect('core:dashboard_admin_requests')
@@ -2646,6 +2680,7 @@ def dashboard_categories(request):
             category = get_object_or_404(Category, pk=request.POST.get('category_id'))
             category.is_active = not category.is_active
             category.save(update_fields=['is_active'])
+            log_audit(request, 'category.toggle', f'"{category.label}" is now {"active" if category.is_active else "inactive"}')
             messages.success(request, f'{category.label} is now {"active" if category.is_active else "inactive"}.')
 
         elif action == 'create':
@@ -2657,6 +2692,7 @@ def dashboard_categories(request):
                 if not category.key:
                     category.key = unique_slug_for(Category, category.label, field_name='key', max_length=50)
                 category.save()
+                log_audit(request, 'category.create', f'"{category.label}" was added')
                 messages.success(request, f'"{category.label}" was added.')
             else:
                 messages.error(request, 'Could not add category: ' + ' '.join(
@@ -2668,6 +2704,7 @@ def dashboard_categories(request):
             form = CategoryForm(request.POST, instance=category, parent=category.parent)
             if form.is_valid():
                 form.save()
+                log_audit(request, 'category.edit', f'"{category.label}" was updated')
                 messages.success(request, f'"{category.label}" was updated.')
             else:
                 messages.error(request, 'Could not update category: ' + ' '.join(
@@ -2679,6 +2716,7 @@ def dashboard_categories(request):
             label = category.label
             try:
                 category.delete()
+                log_audit(request, 'category.delete', f'"{label}" was deleted')
                 messages.success(request, f'"{label}" was deleted.')
             except ProtectedError:
                 messages.error(
@@ -2694,6 +2732,192 @@ def dashboard_categories(request):
         'top_categories': top_categories,
         'listing_model_choices': Category.LISTING_MODEL_CHOICES,
         'active_nav': 'categories',
+    })
+
+
+# ===========================================================================
+# Super Admin: platform administration (City Admins, roles & permissions,
+# platform modules, platform settings, audit log)
+# ===========================================================================
+
+@super_admin_required
+def dashboard_city_admins(request):
+    """
+    Manage City Admin accounts. 'Create' pre-provisions a User+Profile by
+    email before that person has ever signed in — auth_callback_api (see
+    the Google sign-in flow above) already falls back to matching an
+    existing User by email on first login, so their next Google sign-in
+    attaches to this account automatically. 'Edit' updates name/city scope
+    for an existing City Admin, and 'toggle_active' reuses is_blocked, the
+    same deactivation flag every other account uses.
+    """
+    if request.method == 'POST':
+        action = request.POST.get('action', 'create')
+
+        if action in ('create', 'edit'):
+            form = CityAdminForm(request.POST)
+            if form.is_valid():
+                email = form.cleaned_data['email'].strip().lower()
+                full_name = form.cleaned_data['full_name'].strip()
+                cities = form.cleaned_data['cities']
+
+                if action == 'edit':
+                    profile = get_object_or_404(Profile, user_id=request.POST.get('user_id'), role=UserRole.CITY_ADMIN)
+                    user = profile.user
+                else:
+                    user = User.objects.filter(email=email).first()
+                    if user is None:
+                        user = User.objects.create(username=_unique_username(email), email=email)
+                    profile, _ = Profile.objects.get_or_create(user=user)
+                    if profile.role == UserRole.SUPER_ADMIN:
+                        messages.error(request, f'{email} is already a Super Admin and can\'t be reassigned here.')
+                        return redirect('core:dashboard_city_admins')
+                    profile.role = UserRole.CITY_ADMIN
+
+                profile.full_name = full_name or profile.full_name
+                profile.save()
+
+                AdminCityPermission.objects.filter(admin=user).exclude(city__in=cities).delete()
+                for city in cities:
+                    AdminCityPermission.objects.get_or_create(admin=user, city=city, defaults={'granted_by': request.user})
+
+                city_names = ', '.join(c.name for c in cities) or 'no cities assigned'
+                log_audit(
+                    request, 'city_admin.create' if action == 'create' else 'city_admin.edit',
+                    f'{"Created" if action == "create" else "Updated"} City Admin {user.email} ({city_names})',
+                )
+                messages.success(request, f'{user.email} is now a City Admin.' if action == 'create' else f'{user.email} was updated.')
+            else:
+                messages.error(request, 'Could not save City Admin: ' + ' '.join(
+                    f'{f}: {", ".join(e)}' for f, e in form.errors.items()
+                ))
+
+        elif action == 'toggle_active':
+            profile = get_object_or_404(Profile, user_id=request.POST.get('user_id'), role=UserRole.CITY_ADMIN)
+            profile.is_blocked = not profile.is_blocked
+            profile.save(update_fields=['is_blocked'])
+            log_audit(request, 'city_admin.toggle_active', f'{profile.user.email} is now {"deactivated" if profile.is_blocked else "active"}')
+            messages.success(request, f'{profile.user.email} is now {"deactivated" if profile.is_blocked else "active"}.')
+
+        return redirect('core:dashboard_city_admins')
+
+    city_admins = (
+        Profile.objects.filter(role=UserRole.CITY_ADMIN)
+        .select_related('user')
+        .prefetch_related('user__city_permissions__city')
+        .order_by('-created_at')
+    )
+    return render(request, 'dashboard/city_admins.html', {
+        'page_title': 'Manage City Admins - OneTownCity',
+        'city_admins': city_admins,
+        'cities': Location.objects.filter(kind=Location.Kind.CITY, is_active=True).order_by('name'),
+        'active_nav': 'city_admins',
+    })
+
+
+@super_admin_required
+def dashboard_roles_permissions(request):
+    """
+    Role x Permission matrix. Super Admin isn't shown as an editable row —
+    its access is unconditional in Profile.has_permission(), never driven by
+    this data. Toggling a cell here doesn't change what any *existing* view
+    enforces yet (today only has_permission() reads it); it becomes
+    load-bearing once City Admin/Sub Admin/Content Provider get their own
+    permission-gated views in later RBAC stages.
+    """
+    if request.method == 'POST':
+        role = request.POST.get('role')
+        valid_roles = {choice[0] for choice in RolePermission.ROLE_CHOICES}
+        if role in valid_roles:
+            permission = get_object_or_404(Permission, pk=request.POST.get('permission_id'))
+            row, _ = RolePermission.objects.get_or_create(role=role, permission=permission)
+            row.is_granted = not row.is_granted
+            row.updated_by = request.user
+            row.save(update_fields=['is_granted', 'updated_by', 'updated_at'])
+            role_label = dict(RolePermission.ROLE_CHOICES).get(role, role)
+            log_audit(
+                request, 'permission.update',
+                f'{role_label}: {permission.label} {"granted" if row.is_granted else "revoked"}',
+            )
+        return redirect('core:dashboard_roles_permissions')
+
+    roles = RolePermission.ROLE_CHOICES
+    grants = {(row.role, row.permission_id): row.is_granted for row in RolePermission.objects.all()}
+    matrix = [
+        {
+            'permission': permission,
+            'cells': [
+                {'role': role, 'granted': grants.get((role, permission.id), False)}
+                for role, _label in roles
+            ],
+        }
+        for permission in Permission.objects.all()
+    ]
+    return render(request, 'dashboard/roles_permissions.html', {
+        'page_title': 'Roles & Permissions - OneTownCity',
+        'roles': roles,
+        'matrix': matrix,
+        'active_nav': 'roles_permissions',
+    })
+
+
+@super_admin_required
+def dashboard_platform_modules(request):
+    if request.method == 'POST':
+        module = get_object_or_404(PlatformModule, pk=request.POST.get('module_id'))
+        module.is_enabled = not module.is_enabled
+        module.updated_by = request.user
+        module.save(update_fields=['is_enabled', 'updated_by', 'updated_at'])
+        log_audit(request, 'module.toggle', f'{module.label} is now {"enabled" if module.is_enabled else "disabled"}')
+        messages.success(request, f'{module.label} is now {"enabled" if module.is_enabled else "disabled"}.')
+        return redirect('core:dashboard_platform_modules')
+
+    return render(request, 'dashboard/platform_modules.html', {
+        'page_title': 'Platform Modules - OneTownCity',
+        'modules': PlatformModule.objects.all(),
+        'active_nav': 'platform_modules',
+    })
+
+
+@super_admin_required
+def dashboard_platform_settings(request):
+    settings_obj = PlatformSettings.load()
+    if request.method == 'POST':
+        form = PlatformSettingsForm(request.POST, instance=settings_obj)
+        if form.is_valid():
+            settings_obj = form.save(commit=False)
+            settings_obj.updated_by = request.user
+            settings_obj.save()
+            log_audit(request, 'settings.update', 'Platform settings updated')
+            messages.success(request, 'Platform settings updated.')
+            return redirect('core:dashboard_platform_settings')
+    else:
+        form = PlatformSettingsForm(instance=settings_obj)
+
+    return render(request, 'dashboard/platform_settings.html', {
+        'page_title': 'Platform Settings - OneTownCity',
+        'form': form,
+        'active_nav': 'platform_settings',
+    })
+
+
+@super_admin_required
+def dashboard_audit_logs(request):
+    logs = AuditLog.objects.select_related('actor')
+    query = request.GET.get('q', '').strip()
+    if query:
+        logs = logs.filter(
+            Q(action__icontains=query) | Q(description__icontains=query) | Q(actor__email__icontains=query)
+        )
+
+    paginator = Paginator(logs, 50)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    return render(request, 'dashboard/audit_logs.html', {
+        'page_title': 'Audit Logs - OneTownCity',
+        'page_obj': page_obj,
+        'query': query,
+        'active_nav': 'audit_logs',
     })
 
 
@@ -2789,10 +3013,14 @@ POST_SORT_KEYS = {
 
 @super_admin_required
 def dashboard_post_create_picker(request):
-    """Category picker for the Super Admin's 'draft a single post' shortcut."""
+    """Category picker for the Super Admin's 'draft a single post' shortcut.
+    Categories whose listing type module is disabled (Manage Platform
+    Modules) are excluded."""
+    disabled_modules = set(PlatformModule.objects.filter(is_enabled=False).values_list('key', flat=True))
+    categories = Category.objects.filter(is_active=True).exclude(listing_model__in=disabled_modules)
     return render(request, 'dashboard/post_create_picker.html', {
         'page_title': 'New Post - OneTownCity',
-        'categories': Category.objects.filter(is_active=True),
+        'categories': categories,
         'active_nav': 'posts',
     })
 

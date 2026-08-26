@@ -1,0 +1,134 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Manage City Admins" %}</h3>
+        <p class="text-muted small mb-0">{% trans "Create City Admin accounts and assign which cities each one manages." %}</p>
+    </div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#hkCityAdminModal" onclick="hkOpenCityAdminModal()">
+        <i class="bi bi-plus-lg"></i> {% trans "Add City Admin" %}
+    </button>
+</div>
+
+<div class="card hk-data-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Email" %}</th>
+                    <th>{% trans "Cities" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th class="text-end">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in city_admins %}
+                <tr>
+                    <td class="fw-semibold">{{ profile.full_name|default:profile.user.username }}</td>
+                    <td class="text-muted">{{ profile.user.email }}</td>
+                    <td>
+                        {% for perm in profile.user.city_permissions.all %}
+                        <span class="badge bg-primary-subtle text-primary">{{ perm.city.name }}</span>
+                        {% empty %}
+                        <span class="text-muted small">{% trans "No cities assigned" %}</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if profile.is_blocked %}<span class="hk-status-pill hk-status-rejected">{% trans "Deactivated" %}</span>
+                        {% else %}<span class="hk-status-pill hk-status-active">{% trans "Active" %}</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="d-inline-flex gap-1">
+                            <button type="button" class="hk-row-action-btn" title="{% trans 'Edit' %}"
+                                    data-bs-toggle="modal" data-bs-target="#hkCityAdminModal"
+                                    onclick='hkOpenCityAdminModal({
+                                        userId: {{ profile.user_id }},
+                                        fullName: "{{ profile.full_name|default:profile.user.username|escapejs }}",
+                                        email: "{{ profile.user.email|escapejs }}",
+                                        cityIds: [{% for perm in profile.user.city_permissions.all %}{{ perm.city_id }}{% if not forloop.last %},{% endif %}{% endfor %}]
+                                    })'>
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_active">
+                                <input type="hidden" name="user_id" value="{{ profile.user_id }}">
+                                <button type="submit" class="hk-row-action-btn" title="{% if profile.is_blocked %}{% trans 'Activate' %}{% else %}{% trans 'Deactivate' %}{% endif %}">
+                                    <i class="bi {% if profile.is_blocked %}bi-toggle-off{% else %}bi-toggle-on{% endif %}"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-5"><i class="bi bi-building-gear fs-2 d-block mb-2"></i>{% trans "No City Admins yet." %}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="hkCityAdminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="post" class="modal-content" action="{% url 'core:dashboard_city_admins' %}" id="hkCityAdminForm">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h5 class="modal-title" id="hkCityAdminModalTitle">{% trans "Add City Admin" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="action" id="hkCaAction" value="create">
+                <input type="hidden" name="user_id" id="hkCaUserId" value="">
+                <p class="small text-muted" id="hkCaCreateHint">
+                    {% trans "If this email hasn't signed in yet, an account is created now and the City Admin role attaches automatically the first time they sign in with Google." %}
+                </p>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Full Name" %}</label>
+                    <input type="text" name="full_name" id="hkCaFullName" class="form-control" required placeholder="{% trans 'Full Name' %}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Email" %}</label>
+                    <input type="email" name="email" id="hkCaEmail" class="form-control" required placeholder="name@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Cities" %}</label>
+                    <select name="cities" id="hkCaCities" class="form-select" multiple size="8">
+                        {% for city in cities %}
+                        <option value="{{ city.pk }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">{% trans "Hold Ctrl/Cmd to select more than one." %}</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans "Save City Admin" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function hkOpenCityAdminModal(data) {
+    data = data || {};
+    const isEdit = !!data.userId;
+    document.getElementById('hkCaAction').value = isEdit ? 'edit' : 'create';
+    document.getElementById('hkCaUserId').value = data.userId || '';
+    document.getElementById('hkCaFullName').value = data.fullName || '';
+    document.getElementById('hkCaEmail').value = data.email || '';
+    document.getElementById('hkCaEmail').readOnly = isEdit;
+    document.getElementById('hkCaCreateHint').classList.toggle('d-none', isEdit);
+    document.getElementById('hkCityAdminModalTitle').textContent = isEdit ? 'Edit City Admin' : 'Add City Admin';
+
+    const cityIds = (data.cityIds || []).map(String);
+    document.querySelectorAll('#hkCaCities option').forEach(function (opt) {
+        opt.selected = cityIds.includes(opt.value);
+    });
+}
+</script>
+{% endblock %}

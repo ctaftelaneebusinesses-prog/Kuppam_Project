@@ -32,6 +32,8 @@ def unique_slug_for(model_cls, text, instance_pk=None, field_name='slug', max_le
 
 class UserRole(models.TextChoices):
     SUPER_ADMIN = 'super_admin', 'Super Admin'
+    CITY_ADMIN = 'city_admin', 'City Admin'
+    SUB_ADMIN = 'sub_admin', 'Sub Admin'
     ADMIN = 'admin', 'Admin (Content Provider)'
     USER = 'user', 'User'
 
@@ -96,6 +98,35 @@ class Profile(models.Model):
     @property
     def is_admin(self):
         return self.role == UserRole.ADMIN
+
+    @property
+    def is_city_admin(self):
+        return self.role == UserRole.CITY_ADMIN
+
+    @property
+    def is_sub_admin(self):
+        return self.role == UserRole.SUB_ADMIN
+
+    def has_permission(self, key):
+        """
+        Whether this profile's role is granted the named Permission (see the
+        Roles & Permissions matrix below). Super Admin always returns True
+        without needing a RolePermission row — it has unrestricted access by
+        definition, not by configuration.
+        """
+        if self.is_super_admin:
+            return True
+        return RolePermission.objects.filter(role=self.role, permission__key=key, is_granted=True).exists()
+
+    def managed_city_ids(self):
+        """Which Location (kind=city) rows this profile is scoped to. Mirrors
+        managed_category_ids() — Super Admin sees every active city; a City
+        Admin sees only what's been granted via AdminCityPermission."""
+        if self.is_super_admin:
+            return list(Location.objects.filter(kind=Location.Kind.CITY, is_active=True).values_list('id', flat=True))
+        if not self.is_city_admin:
+            return []
+        return list(AdminCityPermission.objects.filter(admin_id=self.user_id).values_list('city_id', flat=True))
 
     def can_manage_category(self, category):
         """
@@ -404,6 +435,29 @@ class AdminCategoryPermission(models.Model):
 
     def __str__(self):
         return f'{self.admin} -> {self.category}'
+
+
+class AdminCityPermission(models.Model):
+    """
+    Which cities (Location rows with kind=city) a City Admin is scoped to
+    manage — the city equivalent of AdminCategoryPermission. Not yet
+    enforced by any view (City Admin's own scoped dashboard is a later
+    RBAC stage); for now this is just the data Super Admin assigns through
+    Manage City Admins, read via Profile.managed_city_ids().
+    """
+    admin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='city_permissions')
+    city = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='admin_permissions',
+        limit_choices_to={'kind': Location.Kind.CITY},
+    )
+    granted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+    granted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('admin', 'city')
+
+    def __str__(self):
+        return f'{self.admin} -> {self.city}'
 
 
 # ---------------------------------------------------------------------------
@@ -1129,6 +1183,114 @@ class TranslationCache(models.Model):
         indexes = [models.Index(fields=['content_type', 'object_id', 'field_name', 'language'])]
         verbose_name = 'Translation cache entry'
         verbose_name_plural = 'Translation cache entries'
+
+
+# ---------------------------------------------------------------------------
+# Platform administration: roles & permissions, modules, settings, audit log
+# ---------------------------------------------------------------------------
+
+class Permission(models.Model):
+    """One toggleable capability shown in the Super Admin's Roles & Permissions
+    matrix (e.g. 'manage_city_admins'). Super Admin itself never needs a row
+    here — Profile.has_permission() always returns True for it."""
+    key = models.SlugField(max_length=60, unique=True)
+    label = models.CharField(max_length=150)
+    group = models.CharField(max_length=50, help_text="Section heading on the Roles & Permissions screen, e.g. 'Users', 'Content'.")
+
+    class Meta:
+        ordering = ['group', 'label']
+
+    def __str__(self):
+        return self.label
+
+
+class RolePermission(models.Model):
+    """A specific non-Super-Admin role's grant for one Permission, edited from
+    the Roles & Permissions screen."""
+    ROLE_CHOICES = [choice for choice in UserRole.choices if choice[0] != UserRole.SUPER_ADMIN]
+
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name='role_grants')
+    is_granted = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+
+    class Meta:
+        unique_together = ('role', 'permission')
+        ordering = ['role', 'permission__group', 'permission__label']
+
+    def __str__(self):
+        return f'{self.get_role_display()} · {self.permission.label}: {"granted" if self.is_granted else "denied"}'
+
+
+class PlatformModule(models.Model):
+    """A feature area of the platform Super Admin can switch off entirely
+    (e.g. the Jobs listing type). is_enabled is read wherever a module needs
+    to hide itself — currently just the Super Admin's 'new post' category
+    picker (dashboard_post_create_picker)."""
+    key = models.SlugField(max_length=50, unique=True)
+    label = models.CharField(max_length=100)
+    description = models.CharField(max_length=255, blank=True)
+    is_enabled = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+
+    class Meta:
+        ordering = ['label']
+
+    def __str__(self):
+        return self.label
+
+
+class PlatformSettings(models.Model):
+    """Site-wide configuration, edited as a single record from Manage Platform
+    Settings. Use PlatformSettings.load() to fetch/create the one row."""
+    site_name = models.CharField(max_length=100, default='OneTownCity')
+    support_email = models.EmailField(blank=True)
+    support_phone = models.CharField(max_length=20, blank=True)
+
+    maintenance_mode = models.BooleanField(default=False, help_text='When on, only Super Admin can browse the site — everyone else sees a maintenance page.')
+    maintenance_message = models.TextField(
+        blank=True, default='OneTownCity is undergoing scheduled maintenance. Please check back soon.'
+    )
+
+    auto_approve_listings = models.BooleanField(
+        default=False,
+        help_text='When on, new/edited listings from Content Providers and Explorers skip the pending-approval '
+                   'queue and publish immediately (News already always auto-publishes).',
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+
+    class Meta:
+        verbose_name = 'Platform Settings'
+        verbose_name_plural = 'Platform Settings'
+
+    def __str__(self):
+        return 'Platform Settings'
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class AuditLog(models.Model):
+    """A trail of sensitive/destructive Super Admin actions (user moderation,
+    category changes, role/permission/settings edits, etc), written by
+    views.log_audit()."""
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='audit_logs')
+    action = models.CharField(max_length=50)
+    description = models.CharField(max_length=300)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.actor} · {self.action} · {self.created_at:%Y-%m-%d %H:%M}'
 
 
 from . import signals  # noqa: E402,F401  (registers post_save/post_delete counter updates)

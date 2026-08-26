@@ -52,8 +52,29 @@
                 <a class="nav-link hk-dash-link {% if active_nav == 'users' %}active{% endif %}" href="{% url 'core:dashboard_users' %}">
                     <i class="bi bi-people"></i> {% trans "Users" %}
                 </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'city_admins' %}active{% endif %}" href="{% url 'core:dashboard_city_admins' %}">
+                    <i class="bi bi-building-gear"></i> {% trans "City Admins" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'sub_admins' %}active{% endif %}" href="{% url 'core:dashboard_users' %}?role=sub_admin">
+                    <i class="bi bi-person-badge"></i> {% trans "Sub Admins" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'content_providers' %}active{% endif %}" href="{% url 'core:dashboard_users' %}?role=admin">
+                    <i class="bi bi-person-workspace"></i> {% trans "Content Providers" %}
+                </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'categories' %}active{% endif %}" href="{% url 'core:dashboard_categories' %}">
                     <i class="bi bi-tags"></i> {% trans "Categories" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'roles_permissions' %}active{% endif %}" href="{% url 'core:dashboard_roles_permissions' %}">
+                    <i class="bi bi-shield-lock"></i> {% trans "Roles & Permissions" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'platform_modules' %}active{% endif %}" href="{% url 'core:dashboard_platform_modules' %}">
+                    <i class="bi bi-grid-3x3-gap"></i> {% trans "Platform Modules" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'platform_settings' %}active{% endif %}" href="{% url 'core:dashboard_platform_settings' %}">
+                    <i class="bi bi-gear"></i> {% trans "Platform Settings" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'audit_logs' %}active{% endif %}" href="{% url 'core:dashboard_audit_logs' %}">
+                    <i class="bi bi-journal-text"></i> {% trans "Audit Logs" %}
                 </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'messages' %}active{% endif %}" href="{% url 'core:dashboard_messages' %}">
                     <i class="bi bi-envelope"></i> {% trans "Contact Messages" %}

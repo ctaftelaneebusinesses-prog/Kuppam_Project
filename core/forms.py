@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 
 from .models import (
-    Business, Category, Event, Job, News, Profile, Project, Property,
+    Business, Category, Event, Job, Location, News, PlatformSettings, Profile, Project, Property,
 )
 
 User = get_user_model()
@@ -420,6 +420,43 @@ class CategoryForm(forms.ModelForm):
 
 
 # ---------------------------------------------------------------------------
-# Super Admin: site-wide theme override
+# Super Admin: platform administration (City Admins, platform settings)
 # ---------------------------------------------------------------------------
+
+class CityAdminForm(forms.Form):
+    """
+    Used both to pre-provision a brand new City Admin (by email, before
+    they've ever signed in) and to edit an existing one's name/city scope.
+    See auth_callback_api in views.py: on first Google sign-in it already
+    falls back to matching an existing User by email, so a pre-provisioned
+    account attaches automatically the first time that person signs in.
+    """
+    full_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'})
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'name@example.com'})
+    )
+    cities = forms.ModelMultipleChoiceField(
+        queryset=Location.objects.filter(kind=Location.Kind.CITY, is_active=True).order_by('name'),
+        widget=forms.SelectMultiple(attrs={'class': 'form-select', 'size': 8}),
+        required=False,
+    )
+
+
+class PlatformSettingsForm(forms.ModelForm):
+    class Meta:
+        model = PlatformSettings
+        fields = [
+            'site_name', 'support_email', 'support_phone',
+            'maintenance_mode', 'maintenance_message', 'auto_approve_listings',
+        ]
+        widgets = {
+            'site_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'support_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'support_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'maintenance_mode': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'maintenance_message': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'auto_approve_listings': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
 
