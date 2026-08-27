@@ -143,6 +143,18 @@ a {
         height: auto;
         min-height: 64px;
     }
+
+    /* body's padding-top above is sized for the single-row 64px navbar —
+       once the navbar wraps to two rows here (brand, then the location
+       button + hamburger), its real height grows to ~87px, but page
+       content still started at the old fixed 96px. That left only ~9px
+       between the navbar's actual bottom edge and the content below it
+       (or, on pages without extra top padding of their own, content
+       rendering partly behind the navbar) — visible as the dashboard's
+       own menu button/title sitting jammed right under the navbar's. */
+    body:not(.hk-has-transparent-hero) {
+        padding-top: 136px;
+    }
 }
 
 /* .72 alpha relies on the backdrop-filter blur below to make whatever
