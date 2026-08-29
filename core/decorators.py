@@ -65,6 +65,53 @@ def role_required(*roles):
 
 super_admin_required = role_required(UserRole.SUPER_ADMIN)
 admin_or_super_required = role_required(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+city_admin_or_super_required = role_required(UserRole.SUPER_ADMIN, UserRole.CITY_ADMIN)
+
+
+def _sub_admin_has_content_access(profile):
+    return profile.is_sub_admin and (
+        profile.has_permission('review_content') or profile.has_permission('manage_city_content')
+    )
+
+
+def content_review_required(view_func):
+    """
+    Pending Listings / listing review: Super Admin and City Admin always
+    qualify (city-scoping happens inside the view via managed_city_ids());
+    a Sub Admin only qualifies if their City Admin has granted them
+    review_content or manage_city_content (see UserPermission).
+    """
+    @onboarding_required
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        profile = request.profile
+        if not (profile.is_super_admin or profile.is_city_admin or _sub_admin_has_content_access(profile)):
+            messages.error(request, 'You do not have permission to access this page.')
+            return redirect('core:home')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+def posts_dashboard_required(view_func):
+    """
+    The Posts dashboard and its detail/toggle/gallery/bulk/export siblings:
+    Super Admin (everything), Content Provider (their own listings only),
+    City Admin (their city/cities), or a permitted Sub Admin (same city
+    scope as City Admin, gated the same way as content_review_required).
+    """
+    @onboarding_required
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        profile = request.profile
+        allowed = (
+            profile.is_super_admin or profile.is_admin or profile.is_city_admin
+            or _sub_admin_has_content_access(profile)
+        )
+        if not allowed:
+            messages.error(request, 'You do not have permission to access this page.')
+            return redirect('core:home')
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
 def excel_upload_allowed(view_func):

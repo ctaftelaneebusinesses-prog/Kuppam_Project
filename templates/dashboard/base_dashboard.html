@@ -20,14 +20,14 @@
                 <div>
                     <div class="hk-dash-profile-name">{{ user.profile.full_name|default:user.username }}</div>
                     <div class="hk-dash-profile-role">
-                        {% if request.profile.is_super_admin %}{% trans "Super Admin" %}{% elif request.profile.is_admin %}{% trans "Content Provider" %}{% else %}{% trans "Explorer" %}{% endif %}
+                        {% if request.profile.is_super_admin %}{% trans "Super Admin" %}{% elif request.profile.is_city_admin %}{% trans "City Admin" %}{% elif request.profile.is_sub_admin %}{% trans "Sub Admin" %}{% elif request.profile.is_admin %}{% trans "Content Provider" %}{% else %}{% trans "Explorer" %}{% endif %}
                     </div>
                 </div>
             </div>
 
             <nav class="nav flex-column gap-1 flex-grow-1">
                 <div class="hk-dash-section-title">
-                    {% if request.profile.is_super_admin %}{% trans "Administration" %}{% elif request.profile.is_admin %}{% trans "Manager Workspace" %}{% else %}{% trans "My Workspace" %}{% endif %}
+                    {% if request.profile.is_super_admin %}{% trans "Administration" %}{% elif request.profile.is_city_admin %}{% trans "City Administration" %}{% elif request.profile.is_sub_admin %}{% trans "Sub Admin" %}{% elif request.profile.is_admin %}{% trans "Manager Workspace" %}{% else %}{% trans "My Workspace" %}{% endif %}
                 </div>
                 <a class="nav-link hk-dash-link {% if active_nav == 'overview' %}active{% endif %}" href="{% url 'core:dashboard' %}">
                     <i class="bi bi-speedometer2"></i> {% trans "Overview" %}
@@ -39,13 +39,26 @@
                 <a class="nav-link hk-dash-link {% if active_nav == 'requests' %}active{% endif %}" href="{% url 'core:dashboard_admin_requests' %}">
                     <i class="bi bi-person-plus"></i> {% trans "Admin Requests" %}
                 </a>
+                {% endif %}
+                {% if request.profile.is_super_admin or request.profile.is_city_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'listings' %}active{% endif %}" href="{% url 'core:dashboard_pending_listings' %}">
                     <i class="bi bi-clipboard-check"></i> {% trans "Listing Approvals" %}
                 </a>
                 {% endif %}
-                {% if request.profile.is_super_admin or request.profile.is_admin %}
+                {% if request.profile.is_super_admin or request.profile.is_admin or request.profile.is_city_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'posts' %}active{% endif %}" href="{% url 'core:dashboard_posts' %}">
                     <i class="bi bi-collection"></i> {% trans "Posts" %}
+                </a>
+                {% endif %}
+                {% if request.profile.is_city_admin %}
+                <a class="nav-link hk-dash-link {% if active_nav == 'sub_admins' %}active{% endif %}" href="{% url 'core:dashboard_sub_admins' %}">
+                    <i class="bi bi-person-badge"></i> {% trans "Sub Admins" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'content_providers' %}active{% endif %}" href="{% url 'core:dashboard_content_providers' %}">
+                    <i class="bi bi-person-workspace"></i> {% trans "Content Providers" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'city_modules' %}active{% endif %}" href="{% url 'core:dashboard_city_modules' %}">
+                    <i class="bi bi-grid-3x3-gap"></i> {% trans "City Modules" %}
                 </a>
                 {% endif %}
                 {% if request.profile.is_super_admin %}
@@ -116,7 +129,7 @@
                         <i class="bi bi-list"></i>
                     </button>
                     <span class="fw-bold" style="color: var(--hk-ink);">
-                        {% if request.profile.is_super_admin %}{% trans "Admin Dashboard" %}{% elif request.profile.is_admin %}{% trans "Manager Dashboard" %}{% else %}{% trans "My Dashboard" %}{% endif %}
+                        {% if request.profile.is_super_admin %}{% trans "Admin Dashboard" %}{% elif request.profile.is_city_admin %}{% trans "City Admin Dashboard" %}{% elif request.profile.is_sub_admin %}{% trans "Sub Admin Dashboard" %}{% elif request.profile.is_admin %}{% trans "Manager Dashboard" %}{% else %}{% trans "My Dashboard" %}{% endif %}
                     </span>
                 </div>
 

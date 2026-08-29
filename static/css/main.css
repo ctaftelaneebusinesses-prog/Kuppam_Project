@@ -144,16 +144,48 @@ a {
         min-height: 64px;
     }
 
-    /* body's padding-top above is sized for the single-row 64px navbar —
-       once the navbar wraps to two rows here (brand, then the location
-       button + hamburger), its real height grows to ~87px, but page
-       content still started at the old fixed 96px. That left only ~9px
-       between the navbar's actual bottom edge and the content below it
-       (or, on pages without extra top padding of their own, content
-       rendering partly behind the navbar) — visible as the dashboard's
-       own menu button/title sitting jammed right under the navbar's. */
-    body:not(.hk-has-transparent-hero) {
-        padding-top: 136px;
+}
+
+/* Below 414px the brand pill + location button + hamburger no longer fit
+   on the navbar's one row (Bootstrap's default .navbar/.container-fluid
+   flex-wrap), so they dropped to a second row — leaving the navbar much
+   taller than the 64px body's padding-top assumed, and content (most
+   visibly the dashboard's own menu button/title) rendering jammed right
+   underneath it. Trimming the brand/location/hamburger padding and
+   capping the location button's width reclaims just enough space for
+   all three to stay on one row instead, down to a 320px viewport —
+   preserving the single-row 64px navbar (and the existing body
+   padding-top) instead of compensating for a taller one. */
+@media (max-width: 413.98px) {
+    /* Bootstrap's own .navbar-brand ships a built-in margin-right: 1rem,
+       never reset here since .hk-navbar-inner's space-between already
+       handles the brand/actions spacing — but that extra 16px was exactly
+       what pushed the one-row total past the container width and forced
+       the wrap this whole block exists to prevent. */
+    .navbar-brand {
+        margin-right: 0;
+    }
+
+    .navbar-toggler {
+        padding: .25rem .5rem;
+    }
+
+    .hk-navbar-inner > .d-flex {
+        gap: .35rem !important;
+    }
+}
+
+/* Down to 320px the .hk-location-trigger cap above isn't quite enough on
+   its own — shaving a little more off the hamburger and the gap next to
+   it closes the rest of the gap. Same specificity as the 413.98px block
+   above; narrower query placed after it so it wins down here. */
+@media (max-width: 349.98px) {
+    .navbar-toggler {
+        padding: .25rem .35rem;
+    }
+
+    .hk-navbar-inner > .d-flex {
+        gap: .25rem !important;
     }
 }
 
@@ -485,6 +517,15 @@ html[data-theme="dark"] .hk-navbar-transparent.hk-navbar-solid .hk-logo-shell:ho
     transition: transform var(--hk-duration-base) var(--hk-ease-out),
                 border-color var(--hk-duration-base) var(--hk-ease-out),
                 background-color var(--hk-duration-base) var(--hk-ease-out);
+}
+
+/* Must come after the base rule above (same specificity, narrower query —
+   source order decides) — part of the one-row-navbar fix at 413.98px,
+   see .navbar-toggler / .hk-navbar-inner > .d-flex nearer the top. */
+@media (max-width: 413.98px) {
+    .hk-logo-shell {
+        padding: .5rem .6rem;
+    }
 }
 
 .hk-logo-shell:hover {
@@ -6236,5 +6277,31 @@ html[data-theme="dark"] .navbar .hk-location-trigger:focus-visible {
         max-width: 42vw;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+}
+
+/* Tighter cap than the 42vw rule above — at these widths 42vw is still
+   wider than the space actually left over once the brand pill and
+   hamburger claim their share of the one-row navbar (see the 413.98px
+   block near .hk-navbar-inner), so a long city name would still force
+   the wrap this is meant to prevent. Must come after the 42vw rule
+   above (same specificity, narrower query — source order decides). */
+@media (max-width: 413.98px) {
+    .hk-location-trigger {
+        max-width: 92px;
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+}
+
+/* Down to 320px, 92px is still too wide to keep the one-row navbar (see
+   .navbar-toggler / .hk-navbar-inner > .d-flex at the 413.98px block near
+   .hk-navbar-inner) — needs a harder cap on the smallest phones. Must
+   come after the 92px rule above (same specificity, narrower query). */
+@media (max-width: 349.98px) {
+    .hk-location-trigger {
+        max-width: 66px;
+        padding-left: .4rem;
+        padding-right: .4rem;
     }
 }

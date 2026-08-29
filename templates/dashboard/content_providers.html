@@ -1,0 +1,160 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Manage Content Providers" %}</h3>
+        <p class="text-muted small mb-0">{% trans "Add Content Providers for your city and choose which categories each one can publish into." %}</p>
+    </div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#hkContentProviderModal" onclick="hkOpenContentProviderModal()">
+        <i class="bi bi-plus-lg"></i> {% trans "Add Content Provider" %}
+    </button>
+</div>
+
+<div class="card hk-data-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Email" %}</th>
+                    <th>{% trans "City" %}</th>
+                    <th>{% trans "Categories" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th class="text-end">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in content_providers %}
+                <tr>
+                    <td class="fw-semibold">{{ profile.full_name|default:profile.user.username }}</td>
+                    <td class="text-muted">{{ profile.user.email }}</td>
+                    <td>
+                        {% with perm=profile.user.city_permissions.all|first %}
+                        {% if perm %}<span class="badge bg-primary-subtle text-primary">{{ perm.city.name }}</span>
+                        {% else %}<span class="text-muted small">{% trans "No city assigned" %}</span>{% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% for cp in profile.user.category_permissions.all %}
+                        <span class="badge bg-secondary-subtle text-secondary">{{ cp.category.label }}</span>
+                        {% empty %}
+                        <span class="text-muted small">{% trans "None" %}</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if profile.is_blocked %}<span class="hk-status-pill hk-status-rejected">{% trans "Deactivated" %}</span>
+                        {% else %}<span class="hk-status-pill hk-status-active">{% trans "Active" %}</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="d-inline-flex gap-1">
+                            <button type="button" class="hk-row-action-btn" title="{% trans 'Edit' %}"
+                                    data-bs-toggle="modal" data-bs-target="#hkContentProviderModal"
+                                    onclick='hkOpenContentProviderModal({
+                                        userId: {{ profile.user_id }},
+                                        fullName: "{{ profile.full_name|default:profile.user.username|escapejs }}",
+                                        email: "{{ profile.user.email|escapejs }}",
+                                        cityId: {% with perm=profile.user.city_permissions.all|first %}{% if perm %}{{ perm.city_id }}{% else %}null{% endif %}{% endwith %},
+                                        categoryIds: [{% for cp in profile.user.category_permissions.all %}{{ cp.category_id }}{% if not forloop.last %},{% endif %}{% endfor %}]
+                                    })'>
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_active">
+                                <input type="hidden" name="user_id" value="{{ profile.user_id }}">
+                                <button type="submit" class="hk-row-action-btn" title="{% if profile.is_blocked %}{% trans 'Activate' %}{% else %}{% trans 'Deactivate' %}{% endif %}">
+                                    <i class="bi {% if profile.is_blocked %}bi-toggle-off{% else %}bi-toggle-on{% endif %}"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-5"><i class="bi bi-person-workspace fs-2 d-block mb-2"></i>{% trans "No Content Providers yet." %}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="hkContentProviderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="post" class="modal-content" action="{% url 'core:dashboard_content_providers' %}" id="hkContentProviderForm">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h5 class="modal-title" id="hkCpModalTitle">{% trans "Add Content Provider" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="action" id="hkCpAction" value="create">
+                <input type="hidden" name="user_id" id="hkCpUserId" value="">
+                <p class="small text-muted" id="hkCpCreateHint">
+                    {% trans "If this email hasn't signed in yet, an account is created now and the Content Provider role attaches automatically the first time they sign in with Google." %}
+                </p>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Full Name" %}</label>
+                    <input type="text" name="full_name" id="hkCpFullName" class="form-control" required placeholder="{% trans 'Full Name' %}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Email" %}</label>
+                    <input type="email" name="email" id="hkCpEmail" class="form-control" required placeholder="name@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "City" %}</label>
+                    <select name="city" id="hkCpCity" class="form-select" required>
+                        {% for city in cities %}
+                        <option value="{{ city.pk }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Categories" %}</label>
+                    <div class="border rounded p-2" style="max-height: 220px; overflow-y: auto;">
+                        {% for top in top_categories %}
+                        <div class="form-check">
+                            <input class="form-check-input hkCpCategoryCb" type="checkbox" name="categories" value="{{ top.pk }}" id="hkCpCat{{ top.pk }}">
+                            <label class="form-check-label fw-semibold" for="hkCpCat{{ top.pk }}">{{ top.label }}</label>
+                        </div>
+                        {% for sub in top.children.all %}
+                        <div class="form-check ms-4">
+                            <input class="form-check-input hkCpCategoryCb" type="checkbox" name="categories" value="{{ sub.pk }}" id="hkCpCat{{ sub.pk }}">
+                            <label class="form-check-label" for="hkCpCat{{ sub.pk }}">{{ sub.label }}</label>
+                        </div>
+                        {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans "Save Content Provider" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function hkOpenContentProviderModal(data) {
+    data = data || {};
+    const isEdit = !!data.userId;
+    document.getElementById('hkCpAction').value = isEdit ? 'edit' : 'create';
+    document.getElementById('hkCpUserId').value = data.userId || '';
+    document.getElementById('hkCpFullName').value = data.fullName || '';
+    document.getElementById('hkCpEmail').value = data.email || '';
+    document.getElementById('hkCpEmail').readOnly = isEdit;
+    document.getElementById('hkCpCreateHint').classList.toggle('d-none', isEdit);
+    document.getElementById('hkCpModalTitle').textContent = isEdit ? 'Edit Content Provider' : 'Add Content Provider';
+    if (data.cityId) {
+        document.getElementById('hkCpCity').value = String(data.cityId);
+    }
+    const categoryIds = (data.categoryIds || []).map(String);
+    document.querySelectorAll('.hkCpCategoryCb').forEach(function (cb) {
+        cb.checked = categoryIds.includes(cb.value);
+    });
+}
+</script>
+{% endblock %}

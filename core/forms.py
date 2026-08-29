@@ -460,3 +460,42 @@ class PlatformSettingsForm(forms.ModelForm):
             'auto_approve_listings': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
+
+# ---------------------------------------------------------------------------
+# City Admin: Sub Admins & Content Providers
+# ---------------------------------------------------------------------------
+
+class SubAdminForm(forms.Form):
+    """
+    Pre-provisions/edits a Sub Admin the same way CityAdminForm does for City
+    Admins, but scoped to a single city the acting City Admin actually
+    manages — the view passes that restricted queryset in via cities_qs so a
+    City Admin can never assign a Sub Admin to a city they don't manage.
+    """
+    full_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'})
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'name@example.com'})
+    )
+    city = forms.ModelChoiceField(
+        queryset=Location.objects.none(), widget=forms.Select(attrs={'class': 'form-select'}),
+    )
+
+    def __init__(self, *args, cities_qs=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if cities_qs is not None:
+            self.fields['city'].queryset = cities_qs
+
+
+class ContentProviderForm(SubAdminForm):
+    """Same shape as SubAdminForm, plus which categories this Content
+    Provider is granted — writes the same AdminCategoryPermission grant an
+    Admin Request approval creates, just City-Admin-initiated instead of
+    Super-Admin-approved."""
+    categories = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.filter(is_active=True),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+

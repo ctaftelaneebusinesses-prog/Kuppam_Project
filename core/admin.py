@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    AdminCategoryPermission, AdminCityPermission, AdminRequest, AuditLog, Business, Category, Comment,
-    ContactMessage, Event, Favorite, Job, Like, LoginHistory, News, NewsletterSubscriber, Notification,
-    Permission, PlatformModule, PlatformSettings, PostImage, PostVideo, Profile, Project, Property,
-    Report, Review, RolePermission, Share, TranslationCache, Location,
+    AdminCategoryPermission, AdminCityPermission, AdminRequest, AuditLog, Business, Category, CityModule,
+    Comment, ContactMessage, Event, Favorite, Job, Like, LoginHistory, News, NewsletterSubscriber,
+    Notification, Permission, PlatformModule, PlatformSettings, PostImage, PostVideo, Profile, Project,
+    Property, Report, Review, RolePermission, Share, TranslationCache, Location, UserPermission,
 )
 
 
@@ -240,11 +240,25 @@ class RolePermissionAdmin(admin.ModelAdmin):
     list_filter = ('role', 'is_granted')
 
 
+@admin.register(UserPermission)
+class UserPermissionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'permission', 'is_granted', 'granted_by', 'granted_at')
+    list_filter = ('is_granted', 'permission')
+    search_fields = ('user__email', 'user__username')
+
+
 @admin.register(PlatformModule)
 class PlatformModuleAdmin(admin.ModelAdmin):
     list_display = ('label', 'key', 'is_enabled', 'updated_by', 'updated_at')
     list_filter = ('is_enabled',)
     search_fields = ('key', 'label')
+
+
+@admin.register(CityModule)
+class CityModuleAdmin(admin.ModelAdmin):
+    list_display = ('city', 'module', 'is_enabled', 'updated_by', 'updated_at')
+    list_filter = ('is_enabled', 'module')
+    search_fields = ('city__name',)
 
 
 @admin.register(PlatformSettings)

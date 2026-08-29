@@ -1,0 +1,133 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Manage Sub Admins" %}</h3>
+        <p class="text-muted small mb-0">{% trans "Create Sub Admin accounts for your city and control what each one can do." %}</p>
+    </div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#hkSubAdminModal" onclick="hkOpenSubAdminModal()">
+        <i class="bi bi-plus-lg"></i> {% trans "Add Sub Admin" %}
+    </button>
+</div>
+
+<div class="card hk-data-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Email" %}</th>
+                    <th>{% trans "City" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th class="text-end">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in sub_admins %}
+                <tr>
+                    <td class="fw-semibold">{{ profile.full_name|default:profile.user.username }}</td>
+                    <td class="text-muted">{{ profile.user.email }}</td>
+                    <td>
+                        {% with perm=profile.user.city_permissions.all|first %}
+                        {% if perm %}<span class="badge bg-primary-subtle text-primary">{{ perm.city.name }}</span>
+                        {% else %}<span class="text-muted small">{% trans "No city assigned" %}</span>{% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% if profile.is_blocked %}<span class="hk-status-pill hk-status-rejected">{% trans "Deactivated" %}</span>
+                        {% else %}<span class="hk-status-pill hk-status-active">{% trans "Active" %}</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="d-inline-flex gap-1">
+                            <a href="{% url 'core:dashboard_sub_admin_permissions' profile.user_id %}" class="hk-row-action-btn" title="{% trans 'Permissions' %}">
+                                <i class="bi bi-shield-lock"></i>
+                            </a>
+                            <button type="button" class="hk-row-action-btn" title="{% trans 'Edit' %}"
+                                    data-bs-toggle="modal" data-bs-target="#hkSubAdminModal"
+                                    onclick='hkOpenSubAdminModal({
+                                        userId: {{ profile.user_id }},
+                                        fullName: "{{ profile.full_name|default:profile.user.username|escapejs }}",
+                                        email: "{{ profile.user.email|escapejs }}",
+                                        cityId: {% with perm=profile.user.city_permissions.all|first %}{% if perm %}{{ perm.city_id }}{% else %}null{% endif %}{% endwith %}
+                                    })'>
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_active">
+                                <input type="hidden" name="user_id" value="{{ profile.user_id }}">
+                                <button type="submit" class="hk-row-action-btn" title="{% if profile.is_blocked %}{% trans 'Activate' %}{% else %}{% trans 'Deactivate' %}{% endif %}">
+                                    <i class="bi {% if profile.is_blocked %}bi-toggle-off{% else %}bi-toggle-on{% endif %}"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-5"><i class="bi bi-person-badge fs-2 d-block mb-2"></i>{% trans "No Sub Admins yet." %}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="hkSubAdminModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="post" class="modal-content" action="{% url 'core:dashboard_sub_admins' %}" id="hkSubAdminForm">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h5 class="modal-title" id="hkSaModalTitle">{% trans "Add Sub Admin" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="action" id="hkSaAction" value="create">
+                <input type="hidden" name="user_id" id="hkSaUserId" value="">
+                <p class="small text-muted" id="hkSaCreateHint">
+                    {% trans "If this email hasn't signed in yet, an account is created now and the Sub Admin role attaches automatically the first time they sign in with Google." %}
+                </p>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Full Name" %}</label>
+                    <input type="text" name="full_name" id="hkSaFullName" class="form-control" required placeholder="{% trans 'Full Name' %}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "Email" %}</label>
+                    <input type="email" name="email" id="hkSaEmail" class="form-control" required placeholder="name@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{% trans "City" %}</label>
+                    <select name="city" id="hkSaCity" class="form-select" required>
+                        {% for city in cities %}
+                        <option value="{{ city.pk }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans "Save Sub Admin" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function hkOpenSubAdminModal(data) {
+    data = data || {};
+    const isEdit = !!data.userId;
+    document.getElementById('hkSaAction').value = isEdit ? 'edit' : 'create';
+    document.getElementById('hkSaUserId').value = data.userId || '';
+    document.getElementById('hkSaFullName').value = data.fullName || '';
+    document.getElementById('hkSaEmail').value = data.email || '';
+    document.getElementById('hkSaEmail').readOnly = isEdit;
+    document.getElementById('hkSaCreateHint').classList.toggle('d-none', isEdit);
+    document.getElementById('hkSaModalTitle').textContent = isEdit ? 'Edit Sub Admin' : 'Add Sub Admin';
+    if (data.cityId) {
+        document.getElementById('hkSaCity').value = String(data.cityId);
+    }
+}
+</script>
+{% endblock %}

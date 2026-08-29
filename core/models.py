@@ -109,22 +109,29 @@ class Profile(models.Model):
 
     def has_permission(self, key):
         """
-        Whether this profile's role is granted the named Permission (see the
-        Roles & Permissions matrix below). Super Admin always returns True
-        without needing a RolePermission row — it has unrestricted access by
-        definition, not by configuration.
+        Whether this profile is granted the named Permission (see the Roles &
+        Permissions matrix). Checks a per-user override (UserPermission) first
+        — this is how a City Admin delegates a specific capability to one
+        Sub Admin — and falls back to the role-level default (RolePermission)
+        otherwise. Super Admin always returns True without needing a row —
+        it has unrestricted access by definition, not by configuration.
         """
         if self.is_super_admin:
             return True
+        override = UserPermission.objects.filter(user_id=self.user_id, permission__key=key).first()
+        if override is not None:
+            return override.is_granted
         return RolePermission.objects.filter(role=self.role, permission__key=key, is_granted=True).exists()
 
     def managed_city_ids(self):
         """Which Location (kind=city) rows this profile is scoped to. Mirrors
         managed_category_ids() — Super Admin sees every active city; a City
-        Admin sees only what's been granted via AdminCityPermission."""
+        Admin or Sub Admin sees only what's been granted via
+        AdminCityPermission (a Sub Admin is assigned the same way, by the
+        City Admin who creates them)."""
         if self.is_super_admin:
             return list(Location.objects.filter(kind=Location.Kind.CITY, is_active=True).values_list('id', flat=True))
-        if not self.is_city_admin:
+        if not (self.is_city_admin or self.is_sub_admin):
             return []
         return list(AdminCityPermission.objects.filter(admin_id=self.user_id).values_list('city_id', flat=True))
 
@@ -133,10 +140,24 @@ class Profile(models.Model):
         Whether this user may create/edit/delete listings in `category`. A
         permission granted on a parent category also covers its subcategories,
         so Super Admins don't need to re-grant access one subcategory at a time.
+
+        City Admin can post to any active category for their city, the same
+        way Super Admin can platform-wide — they're the city's own authority,
+        so their submissions publish immediately (see listing_submit). A Sub
+        Admin gets the same ability only once their City Admin has granted
+        manage_city_content (UserPermission); their submissions still land in
+        the pending queue for the City Admin to accept or reject, same as any
+        Content Provider's.
         """
         if self.is_super_admin:
             return True
-        if not self.is_admin or self.is_suspended:
+        if self.is_suspended:
+            return False
+        if self.is_city_admin:
+            return True
+        if self.is_sub_admin:
+            return self.has_permission('manage_city_content')
+        if not self.is_admin:
             return False
         granted_ids = set(AdminCategoryPermission.objects.filter(admin_id=self.user_id).values_list('category_id', flat=True))
         node = category
@@ -148,6 +169,8 @@ class Profile(models.Model):
 
     def managed_category_ids(self):
         if self.is_super_admin:
+            return list(Category.objects.filter(is_active=True).values_list('id', flat=True))
+        if self.is_city_admin or (self.is_sub_admin and self.has_permission('manage_city_content')):
             return list(Category.objects.filter(is_active=True).values_list('id', flat=True))
         return list(AdminCategoryPermission.objects.filter(admin_id=self.user_id).values_list('category_id', flat=True))
 
@@ -1223,6 +1246,26 @@ class RolePermission(models.Model):
         return f'{self.get_role_display()} · {self.permission.label}: {"granted" if self.is_granted else "denied"}'
 
 
+class UserPermission(models.Model):
+    """
+    A per-user override of one Permission, layered on top of RolePermission's
+    role-level default (see Profile.has_permission()). This is how a City
+    Admin delegates a specific capability to one individual Sub Admin instead
+    of turning it on for every Sub Admin platform-wide.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='permission_overrides')
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name='user_grants')
+    is_granted = models.BooleanField(default=True)
+    granted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+    granted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'permission')
+
+    def __str__(self):
+        return f'{self.user} · {self.permission.label}: {"granted" if self.is_granted else "denied"}'
+
+
 class PlatformModule(models.Model):
     """A feature area of the platform Super Admin can switch off entirely
     (e.g. the Jobs listing type). is_enabled is read wherever a module needs
@@ -1240,6 +1283,47 @@ class PlatformModule(models.Model):
 
     def __str__(self):
         return self.label
+
+
+class CityModule(models.Model):
+    """
+    A City Admin's per-city restriction of one PlatformModule — lets a city
+    disable a module (e.g. Jobs) locally even though it's enabled platform-
+    wide. A module Super Admin has already disabled platform-wide can never
+    be re-enabled here; see is_enabled_for_city(). No row for a given
+    city+module means "allowed" (matches the platform default) — a City
+    Admin only creates a row when actively restricting something.
+    """
+    city = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='city_modules',
+        limit_choices_to={'kind': Location.Kind.CITY},
+    )
+    module = models.ForeignKey(PlatformModule, on_delete=models.CASCADE, related_name='city_grants')
+    is_enabled = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+
+    class Meta:
+        unique_together = ('city', 'module')
+
+    def __str__(self):
+        return f'{self.city} · {self.module}: {"enabled" if self.is_enabled else "disabled"}'
+
+    @classmethod
+    def is_enabled_for_city(cls, module_key, city_id):
+        """Whether `module_key` (a PlatformModule.key, e.g. a listing_model
+        value) is usable in `city_id` — platform-wide off always wins; a
+        city-level row further restricts; otherwise defaults to allowed."""
+        if city_id is None:
+            return True
+        try:
+            module = PlatformModule.objects.get(key=module_key)
+        except PlatformModule.DoesNotExist:
+            return True
+        if not module.is_enabled:
+            return False
+        row = cls.objects.filter(city_id=city_id, module=module).first()
+        return row.is_enabled if row else True
 
 
 class PlatformSettings(models.Model):
