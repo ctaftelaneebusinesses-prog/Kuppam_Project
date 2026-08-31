@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static i18n %}
+{% load static i18n hk_extras %}
 
 {% block body_class %}hk-dashboard-active{% endblock %}
 
@@ -40,25 +40,38 @@
                     <i class="bi bi-person-plus"></i> {% trans "Admin Requests" %}
                 </a>
                 {% endif %}
-                {% if request.profile.is_super_admin or request.profile.is_city_admin %}
+                {% if request.profile.is_super_admin or request.profile.is_city_admin or request.profile.is_sub_admin and request.profile.has_any_content_access %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'listings' %}active{% endif %}" href="{% url 'core:dashboard_pending_listings' %}">
                     <i class="bi bi-clipboard-check"></i> {% trans "Listing Approvals" %}
                 </a>
                 {% endif %}
-                {% if request.profile.is_super_admin or request.profile.is_admin or request.profile.is_city_admin %}
+                {% if request.profile.is_super_admin or request.profile.is_city_admin or request.profile.is_sub_admin and request.profile.has_any_content_access %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'posts' %}active{% endif %}" href="{% url 'core:dashboard_posts' %}">
                     <i class="bi bi-collection"></i> {% trans "Posts" %}
+                </a>
+                {% endif %}
+                {% if request.profile.is_admin %}
+                <a class="nav-link hk-dash-link {% if active_nav == 'my_listings' %}active{% endif %}" href="{% url 'core:my_listings' %}">
+                    <i class="bi bi-card-list"></i> {% trans "My Content" %}
+                </a>
+                <a class="nav-link hk-dash-link" href="{% url 'core:my_listings' %}#hkAddContent">
+                    <i class="bi bi-plus-circle"></i> {% trans "Add Content" %}
+                </a>
+                <a class="nav-link hk-dash-link {% if active_nav == 'posts' %}active{% endif %}" href="{% url 'core:dashboard_posts' %}">
+                    <i class="bi bi-send-check"></i> {% trans "Submissions" %}
                 </a>
                 {% endif %}
                 {% if request.profile.is_city_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'sub_admins' %}active{% endif %}" href="{% url 'core:dashboard_sub_admins' %}">
                     <i class="bi bi-person-badge"></i> {% trans "Sub Admins" %}
                 </a>
-                <a class="nav-link hk-dash-link {% if active_nav == 'content_providers' %}active{% endif %}" href="{% url 'core:dashboard_content_providers' %}">
-                    <i class="bi bi-person-workspace"></i> {% trans "Content Providers" %}
-                </a>
                 <a class="nav-link hk-dash-link {% if active_nav == 'city_modules' %}active{% endif %}" href="{% url 'core:dashboard_city_modules' %}">
                     <i class="bi bi-grid-3x3-gap"></i> {% trans "City Modules" %}
+                </a>
+                {% endif %}
+                {% if request.profile.is_city_admin or request.profile|has_permission:"view_content_providers" %}
+                <a class="nav-link hk-dash-link {% if active_nav == 'content_providers' %}active{% endif %}" href="{% url 'core:dashboard_content_providers' %}">
+                    <i class="bi bi-person-workspace"></i> {% trans "Content Providers" %}
                 </a>
                 {% endif %}
                 {% if request.profile.is_super_admin %}
@@ -94,12 +107,13 @@
                     {% if unread_message_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_message_count }}</span>{% endif %}
                 </a>
                 {% endif %}
-                {% if user.is_staff or request.profile.is_super_admin or request.profile.is_admin %}
+                {% if user.is_staff or request.profile.is_super_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'uploads' %}active{% endif %}" href="{% url 'core:upload_hub' %}">
                     <i class="bi bi-cloud-arrow-up"></i> {% trans "Uploads" %}
                 </a>
                 {% endif %}
 
+                {% if not request.profile.is_admin %}
                 <div class="hk-dash-section-title">{% trans "My Account" %}</div>
                 <a class="nav-link hk-dash-link {% if active_nav == 'my_listings' %}active{% endif %}" href="{% url 'core:my_listings' %}">
                     <i class="bi bi-card-list"></i> {% trans "My Listings" %}
@@ -107,6 +121,7 @@
                 <a class="nav-link hk-dash-link {% if active_nav == 'favorites' %}active{% endif %}" href="{% url 'core:my_favorites' %}">
                     <i class="bi bi-heart"></i> {% trans "My Favorites" %}
                 </a>
+                {% endif %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'notifications' %}active{% endif %}" href="{% url 'core:notifications_list' %}">
                     <i class="bi bi-bell"></i> {% trans "Notifications" %}
                     {% if unread_notification_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_notification_count }}</span>{% endif %}

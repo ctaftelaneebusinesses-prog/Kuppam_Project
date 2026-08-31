@@ -123,6 +123,63 @@ class Profile(models.Model):
             return override.is_granted
         return RolePermission.objects.filter(role=self.role, permission__key=key, is_granted=True).exists()
 
+    #: Per-listing-type permission keys (the Businesses/Events/Announcements
+    #: groups on the Sub Admin Permissions screen) a City Admin can delegate
+    #: instead of/on top of the blanket Content-group keys — lets one Sub
+    #: Admin be scoped to just Businesses and another to just Events.
+    #: Property/Job/Project have no dedicated group, so they're only ever
+    #: reached through the generic Content-group fallback in
+    #: has_content_permission().
+    CONTENT_TYPE_PERMISSIONS = {
+        'business': {'view': 'view_businesses', 'add': 'add_businesses', 'edit': 'edit_businesses', 'delete': 'delete_businesses', 'approve': 'approve_businesses'},
+        'event': {'view': 'view_events', 'add': 'add_events', 'edit': 'edit_events', 'delete': 'delete_events', 'approve': 'approve_events'},
+        'news': {'view': 'view_announcements', 'add': 'add_announcements', 'edit': 'edit_announcements', 'delete': 'delete_announcements'},
+    }
+
+    #: Generic Content-group fallback for an action with no (or an
+    #: unavailable) type-specific key above.
+    _GENERIC_CONTENT_ACTION_PERMISSIONS = {
+        'view': 'view_content', 'add': 'add_content', 'edit': 'edit_content', 'delete': 'delete_content',
+        'approve': 'approve_content', 'reject': 'reject_content', 'changes_requested': 'request_content_changes',
+    }
+
+    def has_content_permission(self, action, listing_model=None):
+        """
+        Whether this profile may `action` ('view'/'add'/'edit'/'delete'/
+        'approve'/'reject'/'changes_requested') content of `listing_model`
+        (e.g. 'business'). Super Admin/City Admin should just be checked via
+        is_super_admin/is_city_admin at the call site — this only resolves a
+        Sub Admin's delegated grants: the type-specific key first (so a City
+        Admin can hand one Sub Admin just Businesses and another just
+        Events), then manage_city_content as a blanket "add anything" grant,
+        then the generic Content-group key.
+        """
+        type_keys = self.CONTENT_TYPE_PERMISSIONS.get(listing_model or '')
+        if type_keys and action in type_keys and self.has_permission(type_keys[action]):
+            return True
+        if action == 'add' and self.has_permission('manage_city_content'):
+            return True
+        generic_key = self._GENERIC_CONTENT_ACTION_PERMISSIONS.get(action)
+        return bool(generic_key) and self.has_permission(generic_key)
+
+    def has_any_content_access(self):
+        """
+        Whether this Sub Admin has been delegated any content capability at
+        all — the route-level gate for the Posts/Pending-Listings screens and
+        their nav links (see decorators._sub_admin_has_content_access).
+        Which specific listings/actions they actually see once inside is
+        narrowed further by has_content_permission() and _scope_listing_qs().
+        """
+        if self.has_permission('review_content') or self.has_permission('manage_city_content'):
+            return True
+        if any(self.has_permission(key) for key in self._GENERIC_CONTENT_ACTION_PERMISSIONS.values()):
+            return True
+        return any(
+            self.has_permission(key)
+            for type_keys in self.CONTENT_TYPE_PERMISSIONS.values()
+            for key in type_keys.values()
+        )
+
     def managed_city_ids(self):
         """Which Location (kind=city) rows this profile is scoped to. Mirrors
         managed_category_ids() — Super Admin sees every active city; a City
@@ -144,9 +201,11 @@ class Profile(models.Model):
         City Admin can post to any active category for their city, the same
         way Super Admin can platform-wide — they're the city's own authority,
         so their submissions publish immediately (see listing_submit). A Sub
-        Admin gets the same ability only once their City Admin has granted
-        manage_city_content (UserPermission); their submissions still land in
-        the pending queue for the City Admin to accept or reject, same as any
+        Admin gets the same ability only for the listing types their City
+        Admin has delegated (has_content_permission('add', ...) — either a
+        type-specific grant like add_businesses, or the manage_city_content/
+        add_content blanket grants); their submissions still land in the
+        pending queue for the City Admin to accept or reject, same as any
         Content Provider's.
         """
         if self.is_super_admin:
@@ -156,7 +215,7 @@ class Profile(models.Model):
         if self.is_city_admin:
             return True
         if self.is_sub_admin:
-            return self.has_permission('manage_city_content')
+            return self.has_content_permission('add', category.listing_model)
         if not self.is_admin:
             return False
         granted_ids = set(AdminCategoryPermission.objects.filter(admin_id=self.user_id).values_list('category_id', flat=True))
@@ -170,8 +229,13 @@ class Profile(models.Model):
     def managed_category_ids(self):
         if self.is_super_admin:
             return list(Category.objects.filter(is_active=True).values_list('id', flat=True))
-        if self.is_city_admin or (self.is_sub_admin and self.has_permission('manage_city_content')):
+        if self.is_city_admin:
             return list(Category.objects.filter(is_active=True).values_list('id', flat=True))
+        if self.is_sub_admin:
+            return [
+                c.id for c in Category.objects.filter(is_active=True)
+                if self.has_content_permission('add', c.listing_model)
+            ]
         return list(AdminCategoryPermission.objects.filter(admin_id=self.user_id).values_list('category_id', flat=True))
 
     def managed_listing_models(self):
@@ -488,6 +552,7 @@ class AdminCityPermission(models.Model):
 # ---------------------------------------------------------------------------
 
 class ListingStatus(models.TextChoices):
+    DRAFT = 'draft', 'Draft'
     PENDING = 'pending', 'Pending Approval'
     APPROVED = 'approved', 'Approved'
     REJECTED = 'rejected', 'Rejected'

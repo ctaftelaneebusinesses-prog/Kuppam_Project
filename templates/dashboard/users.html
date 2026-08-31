@@ -89,6 +89,11 @@
                                 <a href="{% url 'core:dashboard_user_detail' profile.user_id %}" class="hk-row-action-btn" title="{% trans 'View profile' %}">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                {% if profile.role == 'sub_admin' %}
+                                <a href="{% url 'core:dashboard_sub_admin_permissions' profile.user_id %}" class="hk-row-action-btn" title="{% trans 'Permissions' %}">
+                                    <i class="bi bi-shield-lock"></i>
+                                </a>
+                                {% endif %}
                                 {% if profile.role != 'super_admin' %}
                                 <button type="submit" formaction="{% url 'core:dashboard_user_toggle_block' profile.user_id %}" class="hk-row-action-btn hk-row-action-danger" title="{% if profile.is_blocked %}{% trans 'Unblock' %}{% else %}{% trans 'Block' %}{% endif %}">
                                     <i class="bi {% if profile.is_blocked %}bi-shield-check{% else %}bi-shield-slash{% endif %}"></i>

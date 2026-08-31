@@ -36,3 +36,14 @@ def translate_field(obj, field_name):
     listing detail/card templates: {{ business|translate_field:"description" }}.
     """
     return _translate_field(obj, field_name, get_language())
+
+
+@register.filter
+def has_permission(profile, key):
+    """
+    Django templates can't call a method with an argument directly, so this
+    filter is how nav/section visibility checks reach Profile.has_permission()
+    for a specific permission key, e.g.
+    {% if request.profile|has_permission:"view_content_providers" %}.
+    """
+    return bool(profile) and profile.has_permission(key)

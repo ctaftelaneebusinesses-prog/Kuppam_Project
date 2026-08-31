@@ -49,7 +49,13 @@ def onboarding_required(view_func):
 
 
 def role_required(*roles):
-    """Restricts a view to one or more Profile roles (e.g. UserRole.SUPER_ADMIN)."""
+    """
+    Restricts a view to one or more Profile roles (e.g. UserRole.SUPER_ADMIN).
+    An authenticated user of the wrong role is sent to their own dashboard
+    (dashboard() dispatches by role) rather than the public home page — a
+    restricted URL entered by hand should land them somewhere useful for
+    their role, not just bounce them off the page entirely.
+    """
     def decorator(view_func):
         @onboarding_required
         @wraps(view_func)
@@ -57,7 +63,7 @@ def role_required(*roles):
             profile = request.profile
             if profile.role not in roles:
                 messages.error(request, 'You do not have permission to access this page.')
-                return redirect('core:home')
+                return redirect('core:dashboard')
             return view_func(request, *args, **kwargs)
         return wrapper
     return decorator
@@ -69,9 +75,28 @@ city_admin_or_super_required = role_required(UserRole.SUPER_ADMIN, UserRole.CITY
 
 
 def _sub_admin_has_content_access(profile):
-    return profile.is_sub_admin and (
-        profile.has_permission('review_content') or profile.has_permission('manage_city_content')
-    )
+    return profile.is_sub_admin and profile.has_any_content_access()
+
+
+def content_providers_required(view_func):
+    """
+    Manage Content Providers: Super Admin and City Admin always qualify; a
+    Sub Admin qualifies only if granted view_content_providers (finer-grained
+    add/edit/toggle actions are checked inside the view itself).
+    """
+    @onboarding_required
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        profile = request.profile
+        allowed = (
+            profile.is_super_admin or profile.is_city_admin
+            or (profile.is_sub_admin and profile.has_permission('view_content_providers'))
+        )
+        if not allowed:
+            messages.error(request, 'You do not have permission to access this page.')
+            return redirect('core:dashboard')
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
 def content_review_required(view_func):
@@ -109,7 +134,7 @@ def posts_dashboard_required(view_func):
         )
         if not allowed:
             messages.error(request, 'You do not have permission to access this page.')
-            return redirect('core:home')
+            return redirect('core:dashboard')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -134,7 +159,7 @@ def excel_upload_allowed(view_func):
             return redirect('core:google_login')
         if profile.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
             messages.error(request, 'You do not have permission to access this page.')
-            return redirect('core:home')
+            return redirect('core:dashboard')
         request.profile = profile
         return view_func(request, *args, **kwargs)
     return wrapper

@@ -10,7 +10,9 @@
     <p class="text-muted small mb-0">{{ sub_admin.user.email }} — {% trans "Assign or remove specific permissions for this Sub Admin." %}</p>
 </div>
 
-<div class="card hk-data-card">
+{% for group in groups %}
+<div class="card hk-data-card mb-3">
+    <div class="card-header bg-white fw-semibold">{{ group.name }}</div>
     <div class="table-responsive">
         <table class="table align-middle mb-0">
             <thead>
@@ -21,7 +23,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for row in rows %}
+                {% for row in group.rows %}
                 <tr>
                     <td class="fw-semibold">{{ row.permission.label }}</td>
                     <td class="text-center">
@@ -43,11 +45,14 @@
                         </form>
                     </td>
                 </tr>
-                {% empty %}
-                <tr><td colspan="3" class="text-center text-muted py-5">{% trans "No delegable permissions defined yet." %}</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+{% empty %}
+<div class="card hk-data-card">
+    <div class="text-center text-muted py-5">{% trans "No delegable permissions defined yet." %}</div>
+</div>
+{% endfor %}
 {% endblock %}

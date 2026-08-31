@@ -4870,6 +4870,7 @@ html[data-theme="dark"] .hk-dash-profile-name {
 .hk-status-pending { background: var(--bs-warning-bg-subtle); color: #B8790A; }
 .hk-status-rejected { background: #FCE9EC; color: #dc3545; }
 .hk-status-changes_requested { background: var(--bs-info-bg-subtle); color: #0C7C92; }
+.hk-status-draft { background: #F1F2F8; color: var(--hk-ink-soft); }
 
 .hk-type-pill {
     display: inline-block;

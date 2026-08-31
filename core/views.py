@@ -152,8 +152,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from .decorators import (
-    city_admin_or_super_required, content_review_required, excel_upload_allowed, onboarding_required,
-    posts_dashboard_required, super_admin_required,
+    city_admin_or_super_required, content_providers_required, content_review_required, excel_upload_allowed,
+    onboarding_required, posts_dashboard_required, super_admin_required,
 )
 from .excel_utils import UPLOAD_CONFIGS, ExcelValidationError, build_sample_workbook, process_excel_upload
 from .export_utils import build_posts_pdf, build_posts_workbook, build_users_pdf, build_users_workbook
@@ -184,6 +184,12 @@ LISTING_MODELS = {
     'project': Project,
 }
 
+#: Status filter options for moderator-facing screens (Listing Approvals,
+#: Posts) — excludes Draft, which _scope_listing_qs already keeps out of
+#: every moderator queryset, so offering it as a filter would just be a
+#: guaranteed-empty option.
+MODERATOR_STATUS_CHOICES = [choice for choice in ListingStatus.choices if choice[0] != ListingStatus.DRAFT]
+
 # Gallery upload limits, shared by the Super Admin Posts dashboard and the
 # owner-facing "My Listings" gallery manager.
 GALLERY_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
@@ -206,19 +212,35 @@ def _validate_gallery_files(files, allowed_types, max_bytes, kind):
 
 
 def _can_moderate_posts(profile):
-    """Admin/Super Admin global moderation rights (view/enable/disable/feature/delete any post)."""
-    return profile.is_super_admin or (profile.is_admin and not profile.is_suspended)
+    """
+    Super Admin's global moderation rights (view/enable/disable/feature/
+    delete any post, platform-wide). A Content Provider (profile.is_admin —
+    displayed as "Admin (Content Provider)") never gets this: they can only
+    ever reach their own listings, via the obj.owner_id check in
+    _can_manage_post — "Content Provider cannot: Modify another Content
+    Provider's content" is enforced right here. City Admin/Sub Admin get
+    their own city-scoped equivalent through _can_manage_city_post instead.
+    """
+    return profile.is_super_admin
 
 
 def _can_manage_city_post(profile, obj):
     """City Admin (or a Sub Admin they've granted content-moderation rights
-    to) may manage any listing within their own assigned city/cities."""
+    to, for this listing's type) may manage any listing within their own
+    assigned city/cities — except a Draft, which stays private to its owner
+    until they submit it (see _scope_listing_qs)."""
+    if obj.status == ListingStatus.DRAFT:
+        return False
     if not (profile.is_city_admin or profile.is_sub_admin):
         return False
-    if profile.is_sub_admin and not (
-        profile.has_permission('manage_city_content') or profile.has_permission('review_content')
-    ):
-        return False
+    if profile.is_sub_admin:
+        model_key = type(obj).__name__.lower()
+        allowed = (
+            profile.has_permission('manage_city_content') or profile.has_permission('review_content')
+            or profile.has_content_permission('edit', model_key) or profile.has_content_permission('delete', model_key)
+        )
+        if not allowed:
+            return False
     return obj.city_id in profile.managed_city_ids()
 
 
@@ -227,21 +249,40 @@ def _can_manage_post(profile, obj):
     return _can_moderate_posts(profile) or _can_manage_city_post(profile, obj) or obj.owner_id == profile.user_id
 
 
-def _scope_listing_qs(request, qs):
+def _sub_admin_can_view_content(profile, model_key=None):
+    """
+    Whether a Sub Admin may see (not necessarily add/edit/approve) content of
+    `model_key` at all — the type-specific view_businesses/view_events/
+    view_announcements key, or a blanket review_content/manage_city_content/
+    view_content grant. Shared by _scope_listing_qs (queryset-level
+    filtering) and _sub_admin_dashboard (which stat cards to show) so the
+    two can never disagree about what's visible.
+    """
+    return (
+        profile.has_permission('review_content') or profile.has_permission('manage_city_content')
+        or profile.has_content_permission('view', model_key)
+    )
+
+
+def _scope_listing_qs(request, qs, model_key=None):
     """
     Applies the same visibility scoping everywhere a listing queryset needs
     it (Pending Listings, the Posts dashboard + its export/count views):
-    Super Admin sees everything; City Admin or a permitted Sub Admin
-    (review_content/manage_city_content) sees only their city/cities;
-    everyone else (Content Provider) sees only what they own.
+    Super Admin sees everything; City Admin sees their city/cities; a
+    permitted Sub Admin sees their city/cities too, but only once granted
+    view access to `model_key` (see _sub_admin_can_view_content); everyone
+    else (Content Provider) sees only what they own. A Draft is never
+    included for any of the moderator branches — it's the owner's
+    unsubmitted work-in-progress, not something a reviewer should see (or be
+    able to filter into view) before it's actually been submitted.
     """
     profile = request.profile
     if profile.is_super_admin:
-        return qs
-    if profile.is_city_admin or (
-        profile.is_sub_admin and (profile.has_permission('review_content') or profile.has_permission('manage_city_content'))
-    ):
-        return qs.filter(city_id__in=profile.managed_city_ids())
+        return qs.exclude(status=ListingStatus.DRAFT)
+    if profile.is_city_admin:
+        return qs.filter(city_id__in=profile.managed_city_ids()).exclude(status=ListingStatus.DRAFT)
+    if profile.is_sub_admin and _sub_admin_can_view_content(profile, model_key):
+        return qs.filter(city_id__in=profile.managed_city_ids()).exclude(status=ListingStatus.DRAFT)
     return qs.filter(owner=request.user)
 
 
@@ -1922,7 +1963,7 @@ def _group_categories_by_top(categories):
 @onboarding_required
 def my_listings(request):
     profile = request.profile
-    if profile.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
+    if profile.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.CITY_ADMIN, UserRole.SUB_ADMIN):
         messages.info(request, 'Apply to become a Content Provider to add listings.')
         return redirect('core:admin_request_new')
 
@@ -1933,9 +1974,13 @@ def my_listings(request):
             items.append({'model_key': key, 'obj': obj})
     items.sort(key=lambda item: item['obj'].created_at, reverse=True)
 
-    permitted_categories = Category.objects.filter(is_active=True).select_related('parent')
-    if not profile.is_super_admin:
-        permitted_categories = permitted_categories.filter(admin_permissions__admin=request.user)
+    # managed_category_ids() already covers every role uniformly: every
+    # active category for Super Admin/City Admin, the content-permission-
+    # filtered subset for a Sub Admin, and AdminCategoryPermission grants for
+    # a plain Content Provider (see Profile.managed_category_ids).
+    permitted_categories = Category.objects.filter(
+        is_active=True, id__in=profile.managed_category_ids(),
+    ).select_related('parent')
 
     context = {
         'page_title': 'My Listings - OneTownCity',
@@ -1957,6 +2002,23 @@ def _restrict_city_field(form, profile):
         form.fields['city'].queryset = Location.objects.filter(id__in=profile.managed_city_ids())
 
 
+def _resolve_submission_status(profile, listing_model, save_mode):
+    """
+    Where an add/edit submission lands. 'draft' (the Content Provider's
+    "Save as Draft" button — see listing_submit.html) always keeps it out of
+    every review queue until they come back and submit it; otherwise Super
+    Admin/City Admin publish immediately (as does News, and anything while
+    PlatformSettings.auto_approve_listings is on), and everyone else enters
+    the pending review queue for a City Admin/permitted Sub Admin to accept
+    or reject.
+    """
+    if save_mode == 'draft':
+        return ListingStatus.DRAFT
+    if profile.is_super_admin or profile.is_city_admin or listing_model == 'news' or PlatformSettings.load().auto_approve_listings:
+        return ListingStatus.APPROVED
+    return ListingStatus.PENDING
+
+
 @onboarding_required
 def listing_submit(request, category_key):
     profile = request.profile
@@ -1976,28 +2038,32 @@ def listing_submit(request, category_key):
             obj.listing_category = category
             if not CityModule.is_enabled_for_city(category.listing_model, obj.city_id):
                 messages.error(request, f'{category.label} listings are currently unavailable in this city.')
-            elif profile.is_super_admin or profile.is_city_admin or category.listing_model == 'news' or PlatformSettings.load().auto_approve_listings:
-                obj.status = ListingStatus.APPROVED
-                obj.reviewed_by = request.user
-                obj.reviewed_at = timezone.now()
-                obj.save()
-                messages.success(request, 'Your listing was published.', extra_tags='celebrate-confetti')
-                return redirect('core:my_listings')
             else:
-                obj.status = ListingStatus.PENDING
-                obj.save()
-                _notify_super_admins(
-                    f'New {category.label} listing submitted: "{obj}"',
-                    url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
-                    type='listing_submitted',
-                )
-                _notify_city_admins(
-                    obj.city,
-                    f'New {category.label} listing submitted: "{obj}"',
-                    url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
-                    type='listing_submitted',
-                )
-                messages.success(request, 'Your listing was submitted and is pending approval.', extra_tags='celebrate-confetti')
+                save_mode = request.POST.get('save_mode', 'submit')
+                obj.status = _resolve_submission_status(profile, category.listing_model, save_mode)
+                if obj.status == ListingStatus.APPROVED:
+                    obj.reviewed_by = request.user
+                    obj.reviewed_at = timezone.now()
+                    obj.save()
+                    messages.success(request, 'Your listing was published.', extra_tags='celebrate-confetti')
+                elif obj.status == ListingStatus.DRAFT:
+                    obj.save()
+                    messages.success(request, 'Saved as a draft — submit it for approval whenever you\'re ready.')
+                else:
+                    obj.save()
+                    _notify_super_admins(
+                        f'New {category.label} listing submitted: "{obj}"',
+                        url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
+                        type='listing_submitted',
+                    )
+                    _notify_city_admins(
+                        obj.city,
+                        f'New {category.label} listing submitted: "{obj}"',
+                        url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
+                        type='listing_submitted',
+                    )
+                    log_audit(request, 'content.submit', f'{profile.get_role_display()} submitted "{obj}" for approval')
+                    messages.success(request, 'Your listing was submitted and is pending approval.', extra_tags='celebrate-confetti')
                 return redirect('core:my_listings')
     else:
         initial = {}
@@ -2009,7 +2075,10 @@ def listing_submit(request, category_key):
         form = form_cls(initial=initial)
         _restrict_city_field(form, profile)
 
-    context = {'page_title': f'Add {category.label} - OneTownCity', 'form': form, 'category': category, 'active_nav': 'my_listings'}
+    context = {
+        'page_title': f'Add {category.label} - OneTownCity', 'form': form, 'category': category,
+        'allow_draft': profile.is_admin, 'active_nav': 'my_listings',
+    }
     return render(request, 'dashboard/listing_submit.html', context)
 
 
@@ -2025,21 +2094,36 @@ def listing_edit(request, model_key, pk):
         return redirect('core:my_listings')
 
     form_cls = LISTING_SUBMIT_FORMS[model_key]
+    was_draft = obj.status == ListingStatus.DRAFT
 
     if request.method == 'POST':
         form = form_cls(request.POST, request.FILES, instance=obj)
         _restrict_city_field(form, profile)
         if form.is_valid():
             obj = form.save(commit=False)
-            if (
-                not profile.is_super_admin and not profile.is_city_admin
-                and model_key != 'news' and not PlatformSettings.load().auto_approve_listings
-            ):
-                obj.status = ListingStatus.PENDING
+            was_rejected = obj.status in (ListingStatus.REJECTED, ListingStatus.CHANGES_REQUESTED)
+            # A listing that's already been submitted once can't be sent
+            # back to draft through an edit — 'draft' is only honored while
+            # it's still a draft; every other edit is itself a (re)submission.
+            save_mode = request.POST.get('save_mode', 'submit') if was_draft else 'submit'
+            obj.status = _resolve_submission_status(profile, model_key, save_mode)
+            if obj.status in (ListingStatus.APPROVED, ListingStatus.PENDING):
                 obj.rejection_reason = ''
+            if obj.status == ListingStatus.APPROVED:
+                obj.reviewed_by = request.user
+                obj.reviewed_at = timezone.now()
             obj.save()
-            note = '' if profile.is_super_admin or profile.is_city_admin or model_key == 'news' else ' It will be reviewed again before going live.'
-            messages.success(request, f'Listing updated.{note}')
+
+            if obj.status == ListingStatus.DRAFT:
+                messages.success(request, 'Draft updated.')
+            elif obj.status == ListingStatus.APPROVED:
+                messages.success(request, 'Listing updated.')
+            else:
+                note = ' It has been submitted and is pending approval.' if was_draft else ' It will be reviewed again before going live.'
+                messages.success(request, f'Listing updated.{note}')
+            if obj.status == ListingStatus.PENDING:
+                verb = 'resubmitted' if was_rejected else 'submitted'
+                log_audit(request, 'content.submit', f'{profile.get_role_display()} {verb} "{obj}" for approval')
             return redirect('core:my_listings')
     else:
         form = form_cls(instance=obj)
@@ -2051,6 +2135,7 @@ def listing_edit(request, model_key, pk):
         'form': form,
         'object': obj,
         'model_key': model_key,
+        'allow_draft': was_draft,
         'gallery_images': PostImage.objects.filter(content_type=ct, object_id=obj.pk),
         'gallery_videos': PostVideo.objects.filter(content_type=ct, object_id=obj.pk),
         'active_nav': 'my_listings',
@@ -2186,6 +2271,8 @@ def dashboard(request):
         return _super_admin_dashboard(request)
     if profile.role == UserRole.CITY_ADMIN:
         return _city_admin_dashboard(request)
+    if profile.role == UserRole.SUB_ADMIN:
+        return _sub_admin_dashboard(request)
     if profile.role == UserRole.ADMIN:
         return _admin_dashboard(request)
     return _user_dashboard(request)
@@ -2489,6 +2576,71 @@ def _city_admin_dashboard(request):
     return render(request, 'dashboard/city_admin_dashboard.html', context)
 
 
+def _sub_admin_dashboard(request):
+    """
+    Sub Admin's Overview — same city-scoped shape as _city_admin_dashboard,
+    but every stat/module card only appears once this specific Sub Admin has
+    actually been granted the matching permission (has_content_permission
+    for each listing type, view_content_providers for that section). This
+    is a display concern only, not the enforcement itself: every URL a card
+    here links to is independently permission-checked at the view
+    (content_review_required, posts_dashboard_required,
+    content_providers_required, has_content_permission()/has_permission()
+    inside them), so a Sub Admin can't reach anything they weren't granted
+    just by guessing a URL — hiding the card is a courtesy, not the guard.
+    """
+    profile = request.profile
+    city_ids = profile.managed_city_ids()
+    visible_models = {key: model_cls for key, model_cls in LISTING_MODELS.items() if _sub_admin_can_view_content(profile, key)}
+
+    listing_status_totals = [
+        m.objects.filter(city_id__in=city_ids).aggregate(
+            pending=Count('id', filter=Q(status=ListingStatus.PENDING)),
+            approved=Count('id', filter=Q(status=ListingStatus.APPROVED)),
+            rejected=Count('id', filter=Q(status=ListingStatus.REJECTED)),
+            total=Count('id'),
+        )
+        for m in visible_models.values()
+    ]
+    stats = {
+        'total_listings': sum(t['total'] for t in listing_status_totals),
+        'pending_listings': sum(t['pending'] for t in listing_status_totals),
+        'approved_listings': sum(t['approved'] for t in listing_status_totals),
+        'rejected_listings': sum(t['rejected'] for t in listing_status_totals),
+    }
+    if profile.has_permission('view_content_providers'):
+        stats['total_content_providers'] = Profile.objects.filter(
+            role=UserRole.ADMIN, user__city_permissions__city_id__in=city_ids
+        ).distinct().count()
+
+    per_model_counts = [
+        {
+            'model_key': key, 'label': str(model_cls._meta.verbose_name_plural).title(),
+            'count': model_cls.objects.filter(city_id__in=city_ids).count(),
+        }
+        for key, model_cls in visible_models.items()
+    ]
+
+    recent_items = []
+    for key, model_cls in visible_models.items():
+        qs = model_cls.objects.filter(city_id__in=city_ids).select_related('owner', 'listing_category').order_by('-created_at')[:5]
+        for obj in qs:
+            recent_items.append({'model_key': key, 'obj': obj})
+    recent_items.sort(key=lambda item: item['obj'].created_at, reverse=True)
+
+    context = {
+        'page_title': 'Sub Admin Dashboard - OneTownCity',
+        'stats': stats,
+        'per_model_counts': per_model_counts,
+        'managed_cities': Location.objects.filter(id__in=city_ids).order_by('name'),
+        'recent_items': recent_items[:8],
+        'can_access_content': profile.has_any_content_access(),
+        'can_manage_content_providers': profile.has_permission('view_content_providers'),
+        'active_nav': 'overview',
+    }
+    return render(request, 'dashboard/sub_admin_dashboard.html', context)
+
+
 def _filtered_profiles(request):
     """Shared query-param filtering for the Users dashboard and its Excel/PDF exports."""
     query = request.GET.get('q', '').strip()
@@ -2561,12 +2713,28 @@ def dashboard_user_detail(request, user_id):
         'total_likes': sum(i['obj'].like_count for i in own_items),
     }
 
+    granted_permissions = None
+    if profile.role == UserRole.SUB_ADMIN:
+        role_defaults = {
+            rp.permission_id: rp.is_granted
+            for rp in RolePermission.objects.filter(role=UserRole.SUB_ADMIN, permission__key__in=SUB_ADMIN_DELEGABLE_PERMISSIONS)
+        }
+        overrides = {
+            up.permission_id: up.is_granted
+            for up in UserPermission.objects.filter(user=target_user, permission__key__in=SUB_ADMIN_DELEGABLE_PERMISSIONS)
+        }
+        granted_permissions = [
+            p for p in Permission.objects.filter(key__in=SUB_ADMIN_DELEGABLE_PERMISSIONS)
+            if overrides.get(p.id, role_defaults.get(p.id, False))
+        ]
+
     context = {
         'page_title': f'{profile.full_name or target_user.username} - OneTownCity',
         'viewed_profile': profile,
         'stats': stats,
         'items': own_items,
         'permitted_categories': Category.objects.filter(is_active=True, admin_permissions__admin=target_user) if profile.role == UserRole.ADMIN else None,
+        'granted_permissions': granted_permissions,
         'login_history': LoginHistory.objects.filter(user=target_user)[:10],
         'active_nav': 'users',
     }
@@ -3140,12 +3308,27 @@ def dashboard_sub_admins(request):
 
 
 #: The permission subset a City Admin may delegate to an individual Sub
-#: Admin. manage_sub_admins/manage_content_providers/manage_city_modules stay
-#: City-Admin-exclusive — delegating "manage other sub admins" to a Sub Admin
-#: wasn't asked for and would be recursive.
+#: Admin. manage_sub_admins/manage_city_modules stay City-Admin-exclusive —
+#: delegating "manage other sub admins" to a Sub Admin wasn't asked for and
+#: would be recursive. Grouped (see Permission.group) to match the Sub Admin
+#: Permissions screen's sections; GROUP_DISPLAY_ORDER below controls the
+#: order those sections render in.
 SUB_ADMIN_DELEGABLE_PERMISSIONS = [
-    'review_content', 'approve_content', 'reject_content',
-    'request_content_changes', 'manage_city_content', 'view_city_analytics',
+    'view_dashboard', 'view_city_analytics',
+    'view_content', 'add_content', 'edit_content', 'delete_content',
+    'review_content', 'approve_content', 'reject_content', 'request_content_changes', 'manage_city_content',
+    'view_content_providers', 'add_content_provider', 'edit_content_provider', 'toggle_content_provider',
+    'view_businesses', 'add_businesses', 'edit_businesses', 'delete_businesses', 'approve_businesses',
+    'view_events', 'add_events', 'edit_events', 'delete_events', 'approve_events',
+    'view_announcements', 'add_announcements', 'edit_announcements', 'delete_announcements',
+    'view_categories', 'add_categories', 'edit_categories', 'delete_categories',
+    'view_users',
+    'view_reports', 'export_reports',
+]
+
+GROUP_DISPLAY_ORDER = [
+    'Dashboard', 'Content', 'Content Providers', 'Businesses', 'Events',
+    'Announcements', 'Categories', 'Users', 'Reports & Analytics',
 ]
 
 
@@ -3188,37 +3371,58 @@ def dashboard_sub_admin_permissions(request, user_id):
         up.permission_id: up.is_granted
         for up in UserPermission.objects.filter(user=sub_admin.user, permission__key__in=SUB_ADMIN_DELEGABLE_PERMISSIONS)
     }
-    rows = [
-        {
+    rows_by_group = {}
+    for permission in Permission.objects.filter(key__in=SUB_ADMIN_DELEGABLE_PERMISSIONS):
+        rows_by_group.setdefault(permission.group, []).append({
             'permission': permission,
             'granted': overrides.get(permission.id, role_defaults.get(permission.id, False)),
             'is_override': permission.id in overrides,
-        }
-        for permission in Permission.objects.filter(key__in=SUB_ADMIN_DELEGABLE_PERMISSIONS)
+        })
+    groups = [
+        {'name': group, 'rows': rows_by_group[group]}
+        for group in GROUP_DISPLAY_ORDER if group in rows_by_group
     ]
 
     return render(request, 'dashboard/sub_admin_permissions.html', {
         'page_title': f'{sub_admin.full_name or sub_admin.user.email} Permissions - OneTownCity',
         'sub_admin': sub_admin,
-        'rows': rows,
+        'groups': groups,
         'active_nav': 'sub_admins',
     })
 
 
-@city_admin_or_super_required
+#: Which delegated Content-Providers permission a Sub Admin needs for each
+#: POST action here (Super Admin/City Admin bypass this entirely).
+CONTENT_PROVIDER_ACTION_PERMISSIONS = {
+    'create': 'add_content_provider', 'edit': 'edit_content_provider', 'toggle_active': 'toggle_content_provider',
+}
+
+
+@content_providers_required
 def dashboard_content_providers(request):
     """
     Manage Content Provider accounts within the acting City Admin's own
     city/cities. Same pre-provision-by-email pattern as dashboard_sub_admins,
     plus a category grant — writes the same AdminCategoryPermission an Admin
     Request approval creates (dashboard_admin_request_detail), just
-    City-Admin-initiated instead of Super-Admin-approved.
+    City-Admin-initiated instead of Super-Admin-approved. A Sub Admin needs
+    view_content_providers just to reach this page (content_providers_
+    required), plus the specific add/edit/toggle permission below for each
+    action they attempt.
     """
-    managed_cities = Location.objects.filter(id__in=request.profile.managed_city_ids())
+    acting_profile = request.profile
+    managed_cities = Location.objects.filter(id__in=acting_profile.managed_city_ids())
     managed_city_ids = list(managed_cities.values_list('id', flat=True))
 
     if request.method == 'POST':
         action = request.POST.get('action', 'create')
+
+        if (
+            acting_profile.is_sub_admin
+            and not acting_profile.has_permission(CONTENT_PROVIDER_ACTION_PERMISSIONS.get(action, ''))
+        ):
+            messages.error(request, 'You do not have permission to do that.')
+            return redirect('core:dashboard_content_providers')
 
         if action in ('create', 'edit'):
             form = ContentProviderForm(request.POST, cities_qs=managed_cities)
@@ -3332,7 +3536,7 @@ def dashboard_pending_listings(request):
     status_filter = request.GET.get('status', '')
     items = []
     for key, model_cls in LISTING_MODELS.items():
-        qs = _scope_listing_qs(request, model_cls.objects.select_related('owner', 'listing_category'))
+        qs = _scope_listing_qs(request, model_cls.objects.select_related('owner', 'listing_category'), key)
         if status_filter:
             qs = qs.filter(status=status_filter)
         for obj in qs:
@@ -3343,20 +3547,30 @@ def dashboard_pending_listings(request):
         'page_title': 'Listing Approvals - OneTownCity',
         'items': items,
         'status_filter': status_filter,
-        'status_choices': ListingStatus.choices,
+        'status_choices': MODERATOR_STATUS_CHOICES,
         'active_nav': 'listings',
     }
     return render(request, 'dashboard/pending_listings.html', context)
 
 
-def _apply_listing_review(obj, action, note, actor):
+#: Audit-log action name + human label for each review action, used by
+#: _apply_listing_review so every approve/reject/changes-requested — by a
+#: Super Admin, City Admin, or Sub Admin alike — lands a row in Audit Logs.
+_REVIEW_AUDIT_ACTIONS = {
+    'approve': ('content.approve', 'approved'),
+    'reject': ('content.reject', 'rejected'),
+    'changes_requested': ('content.changes_requested', 'requested changes on'),
+}
+
+
+def _apply_listing_review(request, obj, action, note):
     """
     Shared approve/reject/request-changes logic used by both the single-item
     review action and the Posts dashboard's bulk-action endpoint. Mutates and
-    saves `obj`, and notifies its owner (if any) exactly like the original
-    single-item flow did.
+    saves `obj`, notifies its owner (if any), and records the action in
+    Audit Logs — "Sub Admin approved content" / "... rejected content" etc.
     """
-    obj.reviewed_by = actor
+    obj.reviewed_by = request.user
     obj.reviewed_at = timezone.now()
 
     if action == 'approve':
@@ -3383,6 +3597,9 @@ def _apply_listing_review(obj, action, note, actor):
             url=obj.get_absolute_url() if obj.status == ListingStatus.APPROVED else reverse('core:my_listings'),
         )
 
+    audit_action, audit_verb = _REVIEW_AUDIT_ACTIONS.get(action, ('content.review', 'reviewed'))
+    log_audit(request, audit_action, f'{request.profile.get_role_display()} {audit_verb} "{obj}"' + (f': {note}' if note else ''))
+
 
 @content_review_required
 @require_POST
@@ -3390,8 +3607,16 @@ def dashboard_listing_review(request, model_key, pk):
     model_cls = LISTING_MODELS.get(model_key)
     if model_cls is None:
         raise Http404('Unknown listing type')
-    obj = get_object_or_404(_scope_listing_qs(request, model_cls.objects.all()), pk=pk)
-    _apply_listing_review(obj, request.POST.get('action'), request.POST.get('note', '').strip(), request.user)
+    profile = request.profile
+    action = request.POST.get('action')
+    if profile.is_sub_admin and not profile.has_content_permission(action, model_key):
+        messages.error(request, 'You do not have permission to do that.')
+        return redirect(_safe_next(request, reverse('core:dashboard_pending_listings')))
+    obj = get_object_or_404(_scope_listing_qs(request, model_cls.objects.all(), model_key), pk=pk)
+    if obj.owner_id == request.user.id:
+        messages.error(request, 'You cannot approve or reject your own content.')
+        return redirect(_safe_next(request, reverse('core:dashboard_pending_listings')))
+    _apply_listing_review(request, obj, action, request.POST.get('note', '').strip())
 
     messages.success(request, 'Listing status updated.')
     return redirect(_safe_next(request, reverse('core:dashboard_pending_listings')))
@@ -3488,7 +3713,7 @@ def _filtered_post_items(request):
     for key, model_cls in LISTING_MODELS.items():
         if model_filter and model_filter != key:
             continue
-        qs = _scope_listing_qs(request, model_cls.objects.select_related('owner', 'listing_category'))
+        qs = _scope_listing_qs(request, model_cls.objects.select_related('owner', 'listing_category'), key)
         if status_filter:
             qs = qs.filter(status=status_filter)
         if category_id:
@@ -3521,8 +3746,8 @@ def dashboard_posts(request):
     page_obj = paginator.get_page(request.GET.get('page'))
 
     counts = {'total': 0, 'pending': 0, 'approved': 0, 'rejected': 0}
-    for model_cls in LISTING_MODELS.values():
-        base_qs = _scope_listing_qs(request, model_cls.objects.all())
+    for model_key, model_cls in LISTING_MODELS.items():
+        base_qs = _scope_listing_qs(request, model_cls.objects.all(), model_key)
         counts['total'] += base_qs.count()
         counts['pending'] += base_qs.filter(status=ListingStatus.PENDING).count()
         counts['approved'] += base_qs.filter(status=ListingStatus.APPROVED).count()
@@ -3540,7 +3765,7 @@ def dashboard_posts(request):
         'categories': Category.objects.filter(is_active=True),
         'model_choices': LISTING_MODELS.keys(),
         'owners': owners,
-        'status_choices': ListingStatus.choices,
+        'status_choices': MODERATOR_STATUS_CHOICES,
         'counts': counts,
         'active_nav': 'posts',
     }
@@ -3723,14 +3948,15 @@ def dashboard_posts_bulk_action(request):
 
     # Approval is tied to the same reviewer roles as dashboard_pending_listings
     # / dashboard_listing_review (Super Admin, City Admin, or a Sub Admin
-    # granted approve_content/reject_content) — plain Content Providers get
+    # granted approve_content/reject_content — generically or just for one
+    # listing type, e.g. approve_businesses) — plain Content Providers get
     # moderation powers here (delete/enable/feature) but not approval
     # authority, even over their own listings.
     profile = request.profile
-    can_review = profile.is_super_admin or profile.is_city_admin or (
-        profile.is_sub_admin and profile.has_permission(f'{action}_content')
-    )
-    if action in ('approve', 'reject') and not can_review:
+    if action in ('approve', 'reject') and profile.is_sub_admin and not (
+        profile.has_permission(f'{action}_content')
+        or any(profile.has_content_permission(action, model) for model in Profile.CONTENT_TYPE_PERMISSIONS)
+    ):
         messages.error(request, 'You do not have permission to approve or reject listings.')
         return redirect(_safe_next(request, reverse('core:dashboard_posts')))
 
@@ -3745,9 +3971,13 @@ def dashboard_posts_bulk_action(request):
             continue
         if not _can_manage_post(profile, obj):
             continue
+        if action in ('approve', 'reject') and profile.is_sub_admin and not profile.has_content_permission(action, model_key):
+            continue
+        if action in ('approve', 'reject') and obj.owner_id == request.user.id:
+            continue
 
         if action in ('approve', 'reject'):
-            _apply_listing_review(obj, action, note, request.user)
+            _apply_listing_review(request, obj, action, note)
         elif action == 'enable':
             obj.is_active = True
             obj.save(update_fields=['is_active'])
@@ -3776,8 +4006,21 @@ def dashboard_posts_bulk_action(request):
     return redirect(_safe_next(request, reverse('core:dashboard_posts')))
 
 
+def _export_reports_allowed(request):
+    """Export Reports (Reports & Analytics group) is its own delegable
+    permission — a Sub Admin with content view/review access doesn't
+    automatically get bulk-export rights over it."""
+    profile = request.profile
+    if profile.is_sub_admin and not profile.has_permission('export_reports'):
+        messages.error(request, 'You do not have permission to export reports.')
+        return False
+    return True
+
+
 @posts_dashboard_required
 def dashboard_posts_export_excel(request):
+    if not _export_reports_allowed(request):
+        return redirect('core:dashboard_posts')
     items, *_ = _filtered_post_items(request)
     workbook = build_posts_workbook(items)
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -3788,6 +4031,8 @@ def dashboard_posts_export_excel(request):
 
 @posts_dashboard_required
 def dashboard_posts_export_pdf(request):
+    if not _export_reports_allowed(request):
+        return redirect('core:dashboard_posts')
     items, *_ = _filtered_post_items(request)
     pdf = build_posts_pdf(items)
     response = HttpResponse(pdf.getvalue(), content_type='application/pdf')

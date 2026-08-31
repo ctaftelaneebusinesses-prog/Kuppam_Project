@@ -10,7 +10,9 @@
             {% if category %}{% blocktrans with cat=category.label %}Add {{ cat }}{% endblocktrans %}{% else %}{% trans "Edit Listing" %}{% endif %}
         </h3>
         <p class="text-muted mb-4">
-            {% if category %}{% trans "It will be reviewed by the Super Admin before it goes live." %}{% else %}{% trans "Changes are re-reviewed before appearing on the site." %}{% endif %}
+            {% if allow_draft %}{% trans "Save it as a draft to keep working on it, or submit it for approval when you're ready." %}
+            {% elif category %}{% trans "It will be reviewed before it goes live." %}
+            {% else %}{% trans "Changes are re-reviewed before appearing on the site." %}{% endif %}
         </p>
 
         <div class="card">
@@ -37,9 +39,20 @@
                     </div>
                     {% endif %}
                     {% endfor %}
-                    <button type="submit" class="btn btn-primary hk-cta-btn w-100">
+                    {% if allow_draft %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" name="save_mode" value="draft" class="btn btn-outline-secondary flex-fill">
+                            <i class="bi bi-file-earmark"></i> {% trans "Save as Draft" %}
+                        </button>
+                        <button type="submit" name="save_mode" value="submit" class="btn btn-primary hk-cta-btn flex-fill">
+                            <i class="bi bi-check2-circle"></i> {% trans "Submit for Approval" %}
+                        </button>
+                    </div>
+                    {% else %}
+                    <button type="submit" name="save_mode" value="submit" class="btn btn-primary hk-cta-btn w-100">
                         <i class="bi bi-check2-circle"></i> {% if category %}{% trans "Submit for Review" %}{% else %}{% trans "Save Changes" %}{% endif %}
                     </button>
+                    {% endif %}
                 </form>
             </div>
         </div>

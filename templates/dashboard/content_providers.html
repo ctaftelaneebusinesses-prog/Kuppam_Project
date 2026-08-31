@@ -1,5 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% load i18n %}
+{% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -9,9 +9,11 @@
         <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Manage Content Providers" %}</h3>
         <p class="text-muted small mb-0">{% trans "Add Content Providers for your city and choose which categories each one can publish into." %}</p>
     </div>
+    {% if request.profile.is_super_admin or request.profile.is_city_admin or request.profile|has_permission:"add_content_provider" %}
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#hkContentProviderModal" onclick="hkOpenContentProviderModal()">
         <i class="bi bi-plus-lg"></i> {% trans "Add Content Provider" %}
     </button>
+    {% endif %}
 </div>
 
 <div class="card hk-data-card">
@@ -51,6 +53,7 @@
                     </td>
                     <td class="text-end">
                         <div class="d-inline-flex gap-1">
+                            {% if request.profile.is_super_admin or request.profile.is_city_admin or request.profile|has_permission:"edit_content_provider" %}
                             <button type="button" class="hk-row-action-btn" title="{% trans 'Edit' %}"
                                     data-bs-toggle="modal" data-bs-target="#hkContentProviderModal"
                                     onclick='hkOpenContentProviderModal({
@@ -62,6 +65,8 @@
                                     })'>
                                 <i class="bi bi-pencil"></i>
                             </button>
+                            {% endif %}
+                            {% if request.profile.is_super_admin or request.profile.is_city_admin or request.profile|has_permission:"toggle_content_provider" %}
                             <form method="post" class="d-inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="toggle_active">
@@ -70,6 +75,7 @@
                                     <i class="bi {% if profile.is_blocked %}bi-toggle-off{% else %}bi-toggle-on{% endif %}"></i>
                                 </button>
                             </form>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>
