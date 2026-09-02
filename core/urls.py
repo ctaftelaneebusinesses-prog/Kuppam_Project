@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/locations/search/', views.location_search, name='location_search'),
     path('api/locations/select/', views.location_select, name='location_select'),
     path('api/locations/reverse-geocode/', views.location_reverse_geocode, name='location_reverse_geocode'),
+    path('api/businesses/nearby-repair/', views.nearby_repair_shops, name='nearby_repair_shops'),
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
     path('newsletter/subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),

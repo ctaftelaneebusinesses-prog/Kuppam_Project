@@ -183,12 +183,15 @@ class Profile(models.Model):
     def managed_city_ids(self):
         """Which Location (kind=city) rows this profile is scoped to. Mirrors
         managed_category_ids() — Super Admin sees every active city; a City
-        Admin or Sub Admin sees only what's been granted via
-        AdminCityPermission (a Sub Admin is assigned the same way, by the
-        City Admin who creates them)."""
+        Admin, Sub Admin, or Content Provider sees only what's been granted
+        via AdminCityPermission (a Sub Admin/Content Provider is assigned the
+        same way, by the City Admin who creates them — see
+        dashboard_sub_admins/dashboard_content_providers). A self-service
+        Content Provider approved via Admin Request has no city grant, so
+        this returns [] for them — see _restrict_city_field's fallback."""
         if self.is_super_admin:
             return list(Location.objects.filter(kind=Location.Kind.CITY, is_active=True).values_list('id', flat=True))
-        if not (self.is_city_admin or self.is_sub_admin):
+        if not (self.is_city_admin or self.is_sub_admin or self.is_admin):
             return []
         return list(AdminCityPermission.objects.filter(admin_id=self.user_id).values_list('city_id', flat=True))
 
@@ -626,6 +629,8 @@ class Business(ListingMixin, models.Model):
         ('school', 'School'),
         ('college', 'College'),
         ('transport', 'Transport'),
+        ('repair', 'Repair Services'),
+        ('tourism', 'Places to Visit'),
         ('other', 'Other'),
     ]
 
@@ -633,6 +638,12 @@ class Business(ListingMixin, models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
     address = models.TextField(help_text='Full shop/business address')
     phone_number = models.CharField(max_length=15, help_text='Contact number, e.g. 9876543210')
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text="Precise pin location, e.g. set via 'Use my current location' on the listing form. "
+                   "Powers distance-based 'near me' search (currently used for Repair Services)."
+    )
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     image = models.ImageField(
         upload_to='businesses/', blank=True, null=True,
         help_text='Upload a photo (takes priority over Image URL below if both are set)'
@@ -679,7 +690,8 @@ class Business(ListingMixin, models.Model):
         'hardware': 'bi-tools', 'bakery': 'bi-cake2', 'salon': 'bi-scissors',
         'automobile': 'bi-car-front', 'stationery': 'bi-pencil', 'jewellery': 'bi-gem',
         'hospital': 'bi-hospital', 'school': 'bi-mortarboard',
-        'college': 'bi-mortarboard', 'transport': 'bi-bus-front', 'other': 'bi-shop-window',
+        'college': 'bi-mortarboard', 'transport': 'bi-bus-front',
+        'repair': 'bi-wrench-adjustable', 'tourism': 'bi-binoculars', 'other': 'bi-shop-window',
     }
 
     @property

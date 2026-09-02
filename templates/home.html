@@ -162,6 +162,79 @@
     </div>
 </section>
 
+<!-- Today in Your Town: what's on today, places to visit, repair shops
+     near the visitor's actual position (not just their selected city). -->
+<section class="hk-section" id="today-in-town">
+    <div class="container">
+    <div class="hk-section-header text-center mb-5" data-aos="fade-up">
+        <div class="hk-section-kicker justify-content-center"><i class="bi bi-broadcast"></i> {% trans "Live & Local" %}</div>
+        <h2>{% trans "Today in Your Town" %}</h2>
+        <p>{% trans "What's happening today, places worth visiting, and repair shops near you." %}</p>
+    </div>
+
+    {% if events_today or news_today %}
+    <div class="mb-5" data-aos="fade-up">
+        <div class="hk-section-header-row">
+            <div class="d-flex align-items-center gap-3">
+                <div class="hk-section-icon"><i class="bi bi-calendar-day"></i></div>
+                <h3 class="mb-0">{% trans "Happening Today" %}</h3>
+            </div>
+            <a href="{% url 'core:event_list' %}" class="hk-view-all-link">
+                {% trans "View All" %} <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="hk-grid-auto">
+            {% for event in events_today %}
+            <div data-aos="fade-up">{% include 'partials/event_card.html' with event=event %}</div>
+            {% endfor %}
+            {% for article in news_today %}
+            <div data-aos="fade-up">{% include 'partials/news_card.html' with article=article %}</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if places_to_visit %}
+    <div class="mb-5" data-aos="fade-up">
+        <div class="hk-section-header-row">
+            <div class="d-flex align-items-center gap-3">
+                <div class="hk-section-icon"><i class="bi bi-binoculars"></i></div>
+                <h3 class="mb-0">{% trans "Places to Visit" %}</h3>
+            </div>
+            <a href="{% url 'core:business_list' %}?category=tourism" class="hk-view-all-link">
+                {% trans "View All" %} <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="hk-grid-auto">
+            {% for business in places_to_visit %}
+            <div data-aos="fade-up">{% include 'partials/business_card.html' with business=business %}</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div data-aos="fade-up">
+        <div class="hk-section-header-row">
+            <div class="d-flex align-items-center gap-3">
+                <div class="hk-section-icon"><i class="bi bi-tools"></i></div>
+                <h3 class="mb-0">{% trans "Repair Shops Near You" %}</h3>
+            </div>
+            <button type="button" id="hkNearbyRepairBtn" class="hk-view-all-link border-0 bg-transparent">
+                <i class="bi bi-geo-alt"></i> {% trans "Use My Location" %}
+            </button>
+        </div>
+        <p id="hkNearbyRepairStatus" class="text-muted small mb-3"></p>
+        <div class="hk-grid-auto" id="hkNearbyRepairGrid">
+            {% for business in repair_shops_initial %}
+            <div data-aos="fade-up">{% include 'partials/business_card.html' with business=business %}</div>
+            {% empty %}
+            <p class="text-muted mb-0" id="hkNearbyRepairEmpty">{% trans "No repair shops listed yet for your city." %}</p>
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+</section>
+
 <!-- Website Development & Digital Solutions Section -->
 <section class="hk-section" id="web-development">
     <div class="container">
@@ -285,4 +358,8 @@
     </details>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/nearby-repair.js' %}"></script>
 {% endblock %}

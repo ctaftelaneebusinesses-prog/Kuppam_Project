@@ -127,6 +127,7 @@
 import json
 import re
 from datetime import timedelta
+from math import asin, cos, radians, sin, sqrt
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -358,6 +359,57 @@ def location_reverse_geocode(request):
     return JsonResponse(result)
 
 
+#: Great-circle radius (km) beyond which a repair shop no longer counts as
+#: "near me" for nearby_repair_shops below.
+NEARBY_REPAIR_RADIUS_KM = 25
+
+
+def _haversine_km(lat1, lon1, lat2, lon2):
+    lat1, lon1, lat2, lon2 = (radians(v) for v in (lat1, lon1, lat2, lon2))
+    a = sin((lat2 - lat1) / 2) ** 2 + cos(lat1) * cos(lat2) * sin((lon2 - lon1) / 2) ** 2
+    return 2 * 6371 * asin(sqrt(a))
+
+
+def nearby_repair_shops(request):
+    """
+    JSON endpoint behind the homepage "Repair Shops Near You" widget's
+    "Use My Location" button. Takes the visitor's browser-reported GPS
+    position and returns Repair Services businesses that have their own
+    coordinates set (via 'Use my current location' on the listing form),
+    sorted by actual distance and capped to NEARBY_REPAIR_RADIUS_KM — the
+    visitor's already-selected city (see active_location) isn't precise
+    enough for "nearby my current spot", so this ranks within it by GPS
+    distance instead of just listing every repair shop in the city.
+    """
+    try:
+        lat = float(request.GET['lat'])
+        lng = float(request.GET['lng'])
+    except (KeyError, TypeError, ValueError):
+        return JsonResponse({'error': 'Invalid coordinates.'}, status=400)
+
+    candidates = _public_qs(Business, request).filter(
+        category='repair', latitude__isnull=False, longitude__isnull=False,
+    )
+    nearby = []
+    for business in candidates:
+        distance_km = _haversine_km(lat, lng, float(business.latitude), float(business.longitude))
+        if distance_km <= NEARBY_REPAIR_RADIUS_KM:
+            nearby.append((distance_km, business))
+    nearby.sort(key=lambda pair: pair[0])
+
+    results = [{
+        'name': business.name,
+        'address': business.address,
+        'phone': business.phone_number,
+        'distance_km': round(distance_km, 1),
+        'url': business.get_absolute_url(),
+        'image': business.display_image,
+        'placeholder_icon': business.placeholder_icon,
+        'maps_link': business.maps_link or '',
+    } for distance_km, business in nearby[:20]]
+    return JsonResponse({'results': results})
+
+
 def _bump_views(request, model_cls, pk):
     """
     Counts one view per browsing session per listing. Without this, a single
@@ -564,6 +616,18 @@ def home(request):
     featured_projects = _public_qs(Project, request).filter(is_featured=True)[:6] \
         or _public_qs(Project, request).order_by('-created_at')[:6]
 
+    # "Today in Your Town": events actually happening today + today's news
+    # (falling back to the latest few articles when nothing published
+    # today, same "never a blank gap" reasoning as the featured_* sections
+    # above), plus two Business sub-categories browsable as their own
+    # homepage rows (see Business.CATEGORY_CHOICES: 'tourism', 'repair').
+    today = timezone.localdate()
+    events_today = _public_qs(Event, request).filter(event_date=today).order_by('event_date')[:6]
+    news_today = _public_qs(News, request).filter(published_date=today).order_by('-created_at')[:6] \
+        or _public_qs(News, request).order_by('-published_date')[:3]
+    places_to_visit = _public_qs(Business, request).filter(category='tourism').order_by('-is_featured', 'name')[:6]
+    repair_shops_initial = _public_qs(Business, request).filter(category='repair').order_by('-is_featured', 'name')[:6]
+
     stats = {
         'businesses': _public_qs(Business, request).count(),
         'properties': _public_qs(Property, request).count(),
@@ -586,6 +650,11 @@ def home(request):
         'featured_events': featured_events,
         'featured_news': featured_news,
         'featured_projects': featured_projects,
+        'events_today': events_today,
+        'news_today': news_today,
+        'places_to_visit': places_to_visit,
+        'repair_shops_initial': repair_shops_initial,
+        'today_date': today,
         'stats': stats,
     }
     return render(request, 'home.html', context)
@@ -1427,10 +1496,28 @@ def _notify_super_admins(message, url='', type='admin_request_submitted'):
 def _notify_city_admins(city, message, url='', type='listing_submitted'):
     """Like _notify_super_admins, but only the City Admins scoped to `city`
     (via AdminCityPermission) — so 'View submitted content' has something to
-    surface without City Admins being cc'd on every city's activity."""
+    surface without City Admins being cc'd on every city's activity. A City
+    Admin for Bangalore never sees, or gets notified about, a submission
+    made for Kuppam, and vice versa."""
     if city is None:
         return
     admins = User.objects.filter(profile__role=UserRole.CITY_ADMIN, city_permissions__city=city).distinct()
+    notify_bulk(admins, type, message, url=url)
+
+
+def _notify_sub_admins(city, listing_model, message, url='', type='listing_submitted'):
+    """
+    Like _notify_city_admins, but for Sub Admins scoped to `city` — and only
+    the ones who'd actually be able to see this listing_model once they
+    click through (_sub_admin_can_view_content), so a Sub Admin delegated
+    only Events doesn't get paged about a new Business submission.
+    """
+    if city is None:
+        return
+    candidates = User.objects.filter(
+        profile__role=UserRole.SUB_ADMIN, city_permissions__city=city
+    ).distinct().select_related('profile')
+    admins = [u for u in candidates if _sub_admin_can_view_content(u.profile, listing_model)]
     notify_bulk(admins, type, message, url=url)
 
 
@@ -1993,13 +2080,21 @@ def my_listings(request):
 
 def _restrict_city_field(form, profile):
     """
-    Confines the listing form's `city` field to cities the acting City Admin
-    or Sub Admin actually manages, so neither can publish/attribute a listing
-    to a city outside their scope (Super Admin and plain Content Providers
-    keep the field's full city list — they aren't city-scoped).
+    Confines the listing form's `city` field to cities the acting user is
+    actually scoped to. City Admin/Sub Admin are always scoped to their
+    assigned city/cities. A Content Provider is scoped too, but only once
+    their City Admin has assigned them one via Manage Content Providers (see
+    dashboard_content_providers) — a self-service Content Provider approved
+    through Admin Request has no such assignment, so managed_city_ids()
+    comes back empty and the field is left with its full city list instead
+    of an impossible empty one. Super Admin is never restricted.
     """
-    if profile.is_city_admin or profile.is_sub_admin:
-        form.fields['city'].queryset = Location.objects.filter(id__in=profile.managed_city_ids())
+    if profile.is_super_admin:
+        return
+    if profile.is_city_admin or profile.is_sub_admin or profile.is_admin:
+        city_ids = profile.managed_city_ids()
+        if city_ids:
+            form.fields['city'].queryset = Location.objects.filter(id__in=city_ids)
 
 
 def _resolve_submission_status(profile, listing_model, save_mode):
@@ -2058,6 +2153,12 @@ def listing_submit(request, category_key):
                     )
                     _notify_city_admins(
                         obj.city,
+                        f'New {category.label} listing submitted: "{obj}"',
+                        url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
+                        type='listing_submitted',
+                    )
+                    _notify_sub_admins(
+                        obj.city, category.listing_model,
                         f'New {category.label} listing submitted: "{obj}"',
                         url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
                         type='listing_submitted',
@@ -2123,6 +2224,9 @@ def listing_edit(request, model_key, pk):
                 messages.success(request, f'Listing updated.{note}')
             if obj.status == ListingStatus.PENDING:
                 verb = 'resubmitted' if was_rejected else 'submitted'
+                detail_url = reverse('core:dashboard_post_detail', args=[model_key, obj.pk])
+                _notify_city_admins(obj.city, f'"{obj}" was {verb} for approval', url=detail_url, type='listing_submitted')
+                _notify_sub_admins(obj.city, model_key, f'"{obj}" was {verb} for approval', url=detail_url, type='listing_submitted')
                 log_audit(request, 'content.submit', f'{profile.get_role_display()} {verb} "{obj}" for approval')
             return redirect('core:my_listings')
     else:

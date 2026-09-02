@@ -23,7 +23,9 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% for field in form %}
-                    {% if field.field.widget.input_type == 'file' %}
+                    {% if field.field.widget.input_type == 'hidden' %}
+                        {{ field }}
+                    {% elif field.field.widget.input_type == 'file' %}
                     <div class="mb-3">
                         <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                         {{ field }}
@@ -39,6 +41,12 @@
                     </div>
                     {% endif %}
                     {% endfor %}
+                    {% if form.latitude %}
+                    <button type="button" id="hkUseMyLocationBtn" class="btn btn-outline-primary btn-sm mb-3">
+                        <i class="bi bi-geo-alt"></i> {% trans "Use my current location" %}
+                    </button>
+                    <span id="hkUseMyLocationStatus" class="small text-muted ms-2"></span>
+                    {% endif %}
                     {% if allow_draft %}
                     <div class="d-flex gap-2">
                         <button type="submit" name="save_mode" value="draft" class="btn btn-outline-secondary flex-fill">
@@ -123,6 +131,32 @@
         form.addEventListener('submit', function (e) {
             if (!confirm('{% trans "Delete this item? This cannot be undone." %}')) e.preventDefault();
         });
+    });
+
+    var locateBtn = document.getElementById('hkUseMyLocationBtn');
+    var latInput = document.getElementById('id_latitude');
+    var lngInput = document.getElementById('id_longitude');
+    var status = document.getElementById('hkUseMyLocationStatus');
+    if (!locateBtn || !latInput || !lngInput) return;
+
+    locateBtn.addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            status.textContent = '{% trans "Location is unavailable in this browser." %}';
+            return;
+        }
+        locateBtn.disabled = true;
+        status.textContent = '{% trans "Finding your location..." %}';
+        navigator.geolocation.getCurrentPosition(function (position) {
+            latInput.value = position.coords.latitude;
+            lngInput.value = position.coords.longitude;
+            status.textContent = '{% trans "Location captured." %}';
+            locateBtn.disabled = false;
+        }, function (error) {
+            status.textContent = error.code === 1
+                ? '{% trans "Location permission was denied." %}'
+                : '{% trans "We could not access your location." %}';
+            locateBtn.disabled = false;
+        }, {timeout: 8000, maximumAge: 600000});
     });
 })();
 </script>

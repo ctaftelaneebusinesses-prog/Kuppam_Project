@@ -238,7 +238,10 @@ class AdminRequestReviewForm(forms.Form):
 class BusinessSubmitForm(forms.ModelForm):
     class Meta:
         model = Business
-        fields = ['name', 'category', 'city', 'address', 'phone_number', 'description', 'website', 'maps_link', 'image', 'image_url']
+        fields = [
+            'name', 'category', 'city', 'address', 'phone_number', 'description', 'website',
+            'maps_link', 'image', 'image_url', 'latitude', 'longitude',
+        ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Business Name'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
@@ -250,6 +253,11 @@ class BusinessSubmitForm(forms.ModelForm):
             'maps_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Google Maps link'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
+            # Populated by the "Use my current location" button (see
+            # listing_submit.html) so Repair Services listings can power
+            # distance-sorted "near me" search — never hand-typed.
+            'latitude': forms.HiddenInput(attrs={'id': 'id_latitude'}),
+            'longitude': forms.HiddenInput(attrs={'id': 'id_longitude'}),
         }
 
 
