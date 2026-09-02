@@ -15,7 +15,7 @@ Reusable event card. Include with: {% include 'partials/event_card.html' with ev
     {% endif %}
     <div class="card-body d-flex flex-column">
         <span class="hk-badge-date mb-2 align-self-start">
-            <i class="bi bi-calendar3"></i> {{ event.event_date|date:"d M Y" }}
+            <i class="bi bi-calendar3"></i> {{ event.event_date|date:"d M Y" }}{% if event.event_time %} <i class="bi bi-clock ms-1"></i> {{ event.event_time|date:"g:i A" }}{% endif %}
         </span>
         {% if not event.is_upcoming %}
         <span class="badge bg-secondary mb-2 align-self-start">{% trans "Past Event" %}</span>

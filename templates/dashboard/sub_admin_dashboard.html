@@ -62,6 +62,23 @@
 </div>
 {% endif %}
 
+{% if hidden_categories_by_city %}
+<div class="hk-dash-section-title" data-aos="fade-up">{% trans "Hidden From Your Homepage" %}</div>
+<div class="card mb-4" data-aos="fade-up">
+    <div class="card-body">
+        <p class="text-muted small mb-3">
+            {% trans "These categories have no approved listings yet, so their tile is left off the homepage entirely rather than showing an empty card. Add a listing and it reappears automatically." %}
+        </p>
+        {% for row in hidden_categories_by_city %}
+        <div class="mb-2">
+            <span class="fw-semibold">{{ row.city }}:</span>
+            {% for label in row.hidden_categories %}<span class="badge bg-secondary-subtle text-secondary me-1">{{ label }}</span>{% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <div class="card" data-aos="fade-up">
     <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
         <span><i class="bi bi-collection text-primary"></i> {% trans "Recently Submitted" %}</span>

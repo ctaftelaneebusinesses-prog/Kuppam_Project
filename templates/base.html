@@ -42,11 +42,11 @@
         "@type": "Organization",
         "name": "OneTownCity",
         "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'core:home' %}",
-        "description": "Hyperlocal community platform for Kuppam — business directory, real estate, jobs, events, and news.",
+        "description": "Hyperlocal community platform — business directory, real estate, jobs, events, and news for your city."{% if current_location %},
         "areaServed": {
             "@type": "City",
-            "name": "Kuppam"
-        }
+            "name": "{{ current_location.name }}"
+        }{% endif %}
     }
     </script>
     {% endblock %}
@@ -83,6 +83,9 @@
                     <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">{% trans "Home" %}</a>
                 </li>
                 {% include 'partials/nav_categories.html' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'services' %}active{% endif %}" href="{% url 'core:services' %}">{% trans "Services" %}</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}">{% trans "About Us" %}</a>
                 </li>
@@ -201,10 +204,10 @@
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}"><i class="bi bi-house"></i> {% trans "Home" %}</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'core:home' %}#categories"><i class="bi bi-grid"></i> {% trans "Services" %}</a>
-                </li>
                 {% include 'partials/nav_categories.html' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'services' %}active{% endif %}" href="{% url 'core:services' %}"><i class="bi bi-briefcase"></i> {% trans "Services" %}</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}"><i class="bi bi-info-circle"></i> {% trans "About Us" %}</a>
                 </li>
@@ -308,19 +311,20 @@
                     <div class="hk-footer-brand mb-3">
                         <span class="hk-brand-word"><span class="hk-brand-word-one">One</span><span class="hk-brand-accent">TownCity</span></span>
                     </div>
-                    <p class="hk-footer-tagline mb-4">{% blocktrans %}Your trusted local information portal for Kuppam — businesses, jobs, real estate, and everything in between.{% endblocktrans %}</p>
+                    {% if current_location %}
+                    <p class="hk-footer-tagline mb-4">{% blocktrans with city=current_location.name %}Your trusted local information portal for {{ city }} — businesses, jobs, real estate, and everything in between.{% endblocktrans %}</p>
+                    {% else %}
+                    <p class="hk-footer-tagline mb-4">{% blocktrans %}Your trusted local information portal — businesses, jobs, real estate, and everything in between.{% endblocktrans %}</p>
+                    {% endif %}
                     <div class="d-flex gap-2">
-                        <a href="#" class="hk-social-icon" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                         <a href="https://www.instagram.com/craftlanee?igsh=MXYyaG9pNzdmemt0dQ==" target="_blank" rel="noopener" class="hk-social-icon" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="hk-social-icon" aria-label="Twitter / X"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#" class="hk-social-icon" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
                     </div>
                 </div>
                 <div class="col-6 col-lg-2">
                     <h6 class="hk-footer-heading">{% trans "Quick Links" %}</h6>
                     <ul class="list-unstyled hk-footer-links">
                         <li><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
-                        <li><a href="{% url 'core:home' %}#categories">{% trans "Services" %}</a></li>
+                        <li><a href="{% url 'core:services' %}">{% trans "Services" %}</a></li>
                         <li><a href="{% url 'core:about' %}">{% trans "About Us" %}</a></li>
                         <li><a href="{% url 'core:contact' %}">{% trans "Contact" %}</a></li>
                     </ul>
@@ -342,7 +346,11 @@
                 </div>
                 <div class="col-lg-3">
                     <h6 class="hk-footer-heading">{% trans "Stay Updated" %}</h6>
-                    <p class="hk-footer-tagline mb-3">{% trans "Get the latest Kuppam listings and news in your inbox." %}</p>
+                    {% if current_location %}
+                    <p class="hk-footer-tagline mb-3">{% blocktrans with city=current_location.name %}Get the latest {{ city }} listings and news in your inbox.{% endblocktrans %}</p>
+                    {% else %}
+                    <p class="hk-footer-tagline mb-3">{% trans "Get the latest listings and news in your inbox." %}</p>
+                    {% endif %}
                     <form class="hk-newsletter-form d-flex align-items-center" action="{% url 'core:newsletter_subscribe' %}" method="post">
                         {% csrf_token %}
                         <input type="email" name="email" required class="form-control form-control-sm ms-2" placeholder="{% trans 'Your email address' %}" aria-label="{% trans 'Email for newsletter' %}">
@@ -382,7 +390,11 @@
                 <i class="bi bi-x"></i>
             </button>
             <div class="hk-whatsapp-tooltip-title">OneTownCity</div>
-            <p class="mb-0">{% trans "Need help finding a business, job or property in Kuppam? Chat with us on WhatsApp." %}</p>
+            {% if current_location %}
+            <p class="mb-0">{% blocktrans with city=current_location.name %}Need help finding a business, job or property in {{ city }}? Chat with us on WhatsApp.{% endblocktrans %}</p>
+            {% else %}
+            <p class="mb-0">{% trans "Need help finding a business, job or property? Chat with us on WhatsApp." %}</p>
+            {% endif %}
         </div>
         <a href="#" id="hkWhatsappBtn" class="hk-whatsapp-fab" target="_blank" rel="noopener noreferrer" aria-label="{% trans 'Chat with OneTownCity on WhatsApp' %}">
             <span class="hk-whatsapp-fab-ping" aria-hidden="true"></span>

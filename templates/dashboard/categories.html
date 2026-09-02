@@ -4,7 +4,7 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
     <div>
         <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Manage Categories" %}</h3>
         <p class="text-muted small mb-0">{% trans "Categories and subcategories drive navigation, search filters, and listing forms sitewide." %}</p>
@@ -13,6 +13,18 @@
         <i class="bi bi-plus-lg"></i> {% trans "Add Category" %}
     </button>
 </div>
+
+<form method="get" class="d-flex align-items-center gap-2 mb-4" data-aos="fade-up">
+    <label class="form-label small text-muted mb-0" for="hkCatCitySelect">
+        <i class="bi bi-eye"></i> {% trans "Check homepage visibility for" %}
+    </label>
+    <select name="city" id="hkCatCitySelect" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+        <option value="">{% trans "All cities (platform-wide)" %}</option>
+        {% for city in cities %}
+        <option value="{{ city.slug }}" {% if selected_city.pk == city.pk %}selected{% endif %}>{{ city.name }}</option>
+        {% endfor %}
+    </select>
+</form>
 
 {% if top_categories %}
 <div class="hk-cat-card">
@@ -39,6 +51,13 @@
                     <td class="text-muted">{{ category.get_listing_model_display }}</td>
                     <td>
                         {% if category.is_active %}<span class="hk-status-pill hk-status-active">{% trans "Active" %}</span>{% else %}<span class="hk-status-pill hk-status-inactive">{% trans "Inactive" %}</span>{% endif %}
+                        {% if category.is_active %}
+                            {% if category.homepage_visible %}
+                            <span class="badge bg-success-subtle text-success" title="{% trans 'Has approved listings for this scope' %}"><i class="bi bi-eye"></i> {% trans "On homepage" %}</span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary" title="{% trans '0 approved listings for this scope' %}"><i class="bi bi-eye-slash"></i> {% trans "Hidden — 0 listings" %}</span>
+                            {% endif %}
+                        {% endif %}
                     </td>
                     <td class="text-end" onclick="event.stopPropagation()">
                         <div class="d-inline-flex gap-1">

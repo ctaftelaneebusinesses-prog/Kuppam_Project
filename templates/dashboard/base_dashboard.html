@@ -69,10 +69,12 @@
                     <i class="bi bi-grid-3x3-gap"></i> {% trans "City Modules" %}
                 </a>
                 {% endif %}
+                {% if not request.profile.is_super_admin %}
                 {% if request.profile.is_city_admin or request.profile|has_permission:"view_content_providers" %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'content_providers' %}active{% endif %}" href="{% url 'core:dashboard_content_providers' %}">
                     <i class="bi bi-person-workspace"></i> {% trans "Content Providers" %}
                 </a>
+                {% endif %}
                 {% endif %}
                 {% if request.profile.is_super_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'users' %}active{% endif %}" href="{% url 'core:dashboard_users' %}">

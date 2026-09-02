@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{% trans "End-to-end web development, call center and BPO services from CraftLanee — for startups, businesses, educational institutions, and organizations building a strong online presence." %}{% endblock %}
+
+{% block content %}
+
+<section class="hk-section pt-5">
+    <div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% trans "Services" %}</li>
+        </ol>
+    </nav>
+
+    <div class="hk-section-header text-center mb-5" data-aos="fade-up">
+        <div class="hk-section-kicker justify-content-center">{% trans "Beyond the Directory" %}</div>
+        <h1>{% trans "Website Development &" %} <span class="text-primary">{% trans "Digital Solutions" %}</span></h1>
+        <p>{% trans "End-to-end web development for startups, businesses, educational institutions, and organizations building a strong online presence." %}</p>
+    </div>
+
+    <h3 class="fw-bold mb-4">{% trans "Our Services" %}</h3>
+    <div class="row g-5 align-items-stretch mb-5">
+        <div class="col-lg-6" data-aos="fade-right">
+            <div class="hk-solutions-media-frame">
+                <img src="{% static 'images/services/call-center.jpg' %}" alt="{% trans 'Call center and BPO services' %}" loading="lazy">
+            </div>
+        </div>
+        <div class="col-lg-6" data-aos="fade-left">
+            <div class="hk-service-feature">
+                <span class="hk-service-feature-badge"><i class="bi bi-headset"></i> {% trans "Featured Service" %}</span>
+                <h4 class="hk-service-feature-title">{% trans "Call Center & BPO Services" %}</h4>
+                <p class="hk-service-feature-desc">
+                    {% trans "We run round-the-clock inbound and outbound call center operations for businesses that need dependable customer support without the overhead of an in-house team. From order support and appointment scheduling to lead qualification and after-sales care, our trained agents represent your brand professionally on every call." %}
+                </p>
+                <ul class="hk-service-feature-list">
+                    <li><i class="bi bi-check-lg"></i> {% trans "24/7 multilingual agent coverage" %}</li>
+                    <li><i class="bi bi-check-lg"></i> {% trans "Dedicated account manager & real-time reporting" %}</li>
+                    <li><i class="bi bi-check-lg"></i> {% trans "Scalable teams — start small, grow on demand" %}</li>
+                </ul>
+                <a href="{% url 'core:contact' %}" class="hk-cta-btn hk-cta-btn-gold hk-service-feature-cta">
+                    <i class="bi bi-telephone-fill"></i> {% trans "Get Started" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <hr class="hk-solutions-divider">
+
+    <div class="mb-5" data-aos="fade-up">
+        <h3 class="fw-bold mb-3">{% trans "Industries We Serve" %}</h3>
+        <div class="hk-industries-grid">
+            <span class="hk-industry-pill">{% trans "Educational Institutions" %}</span>
+            <span class="hk-industry-pill">{% trans "Healthcare" %}</span>
+            <span class="hk-industry-pill">{% trans "Property Listing" %}</span>
+            <span class="hk-industry-pill">{% trans "Retail & E-Commerce" %}</span>
+            <span class="hk-industry-pill">{% trans "Restaurants & Cafés" %}</span>
+            <span class="hk-industry-pill">{% trans "Manufacturing" %}</span>
+            <span class="hk-industry-pill">{% trans "Startups" %}</span>
+            <span class="hk-industry-pill">{% trans "Corporate Businesses" %}</span>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-5" data-aos="fade-up">
+        <div class="col">
+            <div class="hk-why-card">
+                <div class="hk-why-icon hk-why-icon--blue"><i class="bi bi-phone-fill"></i></div>
+                <h3>{% trans "Modern & Responsive" %}</h3>
+                <p>{% trans "Custom-built designs that look great on every device." %}</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="hk-why-card">
+                <div class="hk-why-icon hk-why-icon--emerald"><i class="bi bi-search"></i></div>
+                <h3>{% trans "SEO-Friendly" %}</h3>
+                <p>{% trans "Built to rank, with secure and scalable architecture." %}</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="hk-why-card">
+                <div class="hk-why-icon hk-why-icon--gold"><i class="bi bi-lightning-charge-fill"></i></div>
+                <h3>{% trans "Fast Performance" %}</h3>
+                <p>{% trans "Optimized for speed with ongoing technical support." %}</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="hk-why-card">
+                <div class="hk-why-icon hk-why-icon--violet"><i class="bi bi-currency-rupee"></i></div>
+                <h3>{% trans "Affordable Pricing" %}</h3>
+                <p>{% trans "Experienced developers, priced for local businesses." %}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" data-aos="fade-up">
+        <p class="lead mb-3">{% trans "Ready to build your digital presence?" %}</p>
+        <a href="{% url 'core:contact' %}" class="btn btn-primary btn-lg hk-cta-btn">
+            <i class="bi bi-telephone-fill"></i> {% trans "Contact Us Today" %}
+        </a>
+    </div>
+    </div>
+</section>
+
+{% endblock %}

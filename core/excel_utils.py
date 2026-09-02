@@ -159,9 +159,42 @@ def parse_date(value, field_name, required=True):
             raise RowValidationError(f'{field_name} is required')
         return None
     try:
+        # An unambiguous ISO 'YYYY-MM-DD' string must be tried first: dateutil's
+        # dayfirst=True (below, for human-typed DD-MM-YYYY dates) misreads it as
+        # YYYY-DD-MM whenever both day and month are <=12 (e.g. '2026-09-05'
+        # silently becomes 9 May instead of 5 September).
+        return _dt.date.fromisoformat(text)
+    except ValueError:
+        pass
+    try:
         return date_parser.parse(text, dayfirst=True).date()
     except (ValueError, OverflowError):
         raise RowValidationError(f'{field_name} "{value}" is not a valid date (use YYYY-MM-DD)')
+
+
+def parse_time(value, field_name):
+    """Always optional (unlike parse_date's `required` flag) — Event.event_time has no mandatory use yet."""
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return None
+    if hasattr(value, 'time') and callable(getattr(value, 'time')):
+        # pandas.Timestamp / datetime.datetime
+        try:
+            if pd.isna(value):
+                return None
+        except TypeError:
+            pass
+        return value.time()
+    import datetime as _dt
+    if isinstance(value, _dt.time):
+        return value
+
+    text = cell_to_str(value)
+    if not text or text.lower() == 'nat':
+        return None
+    try:
+        return date_parser.parse(text).time()
+    except (ValueError, OverflowError):
+        raise RowValidationError(f'{field_name} "{value}" is not a valid time (use HH:MM, e.g. 18:00 or 6:00 PM)')
 
 
 def cell_is_empty(value):
@@ -196,6 +229,9 @@ def parse_business_row(row):
         'address': address,
         'image_url': validate_url(row.get('Image URL')),
         'description': clean_str(row.get('Description')),
+        'website': validate_url(row.get('Website')),
+        'maps_link': validate_url(row.get('Google Maps Link')),
+        'working_hours': clean_str(row.get('Working Hours')),
         'is_featured': parse_bool(row.get('Featured'), default=False),
         'is_active': parse_bool(row.get('Active'), default=True),
     }
@@ -223,6 +259,9 @@ def make_directory_row_parser(category_value):
             'address': address,
             'image_url': validate_url(row.get('Image URL')),
             'description': clean_str(row.get('Description')),
+            'website': validate_url(row.get('Website')),
+            'maps_link': validate_url(row.get('Google Maps Link')),
+            'working_hours': clean_str(row.get('Working Hours')),
             'is_featured': parse_bool(row.get('Featured'), default=False),
             'is_active': parse_bool(row.get('Active'), default=True),
         }
@@ -255,6 +294,9 @@ def make_subcategory_row_parser(subcategory_choices, default_category):
             'address': address,
             'image_url': validate_url(row.get('Image URL')),
             'description': clean_str(row.get('Description')),
+            'website': validate_url(row.get('Website')),
+            'maps_link': validate_url(row.get('Google Maps Link')),
+            'working_hours': clean_str(row.get('Working Hours')),
             'is_featured': parse_bool(row.get('Featured'), default=False),
             'is_active': parse_bool(row.get('Active'), default=True),
         }
@@ -316,12 +358,14 @@ def parse_event_row(row):
     if not title:
         raise RowValidationError('Title is required')
     event_date = parse_date(row.get('Event Date'), 'Event Date', required=True)
+    event_time = parse_time(row.get('Event Time'), 'Event Time')
     location = clean_str(row.get('Location'))
     if not location:
         raise RowValidationError('Location is required')
 
     lookup = {'title': title, 'event_date': event_date}
     defaults = {
+        'event_time': event_time,
         'location': location,
         'description': clean_str(row.get('Description')),
         'contact_number': clean_phone(row.get('Contact'), 'Contact', required=False),
@@ -385,7 +429,7 @@ UPLOAD_CONFIGS = {
         'icon': 'bi-shop',
         'model': Business,
         'required_columns': ['Business Name', 'Category', 'Address', 'Phone Number'],
-        'optional_columns': ['Image URL', 'Description', 'Featured', 'Active'],
+        'optional_columns': ['Image URL', 'Description', 'Website', 'Google Maps Link', 'Working Hours', 'Featured', 'Active'],
         'parse_row': parse_business_row,
         'list_url_name': 'core:business_list',
         'example_row': {
@@ -395,6 +439,9 @@ UPLOAD_CONFIGS = {
             'Phone Number': '9876543210',
             'Image URL': 'https://example.com/images/shop.jpg',
             'Description': 'Daily essentials, groceries and household items.',
+            'Website': 'https://example.com',
+            'Google Maps Link': 'https://maps.google.com/?q=Sri+Lakshmi+Grocery+Kuppam',
+            'Working Hours': 'Mon-Sat: 9:00 AM - 8:00 PM',
             'Featured': 'No',
             'Active': 'Yes',
         },
@@ -405,7 +452,7 @@ UPLOAD_CONFIGS = {
         'icon': 'bi-cup-hot',
         'model': Business,
         'required_columns': ['Name', 'Address', 'Phone Number'],
-        'optional_columns': ['Image URL', 'Description', 'Featured', 'Active'],
+        'optional_columns': ['Image URL', 'Description', 'Website', 'Google Maps Link', 'Working Hours', 'Featured', 'Active'],
         'parse_row': make_directory_row_parser('restaurant'),
         'list_url_name': 'core:restaurant_list',
         'example_row': {
@@ -414,6 +461,9 @@ UPLOAD_CONFIGS = {
             'Phone Number': '9876543210',
             'Image URL': 'https://example.com/images/restaurant.jpg',
             'Description': 'South Indian breakfast and tiffins.',
+            'Website': 'https://example.com',
+            'Google Maps Link': 'https://maps.google.com/?q=Kuppam+Tiffin+Centre',
+            'Working Hours': 'Daily: 6:00 AM - 10:00 PM',
             'Featured': 'No',
             'Active': 'Yes',
         },
@@ -424,7 +474,7 @@ UPLOAD_CONFIGS = {
         'icon': 'bi-hospital',
         'model': Business,
         'required_columns': ['Name', 'Address', 'Phone Number'],
-        'optional_columns': ['Image URL', 'Description', 'Featured', 'Active'],
+        'optional_columns': ['Image URL', 'Description', 'Website', 'Google Maps Link', 'Working Hours', 'Featured', 'Active'],
         'parse_row': make_directory_row_parser('hospital'),
         'list_url_name': 'core:hospital_list',
         'example_row': {
@@ -433,6 +483,9 @@ UPLOAD_CONFIGS = {
             'Phone Number': '9876543210',
             'Image URL': 'https://example.com/images/hospital.jpg',
             'Description': '24x7 emergency and outpatient care.',
+            'Website': 'https://example.com',
+            'Google Maps Link': 'https://maps.google.com/?q=Kuppam+General+Hospital',
+            'Working Hours': '24 Hours',
             'Featured': 'No',
             'Active': 'Yes',
         },
@@ -443,7 +496,7 @@ UPLOAD_CONFIGS = {
         'icon': 'bi-mortarboard',
         'model': Business,
         'required_columns': ['Name', 'Address', 'Phone Number'],
-        'optional_columns': ['Category', 'Image URL', 'Description', 'Featured', 'Active'],
+        'optional_columns': ['Category', 'Image URL', 'Description', 'Website', 'Google Maps Link', 'Working Hours', 'Featured', 'Active'],
         'parse_row': make_subcategory_row_parser(
             [('school', 'School'), ('college', 'College & University')], default_category='school',
         ),
@@ -455,6 +508,9 @@ UPLOAD_CONFIGS = {
             'Phone Number': '9876543210',
             'Image URL': 'https://example.com/images/school.jpg',
             'Description': 'CBSE school, classes 1 to 10.',
+            'Website': 'https://example.com',
+            'Google Maps Link': 'https://maps.google.com/?q=Kuppam+Public+School',
+            'Working Hours': 'Mon-Sat: 9:00 AM - 4:00 PM',
             'Featured': 'No',
             'Active': 'Yes',
         },
@@ -465,7 +521,7 @@ UPLOAD_CONFIGS = {
         'icon': 'bi-bus-front',
         'model': Business,
         'required_columns': ['Name', 'Address', 'Phone Number'],
-        'optional_columns': ['Image URL', 'Description', 'Featured', 'Active'],
+        'optional_columns': ['Image URL', 'Description', 'Website', 'Google Maps Link', 'Working Hours', 'Featured', 'Active'],
         'parse_row': make_directory_row_parser('transport'),
         'list_url_name': 'core:transport_list',
         'example_row': {
@@ -474,6 +530,9 @@ UPLOAD_CONFIGS = {
             'Phone Number': '9876543210',
             'Image URL': 'https://example.com/images/transport.jpg',
             'Description': 'Taxi and tempo travel booking.',
+            'Website': 'https://example.com',
+            'Google Maps Link': 'https://maps.google.com/?q=Kuppam+Travels',
+            'Working Hours': 'Daily: 6:00 AM - 10:00 PM',
             'Featured': 'No',
             'Active': 'Yes',
         },
@@ -525,12 +584,13 @@ UPLOAD_CONFIGS = {
         'icon': 'bi-calendar-event',
         'model': Event,
         'required_columns': ['Title', 'Event Date', 'Location'],
-        'optional_columns': ['Description', 'Contact', 'Image URL', 'Featured', 'Active'],
+        'optional_columns': ['Event Time', 'Description', 'Contact', 'Image URL', 'Featured', 'Active'],
         'parse_row': parse_event_row,
         'list_url_name': 'core:event_list',
         'example_row': {
             'Title': 'Kuppam Cultural Festival',
             'Event Date': '2026-08-15',
+            'Event Time': '18:00',
             'Location': 'Town Hall Grounds, Kuppam',
             'Description': 'Annual cultural festival with music and food stalls.',
             'Contact': '9876543210',

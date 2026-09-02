@@ -314,19 +314,27 @@ class Category(models.Model):
         'news': 'news', 'project': 'projects',
     }
 
+    #: Business-model categories with their own dedicated directory page,
+    #: fully excluded from the general Businesses page/permission bucket
+    #: (see DIRECTORY_CATEGORIES in views.py) rather than being one of its
+    #: filter chips.
+    _BUSINESS_DIRECTORY_KEYS = ('restaurants', 'hospitals', 'education', 'transport', 'repair', 'tourism')
+
     @property
     def search_redirect_key(self):
         if self.listing_model != 'business':
             return self._SEARCH_REDIRECT_KEYS.get(self.listing_model, '')
-        return self.key if self.key in ('restaurants', 'hospitals', 'education', 'transport') else 'shops'
+        return self.key if self.key in self._BUSINESS_DIRECTORY_KEYS else 'shops'
 
-    #: Named URL for each of the 4 dedicated business directory pages —
-    #: these filter on more than one Business.category value (e.g. Education
-    #: = school + college), so a single `?category=` query param can't
-    #: represent them the way it can for a plain business_subcategory.
+    #: Named URL for each dedicated business directory page — these either
+    #: filter on more than one Business.category value (e.g. Education =
+    #: school + college) or are just kept off the general Businesses page
+    #: entirely (Repair Services, Places to Visit), so a single
+    #: `?category=` query param on /businesses/ can't represent them.
     _BUSINESS_DIRECTORY_URL_NAMES = {
         'restaurants': 'core:restaurant_list', 'hospitals': 'core:hospital_list',
         'education': 'core:education_list', 'transport': 'core:transport_list',
+        'repair': 'core:repair_list', 'tourism': 'core:places_to_visit_list',
     }
     _LIST_URL_NAMES = {
         'property': 'core:property_list', 'job': 'core:job_list', 'event': 'core:event_list',
@@ -373,14 +381,16 @@ class Category(models.Model):
     @property
     def listing_count(self):
         """
-        Live public-listing count for this category, used by the homepage
-        service cards. Mirrors the matching logic the dedicated directory
-        pages already use (see DIRECTORY_CATEGORIES / GENERAL_BUSINESS_
-        CATEGORY_CHOICES in views.py): a category with its own or its
-        children's business_subcategory values filters to just those values;
-        a category with none set (the broad "catch-all" card, e.g.
-        Businesses) counts everything NOT claimed by any other active
-        category sharing its listing_model.
+        Platform-wide (every city) public-listing count for this category —
+        used by the Super Admin's Manage Categories screen, where "how much
+        content exists in this category" should mean the whole platform, not
+        whatever city happens to be active in this particular request.
+
+        For the homepage service cards, use public_listing_count(location)
+        instead: those need to match what a visitor actually sees for their
+        selected city (see home() in views.py) — this platform-wide number
+        would otherwise make a card claim far more listings than clicking
+        into it, for that visitor, would actually show.
 
         Cached for a short window — the homepage renders one of these per
         top-level category (measured: ~13 extra queries on a page that was
@@ -394,12 +404,29 @@ class Category(models.Model):
             cache.set(cache_key, count, 120)
         return count
 
-    def _compute_listing_count(self):
+    def public_listing_count(self, location):
+        """
+        Like listing_count, but scoped to `location` (a Location of kind
+        CITY, or None) exactly the way _public_qs() scopes every listing
+        page — so a homepage service card's number always matches what that
+        category's page will actually show this visitor. None behaves like
+        listing_count (no visitor city selected yet = platform-wide).
+        """
+        cache_key = f'core:category_public_count:{self.pk}:{location.pk if location else "all"}'
+        count = cache.get(cache_key)
+        if count is None:
+            count = self._compute_listing_count(location=location)
+            cache.set(cache_key, count, 120)
+        return count
+
+    def _compute_listing_count(self, location=None):
         model_name, field_name = self._LISTING_COUNT_MAP.get(self.listing_model, (None, None))
         if not model_name:
             return 0
         model = globals()[model_name]
         qs = model.objects.filter(is_active=True, status=ListingStatus.APPROVED)
+        if location is not None:
+            qs = qs.filter(city=location)
         if not field_name:
             return qs.count()
 
@@ -650,8 +677,12 @@ class Business(ListingMixin, models.Model):
     )
     image_url = models.URLField(max_length=500, blank=True, null=True, verbose_name='Image URL')
     description = models.TextField(blank=True, help_text='Optional short description of the business')
-    website = models.URLField(max_length=300, blank=True)
+    website = models.URLField(max_length=300, blank=True, help_text='Website or social media page (Facebook, Instagram, etc.)')
     maps_link = models.URLField(max_length=500, blank=True, verbose_name='Google Maps Link')
+    working_hours = models.CharField(
+        max_length=150, blank=True,
+        help_text="e.g. 'Mon–Sat: 9:00 AM – 8:00 PM, Sun: Closed'"
+    )
     is_featured = models.BooleanField(default=False, help_text='Show this business on the homepage')
     is_active = models.BooleanField(default=True, help_text='Uncheck to hide this listing from the site')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -774,8 +805,14 @@ class Property(ListingMixin, models.Model):
 
 class Job(ListingMixin, models.Model):
     """A job opening posted by a local company/employer in Kuppam."""
+    JOB_TYPE_CHOICES = [
+        ('regular', 'Regular / Full-Time'),
+        ('hourly', 'Hourly Basis'),
+    ]
+
     company = models.CharField(max_length=200, verbose_name='Company')
     job_title = models.CharField(max_length=200, verbose_name='Job Title')
+    job_type = models.CharField(max_length=10, choices=JOB_TYPE_CHOICES, default='regular')
     location = models.CharField(max_length=200, help_text='Job location in Kuppam')
     salary = models.CharField(
         max_length=100, blank=True,
@@ -783,6 +820,13 @@ class Job(ListingMixin, models.Model):
     )
     contact_number = models.CharField(max_length=15, verbose_name='Contact', help_text='Contact number, e.g. 9876543210')
     description = models.TextField(blank=True, help_text='Optional job description, requirements, etc.')
+    shift_date = models.DateField(
+        null=True, blank=True, verbose_name='Shift Date',
+        help_text="Optional — which date this job/shift is needed, e.g. for an Hourly Basis job. "
+                   "Powers the 'available on this date' filter on the Jobs page."
+    )
+    shift_start_time = models.TimeField(null=True, blank=True, verbose_name='Shift Start Time')
+    shift_end_time = models.TimeField(null=True, blank=True, verbose_name='Shift End Time')
     image = models.ImageField(
         upload_to='jobs/', blank=True, null=True,
         help_text='Upload a photo (takes priority over Image URL below if both are set)'
@@ -824,11 +868,27 @@ class Job(ListingMixin, models.Model):
 
     placeholder_icon = 'bi-briefcase'
 
+    @property
+    def shift_display(self):
+        """Human-readable shift window, e.g. '03 Sep 2026, 10:00 AM - 06:00 PM' — blank if no shift_date set."""
+        if not self.shift_date:
+            return ''
+        text = self.shift_date.strftime('%d %b %Y')
+        if self.shift_start_time:
+            text += f", {self.shift_start_time.strftime('%I:%M %p')}"
+            if self.shift_end_time:
+                text += f" - {self.shift_end_time.strftime('%I:%M %p')}"
+        return text
+
 
 class Event(ListingMixin, models.Model):
     """A local event (festival, meeting, fair, etc.) happening in Kuppam."""
     title = models.CharField(max_length=200, verbose_name='Event Title')
     event_date = models.DateField(verbose_name='Event Date')
+    event_time = models.TimeField(
+        null=True, blank=True, verbose_name='Start Time',
+        help_text='Optional — when in the day it starts, e.g. 6:00 PM'
+    )
     location = models.CharField(max_length=200, help_text='Venue / location in Kuppam')
     description = models.TextField(blank=True, help_text='Optional details about the event')
     contact_number = models.CharField(max_length=15, blank=True, verbose_name='Contact')
@@ -843,7 +903,7 @@ class Event(ListingMixin, models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['event_date']
+        ordering = ['event_date', 'event_time']
         indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Event'
         verbose_name_plural = 'Events'

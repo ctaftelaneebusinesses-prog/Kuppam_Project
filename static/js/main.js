@@ -72,6 +72,27 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('scroll', toggleNavbar, { passive: true });
     }
 
+    // Mobile nav drawer (Bootstrap offcanvas): resizing the window past the
+    // lg breakpoint while it's open doesn't auto-close it — that's a plain
+    // JS/CSS-class state Bootstrap only toggles on click, not on resize — so
+    // without this, opening it at mobile width then widening the window
+    // (or rotating a tablet) leaves it visibly open on top of the desktop
+    // nav, reading as two nav/category menus at once.
+    const navDrawerEl = document.getElementById('hkNavDrawer');
+    if (navDrawerEl && window.bootstrap && window.bootstrap.Offcanvas) {
+        const desktopQuery = window.matchMedia('(min-width: 992px)');
+        const closeIfDesktop = function (e) {
+            if (!e.matches) return;
+            const instance = window.bootstrap.Offcanvas.getInstance(navDrawerEl);
+            if (instance) instance.hide();
+        };
+        if (desktopQuery.addEventListener) {
+            desktopQuery.addEventListener('change', closeIfDesktop);
+        } else if (desktopQuery.addListener) {
+            desktopQuery.addListener(closeIfDesktop); // Safari < 14
+        }
+    }
+
     // Elite hero: ambient glows drift gently toward the cursor (desktop only)
     // — a subtle parallax cue rather than a literal cursor-follow, so it
     // reads as "alive" without being distracting.

@@ -16,6 +16,11 @@ Used identically on job_list.html, the homepage Featured Jobs section, and the
     <div class="hk-card-placeholder"><i class="bi {{ job.placeholder_icon }}"></i></div>
     {% endif %}
     <div class="card-body d-flex flex-column">
+        {% if job.job_type == 'hourly' %}
+        <span class="badge bg-primary-subtle text-primary mb-2 align-self-start">
+            <i class="bi bi-clock-history"></i> {% trans "Hourly Basis" %}
+        </span>
+        {% endif %}
         <div class="d-flex align-items-center mb-3">
             <div class="hk-icon-circle me-3">
                 <i class="bi bi-briefcase-fill"></i>
@@ -25,6 +30,11 @@ Used identically on job_list.html, the homepage Featured Jobs section, and the
                 <p class="text-muted small mb-0">{{ job.company }}</p>
             </div>
         </div>
+        {% if job.shift_display %}
+        <p class="card-text text-muted small mb-1">
+            <i class="bi bi-calendar3 text-primary"></i> {{ job.shift_display }}
+        </p>
+        {% endif %}
         <div class="hk-card-meta-row">
             <span class="hk-rating">
                 <i class="bi bi-star-fill"></i>

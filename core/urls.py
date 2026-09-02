@@ -6,6 +6,7 @@ app_name = 'core'
 urlpatterns = [
     path('', views.home, name='home'),
     path('c/<slug:city_slug>/', views.city_home, name='city_home'),
+    path('services/', views.services, name='services'),
     path('search/', views.search, name='search'),
     path('api/locations/search/', views.location_search, name='location_search'),
     path('api/locations/select/', views.location_select, name='location_select'),
@@ -50,6 +51,8 @@ urlpatterns = [
     path('hospitals/', views.directory_list, {'category': 'hospitals'}, name='hospital_list'),
     path('education/', views.directory_list, {'category': 'education'}, name='education_list'),
     path('transport/', views.directory_list, {'category': 'transport'}, name='transport_list'),
+    path('repair-services/', views.directory_list, {'category': 'repair'}, name='repair_list'),
+    path('places-to-visit/', views.directory_list, {'category': 'tourism'}, name='places_to_visit_list'),
 
     # Properties
     path('properties/', views.property_list, name='property_list'),

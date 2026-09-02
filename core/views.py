@@ -126,7 +126,7 @@
 
 import json
 import re
-from datetime import timedelta
+from datetime import date, time, timedelta
 from math import asin, cos, radians, sin, sqrt
 from urllib.parse import urlencode
 
@@ -474,6 +474,8 @@ DIRECTORY_CATEGORIES = {
     'hospitals': {'categories': ['hospital', 'pharmacy'], 'label': 'Hospitals & Healthcare', 'icon': 'bi-hospital'},
     'education': {'categories': ['school', 'college'], 'label': 'Education', 'icon': 'bi-mortarboard'},
     'transport': {'categories': ['transport'], 'label': 'Transport', 'icon': 'bi-bus-front'},
+    'repair': {'categories': ['repair'], 'label': 'Repair Services', 'icon': 'bi-wrench-adjustable'},
+    'tourism': {'categories': ['tourism'], 'label': 'Places to Visit', 'icon': 'bi-binoculars'},
 }
 
 #: Union of every category value claimed by a dedicated directory page —
@@ -560,6 +562,18 @@ CATEGORIES = [
         'description': 'Track planned and ongoing civic and infrastructure projects shaping your city.',
         'count_fn': lambda: _public_qs(Project).count(),
     },
+    {
+        'name': 'Repair Services', 'icon': 'bi-wrench-adjustable', 'slug': 'repair',
+        'image': 'images/services/business.jpg',
+        'description': 'Find electronics, appliance, mobile, and automobile repair shops near you.',
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['repair']['categories']).count(),
+    },
+    {
+        'name': 'Places to Visit', 'icon': 'bi-binoculars', 'slug': 'tourism',
+        'image': 'images/services/business.jpg',
+        'description': 'Discover parks, temples, monuments, and local attractions worth visiting.',
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['tourism']['categories']).count(),
+    },
 ]
 
 
@@ -616,15 +630,18 @@ def home(request):
     featured_projects = _public_qs(Project, request).filter(is_featured=True)[:6] \
         or _public_qs(Project, request).order_by('-created_at')[:6]
 
-    # "Today in Your Town": events actually happening today + today's news
-    # (falling back to the latest few articles when nothing published
-    # today, same "never a blank gap" reasoning as the featured_* sections
-    # above), plus two Business sub-categories browsable as their own
-    # homepage rows (see Business.CATEGORY_CHOICES: 'tourism', 'repair').
+    # "Today in Your Town": events actually happening today + news actually
+    # published today. Genuinely-dated content only — no falling back to
+    # older items under a "Today" label, since that reads as misleading
+    # (an August article still showing under "Happening Today" in
+    # September). When nothing is dated today, recent_news_fallback backs a
+    # separately-labeled "Latest Updates" block instead (see home.html) —
+    # computed only then, so a live day never pays for the extra query.
     today = timezone.localdate()
-    events_today = _public_qs(Event, request).filter(event_date=today).order_by('event_date')[:6]
-    news_today = _public_qs(News, request).filter(published_date=today).order_by('-created_at')[:6] \
-        or _public_qs(News, request).order_by('-published_date')[:3]
+    events_today = _public_qs(Event, request).filter(event_date=today).order_by('event_time')[:6]
+    news_today = _public_qs(News, request).filter(published_date=today).order_by('-created_at')[:6]
+    recent_news_fallback = [] if (events_today or news_today) \
+        else list(_public_qs(News, request).order_by('-published_date')[:3])
     places_to_visit = _public_qs(Business, request).filter(category='tourism').order_by('-is_featured', 'name')[:6]
     repair_shops_initial = _public_qs(Business, request).filter(category='repair').order_by('-is_featured', 'name')[:6]
 
@@ -641,9 +658,23 @@ def home(request):
     # so the separate prefetch this used to run was pure waste on top of it.
     from .context_processors import category_tree
     current = active_location(request)
+
+    # Service-card counts must match what each category's page will actually
+    # show THIS visitor (see Category.public_listing_count) rather than a
+    # platform-wide total — otherwise a card can claim listings that turn out
+    # to belong to other cities once you click through. A category with
+    # nothing for this visitor is dropped rather than shown as an empty "0
+    # Listings" card, and the rest sort busiest-first so the strongest
+    # categories lead instead of whatever admin-set `order` they'd otherwise
+    # follow.
+    categories = list(category_tree(request)['nav_category_tree'])
+    for cat in categories:
+        cat.display_count = cat.public_listing_count(current)
+    categories = sorted((c for c in categories if c.display_count > 0), key=lambda c: c.display_count, reverse=True)
+
     context = {
         'page_title': f'OneTownCity {current.name}' if current else 'OneTownCity — Visual Local Engine & Discovery Portal',
-        'categories': category_tree(request)['nav_category_tree'],
+        'categories': categories,
         'featured_businesses': featured_businesses,
         'featured_properties': featured_properties,
         'featured_jobs': featured_jobs,
@@ -652,6 +683,7 @@ def home(request):
         'featured_projects': featured_projects,
         'events_today': events_today,
         'news_today': news_today,
+        'recent_news_fallback': recent_news_fallback,
         'places_to_visit': places_to_visit,
         'repair_shops_initial': repair_shops_initial,
         'today_date': today,
@@ -664,6 +696,16 @@ def city_home(request, city_slug):
     city = get_object_or_404(Location, slug=city_slug, kind=Location.Kind.CITY, is_active=True)
     save_location(request, city, source='manual_selection')
     return home(request)
+
+
+def services(request):
+    """
+    CraftLanee's own web development / call center & BPO services pitch —
+    split out from the homepage (which used to mix it in with the Kuppam
+    local directory) so the two distinct purposes of the site don't blur
+    together for a visitor landing on '/'.
+    """
+    return render(request, 'services.html', {'page_title': 'Web Development & Digital Solutions - OneTownCity'})
 
 
 # A category picked in the header/hero search box goes straight to that
@@ -680,6 +722,8 @@ SEARCH_CATEGORY_REDIRECT = {
     'education': 'core:education_list',
     'transport': 'core:transport_list',
     'projects': 'core:project_list',
+    'repair': 'core:repair_list',
+    'tourism': 'core:places_to_visit_list',
 }
 
 SEARCH_RESULT_LIMIT = 6
@@ -971,17 +1015,50 @@ def property_detail(request, slug):
 
 def job_list(request):
     """
-    Jobs listing page with search (by job title, company or location)
-    and pagination.
+    Jobs listing page with search (by job title, company or location),
+    an Hourly Basis "available on this date/time" filter, and pagination.
+
+    The date/time filter only makes sense against jobs that actually carry a
+    shift_date (mainly Hourly Basis postings, though any job can set one) —
+    a plain date match, refined by time only when both a date and a time are
+    given (a bare time with no date isn't a meaningful filter on its own).
     """
     jobs = _public_qs(Job, request)
 
     query = request.GET.get('q', '').strip()
+    job_type = request.GET.get('type', '').strip()
+    date_str = request.GET.get('date', '').strip()
+    time_str = request.GET.get('time', '').strip()
 
     if query:
         jobs = jobs.filter(
             Q(job_title__icontains=query) | Q(company__icontains=query) | Q(location__icontains=query)
         )
+
+    if job_type in dict(Job.JOB_TYPE_CHOICES):
+        jobs = jobs.filter(job_type=job_type)
+    else:
+        job_type = ''
+
+    # <input type="date">/type="time"> always post ISO values (YYYY-MM-DD /
+    # HH:MM) regardless of locale, so a plain fromisoformat is enough here.
+    shift_date = None
+    if date_str:
+        try:
+            shift_date = date.fromisoformat(date_str)
+        except ValueError:
+            date_str = ''
+    if shift_date:
+        jobs = jobs.filter(shift_date=shift_date)
+
+    shift_time = None
+    if time_str:
+        try:
+            shift_time = time.fromisoformat(time_str)
+        except ValueError:
+            time_str = ''
+    if shift_date and shift_time:
+        jobs = jobs.filter(shift_start_time__lte=shift_time, shift_end_time__gte=shift_time)
 
     paginator = Paginator(jobs, 9)
     page_number = request.GET.get('page')
@@ -991,6 +1068,10 @@ def job_list(request):
         'page_title': 'Jobs - OneTownCity',
         'page_obj': page_obj,
         'query': query,
+        'selected_job_type': job_type,
+        'job_type_choices': Job.JOB_TYPE_CHOICES,
+        'selected_date': date_str,
+        'selected_time': time_str,
         'total_results': jobs.count(),
     }
     return render(request, 'job_list.html', context)
@@ -2624,6 +2705,27 @@ def _super_admin_dashboard(request):
     return render(request, 'dashboard/super_admin_dashboard.html', context)
 
 
+def _hidden_categories_by_city(city_ids):
+    """
+    Top-level categories that are active (not manually deactivated by a
+    Super Admin — see dashboard_categories) but currently have 0 approved
+    listings for a given city, meaning home() drops them from that city's
+    homepage grid entirely (see Category.public_listing_count). A City
+    Admin/Sub Admin has no way to see this from the public site itself —
+    an empty grid slot just looks like it was never there — so this powers
+    a small "hidden from your homepage" list on their dashboard Overview.
+    Grouped by city since managed_city_ids() can be more than one.
+    """
+    cities = Location.objects.filter(id__in=city_ids, kind=Location.Kind.CITY).order_by('name')
+    top_categories = Category.objects.filter(parent=None, is_active=True).order_by('order', 'label')
+    result = []
+    for city in cities:
+        hidden = [c.label for c in top_categories if c.public_listing_count(city) == 0]
+        if hidden:
+            result.append({'city': city.name, 'hidden_categories': hidden})
+    return result
+
+
 def _city_admin_dashboard(request):
     """
     City Admin's Overview: the same shape as _super_admin_dashboard, scoped
@@ -2675,6 +2777,7 @@ def _city_admin_dashboard(request):
         'stats': stats,
         'managed_cities': Location.objects.filter(id__in=city_ids).order_by('name'),
         'recent_items': recent_items[:8],
+        'hidden_categories_by_city': _hidden_categories_by_city(city_ids),
         'active_nav': 'overview',
     }
     return render(request, 'dashboard/city_admin_dashboard.html', context)
@@ -2740,6 +2843,7 @@ def _sub_admin_dashboard(request):
         'recent_items': recent_items[:8],
         'can_access_content': profile.has_any_content_access(),
         'can_manage_content_providers': profile.has_permission('view_content_providers'),
+        'hidden_categories_by_city': _hidden_categories_by_city(city_ids) if profile.has_any_content_access() else [],
         'active_nav': 'overview',
     }
     return render(request, 'dashboard/sub_admin_dashboard.html', context)
@@ -3124,11 +3228,23 @@ def dashboard_categories(request):
 
         return redirect('core:dashboard_categories')
 
+    # Homepage-visibility check: which of these are actually reachable from
+    # the homepage grid for a given city right now — see home() and
+    # Category.public_listing_count. Separate from the "Active"/"Inactive"
+    # pill above (that's the manual toggle this same page already offers);
+    # this is the automatic "0 listings for this city" hide, which a Super
+    # Admin has no other way to see city-by-city.
+    city_slug = request.GET.get('city', '').strip()
+    selected_city = Location.objects.filter(slug=city_slug, kind=Location.Kind.CITY, is_active=True).first() if city_slug else None
     top_categories = Category.objects.filter(parent=None).prefetch_related('children').order_by('order', 'label')
+    for cat in top_categories:
+        cat.homepage_visible = cat.public_listing_count(selected_city) > 0
     return render(request, 'dashboard/categories.html', {
         'page_title': 'Manage Categories - OneTownCity',
         'top_categories': top_categories,
         'listing_model_choices': Category.LISTING_MODEL_CHOICES,
+        'cities': Location.objects.filter(kind=Location.Kind.CITY, is_active=True).order_by('name'),
+        'selected_city': selected_city,
         'active_nav': 'categories',
     })
 
