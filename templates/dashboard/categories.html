@@ -63,7 +63,7 @@
                         <div class="d-inline-flex gap-1">
                             <button type="button" class="hk-row-action-btn" title="{% trans 'Add subcategory' %}"
                                     data-bs-toggle="modal" data-bs-target="#hkCategoryModal"
-                                    onclick="hkOpenCategoryModal({parent: {{ category.pk }}, parentLabel: '{{ category.label|escapejs }}'})">
+                                    onclick="hkOpenCategoryModal({parent: {{ category.pk }}, parentLabel: '{{ category.label|escapejs }}', listingModel: '{{ category.listing_model }}'})">
                                 <i class="bi bi-diagram-3"></i>
                             </button>
                             <button type="button" class="hk-row-action-btn" title="{% trans 'Edit' %}"
@@ -144,7 +144,7 @@
                                 {% endfor %}
                                 <button type="button" class="hk-cat-add-sub-btn"
                                         data-bs-toggle="modal" data-bs-target="#hkCategoryModal"
-                                        onclick="hkOpenCategoryModal({parent: {{ category.pk }}, parentLabel: '{{ category.label|escapejs }}'})">
+                                        onclick="hkOpenCategoryModal({parent: {{ category.pk }}, parentLabel: '{{ category.label|escapejs }}', listingModel: '{{ category.listing_model }}'})">
                                     <i class="bi bi-plus-lg"></i> {% trans "Add Subcategory" %}
                                 </button>
                             </div>
@@ -191,9 +191,10 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">{% trans "Business subcategory value" %} <span class="text-muted small">({% trans "optional" %})</span></label>
-                    <input type="text" name="business_subcategory" id="hkCatBizSub" class="form-control" placeholder="{% trans 'e.g. restaurant' %}">
+                <div class="mb-3" id="hkCatBizSubWrap">
+                    <label class="form-label">{% trans "Subcategory value" %} <span class="text-muted small">({% trans "optional" %})</span></label>
+                    <input type="text" name="business_subcategory" id="hkCatBizSub" class="form-control" placeholder="{% trans 'e.g. restaurant, sale, hourly' %}">
+                    <div class="form-text">{% trans "Only used when this category publishes into Business, Property, Jobs, or Projects — matches that model's category/type/status field (e.g. Business.category, Property.property_type, Job.job_type, Project.project_status)." %}</div>
                 </div>
                 <div class="row g-3">
                     <div class="col-6">
@@ -229,6 +230,16 @@
 </div>
 
 <script>
+// Keep in sync with SUBCATEGORY_INITIAL_FIELDS in views.py and
+// Category._LISTING_COUNT_MAP in models.py — these are the listing_model
+// values whose model has a real category/type/status field a subcategory's
+// "Subcategory value" can match against.
+const HK_SUBCATEGORIZABLE_MODELS = ['business', 'property', 'job', 'project'];
+
+function updateBizSubVisibility(listingModel) {
+    document.getElementById('hkCatBizSubWrap').style.display = HK_SUBCATEGORIZABLE_MODELS.includes(listingModel) ? '' : 'none';
+}
+
 function hkOpenCategoryModal(data) {
     data = data || {};
     document.getElementById('hkCategoryForm').action = "{% url 'core:dashboard_categories' %}";
@@ -247,6 +258,11 @@ function hkOpenCategoryModal(data) {
     const isChild = !!(data.parent || data.parentLabel);
     document.getElementById('hkCatListingModelWrap').style.display = isChild ? 'none' : '';
     document.getElementById('hkCatHomepageWrap').style.display = isChild ? 'none' : '';
+    // "Business subcategory value" only means anything for a category that
+    // publishes into Business (nothing reads it for Job/Property/Event/News/
+    // Project) — showing it unconditionally invited an admin to fill in a
+    // meaningless value for e.g. a Jobs subcategory.
+    updateBizSubVisibility(isChild ? (data.listing_model || data.listingModel || '') : document.getElementById('hkCatListingModel').value);
     const hint = document.getElementById('hkCatParentHint');
     if (data.parentLabel) {
         hint.textContent = 'Subcategory of ' + data.parentLabel + ' — inherits its listing type.';
@@ -259,6 +275,10 @@ function hkOpenCategoryModal(data) {
         ? 'Edit Category'
         : (isChild ? 'Add Subcategory' : 'Add Category');
 }
+
+document.getElementById('hkCatListingModel').addEventListener('change', function () {
+    updateBizSubVisibility(this.value);
+});
 
 document.querySelectorAll('.hkCategoryDeleteForm').forEach(function (form) {
     form.addEventListener('submit', function (e) {

@@ -185,6 +185,17 @@ LISTING_MODELS = {
     'project': Project,
 }
 
+#: Which submit-form field a Category's business_subcategory value pre-fills,
+#: per listing_model — mirrors Category._LISTING_COUNT_MAP's field names.
+#: Event/News have no equivalent split field, so they're absent here; a
+#: category using either just isn't pre-filled beyond city.
+SUBCATEGORY_INITIAL_FIELDS = {
+    'business': 'category',
+    'property': 'property_type',
+    'job': 'job_type',
+    'project': 'project_status',
+}
+
 #: Status filter options for moderator-facing screens (Listing Approvals,
 #: Posts) — excludes Draft, which _scope_listing_qs already keeps out of
 #: every moderator queryset, so offering it as a filter would just be a
@@ -2252,8 +2263,10 @@ def listing_submit(request, category_key):
         current = active_location(request)
         if current:
             initial['city'] = current.pk
-        if category.listing_model == 'business' and category.business_subcategory:
-            initial['category'] = category.business_subcategory
+        if category.business_subcategory:
+            field = SUBCATEGORY_INITIAL_FIELDS.get(category.listing_model)
+            if field:
+                initial[field] = category.business_subcategory
         form = form_cls(initial=initial)
         _restrict_city_field(form, profile)
 
@@ -3900,8 +3913,10 @@ def dashboard_post_create(request, category_key):
             return redirect('core:dashboard_posts')
     else:
         initial = {}
-        if category.listing_model == 'business' and category.business_subcategory:
-            initial['category'] = category.business_subcategory
+        if category.business_subcategory:
+            field = SUBCATEGORY_INITIAL_FIELDS.get(category.listing_model)
+            if field:
+                initial[field] = category.business_subcategory
         form = form_cls(initial=initial)
 
     return render(request, 'dashboard/post_create.html', {

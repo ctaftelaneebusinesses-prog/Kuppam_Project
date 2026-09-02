@@ -366,13 +366,13 @@ class Category(models.Model):
         return reverse(url_name) if url_name else '#'
 
     #: Which model + field each listing_model counts/filters against. Business,
-    #: Property and Project have a real choice field a business_subcategory
-    #: value can match against; Job/Event/News don't have an equivalent split,
-    #: so a category using one of those listing_models is just counted as-is.
+    #: Property, Job and Project have a real choice field a business_subcategory
+    #: value can match against; Event/News don't have an equivalent split, so a
+    #: category using one of those listing_models is just counted as-is.
     _LISTING_COUNT_MAP = {
         'business': ('Business', 'category'),
         'property': ('Property', 'property_type'),
-        'job': ('Job', None),
+        'job': ('Job', 'job_type'),
         'event': ('Event', None),
         'news': ('News', None),
         'project': ('Project', 'project_status'),
