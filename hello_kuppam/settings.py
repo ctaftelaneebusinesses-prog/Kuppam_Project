@@ -3,6 +3,7 @@ Django settings for hello_kuppam project.
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -44,6 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.sitemaps',
+
+    # Third-party
+    'rest_framework',
 
     # Local apps
     'core',
@@ -108,6 +112,15 @@ DATABASES = {
         conn_max_age=0,
     )
 }
+
+# `manage.py test` needs CREATE DATABASE rights on whatever DATABASE_URL
+# points at to spin up its throwaway test DB — the Supabase pooler
+# connection this project otherwise uses doesn't grant that. Running the
+# test suite against a local in-memory SQLite DB instead sidesteps that
+# entirely; it's only ever used under the test runner, never for a real
+# request, so it doesn't affect production behavior.
+if 'test' in sys.argv:
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'}
 # ------------------------------------------------------------------
 # CACHING
 # ------------------------------------------------------------------
@@ -176,6 +189,16 @@ STORAGES = {
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Same reasoning as the sqlite DATABASES override above: SupabaseMediaStorage
+# makes a real network call to Supabase Storage on every save, which the
+# test suite has no credentials for and shouldn't depend on anyway. Local
+# disk (Django's default FileSystemStorage) under a throwaway temp dir is
+# only ever used under the test runner.
+if 'test' in sys.argv:
+    import tempfile
+    STORAGES['default'] = {'BACKEND': 'django.core.files.storage.FileSystemStorage'}
+    MEDIA_ROOT = Path(tempfile.mkdtemp(prefix='onetowncity-test-media-'))
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ------------------------------------------------------------------
@@ -186,6 +209,46 @@ from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {
     message_constants.ERROR: 'danger',
 }
+
+# ------------------------------------------------------------------
+# REST API (core.api — the shared contract for the web's own AJAX calls
+# and, eventually, the native Android app; see core/api/)
+# ------------------------------------------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # For a client with no shared browser cookie jar (a future native
+        # Android screen): Authorization: Bearer <supabase access token>.
+        # Listed first deliberately: when every authenticator declines a
+        # request, DRF's 401-vs-403 decision asks only the *first*
+        # configured authenticator for a WWW-Authenticate header (see
+        # rest_framework.views.APIView.get_authenticate_header) — Session
+        # Authentication doesn't have one, so an unauthenticated request
+        # would otherwise get downgraded to a bare 403. Bearer-token auth
+        # does supply one, so anonymous requests correctly get 401.
+        'core.api.authentication.SupabaseTokenAuthentication',
+        # Lets an already browser-session-authenticated visitor (the
+        # existing Supabase-Google-login-mirrored-into-a-Django-session
+        # flow, or the legacy staff login) call the API with no extra
+        # login step. Enforces CSRF on unsafe methods same as the rest of
+        # the site (see core.api.authentication.SessionAuthentication for
+        # why this isn't just rest_framework's own SessionAuthentication).
+        'core.api.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
+    'DEFAULT_PAGINATION_CLASS': 'core.api.pagination.StandardResultsSetPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    ],
+    'EXCEPTION_HANDLER': 'core.api.exceptions.exception_handler',
+    'DATETIME_FORMAT': 'iso-8601',
+    'DATE_FORMAT': 'iso-8601',
+}
+if DEBUG:
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'].append('rest_framework.renderers.BrowsableAPIRenderer')
 
 # ------------------------------------------------------------------
 # AUTH REDIRECTS (admin dashboard login)

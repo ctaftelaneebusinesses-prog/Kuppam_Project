@@ -50,7 +50,7 @@ def on_comment_changed(sender, instance, created=False, **kwargs):
         owner_id = getattr(obj, 'owner_id', None)
         if owner_id and owner_id != instance.user_id:
             notify(
-                owner_id, 'new_comment',
+                obj.owner, 'new_comment',
                 f'{instance.user.get_username()} commented on your listing "{obj}"',
                 url=obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else '',
             )
@@ -76,7 +76,7 @@ def on_review_changed(sender, instance, created=False, **kwargs):
         owner_id = getattr(obj, 'owner_id', None)
         if owner_id and owner_id != instance.user_id:
             notify(
-                owner_id, 'new_review',
+                obj.owner, 'new_review',
                 f'{instance.user.get_username()} left a {instance.rating}-star review on "{obj}"',
                 url=obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else '',
             )
