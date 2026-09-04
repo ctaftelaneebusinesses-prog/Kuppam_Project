@@ -3,8 +3,8 @@ from django.db.models import Avg, Count
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from .context_processors import CATEGORY_TREE_CACHE_KEY, SITE_THEME_CACHE_KEY
-from .models import Category, Comment, Favorite, Like, Review, Share, SiteSettings
+from .context_processors import CATEGORY_TREE_CACHE_KEY
+from .models import Category, Comment, Favorite, Like, Review, Share
 from .push import notify
 
 
@@ -60,11 +60,6 @@ def on_comment_changed(sender, instance, created=False, **kwargs):
 @receiver(post_delete, sender=Category)
 def on_category_changed(sender, instance, **kwargs):
     cache.delete(CATEGORY_TREE_CACHE_KEY)
-
-
-@receiver(post_save, sender=SiteSettings)
-def on_site_settings_changed(sender, instance, **kwargs):
-    cache.delete(SITE_THEME_CACHE_KEY)
 
 
 @receiver(post_save, sender=Review)

@@ -49,9 +49,12 @@
                     {% if obj.contact_number %}<div class="col-sm-6"><div class="small text-muted">{% trans "Contact" %}</div><div>{{ obj.contact_number }}</div></div>{% endif %}
                     {% if obj.website %}<div class="col-sm-6"><div class="small text-muted">{% trans "Website" %}</div><div><a href="{{ obj.website }}" target="_blank" rel="noopener">{{ obj.website }}</a></div></div>{% endif %}
                     {% if obj.maps_link %}<div class="col-sm-6"><div class="small text-muted">{% trans "Google Maps" %}</div><div><a href="{{ obj.maps_link }}" target="_blank" rel="noopener">{% trans "Open in Maps" %} <i class="bi bi-box-arrow-up-right"></i></a></div></div>{% endif %}
+                    {% if obj.working_hours %}<div class="col-sm-6"><div class="small text-muted">{% trans "Working Hours" %}</div><div>{{ obj.working_hours }}</div></div>{% endif %}
                     {% if obj.price %}<div class="col-sm-6"><div class="small text-muted">{% trans "Price" %}</div><div>₹{{ obj.price }}</div></div>{% endif %}
                     {% if obj.salary %}<div class="col-sm-6"><div class="small text-muted">{% trans "Salary" %}</div><div>{{ obj.salary }}</div></div>{% endif %}
-                    {% if obj.event_date %}<div class="col-sm-6"><div class="small text-muted">{% trans "Event Date" %}</div><div>{{ obj.event_date|date:"d M Y" }}</div></div>{% endif %}
+                    {% if obj.job_type %}<div class="col-sm-6"><div class="small text-muted">{% trans "Job Type" %}</div><div>{{ obj.get_job_type_display }}</div></div>{% endif %}
+                    {% if obj.shift_display %}<div class="col-sm-6"><div class="small text-muted">{% trans "Available On" %}</div><div>{{ obj.shift_display }}</div></div>{% endif %}
+                    {% if obj.event_date %}<div class="col-sm-6"><div class="small text-muted">{% trans "Event Date" %}</div><div>{{ obj.event_date|date:"d M Y" }}{% if obj.event_time %}, {{ obj.event_time|date:"g:i A" }}{% endif %}</div></div>{% endif %}
                     {% if obj.published_date %}<div class="col-sm-6"><div class="small text-muted">{% trans "Published" %}</div><div>{{ obj.published_date|date:"d M Y" }}</div></div>{% endif %}
                     {% if obj.source %}<div class="col-sm-6"><div class="small text-muted">{% trans "Source" %}</div><div>{{ obj.source }}</div></div>{% endif %}
                 </div>

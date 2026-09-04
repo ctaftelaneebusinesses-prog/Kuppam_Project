@@ -41,20 +41,23 @@
                 <!-- Sign In -->
                 <div class="tab-pane fade {% if active_tab != 'register' %}show active{% endif %}" id="signin-pane" role="tabpanel">
                     {% if login_form.non_field_errors %}
-                        <div class="alert alert-danger">{{ login_form.non_field_errors }}</div>
+                        <div class="alert alert-danger" role="alert">{{ login_form.non_field_errors }}</div>
                     {% endif %}
 
-                    <form method="post" action="{% url 'core:password_login' %}">
+                    <form method="post" action="{% url 'core:password_login' %}" novalidate>
                         {% csrf_token %}
                         <div class="form-floating mb-3 {% if login_form.username.errors %}hk-field-invalid{% endif %}">
                             {{ login_form.username }}
                             <label for="{{ login_form.username.id_for_label }}">Username</label>
-                            {% if login_form.username.errors %}<div class="hk-field-error">{{ login_form.username.errors|striptags }}</div>{% endif %}
+                            {% if login_form.username.errors %}<div class="hk-field-error" role="alert">{{ login_form.username.errors|striptags }}</div>{% endif %}
                         </div>
-                        <div class="form-floating mb-3 {% if login_form.password.errors %}hk-field-invalid{% endif %}">
+                        <div class="form-floating mb-3 hk-password-field {% if login_form.password.errors %}hk-field-invalid{% endif %}">
                             {{ login_form.password }}
                             <label for="{{ login_form.password.id_for_label }}">Password</label>
-                            {% if login_form.password.errors %}<div class="hk-field-error">{{ login_form.password.errors|striptags }}</div>{% endif %}
+                            <button type="button" class="hk-password-toggle" data-toggle-password="{{ login_form.password.id_for_label }}" aria-label="Show password" aria-pressed="false">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% if login_form.password.errors %}<div class="hk-field-error" role="alert">{{ login_form.password.errors|striptags }}</div>{% endif %}
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-lg hk-cta-btn">
                             <i class="bi bi-box-arrow-in-right"></i> Log In
@@ -81,23 +84,44 @@
                 <!-- Register -->
                 <div class="tab-pane fade {% if active_tab == 'register' %}show active{% endif %}" id="register-pane" role="tabpanel">
                     {% if register_form.non_field_errors %}
-                        <div class="alert alert-danger">{{ register_form.non_field_errors }}</div>
+                        <div class="alert alert-danger" role="alert">{{ register_form.non_field_errors }}</div>
                     {% endif %}
 
-                    <form method="post" action="{% url 'core:register' %}" enctype="multipart/form-data">
+                    <form method="post" action="{% url 'core:register' %}" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
                         {% for field in register_form %}
                         {% if field.field.widget.input_type == 'file' %}
                         <div class="mb-3">
                             <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                             {{ field }}
-                            {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
+                            {% if field.errors %}<div class="hk-field-error" role="alert">{{ field.errors|striptags }}</div>{% endif %}
                         </div>
+                        {% elif field.field.widget.input_type == 'password' %}
+                        <div class="form-floating mb-3 hk-password-field {% if field.errors %}hk-field-invalid{% endif %}">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <button type="button" class="hk-password-toggle" data-toggle-password="{{ field.id_for_label }}" aria-label="Show password" aria-pressed="false">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% if field.errors %}<div class="hk-field-error" role="alert">{{ field.errors|striptags }}</div>{% endif %}
+                        </div>
+                        {% if field.name == 'password' %}
+                        <div class="hk-password-strength" data-password-strength-for="{{ field.id_for_label }}" aria-hidden="true">
+                            <div class="hk-password-strength-bar"><span></span></div>
+                            <ul class="hk-password-checklist">
+                                <li data-rule="length">At least 8 characters</li>
+                                <li data-rule="upper">One uppercase letter</li>
+                                <li data-rule="lower">One lowercase letter</li>
+                                <li data-rule="number">One number</li>
+                                <li data-rule="special">One special character</li>
+                            </ul>
+                        </div>
+                        {% endif %}
                         {% else %}
                         <div class="form-floating mb-3 {% if field.errors %}hk-field-invalid{% endif %}">
                             {{ field }}
                             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
+                            {% if field.errors %}<div class="hk-field-error" role="alert">{{ field.errors|striptags }}</div>{% endif %}
                         </div>
                         {% endif %}
                         {% endfor %}
@@ -116,6 +140,232 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    document.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var input = document.getElementById(btn.getAttribute('data-toggle-password'));
+            if (!input) return;
+            var icon = btn.querySelector('i');
+            var showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            icon.classList.toggle('bi-eye', showing);
+            icon.classList.toggle('bi-eye-slash', !showing);
+            btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            btn.setAttribute('aria-pressed', showing ? 'false' : 'true');
+        });
+    });
+</script>
+<script>
+(function () {
+    'use strict';
+
+    function fieldWrapper(input) {
+        return input.closest('.form-floating, .mb-3');
+    }
+
+    function setFieldState(input, message) {
+        var wrapper = fieldWrapper(input);
+        if (!wrapper) return;
+        var errorEl = wrapper.querySelector('.hk-field-error');
+        if (message) {
+            if (!errorEl) {
+                errorEl = document.createElement('div');
+                errorEl.className = 'hk-field-error';
+                errorEl.setAttribute('role', 'alert');
+                wrapper.appendChild(errorEl);
+            }
+            if (!errorEl.id) errorEl.id = (input.id || input.name) + '-error';
+            errorEl.textContent = message;
+            wrapper.classList.add('hk-field-invalid');
+            input.setAttribute('aria-invalid', 'true');
+            input.setAttribute('aria-describedby', errorEl.id);
+        } else {
+            wrapper.classList.remove('hk-field-invalid');
+            input.setAttribute('aria-invalid', 'false');
+            if (errorEl) errorEl.textContent = '';
+        }
+    }
+
+    function validateField(input) {
+        var raw = input.value;
+        var value = raw.trim();
+        if (input.hasAttribute('required') && value === '') return 'This field is required.';
+        if (value === '') return '';
+        if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            return 'Enter a valid email address.';
+        }
+        if (input.name === 'phone_number' && !/^\d{10}$/.test(value)) {
+            return 'Enter a valid 10-digit phone number.';
+        }
+        if (input.name === 'password' && input.form.querySelector('[name="confirm_password"]') && value.length < 8) {
+            return 'Password must be at least 8 characters.';
+        }
+        if (input.name === 'confirm_password') {
+            var matchId = input.getAttribute('data-match');
+            var target = matchId ? document.getElementById(matchId) : null;
+            if (target && raw !== target.value) return 'Passwords do not match.';
+        }
+        return '';
+    }
+
+    function validateAndShow(input) {
+        var message = validateField(input);
+        setFieldState(input, message);
+        return !message;
+    }
+
+    var STRENGTH_RULES = [
+        { key: 'length', test: function (v) { return v.length >= 8; } },
+        { key: 'upper', test: function (v) { return /[A-Z]/.test(v); } },
+        { key: 'lower', test: function (v) { return /[a-z]/.test(v); } },
+        { key: 'number', test: function (v) { return /[0-9]/.test(v); } },
+        { key: 'special', test: function (v) { return /[^A-Za-z0-9]/.test(v); } },
+    ];
+
+    function updateStrengthMeter(input) {
+        var meter = document.querySelector('[data-password-strength-for="' + input.id + '"]');
+        if (!meter) return;
+        var value = input.value;
+        var passed = 0;
+        STRENGTH_RULES.forEach(function (rule) {
+            var ok = rule.test(value);
+            if (ok) passed++;
+            var li = meter.querySelector('[data-rule="' + rule.key + '"]');
+            if (li) li.classList.toggle('is-met', ok);
+        });
+        var bar = meter.querySelector('.hk-password-strength-bar > span');
+        if (bar) {
+            bar.style.width = value ? Math.max(20, (passed / STRENGTH_RULES.length) * 100) + '%' : '0%';
+            var color = 'transparent';
+            if (value) color = passed <= 2 ? 'var(--hk-red-600)' : passed <= 3 ? 'var(--bs-warning)' : 'var(--hk-emerald)';
+            bar.style.background = color;
+        }
+        meter.classList.toggle('is-visible', value.length > 0);
+    }
+
+    function setLoading(form, loading) {
+        var btn = form.querySelector('button[type="submit"]');
+        if (!btn) return;
+        if (loading) {
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.classList.add('hk-btn-loading');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Please wait…';
+        } else {
+            btn.disabled = false;
+            btn.classList.remove('hk-btn-loading');
+            if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+        }
+    }
+
+    document.querySelectorAll('.hk-auth-form-card form').forEach(function (form) {
+        var fields = form.querySelectorAll(
+            'input:not([type=hidden]):not([type=file]):not([type=checkbox]), textarea'
+        );
+
+        fields.forEach(function (input) {
+            input.addEventListener('blur', function () {
+                input.dataset.touched = '1';
+                if (input.type !== 'password') {
+                    var trimmed = input.value.trim();
+                    if (trimmed !== input.value) input.value = trimmed;
+                }
+                validateAndShow(input);
+            });
+            input.addEventListener('input', function () {
+                if (input.dataset.touched === '1') validateAndShow(input);
+                if (input.name === 'password') updateStrengthMeter(input);
+            });
+        });
+
+        var passwordInput = form.querySelector('[name="password"]');
+        var confirmInput = form.querySelector('[name="confirm_password"]');
+        if (passwordInput && confirmInput) {
+            passwordInput.addEventListener('input', function () {
+                if (confirmInput.dataset.touched === '1') validateAndShow(confirmInput);
+            });
+        }
+
+        form.addEventListener('submit', function (e) {
+            var valid = true;
+            var firstInvalid = null;
+            fields.forEach(function (input) {
+                input.dataset.touched = '1';
+                if (input.type !== 'password') {
+                    var trimmed = input.value.trim();
+                    if (trimmed !== input.value) input.value = trimmed;
+                }
+                if (!validateAndShow(input)) {
+                    valid = false;
+                    if (!firstInvalid) firstInvalid = input;
+                }
+            });
+            if (!valid) {
+                e.preventDefault();
+                if (firstInvalid) firstInvalid.focus();
+                return;
+            }
+            setLoading(form, true);
+        });
+    });
+
+    var googleBtn = document.getElementById('google-signin-btn');
+    if (googleBtn) {
+        var googleBtnOriginal = googleBtn.innerHTML;
+        googleBtn.addEventListener('click', function () {
+            googleBtn.disabled = true;
+        });
+        window.addEventListener('hk:google-signin-error', function () {
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = googleBtnOriginal;
+        });
+    }
+})();
+</script>
+<script>
+(function () {
+    'use strict';
+    var shell = document.querySelector('.hk-auth-shell');
+    var brand = document.querySelector('.hk-auth-brand');
+    if (!shell || !brand) return;
+
+    function updateBrandPin() {
+        if (window.innerWidth < 992) {
+            brand.classList.remove('hk-auth-brand--pinned-bottom');
+            return;
+        }
+        var pastShellEnd = shell.getBoundingClientRect().bottom < window.innerHeight;
+        brand.classList.toggle('hk-auth-brand--pinned-bottom', pastShellEnd);
+    }
+
+    // Switching to the Register tab makes the form pane much taller (9
+    // fields vs. Sign In's 2), changing the page's overall height even
+    // though .hk-auth-brand itself is position:fixed and shouldn't be
+    // affected. Chrome on Windows sometimes fails to repaint an already-
+    // painted fixed layer after a DOM change like this, leaving it blank
+    // until an actual scroll event forces a redraw — same bug the
+    // transform:translateZ(0) hack in main.css works around for the very
+    // first page paint, but that only covers page load, not a later tab
+    // switch. Nudging transform again here forces Chrome to repaint.
+    function nudgeRepaint() {
+        updateBrandPin();
+        requestAnimationFrame(function () {
+            brand.style.transform = 'translateZ(0.01px)';
+            requestAnimationFrame(function () {
+                brand.style.transform = '';
+            });
+        });
+    }
+
+    document.querySelectorAll('#authTabs button[data-bs-toggle="pill"]').forEach(function (tabBtn) {
+        tabBtn.addEventListener('shown.bs.tab', nudgeRepaint);
+    });
+
+    window.addEventListener('scroll', updateBrandPin, { passive: true });
+    window.addEventListener('resize', updateBrandPin);
+    updateBrandPin();
+})();
+</script>
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     const supabase = createClient('{{ SUPABASE_URL }}', '{{ SUPABASE_ANON_KEY }}');
@@ -129,6 +379,7 @@
             const box = document.getElementById('signin-error');
             box.textContent = error.message;
             box.classList.remove('d-none');
+            window.dispatchEvent(new Event('hk:google-signin-error'));
         }
     });
 </script>

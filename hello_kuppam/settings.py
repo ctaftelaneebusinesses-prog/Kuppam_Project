@@ -32,6 +32,10 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 # ------------------------------------------------------------------
 # APPLICATION DEFINITION
@@ -63,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.MaintenanceModeMiddleware',
 ]
 
 ROOT_URLCONF = 'hello_kuppam.urls'
@@ -80,10 +85,10 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.supabase_config',
+                'core.context_processors.location',
                 'core.context_processors.push_config',
                 'core.context_processors.notifications',
                 'core.context_processors.unread_messages',
-                'core.context_processors.site_theme',
                 'core.context_processors.category_tree',
             ],
         },
@@ -299,3 +304,4 @@ VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', '')
 # gate the existing username/password staff login for Django's own
 # /admin/ backend and the Excel upload tools — that flow is untouched.
 GOOGLE_LOGIN_URL = 'core:google_login'
+

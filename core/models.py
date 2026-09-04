@@ -32,6 +32,8 @@ def unique_slug_for(model_cls, text, instance_pk=None, field_name='slug', max_le
 
 class UserRole(models.TextChoices):
     SUPER_ADMIN = 'super_admin', 'Super Admin'
+    CITY_ADMIN = 'city_admin', 'City Admin'
+    SUB_ADMIN = 'sub_admin', 'Sub Admin'
     ADMIN = 'admin', 'Admin (Content Provider)'
     USER = 'user', 'User'
 
@@ -97,15 +99,127 @@ class Profile(models.Model):
     def is_admin(self):
         return self.role == UserRole.ADMIN
 
+    @property
+    def is_city_admin(self):
+        return self.role == UserRole.CITY_ADMIN
+
+    @property
+    def is_sub_admin(self):
+        return self.role == UserRole.SUB_ADMIN
+
+    def has_permission(self, key):
+        """
+        Whether this profile is granted the named Permission (see the Roles &
+        Permissions matrix). Checks a per-user override (UserPermission) first
+        — this is how a City Admin delegates a specific capability to one
+        Sub Admin — and falls back to the role-level default (RolePermission)
+        otherwise. Super Admin always returns True without needing a row —
+        it has unrestricted access by definition, not by configuration.
+        """
+        if self.is_super_admin:
+            return True
+        override = UserPermission.objects.filter(user_id=self.user_id, permission__key=key).first()
+        if override is not None:
+            return override.is_granted
+        return RolePermission.objects.filter(role=self.role, permission__key=key, is_granted=True).exists()
+
+    #: Per-listing-type permission keys (the Businesses/Events/Announcements
+    #: groups on the Sub Admin Permissions screen) a City Admin can delegate
+    #: instead of/on top of the blanket Content-group keys — lets one Sub
+    #: Admin be scoped to just Businesses and another to just Events.
+    #: Property/Job/Project have no dedicated group, so they're only ever
+    #: reached through the generic Content-group fallback in
+    #: has_content_permission().
+    CONTENT_TYPE_PERMISSIONS = {
+        'business': {'view': 'view_businesses', 'add': 'add_businesses', 'edit': 'edit_businesses', 'delete': 'delete_businesses', 'approve': 'approve_businesses'},
+        'event': {'view': 'view_events', 'add': 'add_events', 'edit': 'edit_events', 'delete': 'delete_events', 'approve': 'approve_events'},
+        'news': {'view': 'view_announcements', 'add': 'add_announcements', 'edit': 'edit_announcements', 'delete': 'delete_announcements'},
+    }
+
+    #: Generic Content-group fallback for an action with no (or an
+    #: unavailable) type-specific key above.
+    _GENERIC_CONTENT_ACTION_PERMISSIONS = {
+        'view': 'view_content', 'add': 'add_content', 'edit': 'edit_content', 'delete': 'delete_content',
+        'approve': 'approve_content', 'reject': 'reject_content', 'changes_requested': 'request_content_changes',
+    }
+
+    def has_content_permission(self, action, listing_model=None):
+        """
+        Whether this profile may `action` ('view'/'add'/'edit'/'delete'/
+        'approve'/'reject'/'changes_requested') content of `listing_model`
+        (e.g. 'business'). Super Admin/City Admin should just be checked via
+        is_super_admin/is_city_admin at the call site — this only resolves a
+        Sub Admin's delegated grants: the type-specific key first (so a City
+        Admin can hand one Sub Admin just Businesses and another just
+        Events), then manage_city_content as a blanket "add anything" grant,
+        then the generic Content-group key.
+        """
+        type_keys = self.CONTENT_TYPE_PERMISSIONS.get(listing_model or '')
+        if type_keys and action in type_keys and self.has_permission(type_keys[action]):
+            return True
+        if action == 'add' and self.has_permission('manage_city_content'):
+            return True
+        generic_key = self._GENERIC_CONTENT_ACTION_PERMISSIONS.get(action)
+        return bool(generic_key) and self.has_permission(generic_key)
+
+    def has_any_content_access(self):
+        """
+        Whether this Sub Admin has been delegated any content capability at
+        all — the route-level gate for the Posts/Pending-Listings screens and
+        their nav links (see decorators._sub_admin_has_content_access).
+        Which specific listings/actions they actually see once inside is
+        narrowed further by has_content_permission() and _scope_listing_qs().
+        """
+        if self.has_permission('review_content') or self.has_permission('manage_city_content'):
+            return True
+        if any(self.has_permission(key) for key in self._GENERIC_CONTENT_ACTION_PERMISSIONS.values()):
+            return True
+        return any(
+            self.has_permission(key)
+            for type_keys in self.CONTENT_TYPE_PERMISSIONS.values()
+            for key in type_keys.values()
+        )
+
+    def managed_city_ids(self):
+        """Which Location (kind=city) rows this profile is scoped to. Mirrors
+        managed_category_ids() — Super Admin sees every active city; a City
+        Admin, Sub Admin, or Content Provider sees only what's been granted
+        via AdminCityPermission (a Sub Admin/Content Provider is assigned the
+        same way, by the City Admin who creates them — see
+        dashboard_sub_admins/dashboard_content_providers). A self-service
+        Content Provider approved via Admin Request has no city grant, so
+        this returns [] for them — see _restrict_city_field's fallback."""
+        if self.is_super_admin:
+            return list(Location.objects.filter(kind=Location.Kind.CITY, is_active=True).values_list('id', flat=True))
+        if not (self.is_city_admin or self.is_sub_admin or self.is_admin):
+            return []
+        return list(AdminCityPermission.objects.filter(admin_id=self.user_id).values_list('city_id', flat=True))
+
     def can_manage_category(self, category):
         """
         Whether this user may create/edit/delete listings in `category`. A
         permission granted on a parent category also covers its subcategories,
         so Super Admins don't need to re-grant access one subcategory at a time.
+
+        City Admin can post to any active category for their city, the same
+        way Super Admin can platform-wide — they're the city's own authority,
+        so their submissions publish immediately (see listing_submit). A Sub
+        Admin gets the same ability only for the listing types their City
+        Admin has delegated (has_content_permission('add', ...) — either a
+        type-specific grant like add_businesses, or the manage_city_content/
+        add_content blanket grants); their submissions still land in the
+        pending queue for the City Admin to accept or reject, same as any
+        Content Provider's.
         """
         if self.is_super_admin:
             return True
-        if not self.is_admin or self.is_suspended:
+        if self.is_suspended:
+            return False
+        if self.is_city_admin:
+            return True
+        if self.is_sub_admin:
+            return self.has_content_permission('add', category.listing_model)
+        if not self.is_admin:
             return False
         granted_ids = set(AdminCategoryPermission.objects.filter(admin_id=self.user_id).values_list('category_id', flat=True))
         node = category
@@ -118,6 +232,13 @@ class Profile(models.Model):
     def managed_category_ids(self):
         if self.is_super_admin:
             return list(Category.objects.filter(is_active=True).values_list('id', flat=True))
+        if self.is_city_admin:
+            return list(Category.objects.filter(is_active=True).values_list('id', flat=True))
+        if self.is_sub_admin:
+            return [
+                c.id for c in Category.objects.filter(is_active=True)
+                if self.has_content_permission('add', c.listing_model)
+            ]
         return list(AdminCategoryPermission.objects.filter(admin_id=self.user_id).values_list('category_id', flat=True))
 
     def managed_listing_models(self):
@@ -193,19 +314,27 @@ class Category(models.Model):
         'news': 'news', 'project': 'projects',
     }
 
+    #: Business-model categories with their own dedicated directory page,
+    #: fully excluded from the general Businesses page/permission bucket
+    #: (see DIRECTORY_CATEGORIES in views.py) rather than being one of its
+    #: filter chips.
+    _BUSINESS_DIRECTORY_KEYS = ('restaurants', 'hospitals', 'education', 'transport', 'repair', 'tourism')
+
     @property
     def search_redirect_key(self):
         if self.listing_model != 'business':
             return self._SEARCH_REDIRECT_KEYS.get(self.listing_model, '')
-        return self.key if self.key in ('restaurants', 'hospitals', 'education', 'transport') else 'shops'
+        return self.key if self.key in self._BUSINESS_DIRECTORY_KEYS else 'shops'
 
-    #: Named URL for each of the 4 dedicated business directory pages —
-    #: these filter on more than one Business.category value (e.g. Education
-    #: = school + college), so a single `?category=` query param can't
-    #: represent them the way it can for a plain business_subcategory.
+    #: Named URL for each dedicated business directory page — these either
+    #: filter on more than one Business.category value (e.g. Education =
+    #: school + college) or are just kept off the general Businesses page
+    #: entirely (Repair Services, Places to Visit), so a single
+    #: `?category=` query param on /businesses/ can't represent them.
     _BUSINESS_DIRECTORY_URL_NAMES = {
         'restaurants': 'core:restaurant_list', 'hospitals': 'core:hospital_list',
         'education': 'core:education_list', 'transport': 'core:transport_list',
+        'repair': 'core:repair_list', 'tourism': 'core:places_to_visit_list',
     }
     _LIST_URL_NAMES = {
         'property': 'core:property_list', 'job': 'core:job_list', 'event': 'core:event_list',
@@ -237,13 +366,13 @@ class Category(models.Model):
         return reverse(url_name) if url_name else '#'
 
     #: Which model + field each listing_model counts/filters against. Business,
-    #: Property and Project have a real choice field a business_subcategory
-    #: value can match against; Job/Event/News don't have an equivalent split,
-    #: so a category using one of those listing_models is just counted as-is.
+    #: Property, Job and Project have a real choice field a business_subcategory
+    #: value can match against; Event/News don't have an equivalent split, so a
+    #: category using one of those listing_models is just counted as-is.
     _LISTING_COUNT_MAP = {
         'business': ('Business', 'category'),
         'property': ('Property', 'property_type'),
-        'job': ('Job', None),
+        'job': ('Job', 'job_type'),
         'event': ('Event', None),
         'news': ('News', None),
         'project': ('Project', 'project_status'),
@@ -252,14 +381,16 @@ class Category(models.Model):
     @property
     def listing_count(self):
         """
-        Live public-listing count for this category, used by the homepage
-        service cards. Mirrors the matching logic the dedicated directory
-        pages already use (see DIRECTORY_CATEGORIES / GENERAL_BUSINESS_
-        CATEGORY_CHOICES in views.py): a category with its own or its
-        children's business_subcategory values filters to just those values;
-        a category with none set (the broad "catch-all" card, e.g.
-        Businesses) counts everything NOT claimed by any other active
-        category sharing its listing_model.
+        Platform-wide (every city) public-listing count for this category —
+        used by the Super Admin's Manage Categories screen, where "how much
+        content exists in this category" should mean the whole platform, not
+        whatever city happens to be active in this particular request.
+
+        For the homepage service cards, use public_listing_count(location)
+        instead: those need to match what a visitor actually sees for their
+        selected city (see home() in views.py) — this platform-wide number
+        would otherwise make a card claim far more listings than clicking
+        into it, for that visitor, would actually show.
 
         Cached for a short window — the homepage renders one of these per
         top-level category (measured: ~13 extra queries on a page that was
@@ -273,12 +404,29 @@ class Category(models.Model):
             cache.set(cache_key, count, 120)
         return count
 
-    def _compute_listing_count(self):
+    def public_listing_count(self, location):
+        """
+        Like listing_count, but scoped to `location` (a Location of kind
+        CITY, or None) exactly the way _public_qs() scopes every listing
+        page — so a homepage service card's number always matches what that
+        category's page will actually show this visitor. None behaves like
+        listing_count (no visitor city selected yet = platform-wide).
+        """
+        cache_key = f'core:category_public_count:{self.pk}:{location.pk if location else "all"}'
+        count = cache.get(cache_key)
+        if count is None:
+            count = self._compute_listing_count(location=location)
+            cache.set(cache_key, count, 120)
+        return count
+
+    def _compute_listing_count(self, location=None):
         model_name, field_name = self._LISTING_COUNT_MAP.get(self.listing_model, (None, None))
         if not model_name:
             return 0
         model = globals()[model_name]
         qs = model.objects.filter(is_active=True, status=ListingStatus.APPROVED)
+        if location is not None:
+            qs = qs.filter(city=location)
         if not field_name:
             return qs.count()
 
@@ -313,6 +461,52 @@ class Category(models.Model):
             'order': self.order,
             'is_active': self.is_active,
         })
+
+
+# ---------------------------------------------------------------------------
+# India location hierarchy
+# ---------------------------------------------------------------------------
+
+class Location(models.Model):
+    class Kind(models.TextChoices):
+        COUNTRY = 'country', 'Country'
+        STATE = 'state', 'State'
+        DISTRICT = 'district', 'District'
+        CITY = 'city', 'City'
+        LOCALITY = 'locality', 'Locality / Area'
+
+    parent = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True, related_name='children')
+    kind = models.CharField(max_length=20, choices=Kind.choices)
+    name = models.CharField(max_length=120)
+    slug = models.SlugField(max_length=140, unique=True)
+    country_code = models.CharField(max_length=2, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    aliases = models.JSONField(default=list, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(fields=['parent', 'kind', 'name'], name='unique_location_in_parent'),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def state(self):
+        node = self
+        while node and node.kind not in {self.Kind.STATE, self.Kind.COUNTRY}:
+            node = node.parent
+        return node.name if node and node.kind == self.Kind.STATE else ''
+
+    @property
+    def district(self):
+        node = self.parent
+        while node and node.kind not in {self.Kind.DISTRICT, self.Kind.STATE, self.Kind.COUNTRY}:
+            node = node.parent
+        return node.name if node and node.kind == self.Kind.DISTRICT else ''
 
 
 # ---------------------------------------------------------------------------
@@ -360,11 +554,35 @@ class AdminCategoryPermission(models.Model):
         return f'{self.admin} -> {self.category}'
 
 
+class AdminCityPermission(models.Model):
+    """
+    Which cities (Location rows with kind=city) a City Admin is scoped to
+    manage — the city equivalent of AdminCategoryPermission. Not yet
+    enforced by any view (City Admin's own scoped dashboard is a later
+    RBAC stage); for now this is just the data Super Admin assigns through
+    Manage City Admins, read via Profile.managed_city_ids().
+    """
+    admin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='city_permissions')
+    city = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='admin_permissions',
+        limit_choices_to={'kind': Location.Kind.CITY},
+    )
+    granted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+    granted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('admin', 'city')
+
+    def __str__(self):
+        return f'{self.admin} -> {self.city}'
+
+
 # ---------------------------------------------------------------------------
 # Listings
 # ---------------------------------------------------------------------------
 
 class ListingStatus(models.TextChoices):
+    DRAFT = 'draft', 'Draft'
     PENDING = 'pending', 'Pending Approval'
     APPROVED = 'approved', 'Approved'
     REJECTED = 'rejected', 'Rejected'
@@ -380,6 +598,11 @@ class ListingMixin(models.Model):
     """
     listing_category = models.ForeignKey(
         Category, on_delete=models.PROTECT, null=True, blank=True, related_name='%(class)s_listings'
+    )
+    city = models.ForeignKey(
+        Location, on_delete=models.PROTECT, null=True, blank=True, related_name='%(class)s_listings',
+        limit_choices_to={'kind': Location.Kind.CITY},
+        help_text='Canonical city for this listing. Leave blank only for legacy data pending classification.',
     )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='%(class)s_listings'
@@ -401,6 +624,9 @@ class ListingMixin(models.Model):
 
     class Meta:
         abstract = True
+        indexes = [
+            models.Index(fields=['status', 'is_active', 'city']),
+        ]
 
     @property
     def is_public(self):
@@ -430,6 +656,8 @@ class Business(ListingMixin, models.Model):
         ('school', 'School'),
         ('college', 'College'),
         ('transport', 'Transport'),
+        ('repair', 'Repair Services'),
+        ('tourism', 'Places to Visit'),
         ('other', 'Other'),
     ]
 
@@ -437,14 +665,24 @@ class Business(ListingMixin, models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
     address = models.TextField(help_text='Full shop/business address')
     phone_number = models.CharField(max_length=15, help_text='Contact number, e.g. 9876543210')
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text="Precise pin location, e.g. set via 'Use my current location' on the listing form. "
+                   "Powers distance-based 'near me' search (currently used for Repair Services)."
+    )
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     image = models.ImageField(
         upload_to='businesses/', blank=True, null=True,
         help_text='Upload a photo (takes priority over Image URL below if both are set)'
     )
     image_url = models.URLField(max_length=500, blank=True, null=True, verbose_name='Image URL')
     description = models.TextField(blank=True, help_text='Optional short description of the business')
-    website = models.URLField(max_length=300, blank=True)
+    website = models.URLField(max_length=300, blank=True, help_text='Website or social media page (Facebook, Instagram, etc.)')
     maps_link = models.URLField(max_length=500, blank=True, verbose_name='Google Maps Link')
+    working_hours = models.CharField(
+        max_length=150, blank=True,
+        help_text="e.g. 'Mon–Sat: 9:00 AM – 8:00 PM, Sun: Closed'"
+    )
     is_featured = models.BooleanField(default=False, help_text='Show this business on the homepage')
     is_active = models.BooleanField(default=True, help_text='Uncheck to hide this listing from the site')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -452,6 +690,7 @@ class Business(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-is_featured', 'name']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Business'
         verbose_name_plural = 'Businesses'
 
@@ -482,7 +721,8 @@ class Business(ListingMixin, models.Model):
         'hardware': 'bi-tools', 'bakery': 'bi-cake2', 'salon': 'bi-scissors',
         'automobile': 'bi-car-front', 'stationery': 'bi-pencil', 'jewellery': 'bi-gem',
         'hospital': 'bi-hospital', 'school': 'bi-mortarboard',
-        'college': 'bi-mortarboard', 'transport': 'bi-bus-front', 'other': 'bi-shop-window',
+        'college': 'bi-mortarboard', 'transport': 'bi-bus-front',
+        'repair': 'bi-wrench-adjustable', 'tourism': 'bi-binoculars', 'other': 'bi-shop-window',
     }
 
     @property
@@ -525,6 +765,7 @@ class Property(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-is_featured', '-created_at']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Property'
         verbose_name_plural = 'Properties'
 
@@ -564,8 +805,14 @@ class Property(ListingMixin, models.Model):
 
 class Job(ListingMixin, models.Model):
     """A job opening posted by a local company/employer in Kuppam."""
+    JOB_TYPE_CHOICES = [
+        ('regular', 'Regular / Full-Time'),
+        ('hourly', 'Hourly Basis'),
+    ]
+
     company = models.CharField(max_length=200, verbose_name='Company')
     job_title = models.CharField(max_length=200, verbose_name='Job Title')
+    job_type = models.CharField(max_length=10, choices=JOB_TYPE_CHOICES, default='regular')
     location = models.CharField(max_length=200, help_text='Job location in Kuppam')
     salary = models.CharField(
         max_length=100, blank=True,
@@ -573,6 +820,13 @@ class Job(ListingMixin, models.Model):
     )
     contact_number = models.CharField(max_length=15, verbose_name='Contact', help_text='Contact number, e.g. 9876543210')
     description = models.TextField(blank=True, help_text='Optional job description, requirements, etc.')
+    shift_date = models.DateField(
+        null=True, blank=True, verbose_name='Shift Date',
+        help_text="Optional — which date this job/shift is needed, e.g. for an Hourly Basis job. "
+                   "Powers the 'available on this date' filter on the Jobs page."
+    )
+    shift_start_time = models.TimeField(null=True, blank=True, verbose_name='Shift Start Time')
+    shift_end_time = models.TimeField(null=True, blank=True, verbose_name='Shift End Time')
     image = models.ImageField(
         upload_to='jobs/', blank=True, null=True,
         help_text='Upload a photo (takes priority over Image URL below if both are set)'
@@ -585,6 +839,7 @@ class Job(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-is_featured', '-created_at']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Job'
         verbose_name_plural = 'Jobs'
 
@@ -613,11 +868,27 @@ class Job(ListingMixin, models.Model):
 
     placeholder_icon = 'bi-briefcase'
 
+    @property
+    def shift_display(self):
+        """Human-readable shift window, e.g. '03 Sep 2026, 10:00 AM - 06:00 PM' — blank if no shift_date set."""
+        if not self.shift_date:
+            return ''
+        text = self.shift_date.strftime('%d %b %Y')
+        if self.shift_start_time:
+            text += f", {self.shift_start_time.strftime('%I:%M %p')}"
+            if self.shift_end_time:
+                text += f" - {self.shift_end_time.strftime('%I:%M %p')}"
+        return text
+
 
 class Event(ListingMixin, models.Model):
     """A local event (festival, meeting, fair, etc.) happening in Kuppam."""
     title = models.CharField(max_length=200, verbose_name='Event Title')
     event_date = models.DateField(verbose_name='Event Date')
+    event_time = models.TimeField(
+        null=True, blank=True, verbose_name='Start Time',
+        help_text='Optional — when in the day it starts, e.g. 6:00 PM'
+    )
     location = models.CharField(max_length=200, help_text='Venue / location in Kuppam')
     description = models.TextField(blank=True, help_text='Optional details about the event')
     contact_number = models.CharField(max_length=15, blank=True, verbose_name='Contact')
@@ -632,7 +903,8 @@ class Event(ListingMixin, models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['event_date']
+        ordering = ['event_date', 'event_time']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Event'
         verbose_name_plural = 'Events'
 
@@ -684,6 +956,7 @@ class News(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-published_date']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'News Article'
         verbose_name_plural = 'News'
 
@@ -739,6 +1012,7 @@ class Project(ListingMixin, models.Model):
 
     class Meta:
         ordering = ['-is_featured', '-created_at']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
         verbose_name = 'Upcoming Project'
         verbose_name_plural = 'Upcoming Projects'
 
@@ -1044,54 +1318,6 @@ class NewsletterSubscriber(models.Model):
         return self.email
 
 
-class PaletteChoice(models.TextChoices):
-    """
-    Mirrors the looks the front-end theme switcher offers (tokens.css /
-    palette-switcher.js) — 4 color palettes plus 3 weather effects (Winter/
-    Spring/Autumn, which don't change colors, only the canvas overlay) —
-    kept as the single source of truth for the choice set, since it also
-    drives the Super Admin's site-wide override below.
-    """
-    DEFAULT = 'default', 'Default (OneTownCity Amber)'
-    SUMMER_SILK = 'summer-silk', 'Summer Silk'
-    RAINY_VELVET = 'rainy-velvet', 'Rainy Velvet'
-    NORDIC_AURORA = 'nordic-aurora', 'Nordic Aurora'
-    WINTER = 'winter', 'Snow (Christmas)'
-    SPRING = 'spring', 'Spring'
-    AUTUMN = 'autumn', 'Autumn'
-
-
-class SiteSettings(models.Model):
-    """
-    Single-row site-wide configuration, edited from the Super Admin's Site
-    Theme panel (dashboard/site_settings.html). A visitor's own palette
-    switcher choice (persisted in their browser's localStorage) still wins
-    over `default_palette` unless `enforce_palette` is on — that distinction
-    is what makes this the Super Admin's "rewrite the site's theme for
-    everyone" control, versus every other role's per-browser preference.
-    """
-    default_palette = models.CharField(max_length=20, choices=PaletteChoice.choices, default=PaletteChoice.DEFAULT)
-    enforce_palette = models.BooleanField(
-        default=False,
-        help_text="When on, visitors can't override this with their own theme switcher.",
-    )
-    updated_at = models.DateTimeField(auto_now=True)
-    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
-
-    class Meta:
-        verbose_name = 'Site Settings'
-        verbose_name_plural = 'Site Settings'
-
-    def __str__(self):
-        return 'Site Settings'
-
-    @classmethod
-    def load(cls):
-        """Always the same row (pk=1) — a lightweight singleton without a dedicated migration-time fixture."""
-        obj, _ = cls.objects.get_or_create(pk=1)
-        return obj
-
-
 # ---------------------------------------------------------------------------
 # Dynamic-content translation cache (Telugu/Hindi/Tamil/Kannada UI language support)
 # ---------------------------------------------------------------------------
@@ -1117,6 +1343,175 @@ class TranslationCache(models.Model):
         indexes = [models.Index(fields=['content_type', 'object_id', 'field_name', 'language'])]
         verbose_name = 'Translation cache entry'
         verbose_name_plural = 'Translation cache entries'
+
+
+# ---------------------------------------------------------------------------
+# Platform administration: roles & permissions, modules, settings, audit log
+# ---------------------------------------------------------------------------
+
+class Permission(models.Model):
+    """One toggleable capability shown in the Super Admin's Roles & Permissions
+    matrix (e.g. 'manage_city_admins'). Super Admin itself never needs a row
+    here — Profile.has_permission() always returns True for it."""
+    key = models.SlugField(max_length=60, unique=True)
+    label = models.CharField(max_length=150)
+    group = models.CharField(max_length=50, help_text="Section heading on the Roles & Permissions screen, e.g. 'Users', 'Content'.")
+
+    class Meta:
+        ordering = ['group', 'label']
+
+    def __str__(self):
+        return self.label
+
+
+class RolePermission(models.Model):
+    """A specific non-Super-Admin role's grant for one Permission, edited from
+    the Roles & Permissions screen."""
+    ROLE_CHOICES = [choice for choice in UserRole.choices if choice[0] != UserRole.SUPER_ADMIN]
+
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name='role_grants')
+    is_granted = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+
+    class Meta:
+        unique_together = ('role', 'permission')
+        ordering = ['role', 'permission__group', 'permission__label']
+
+    def __str__(self):
+        return f'{self.get_role_display()} · {self.permission.label}: {"granted" if self.is_granted else "denied"}'
+
+
+class UserPermission(models.Model):
+    """
+    A per-user override of one Permission, layered on top of RolePermission's
+    role-level default (see Profile.has_permission()). This is how a City
+    Admin delegates a specific capability to one individual Sub Admin instead
+    of turning it on for every Sub Admin platform-wide.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='permission_overrides')
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name='user_grants')
+    is_granted = models.BooleanField(default=True)
+    granted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+    granted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'permission')
+
+    def __str__(self):
+        return f'{self.user} · {self.permission.label}: {"granted" if self.is_granted else "denied"}'
+
+
+class PlatformModule(models.Model):
+    """A feature area of the platform Super Admin can switch off entirely
+    (e.g. the Jobs listing type). is_enabled is read wherever a module needs
+    to hide itself — currently just the Super Admin's 'new post' category
+    picker (dashboard_post_create_picker)."""
+    key = models.SlugField(max_length=50, unique=True)
+    label = models.CharField(max_length=100)
+    description = models.CharField(max_length=255, blank=True)
+    is_enabled = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+
+    class Meta:
+        ordering = ['label']
+
+    def __str__(self):
+        return self.label
+
+
+class CityModule(models.Model):
+    """
+    A City Admin's per-city restriction of one PlatformModule — lets a city
+    disable a module (e.g. Jobs) locally even though it's enabled platform-
+    wide. A module Super Admin has already disabled platform-wide can never
+    be re-enabled here; see is_enabled_for_city(). No row for a given
+    city+module means "allowed" (matches the platform default) — a City
+    Admin only creates a row when actively restricting something.
+    """
+    city = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name='city_modules',
+        limit_choices_to={'kind': Location.Kind.CITY},
+    )
+    module = models.ForeignKey(PlatformModule, on_delete=models.CASCADE, related_name='city_grants')
+    is_enabled = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+
+    class Meta:
+        unique_together = ('city', 'module')
+
+    def __str__(self):
+        return f'{self.city} · {self.module}: {"enabled" if self.is_enabled else "disabled"}'
+
+    @classmethod
+    def is_enabled_for_city(cls, module_key, city_id):
+        """Whether `module_key` (a PlatformModule.key, e.g. a listing_model
+        value) is usable in `city_id` — platform-wide off always wins; a
+        city-level row further restricts; otherwise defaults to allowed."""
+        if city_id is None:
+            return True
+        try:
+            module = PlatformModule.objects.get(key=module_key)
+        except PlatformModule.DoesNotExist:
+            return True
+        if not module.is_enabled:
+            return False
+        row = cls.objects.filter(city_id=city_id, module=module).first()
+        return row.is_enabled if row else True
+
+
+class PlatformSettings(models.Model):
+    """Site-wide configuration, edited as a single record from Manage Platform
+    Settings. Use PlatformSettings.load() to fetch/create the one row."""
+    site_name = models.CharField(max_length=100, default='OneTownCity')
+    support_email = models.EmailField(blank=True)
+    support_phone = models.CharField(max_length=20, blank=True)
+
+    maintenance_mode = models.BooleanField(default=False, help_text='When on, only Super Admin can browse the site — everyone else sees a maintenance page.')
+    maintenance_message = models.TextField(
+        blank=True, default='OneTownCity is undergoing scheduled maintenance. Please check back soon.'
+    )
+
+    auto_approve_listings = models.BooleanField(
+        default=False,
+        help_text='When on, new/edited listings from Content Providers and Explorers skip the pending-approval '
+                   'queue and publish immediately (News already always auto-publishes).',
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='+')
+
+    class Meta:
+        verbose_name = 'Platform Settings'
+        verbose_name_plural = 'Platform Settings'
+
+    def __str__(self):
+        return 'Platform Settings'
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class AuditLog(models.Model):
+    """A trail of sensitive/destructive Super Admin actions (user moderation,
+    category changes, role/permission/settings edits, etc), written by
+    views.log_audit()."""
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='audit_logs')
+    action = models.CharField(max_length=50)
+    description = models.CharField(max_length=300)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.actor} · {self.action} · {self.created_at:%Y-%m-%d %H:%M}'
 
 
 from . import signals  # noqa: E402,F401  (registers post_save/post_delete counter updates)

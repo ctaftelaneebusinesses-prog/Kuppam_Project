@@ -4,7 +4,7 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block dashboard_content %}
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
     <div>
         <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Manage Categories" %}</h3>
         <p class="text-muted small mb-0">{% trans "Categories and subcategories drive navigation, search filters, and listing forms sitewide." %}</p>
@@ -13,6 +13,18 @@
         <i class="bi bi-plus-lg"></i> {% trans "Add Category" %}
     </button>
 </div>
+
+<form method="get" class="d-flex align-items-center gap-2 mb-4" data-aos="fade-up">
+    <label class="form-label small text-muted mb-0" for="hkCatCitySelect">
+        <i class="bi bi-eye"></i> {% trans "Check homepage visibility for" %}
+    </label>
+    <select name="city" id="hkCatCitySelect" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+        <option value="">{% trans "All cities (platform-wide)" %}</option>
+        {% for city in cities %}
+        <option value="{{ city.slug }}" {% if selected_city.pk == city.pk %}selected{% endif %}>{{ city.name }}</option>
+        {% endfor %}
+    </select>
+</form>
 
 {% if top_categories %}
 <div class="hk-cat-card">
@@ -39,12 +51,19 @@
                     <td class="text-muted">{{ category.get_listing_model_display }}</td>
                     <td>
                         {% if category.is_active %}<span class="hk-status-pill hk-status-active">{% trans "Active" %}</span>{% else %}<span class="hk-status-pill hk-status-inactive">{% trans "Inactive" %}</span>{% endif %}
+                        {% if category.is_active %}
+                            {% if category.homepage_visible %}
+                            <span class="badge bg-success-subtle text-success" title="{% trans 'Has approved listings for this scope' %}"><i class="bi bi-eye"></i> {% trans "On homepage" %}</span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary" title="{% trans '0 approved listings for this scope' %}"><i class="bi bi-eye-slash"></i> {% trans "Hidden — 0 listings" %}</span>
+                            {% endif %}
+                        {% endif %}
                     </td>
                     <td class="text-end" onclick="event.stopPropagation()">
                         <div class="d-inline-flex gap-1">
                             <button type="button" class="hk-row-action-btn" title="{% trans 'Add subcategory' %}"
                                     data-bs-toggle="modal" data-bs-target="#hkCategoryModal"
-                                    onclick="hkOpenCategoryModal({parent: {{ category.pk }}, parentLabel: '{{ category.label|escapejs }}'})">
+                                    onclick="hkOpenCategoryModal({parent: {{ category.pk }}, parentLabel: '{{ category.label|escapejs }}', listingModel: '{{ category.listing_model }}'})">
                                 <i class="bi bi-diagram-3"></i>
                             </button>
                             <button type="button" class="hk-row-action-btn" title="{% trans 'Edit' %}"
@@ -125,7 +144,7 @@
                                 {% endfor %}
                                 <button type="button" class="hk-cat-add-sub-btn"
                                         data-bs-toggle="modal" data-bs-target="#hkCategoryModal"
-                                        onclick="hkOpenCategoryModal({parent: {{ category.pk }}, parentLabel: '{{ category.label|escapejs }}'})">
+                                        onclick="hkOpenCategoryModal({parent: {{ category.pk }}, parentLabel: '{{ category.label|escapejs }}', listingModel: '{{ category.listing_model }}'})">
                                     <i class="bi bi-plus-lg"></i> {% trans "Add Subcategory" %}
                                 </button>
                             </div>
@@ -172,9 +191,10 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">{% trans "Business subcategory value" %} <span class="text-muted small">({% trans "optional" %})</span></label>
-                    <input type="text" name="business_subcategory" id="hkCatBizSub" class="form-control" placeholder="{% trans 'e.g. restaurant' %}">
+                <div class="mb-3" id="hkCatBizSubWrap">
+                    <label class="form-label">{% trans "Subcategory value" %} <span class="text-muted small">({% trans "optional" %})</span></label>
+                    <input type="text" name="business_subcategory" id="hkCatBizSub" class="form-control" placeholder="{% trans 'e.g. restaurant, sale, hourly' %}">
+                    <div class="form-text">{% trans "Only used when this category publishes into Business, Property, Jobs, or Projects — matches that model's category/type/status field (e.g. Business.category, Property.property_type, Job.job_type, Project.project_status)." %}</div>
                 </div>
                 <div class="row g-3">
                     <div class="col-6">
@@ -210,6 +230,16 @@
 </div>
 
 <script>
+// Keep in sync with SUBCATEGORY_INITIAL_FIELDS in views.py and
+// Category._LISTING_COUNT_MAP in models.py — these are the listing_model
+// values whose model has a real category/type/status field a subcategory's
+// "Subcategory value" can match against.
+const HK_SUBCATEGORIZABLE_MODELS = ['business', 'property', 'job', 'project'];
+
+function updateBizSubVisibility(listingModel) {
+    document.getElementById('hkCatBizSubWrap').style.display = HK_SUBCATEGORIZABLE_MODELS.includes(listingModel) ? '' : 'none';
+}
+
 function hkOpenCategoryModal(data) {
     data = data || {};
     document.getElementById('hkCategoryForm').action = "{% url 'core:dashboard_categories' %}";
@@ -228,6 +258,11 @@ function hkOpenCategoryModal(data) {
     const isChild = !!(data.parent || data.parentLabel);
     document.getElementById('hkCatListingModelWrap').style.display = isChild ? 'none' : '';
     document.getElementById('hkCatHomepageWrap').style.display = isChild ? 'none' : '';
+    // "Business subcategory value" only means anything for a category that
+    // publishes into Business (nothing reads it for Job/Property/Event/News/
+    // Project) — showing it unconditionally invited an admin to fill in a
+    // meaningless value for e.g. a Jobs subcategory.
+    updateBizSubVisibility(isChild ? (data.listing_model || data.listingModel || '') : document.getElementById('hkCatListingModel').value);
     const hint = document.getElementById('hkCatParentHint');
     if (data.parentLabel) {
         hint.textContent = 'Subcategory of ' + data.parentLabel + ' — inherits its listing type.';
@@ -240,6 +275,10 @@ function hkOpenCategoryModal(data) {
         ? 'Edit Category'
         : (isChild ? 'Add Subcategory' : 'Add Category');
 }
+
+document.getElementById('hkCatListingModel').addEventListener('change', function () {
+    updateBizSubVisibility(this.value);
+});
 
 document.querySelectorAll('.hkCategoryDeleteForm').forEach(function (form) {
     form.addEventListener('submit', function (e) {

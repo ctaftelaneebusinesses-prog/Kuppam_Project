@@ -3,6 +3,11 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ business.description|default:business.name|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ business.name }} — OneTownCity{% endblock %}
+{% block og_description %}{{ business.description|default:business.name|truncatechars:160 }}{% endblock %}
+{% block og_image %}{{ business.display_image }}{% endblock %}
+{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ business.get_absolute_url }}{% endblock %}
+{% block schema %}<script type="application/ld+json">{{ schema_json }}</script>{% endblock %}
 
 {% block content %}
 <section class="container py-5">
@@ -10,7 +15,7 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'core:business_list' %}">{% trans "Businesses" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:business_list' %}">{% trans "Nearby Shops" %}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ business.name }}</li>
         </ol>
     </nav>
@@ -59,13 +64,40 @@
                         </div>
                     </div>
                 </div>
+                {% if business.working_hours %}
+                <div class="col-12 col-sm-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-clock-fill"></i></div>
+                        <div>
+                            <div class="hk-meta-label">{% trans "Working Hours" %}</div>
+                            <div class="hk-meta-value">{{ business.working_hours }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if business.website %}
+                <div class="col-12 col-sm-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-globe"></i></div>
+                        <div>
+                            <div class="hk-meta-label">{% trans "Website" %}</div>
+                            <div class="hk-meta-value">
+                                <a href="{{ business.website }}" target="_blank" rel="noopener">{{ business.website|truncatechars:28 }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
             <a href="tel:{{ business.phone_number }}" class="btn btn-primary btn-lg hk-cta-btn">
-                <i class="bi bi-telephone"></i> Call Now
+                <i class="bi bi-telephone"></i> {% trans "Call Now" %}
+            </a>
+            <a href="{% if business.maps_link %}{{ business.maps_link }}{% else %}{{ business.address|maps_search_url }}{% endif %}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-geo-alt"></i> {% trans "Open in Google Maps" %}
             </a>
             <a href="{% url 'core:business_list' %}" class="btn btn-outline-secondary btn-lg">
-                <i class="bi bi-arrow-left"></i> Back to Listings
+                <i class="bi bi-arrow-left"></i> {% trans "Back to Listings" %}
             </a>
         </div>
     </div>

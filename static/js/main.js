@@ -1,7 +1,5 @@
 // OneTownCity - Main JS
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('OneTownCity frontend loaded.');
-
     // Site-wide light/dark theme toggle. The initial theme is already applied
     // pre-paint by the inline anti-flash script in base.html; this wires up
     // every toggle button on the page (desktop navbar + mobile drawer both
@@ -38,6 +36,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // titles included) stays invisible forever. Fall back to revealing it
     // immediately rather than leaving it permanently hidden.
     if (window.AOS) {
+        // Anything already on-screen at load shouldn't play its entrance
+        // animation — that just reads as an unwanted jump right after the
+        // page paints. Strip data-aos from whatever's already in the
+        // initial viewport before AOS.init() scans for it, so it renders
+        // in its final position immediately; content further down the
+        // page still gets the normal reveal-on-scroll animation.
+        var initialViewportHeight = window.innerHeight;
+        document.querySelectorAll('[data-aos]').forEach(function (el) {
+            if (el.getBoundingClientRect().top < initialViewportHeight) {
+                el.removeAttribute('data-aos');
+            }
+        });
         AOS.init({ duration: 650, easing: 'ease-out-cubic', once: true, offset: 60 });
     } else {
         document.querySelectorAll('[data-aos]').forEach(function (el) {
@@ -60,6 +70,27 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         toggleNavbar();
         window.addEventListener('scroll', toggleNavbar, { passive: true });
+    }
+
+    // Mobile nav drawer (Bootstrap offcanvas): resizing the window past the
+    // lg breakpoint while it's open doesn't auto-close it — that's a plain
+    // JS/CSS-class state Bootstrap only toggles on click, not on resize — so
+    // without this, opening it at mobile width then widening the window
+    // (or rotating a tablet) leaves it visibly open on top of the desktop
+    // nav, reading as two nav/category menus at once.
+    const navDrawerEl = document.getElementById('hkNavDrawer');
+    if (navDrawerEl && window.bootstrap && window.bootstrap.Offcanvas) {
+        const desktopQuery = window.matchMedia('(min-width: 992px)');
+        const closeIfDesktop = function (e) {
+            if (!e.matches) return;
+            const instance = window.bootstrap.Offcanvas.getInstance(navDrawerEl);
+            if (instance) instance.hide();
+        };
+        if (desktopQuery.addEventListener) {
+            desktopQuery.addEventListener('change', closeIfDesktop);
+        } else if (desktopQuery.addListener) {
+            desktopQuery.addListener(closeIfDesktop); // Safari < 14
+        }
     }
 
     // Elite hero: ambient glows drift gently toward the cursor (desktop only)
@@ -358,7 +389,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 // finish capturing the submission first.
                 setTimeout(function () {
                     submitBtn.dataset.hkOriginalHtml = submitBtn.innerHTML;
-                    submitBtn.innerHTML = submitBtn.classList.contains('hk-card-icon-btn')
+                    // Icon-only buttons (funnel/toggle/delete row actions etc.) have
+                    // no room for the "Please wait…" label — it just wraps into a
+                    // cramped, broken-looking pill. Detect "icon-only" generically
+                    // via empty textContent rather than hardcoding every such
+                    // button's class name one at a time.
+                    submitBtn.innerHTML = submitBtn.textContent.trim() === ''
                         ? '<span class="spinner-border spinner-border-sm"></span>'
                         : '<span class="spinner-border spinner-border-sm me-2"></span>Please wait…';
                     submitBtn.disabled = true;

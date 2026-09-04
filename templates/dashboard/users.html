@@ -6,8 +6,8 @@
 {% block dashboard_content %}
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <div>
-        <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Manage Users" %}</h3>
-        <p class="text-muted small mb-0">{% trans "View, filter, and moderate every registered account." %}</p>
+        <h3 class="fw-bold mb-1" data-aos="fade-up">{{ heading }}</h3>
+        <p class="text-muted small mb-0">{{ subheading }}</p>
     </div>
 </div>
 
@@ -89,6 +89,11 @@
                                 <a href="{% url 'core:dashboard_user_detail' profile.user_id %}" class="hk-row-action-btn" title="{% trans 'View profile' %}">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                {% if profile.role == 'sub_admin' %}
+                                <a href="{% url 'core:dashboard_sub_admin_permissions' profile.user_id %}" class="hk-row-action-btn" title="{% trans 'Permissions' %}">
+                                    <i class="bi bi-shield-lock"></i>
+                                </a>
+                                {% endif %}
                                 {% if profile.role != 'super_admin' %}
                                 <button type="submit" formaction="{% url 'core:dashboard_user_toggle_block' profile.user_id %}" class="hk-row-action-btn hk-row-action-danger" title="{% if profile.is_blocked %}{% trans 'Unblock' %}{% else %}{% trans 'Block' %}{% endif %}">
                                     <i class="bi {% if profile.is_blocked %}bi-shield-check{% else %}bi-shield-slash{% endif %}"></i>

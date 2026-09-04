@@ -3,6 +3,11 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ job.description|default:page_title|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ job.job_title }} at {{ job.company }} — OneTownCity{% endblock %}
+{% block og_description %}{{ job.description|default:page_title|truncatechars:160 }}{% endblock %}
+{% block og_image %}{{ job.display_image }}{% endblock %}
+{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ job.get_absolute_url }}{% endblock %}
+{% block schema %}<script type="application/ld+json">{{ schema_json }}</script>{% endblock %}
 
 {% block content %}
 <section class="container py-5">
@@ -25,6 +30,11 @@
                 {% if job.is_featured %}
                 <span class="badge bg-warning text-dark mb-2">
                     <i class="bi bi-star-fill"></i> {% trans "Featured" %}
+                </span>
+                {% endif %}
+                {% if job.job_type == 'hourly' %}
+                <span class="badge bg-primary-subtle text-primary mb-2">
+                    <i class="bi bi-clock-history"></i> {% trans "Hourly Basis" %}
                 </span>
                 {% endif %}
                 <h1 class="fw-bold mb-1">{{ job.job_title }}</h1>
@@ -71,6 +81,17 @@
                         <div>
                             <div class="hk-meta-label">Salary</div>
                             <div class="hk-meta-value">{{ job.salary|truncatechars:18 }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if job.shift_display %}
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-clock-history"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Available On</div>
+                            <div class="hk-meta-value">{{ job.shift_display }}</div>
                         </div>
                     </div>
                 </div>

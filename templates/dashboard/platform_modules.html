@@ -1,0 +1,49 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="mb-4">
+    <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Platform Modules" %}</h3>
+    <p class="text-muted small mb-0">{% trans "Switch entire feature areas on or off across the platform." %}</p>
+</div>
+
+<div class="card hk-data-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% trans "Module" %}</th>
+                    <th>{% trans "Description" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th class="text-end">{% trans "Action" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for module in modules %}
+                <tr>
+                    <td class="fw-semibold">{{ module.label }}</td>
+                    <td class="text-muted small">{{ module.description }}</td>
+                    <td>
+                        {% if module.is_enabled %}<span class="hk-status-pill hk-status-active">{% trans "Enabled" %}</span>
+                        {% else %}<span class="hk-status-pill hk-status-inactive">{% trans "Disabled" %}</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="module_id" value="{{ module.pk }}">
+                            <button type="submit" class="hk-row-action-btn" title="{% if module.is_enabled %}{% trans 'Disable' %}{% else %}{% trans 'Enable' %}{% endif %}">
+                                <i class="bi {% if module.is_enabled %}bi-toggle-on{% else %}bi-toggle-off{% endif %} fs-5"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center text-muted py-5">{% trans "No modules defined yet." %}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

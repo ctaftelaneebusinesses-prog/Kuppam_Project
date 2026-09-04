@@ -1,0 +1,56 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="mb-4">
+    <h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Platform Settings" %}</h3>
+    <p class="text-muted small mb-0">{% trans "Site identity, maintenance mode, and content approval behavior." %}</p>
+</div>
+
+<div class="card hk-data-card">
+    <div class="card-body p-4">
+        <form method="post" style="max-width:560px;">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">{% trans "Site Name" %}</label>
+                {{ form.site_name }}
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">{% trans "Support Email" %}</label>
+                    {{ form.support_email }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{% trans "Support Phone" %}</label>
+                    {{ form.support_phone }}
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="form-check mb-2">
+                {{ form.maintenance_mode }}
+                <label class="form-check-label" for="{{ form.maintenance_mode.id_for_label }}">{% trans "Maintenance Mode" %}</label>
+                <div class="form-text">{% trans "When on, only Super Admin can browse the site — everyone else sees a maintenance page." %}</div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">{% trans "Maintenance Message" %}</label>
+                {{ form.maintenance_message }}
+            </div>
+
+            <hr class="my-4">
+
+            <div class="form-check mb-4">
+                {{ form.auto_approve_listings }}
+                <label class="form-check-label" for="{{ form.auto_approve_listings.id_for_label }}">{% trans "Auto-Approve New Listings" %}</label>
+                <div class="form-text">{% trans "When on, new/edited listings from Content Providers and Explorers publish immediately instead of waiting in the pending-approval queue." %}</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">{% trans "Save Settings" %}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

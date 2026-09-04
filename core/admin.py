@@ -1,10 +1,19 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    AdminCategoryPermission, AdminRequest, Business, Category, Comment, ContactMessage, Event, Favorite,
-    Job, Like, LoginHistory, News, NewsletterSubscriber, Notification, PostImage, PostVideo, Profile,
-    Project, Property, Report, Review, Share, SiteSettings, TranslationCache,
+    AdminCategoryPermission, AdminCityPermission, AdminRequest, AuditLog, Business, Category, CityModule,
+    Comment, ContactMessage, Event, Favorite, Job, Like, LoginHistory, News, NewsletterSubscriber,
+    Notification, Permission, PlatformModule, PlatformSettings, PostImage, PostVideo, Profile, Project,
+    Property, Report, Review, RolePermission, Share, TranslationCache, Location, UserPermission,
 )
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'kind', 'parent', 'country_code', 'latitude', 'longitude', 'is_active')
+    list_filter = ('kind', 'is_active', 'country_code')
+    search_fields = ('name', 'aliases')
+    prepopulated_fields = {'slug': ('name',)}
 
 
 class ImagePreviewMixin:
@@ -38,7 +47,7 @@ class BusinessAdmin(ImagePreviewMixin, admin.ModelAdmin):
             'fields': ('name', 'category', 'description')
         }),
         ('Contact Details', {
-            'fields': ('address', 'phone_number')
+            'fields': ('city', 'address', 'phone_number')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -64,7 +73,7 @@ class PropertyAdmin(ImagePreviewMixin, admin.ModelAdmin):
             'fields': ('title', 'property_type', 'description')
         }),
         ('Pricing & Location', {
-            'fields': ('price', 'location')
+            'fields': ('city', 'price', 'location')
         }),
         ('Contact Details', {
             'fields': ('contact_number',)
@@ -93,7 +102,7 @@ class JobAdmin(ImagePreviewMixin, admin.ModelAdmin):
             'fields': ('job_title', 'company', 'description')
         }),
         ('Compensation & Location', {
-            'fields': ('salary', 'location')
+            'fields': ('city', 'salary', 'location')
         }),
         ('Contact Details', {
             'fields': ('contact_number',)
@@ -122,7 +131,7 @@ class EventAdmin(ImagePreviewMixin, admin.ModelAdmin):
             'fields': ('title', 'event_date', 'description')
         }),
         ('Location & Contact', {
-            'fields': ('location', 'contact_number')
+            'fields': ('city', 'location', 'contact_number')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -145,7 +154,7 @@ class NewsAdmin(ImagePreviewMixin, admin.ModelAdmin):
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'published_date', 'source', 'content')
+            'fields': ('title', 'city', 'published_date', 'source', 'content')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -168,7 +177,7 @@ class ProjectAdmin(ImagePreviewMixin, admin.ModelAdmin):
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'project_status', 'location', 'expected_completion', 'department', 'description')
+            'fields': ('title', 'project_status', 'city', 'location', 'expected_completion', 'department', 'description')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -209,6 +218,59 @@ class AdminCategoryPermissionAdmin(admin.ModelAdmin):
     list_display = ('admin', 'category', 'granted_by', 'granted_at')
     list_filter = ('category',)
     search_fields = ('admin__email', 'admin__username')
+
+
+@admin.register(AdminCityPermission)
+class AdminCityPermissionAdmin(admin.ModelAdmin):
+    list_display = ('admin', 'city', 'granted_by', 'granted_at')
+    list_filter = ('city',)
+    search_fields = ('admin__email', 'admin__username')
+
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ('label', 'key', 'group')
+    list_filter = ('group',)
+    search_fields = ('key', 'label')
+
+
+@admin.register(RolePermission)
+class RolePermissionAdmin(admin.ModelAdmin):
+    list_display = ('role', 'permission', 'is_granted', 'updated_by', 'updated_at')
+    list_filter = ('role', 'is_granted')
+
+
+@admin.register(UserPermission)
+class UserPermissionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'permission', 'is_granted', 'granted_by', 'granted_at')
+    list_filter = ('is_granted', 'permission')
+    search_fields = ('user__email', 'user__username')
+
+
+@admin.register(PlatformModule)
+class PlatformModuleAdmin(admin.ModelAdmin):
+    list_display = ('label', 'key', 'is_enabled', 'updated_by', 'updated_at')
+    list_filter = ('is_enabled',)
+    search_fields = ('key', 'label')
+
+
+@admin.register(CityModule)
+class CityModuleAdmin(admin.ModelAdmin):
+    list_display = ('city', 'module', 'is_enabled', 'updated_by', 'updated_at')
+    list_filter = ('is_enabled', 'module')
+    search_fields = ('city__name',)
+
+
+@admin.register(PlatformSettings)
+class PlatformSettingsAdmin(admin.ModelAdmin):
+    list_display = ('site_name', 'maintenance_mode', 'auto_approve_listings', 'updated_by', 'updated_at')
+
+
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = ('actor', 'action', 'description', 'ip_address', 'created_at')
+    list_filter = ('action',)
+    search_fields = ('action', 'description', 'actor__email')
 
 
 @admin.register(Notification)
@@ -302,21 +364,6 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
     ordering = ('-subscribed_at',)
 
 
-@admin.register(SiteSettings)
-class SiteSettingsAdmin(admin.ModelAdmin):
-    """
-    The primary editing surface is the Super Admin dashboard's Site Theme
-    panel (dashboard/site_settings.html) — this registration just keeps the
-    single row visible/editable from /admin/ too, for developer convenience.
-    """
-    list_display = ('default_palette', 'enforce_palette', 'updated_by', 'updated_at')
-    readonly_fields = ('updated_at',)
-
-    def has_add_permission(self, request):
-        return not SiteSettings.objects.exists()
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 
 # --- Admin branding -------------------------------------------------------

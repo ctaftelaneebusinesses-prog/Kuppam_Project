@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 
 from .models import (
-    Business, Category, Event, Job, News, Profile, Project, Property, SiteSettings,
+    Business, Category, Event, Job, Location, News, PlatformSettings, Profile, Project, Property,
 )
 
 User = get_user_model()
@@ -44,10 +44,15 @@ class PasswordLoginForm(AuthenticationForm):
     AdminLoginForm, which exclusively guards the Django /admin/ backend).
     """
     username = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username', 'autofocus': True})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Username', 'autofocus': True, 'autocomplete': 'username',
+        })
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control', 'placeholder': 'Password', 'id': 'id_login_password',
+            'autocomplete': 'current-password',
+        })
     )
 
 
@@ -59,37 +64,52 @@ class RegisterForm(forms.Form):
     the moment it's created.
     """
     full_name = forms.CharField(
-        max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'})
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name', 'autocomplete': 'name'}),
     )
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email', 'autocomplete': 'email'})
     )
     phone_number = forms.CharField(
         max_length=10,
         widget=forms.TextInput(attrs={
             'class': 'form-control', 'placeholder': 'Mobile Number', 'maxlength': '10', 'inputmode': 'numeric',
+            'autocomplete': 'tel',
         }),
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control', 'placeholder': 'Password', 'autocomplete': 'new-password',
+        })
     )
     confirm_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control', 'placeholder': 'Confirm Password', 'autocomplete': 'new-password',
+            'data-match': 'id_password',
+        })
     )
     profile_photo = forms.ImageField(
         required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
     address = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Address'})
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control', 'rows': 2, 'placeholder': 'Address', 'autocomplete': 'street-address',
+        }),
     )
     city = forms.CharField(
-        required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City'})
+        required=False, max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City', 'autocomplete': 'address-level2'}),
     )
     state = forms.CharField(
-        required=False, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'})
+        required=False, max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State', 'autocomplete': 'address-level1'}),
     )
     pincode = forms.CharField(
-        required=False, max_length=10, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pincode'})
+        required=False, max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Pincode', 'inputmode': 'numeric', 'autocomplete': 'postal-code',
+        }),
     )
 
     def clean_email(self):
@@ -218,29 +238,40 @@ class AdminRequestReviewForm(forms.Form):
 class BusinessSubmitForm(forms.ModelForm):
     class Meta:
         model = Business
-        fields = ['name', 'category', 'address', 'phone_number', 'description', 'website', 'maps_link', 'image', 'image_url']
+        fields = [
+            'name', 'category', 'city', 'address', 'phone_number', 'description', 'website',
+            'maps_link', 'working_hours', 'image', 'image_url', 'latitude', 'longitude',
+        ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Business Name'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Full Address'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
-            'website': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://...'}),
+            'website': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://... (website or social media page)'}),
             'maps_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Google Maps link'}),
+            'working_hours': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Mon–Sat: 9:00 AM – 8:00 PM'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
+            # Populated by the "Use my current location" button (see
+            # listing_submit.html) so Repair Services listings can power
+            # distance-sorted "near me" search — never hand-typed.
+            'latitude': forms.HiddenInput(attrs={'id': 'id_latitude'}),
+            'longitude': forms.HiddenInput(attrs={'id': 'id_longitude'}),
         }
 
 
 class PropertySubmitForm(forms.ModelForm):
     class Meta:
         model = Property
-        fields = ['title', 'property_type', 'price', 'location', 'contact_number', 'description', 'image', 'image_url']
+        fields = ['title', 'property_type', 'price', 'location', 'city', 'contact_number', 'description', 'image', 'image_url']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Property Title'}),
             'property_type': forms.Select(attrs={'class': 'form-select'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price (₹)'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Location'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -251,14 +282,24 @@ class PropertySubmitForm(forms.ModelForm):
 class JobSubmitForm(forms.ModelForm):
     class Meta:
         model = Job
-        fields = ['job_title', 'company', 'location', 'salary', 'contact_number', 'description', 'image', 'image_url']
+        fields = [
+            'job_title', 'company', 'job_type', 'location', 'city', 'salary', 'contact_number', 'description',
+            'shift_date', 'shift_start_time', 'shift_end_time', 'image', 'image_url',
+        ]
         widgets = {
             'job_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Job Title'}),
             'company': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company'}),
+            'job_type': forms.Select(attrs={'class': 'form-select'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Location'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'salary': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Salary (optional)'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
+            # Optional on every job (not just Hourly Basis) — e.g. a one-day
+            # hiring drive can carry a date/window too.
+            'shift_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'shift_start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'shift_end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
         }
@@ -267,11 +308,13 @@ class JobSubmitForm(forms.ModelForm):
 class EventSubmitForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['title', 'event_date', 'location', 'contact_number', 'description', 'image', 'image_url']
+        fields = ['title', 'event_date', 'event_time', 'location', 'city', 'contact_number', 'description', 'image', 'image_url']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Event Title'}),
             'event_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'event_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venue / Location'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number (optional)'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -282,9 +325,10 @@ class EventSubmitForm(forms.ModelForm):
 class NewsSubmitForm(forms.ModelForm):
     class Meta:
         model = News
-        fields = ['title', 'content', 'source', 'image', 'image_url']
+        fields = ['title', 'city', 'content', 'source', 'image', 'image_url']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'News Title'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 6, 'placeholder': 'Content'}),
             'source': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Source (optional)'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -295,11 +339,12 @@ class NewsSubmitForm(forms.ModelForm):
 class ProjectSubmitForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'project_status', 'location', 'expected_completion', 'department', 'description', 'image', 'image_url']
+        fields = ['title', 'project_status', 'location', 'city', 'expected_completion', 'department', 'description', 'image', 'image_url']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project Title'}),
             'project_status': forms.Select(attrs={'class': 'form-select'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Area / Locality'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
             'expected_completion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'department': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Executing Department/Agency (optional)'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
@@ -394,14 +439,82 @@ class CategoryForm(forms.ModelForm):
 
 
 # ---------------------------------------------------------------------------
-# Super Admin: site-wide theme override
+# Super Admin: platform administration (City Admins, platform settings)
 # ---------------------------------------------------------------------------
 
-class SiteSettingsForm(forms.ModelForm):
+class CityAdminForm(forms.Form):
+    """
+    Used both to pre-provision a brand new City Admin (by email, before
+    they've ever signed in) and to edit an existing one's name/city scope.
+    See auth_callback_api in views.py: on first Google sign-in it already
+    falls back to matching an existing User by email, so a pre-provisioned
+    account attaches automatically the first time that person signs in.
+    """
+    full_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'})
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'name@example.com'})
+    )
+    cities = forms.ModelMultipleChoiceField(
+        queryset=Location.objects.filter(kind=Location.Kind.CITY, is_active=True).order_by('name'),
+        widget=forms.SelectMultiple(attrs={'class': 'form-select', 'size': 8}),
+        required=False,
+    )
+
+
+class PlatformSettingsForm(forms.ModelForm):
     class Meta:
-        model = SiteSettings
-        fields = ['default_palette', 'enforce_palette']
+        model = PlatformSettings
+        fields = [
+            'site_name', 'support_email', 'support_phone',
+            'maintenance_mode', 'maintenance_message', 'auto_approve_listings',
+        ]
         widgets = {
-            'default_palette': forms.RadioSelect,
-            'enforce_palette': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'site_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'support_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'support_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'maintenance_mode': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'maintenance_message': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'auto_approve_listings': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+
+# ---------------------------------------------------------------------------
+# City Admin: Sub Admins & Content Providers
+# ---------------------------------------------------------------------------
+
+class SubAdminForm(forms.Form):
+    """
+    Pre-provisions/edits a Sub Admin the same way CityAdminForm does for City
+    Admins, but scoped to a single city the acting City Admin actually
+    manages — the view passes that restricted queryset in via cities_qs so a
+    City Admin can never assign a Sub Admin to a city they don't manage.
+    """
+    full_name = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'})
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'name@example.com'})
+    )
+    city = forms.ModelChoiceField(
+        queryset=Location.objects.none(), widget=forms.Select(attrs={'class': 'form-select'}),
+    )
+
+    def __init__(self, *args, cities_qs=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if cities_qs is not None:
+            self.fields['city'].queryset = cities_qs
+
+
+class ContentProviderForm(SubAdminForm):
+    """Same shape as SubAdminForm, plus which categories this Content
+    Provider is granted — writes the same AdminCategoryPermission grant an
+    Admin Request approval creates, just City-Admin-initiated instead of
+    Super-Admin-approved."""
+    categories = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.filter(is_active=True),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
