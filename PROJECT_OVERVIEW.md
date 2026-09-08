@@ -162,7 +162,7 @@ Site will be at `http://127.0.0.1:8000/`. Django admin at `/admin/`.
 - `python manage.py migrate_local_media_to_supabase` — migrates any
   locally-stored media into Supabase Storage.
 - `python manage.py reclassify_businesses` — re-runs auto-classification
-  (`core/classification.py`) against existing Business rows.
+  (`core/classification.py`) against existing Business row
 
 ---
 
