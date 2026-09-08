@@ -58,6 +58,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.EmojiEvents
@@ -237,6 +238,81 @@ internal fun pickPreferredCity(
     return recentCities.firstOrNull() ?: currentCity
 }
 
+private const val LOCATION_API_BASE_URL = "https://onetowncity.com"
+
+internal sealed class ReverseGeocodeResult {
+    data class Success(val city: CitySelection) : ReverseGeocodeResult()
+    data class Failure(val message: String) : ReverseGeocodeResult()
+}
+
+/**
+ * Resolves a GPS fix to a real, backend-verified city via
+ * POST /api/v1/locations/reverse-geocode/ (core.api.views.reverse_geocode_view,
+ * backed by core/location_service.py's reverse_geocode()).
+ *
+ * Never fabricates a city: any failure (denied/unavailable GPS is handled by
+ * the caller before this is invoked; this function only handles the network
+ * round trip) returns a Failure with a message instead of an invented
+ * CitySelection.
+ *
+ * Response contract on success (200): {"cityId", "slug", "city", "district",
+ * "state", "country", "countryCode", "latitude", "longitude", "source"} —
+ * note the city name field is "city", not "name" (different shape from
+ * /api/v1/locations/cities/, which uses "name" — see LocationSerializer vs.
+ * core.location_service.serialize_location).
+ *
+ * On failure (city not found, unsupported country, etc.) the API responds
+ * with core.api.exceptions.exception_handler's standard envelope:
+ * {"error": {"code", "message"}} — that "message" is surfaced to the user
+ * as-is since it is already a user-facing sentence (see reverse_geocode()'s
+ * ValidationError messages).
+ */
+private suspend fun reverseGeocodeCurrentLocation(latitude: Double, longitude: Double): ReverseGeocodeResult = withContext(Dispatchers.IO) {
+    try {
+        val url = URL("$LOCATION_API_BASE_URL/api/v1/locations/reverse-geocode/")
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "POST"
+        connection.connectTimeout = 15000
+        connection.readTimeout = 15000
+        connection.doOutput = true
+        connection.setRequestProperty("Content-Type", "application/json")
+        connection.setRequestProperty("Accept", "application/json")
+
+        val requestBody = JSONObject().apply {
+            put("latitude", latitude)
+            put("longitude", longitude)
+        }.toString()
+        connection.outputStream.use { it.write(requestBody.toByteArray(Charsets.UTF_8)) }
+
+        val responseCode = connection.responseCode
+        val responseStream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
+        val responseText = responseStream?.bufferedReader()?.use { it.readText() }.orEmpty()
+
+        if (responseCode !in 200..299) {
+            val message = responseText.takeIf { it.isNotBlank() }
+                ?.let { runCatching { JSONObject(it) }.getOrNull() }
+                ?.optJSONObject("error")
+                ?.optString("message")
+                ?.takeIf { it.isNotBlank() }
+                ?: "We could not resolve that location. Please choose a city manually."
+            return@withContext ReverseGeocodeResult.Failure(message)
+        }
+
+        val json = JSONObject(responseText)
+        val slug = json.optString("slug", "")
+        val name = json.optString("city", "")
+        if (slug.isBlank() || name.isBlank()) {
+            ReverseGeocodeResult.Failure("We could not resolve that location. Please choose a city manually.")
+        } else {
+            ReverseGeocodeResult.Success(CitySelection(slug = slug, name = name))
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        ReverseGeocodeResult.Failure("We could not reach OneTownCity to resolve your location. Please check your connection and try again.")
+    }
+}
+
 private enum class PlaceholderState {
     EMPTY,
     LOADING,
@@ -288,6 +364,10 @@ private fun OneTownCityAppShell() {
     var currentCity by remember { mutableStateOf<CitySelection?>(null) }
     var cityQuery by rememberSaveable { mutableStateOf("") }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
+    var isResolvingCurrentCity by remember { mutableStateOf(false) }
+    var currentCityError by remember { mutableStateOf<String?>(null) }
+    var unreadNotificationCount by remember { mutableStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
     val resolvedCity = pickPreferredCity(currentCity, savedCity, recentCities, permissionState)
 
     LaunchedEffect(savedCity) {
@@ -302,6 +382,20 @@ private fun OneTownCityAppShell() {
     LaunchedEffect(cityQuery) {
         kotlinx.coroutines.delay(300)
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
+    }
+
+    // Best-effort: with no native sign-in flow yet (see currentAuthToken),
+    // this always hits the same "sign in required" path server-side and
+    // quietly keeps the badge at 0 rather than surfacing an error on the
+    // app's main shell.
+    LaunchedEffect(Unit) {
+        unreadNotificationCount = try {
+            fetchUnreadNotificationCount()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            0
+        }
     }
 
     Scaffold(
@@ -328,14 +422,65 @@ private fun OneTownCityAppShell() {
                             text = "City",
                             style = MaterialTheme.typography.titleMedium,
                         )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                        Box {
+                            Box(
+                                modifier = Modifier
+                                    .clickable { navController.navigate("notifications") }
+                                    .padding(6.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Notifications,
+                                    contentDescription = "Notifications",
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                            if (unreadNotificationCount > 0) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.align(Alignment.TopEnd).size(16.dp),
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = if (unreadNotificationCount > 9) "9+" else unreadNotificationCount.toString(),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onError,
+                                        )
+                                    }
+                                }
+                            }
+                        }
                         when (permissionState) {
                             LocationPermissionState.GRANTED -> {
                                 OneTownCityButton(
-                                    text = "Use current city",
+                                    text = if (isResolvingCurrentCity) "Locating…" else "Use current city",
                                     onClick = {
-                                        val location = getCurrentLocationOrNull()
-                                        if (location != null) {
-                                            currentCity = CitySelection(slug = "current", name = "Current location")
+                                        if (!isResolvingCurrentCity) {
+                                            currentCityError = null
+                                            val location = getCurrentLocationOrNull()
+                                            if (location == null) {
+                                                currentCityError = "Location unavailable. Please choose a city manually."
+                                            } else {
+                                                isResolvingCurrentCity = true
+                                                coroutineScope.launch {
+                                                    when (val result = reverseGeocodeCurrentLocation(location.latitude, location.longitude)) {
+                                                        is ReverseGeocodeResult.Success -> {
+                                                            savedCity = result.city
+                                                            currentCity = result.city
+                                                            currentCityError = null
+                                                        }
+                                                        is ReverseGeocodeResult.Failure -> {
+                                                            currentCityError = result.message
+                                                        }
+                                                    }
+                                                    isResolvingCurrentCity = false
+                                                }
+                                            }
                                         }
                                     },
                                     variant = OneTownCityButtonVariant.Text,
@@ -363,12 +508,21 @@ private fun OneTownCityAppShell() {
                                 )
                             }
                         }
+                        }
                     }
 
                     Text(
                         text = resolvedCity?.name ?: "Select a city",
                         style = MaterialTheme.typography.headlineSmall,
                     )
+
+                    if (currentCityError != null) {
+                        Text(
+                            text = currentCityError.orEmpty(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
 
                     OneTownCityTextField(
                         value = cityQuery,
@@ -469,15 +623,9 @@ private fun OneTownCityAppShell() {
                             icon = Icons.Outlined.Home,
                             onPrimaryAction = { },
                         )
-                        AppTab.SEARCH -> SearchPlaceholderScreen()
+                        AppTab.SEARCH -> SearchScreen()
                         AppTab.STUDENTS -> StudentsHubScreen(navController)
-                        AppTab.SAVED -> PlaceholderShellScreen(
-                            title = "Saved",
-                            description = "Saved listings and bookmarked updates will appear here.",
-                            state = PlaceholderState.EMPTY,
-                            icon = Icons.Outlined.Star,
-                            onPrimaryAction = { },
-                        )
+                        AppTab.SAVED -> FavoritesScreen()
                         AppTab.PROFILE -> PlaceholderShellScreen(
                             title = "Profile",
                             description = "Profile details and account controls are coming soon.",
@@ -487,6 +635,10 @@ private fun OneTownCityAppShell() {
                         )
                     }
                 }
+            }
+
+            composable(route = "notifications") {
+                NotificationsScreen(navController)
             }
 
             composable(
@@ -532,8 +684,23 @@ private fun OneTownCityAppShell() {
                 arguments = listOf(navArgument("itemId") { type = NavType.IntType }),
             ) { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
-                val item = ScholarshipItem(id = itemId, title = "No verified scholarship record", description = "The backend currently has no verified scholarship record for this item.", category = "Unavailable")
-                ScholarshipDetailScreen(navController = navController, item = item)
+                val item = scholarshipCache[itemId]
+                if (item == null) {
+                    OneTownCityEmptyState(
+                        title = "Scholarship not found",
+                        message = "This scholarship is no longer available.",
+                        icon = Icons.Outlined.EmojiEvents,
+                        action = {
+                            OneTownCityButton(
+                                text = "Back",
+                                onClick = { navController.popBackStack() },
+                                variant = OneTownCityButtonVariant.Outlined,
+                            )
+                        },
+                    )
+                } else {
+                    ScholarshipDetailScreen(navController = navController, item = item)
+                }
             }
 
             composable(
@@ -541,16 +708,23 @@ private fun OneTownCityAppShell() {
                 arguments = listOf(navArgument("itemId") { type = NavType.IntType }),
             ) { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
-                val item = LostFoundItem(
-                    id = itemId,
-                    title = "No verified lost & found item",
-                    category = "Unavailable",
-                    description = "This backend does not currently expose live lost or found listings. No personal or contact details are shown without verified server data.",
-                    location = "",
-                    date = "",
-                    cityName = "",
-                )
-                LostFoundDetailScreen(navController = navController, item = item)
+                val item = lostFoundCache[itemId]
+                if (item == null) {
+                    OneTownCityEmptyState(
+                        title = "Report not found",
+                        message = "This lost & found report is no longer available.",
+                        icon = Icons.Outlined.Search,
+                        action = {
+                            OneTownCityButton(
+                                text = "Back",
+                                onClick = { navController.popBackStack() },
+                                variant = OneTownCityButtonVariant.Outlined,
+                            )
+                        },
+                    )
+                } else {
+                    LostFoundDetailScreen(navController = navController, item = item)
+                }
             }
 
             composable(
@@ -558,14 +732,23 @@ private fun OneTownCityAppShell() {
                 arguments = listOf(navArgument("itemId") { type = NavType.IntType }),
             ) { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
-                val item = PlaceItem(
-                    id = itemId,
-                    title = "No verified place record",
-                    category = "Unavailable",
-                    description = "The current backend does not expose a live places-to-visit dataset for this filtered view.",
-                    cityName = "",
-                )
-                PlaceDetailScreen(navController = navController, item = item)
+                val item = placeCache[itemId]
+                if (item == null) {
+                    OneTownCityEmptyState(
+                        title = "Place not found",
+                        message = "This place is no longer available.",
+                        icon = Icons.Filled.LocationOn,
+                        action = {
+                            OneTownCityButton(
+                                text = "Back",
+                                onClick = { navController.popBackStack() },
+                                variant = OneTownCityButtonVariant.Outlined,
+                            )
+                        },
+                    )
+                } else {
+                    PlaceDetailScreen(navController = navController, item = item)
+                }
             }
 
             composable(
@@ -644,35 +827,231 @@ private fun OneTownCityAppShell() {
 }
 
 @Composable
-private fun SearchPlaceholderScreen() {
-    val scrollState = rememberScrollState()
+private fun SearchScreen() {
     var query by rememberSaveable { mutableStateOf("") }
+    var cityQuery by rememberSaveable { mutableStateOf("") }
+    var selectedCity by rememberSaveable { mutableStateOf<CitySuggestion?>(null) }
+    var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
+    var sections by remember { mutableStateOf<List<SearchSection>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var hasSearched by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    var activeRequest by remember { mutableStateOf<Job?>(null) }
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    fun runSearch() {
+        activeRequest?.cancel()
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) {
+            sections = emptyList()
+            isLoading = false
+            error = null
+            hasSearched = false
+            return
+        }
+        activeRequest = coroutineScope.launch {
+            isLoading = true
+            error = null
+            hasSearched = true
+            try {
+                sections = fetchSearchResults(trimmedQuery, selectedCity?.slug ?: cityQuery.trim())
+                error = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                sections = emptyList()
+                error = e.message ?: "Unable to search right now."
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    LaunchedEffect(query, selectedCity?.slug ?: cityQuery) {
+        kotlinx.coroutines.delay(400)
+        runSearch()
+    }
+
+    LaunchedEffect(cityQuery) {
+        kotlinx.coroutines.delay(300)
+        citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-            .verticalScroll(scrollState)
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         OneTownCitySearchBar(
             query = query,
             onQueryChange = { query = it },
-            placeholder = "Search nearby places",
+            placeholder = "Search businesses, properties, jobs, events...",
             onClear = { query = "" },
         )
 
-        OneTownCityEmptyState(
-            title = "Search is ready",
-            message = "No search results are available yet. Once content is added, matching listings and places will appear here.",
-            icon = Icons.Outlined.Search,
-            action = {
-                OneTownCityButton(
-                    text = "Clear search",
-                    onClick = { query = "" },
-                    variant = OneTownCityButtonVariant.Outlined,
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = "Location",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
                 )
-            },
-        )
+                OneTownCityTextField(
+                    value = cityQuery,
+                    onValueChange = { cityQuery = it; selectedCity = null },
+                    placeholder = "City or area (optional)",
+                    leadingIcon = Icons.Filled.LocationOn,
+                )
+                if (citySuggestions.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        citySuggestions.take(3).forEach { suggestion ->
+                            OneTownCityButton(
+                                text = suggestion.name,
+                                onClick = {
+                                    selectedCity = suggestion
+                                    cityQuery = suggestion.name
+                                    citySuggestions = emptyList()
+                                },
+                                variant = OneTownCityButtonVariant.Outlined,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        when {
+            !hasSearched -> {
+                OneTownCityEmptyState(
+                    title = "Search OneTownCity",
+                    message = "Search across businesses, properties, jobs, events, news and projects.",
+                    icon = Icons.Outlined.Search,
+                )
+            }
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    OneTownCityCircularLoading(label = "Searching")
+                }
+            }
+            error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to search",
+                    message = error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { runSearch() },
+                )
+            }
+            sections.isEmpty() -> {
+                OneTownCityEmptyState(
+                    title = "No results found",
+                    message = "Try a different keyword, or clear the city filter.",
+                    icon = Icons.Outlined.Search,
+                    action = {
+                        OneTownCityButton(
+                            text = "Clear search",
+                            onClick = { query = ""; cityQuery = ""; selectedCity = null },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
+                )
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp),
+                ) {
+                    sections.forEach { section ->
+                        item(key = "header-${section.modelKey}") {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Icon(imageVector = section.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                Text(
+                                    text = "${section.label} (${section.items.size})",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                            }
+                        }
+                        itemsIndexed(section.items, key = { _, result -> "${section.modelKey}-${result.id}" }) { _, result ->
+                            SearchResultCard(
+                                item = result,
+                                onClick = {
+                                    safeWebUri(API_BASE_URL + result.url)?.let { uri ->
+                                        try {
+                                            activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                                        } catch (_: ActivityNotFoundException) { }
+                                    }
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchResultCard(
+    item: ListingSummary,
+    onClick: () -> Unit,
+) {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (item.imageUrl.isNotBlank()) {
+                AsyncImage(
+                    model = rememberOptimizedImageRequest(item.imageUrl),
+                    contentDescription = item.title,
+                    modifier = Modifier.size(64.dp),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(text = item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                if (item.subtitle.isNotBlank()) {
+                    Text(
+                        text = item.subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (item.cityName.isNotBlank()) {
+                    Text(text = item.cityName, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
     }
 }
 
@@ -939,6 +1318,82 @@ internal fun filterLostFound(
     }
 }
 
+private val scholarshipCache = BoundedItemCache<Int, ScholarshipItem>(200)
+
+private fun parseScholarship(json: JSONObject): ScholarshipItem {
+    val item = ScholarshipItem(
+        id = json.optInt("id"),
+        title = json.optString("title", "Scholarship"),
+        description = json.optString("description", "").ifBlank { "No description provided." },
+        category = json.optString("scholarship_type", "other"),
+        deadline = json.optString("application_deadline", ""),
+        eligibility = json.optString("eligibility", ""),
+        officialUrl = json.optString("official_url", ""),
+    )
+    scholarshipCache[item.id] = item
+    return item
+}
+
+/** Wires to the real /api/v1/listings/scholarship/ endpoint (core.models.Scholarship) — a standalone listing type, not a Business category. */
+private suspend fun fetchScholarships(query: String, citySlug: String, page: Int): ApiListPage<ScholarshipItem> {
+    val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
+    val urlString = buildString {
+        append(API_BASE_URL)
+        append("/api/v1/listings/scholarship/?page=")
+        append(page)
+        append("&page_size=10")
+        if (query.isNotBlank()) {
+            append("&q=")
+            append(URLEncoder.encode(query, "UTF-8"))
+        }
+        if (!encodedCity.isNullOrEmpty()) {
+            append("&city=")
+            append(encodedCity)
+        }
+    }
+    return fetchListPage(urlString, page) { parseScholarship(it) }
+}
+
+private val lostFoundCache = BoundedItemCache<Int, LostFoundItem>(200)
+
+private fun parseLostFound(json: JSONObject, citySlugFallback: String): LostFoundItem {
+    val city = json.optJSONObject("city")
+    val item = LostFoundItem(
+        id = json.optInt("id"),
+        title = json.optString("title", "Item"),
+        category = json.optString("report_type", "lost").replaceFirstChar { it.titlecase() },
+        description = json.optString("description", "").ifBlank { "No description provided." },
+        location = json.optString("location", ""),
+        date = json.optString("event_date", ""),
+        imageUrl = json.optString("display_image", ""),
+        contact = json.optString("contact_number", ""),
+        reportUrl = json.optString("url", ""),
+        cityName = city?.optString("name") ?: citySlugFallback,
+    )
+    lostFoundCache[item.id] = item
+    return item
+}
+
+/** Wires to the real /api/v1/listings/lostfound/ endpoint (core.models.LostFound). The generic listing API has no report_type query param, so Lost/Found is refined client-side via filterLostFound, same as every other client-side chip filter in this file. */
+private suspend fun fetchLostFound(query: String, citySlug: String, page: Int): ApiListPage<LostFoundItem> {
+    val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
+    val urlString = buildString {
+        append(API_BASE_URL)
+        append("/api/v1/listings/lostfound/?page=")
+        append(page)
+        append("&page_size=10")
+        if (query.isNotBlank()) {
+            append("&q=")
+            append(URLEncoder.encode(query, "UTF-8"))
+        }
+        if (!encodedCity.isNullOrEmpty()) {
+            append("&city=")
+            append(encodedCity)
+        }
+    }
+    return fetchListPage(urlString, page) { parseLostFound(it, citySlug) }
+}
+
 internal data class PlaceItem(
     val id: Int,
     val title: String,
@@ -969,6 +1424,29 @@ internal fun filterPlacesToVisit(
         matchesQuery && matchesCity && matchesCategory
     }
 }
+
+private val placeCache = BoundedItemCache<Int, PlaceItem>(200)
+
+private fun parsePlace(result: JSONObject, citySlugFallback: String): PlaceItem {
+    val city = result.optJSONObject("city")
+    val cityName = city?.optString("name") ?: citySlugFallback.ifBlank { "Kuppam" }
+    val item = PlaceItem(
+        id = result.optInt("id"),
+        title = result.optString("name", "Place to visit"),
+        category = result.optString("category", "tourism"),
+        description = result.optString("description", "").ifBlank { "More details are coming soon for this place." },
+        cityName = cityName,
+        address = result.optString("address", ""),
+        imageUrl = result.optString("display_image", ""),
+        mapsLink = result.optString("maps_link", ""),
+    )
+    placeCache[item.id] = item
+    return item
+}
+
+/** Places to Visit filters on the real `category=tourism` (core/models.py's Business.CATEGORY_CHOICES) — the same data the web's /places-to-visit/ directory page shows. */
+private suspend fun fetchPlacesToVisit(query: String, citySlug: String, page: Int): ApiListPage<PlaceItem> =
+    fetchListPage(buildBusinessCategoryUrl("tourism", query, citySlug, page), page) { parsePlace(it, citySlug) }
 
 internal data class MarketplaceItem(
     val id: Int,
@@ -1040,7 +1518,268 @@ internal fun filterMarketplaceItems(
     }
 }
 
-private const val MARKETPLACE_API_BASE_URL = "https://onetowncity.com"
+private const val API_BASE_URL = "https://onetowncity.com"
+
+/**
+ * No native sign-in flow exists yet (see the Phase 0/Phase 2 audit — Android
+ * has no Supabase auth integration, unlike the web's core/supabase_auth.py
+ * bridge). Every auth-required call below goes through this single function
+ * instead of hardcoding "no token" in each screen, so wiring up real sign-in
+ * later only means changing this one place. core/api/authentication.py's
+ * SupabaseTokenAuthentication already accepts `Authorization: Bearer <token>`
+ * from a native client — this is that seam, just with nothing behind it yet.
+ */
+private fun currentAuthToken(): String? = null
+
+private class AuthRequiredException : Exception("Sign in to use this feature.")
+
+/**
+ * Single low-level HTTP+JSON call shared by every screen's network code —
+ * consistent timeouts, headers, auth-header attachment, and error-envelope
+ * parsing (core/api/exceptions.py's {"error": {"code", "message"}} shape) in
+ * one place instead of each screen re-implementing HttpURLConnection
+ * boilerplate. Throws AuthRequiredException for a call that needs a token
+ * this build has no way to obtain yet, or on a real 401 from the server;
+ * IllegalStateException (with the server's own message where available) for
+ * every other non-2xx response.
+ */
+private suspend fun httpJson(
+    urlString: String,
+    method: String = "GET",
+    jsonBody: String? = null,
+    requiresAuth: Boolean = false,
+): JSONObject = withContext(Dispatchers.IO) {
+    val token = if (requiresAuth) (currentAuthToken() ?: throw AuthRequiredException()) else null
+    val connection = URL(urlString).openConnection() as HttpURLConnection
+    try {
+        connection.requestMethod = method
+        connection.connectTimeout = 15000
+        connection.readTimeout = 15000
+        connection.setRequestProperty("Accept", "application/json")
+        if (token != null) {
+            connection.setRequestProperty("Authorization", "Bearer $token")
+        }
+        if (jsonBody != null) {
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.outputStream.use { it.write(jsonBody.toByteArray(Charsets.UTF_8)) }
+        }
+        val responseCode = connection.responseCode
+        val stream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
+        val responseText = stream?.bufferedReader()?.use { it.readText() }.orEmpty()
+        if (responseCode == 401) {
+            throw AuthRequiredException()
+        }
+        if (responseCode !in 200..299) {
+            throw IllegalStateException(apiErrorMessage(responseText, "Request failed (HTTP $responseCode)."))
+        }
+        if (responseText.isBlank()) JSONObject() else JSONObject(responseText)
+    } finally {
+        connection.disconnect()
+    }
+}
+
+private fun apiErrorMessage(responseText: String, fallback: String): String {
+    if (responseText.isBlank()) return fallback
+    return runCatching { JSONObject(responseText) }.getOrNull()
+        ?.optJSONObject("error")
+        ?.optString("message")
+        ?.takeIf { it.isNotBlank() }
+        ?: fallback
+}
+
+internal data class ApiListPage<T>(val items: List<T>, val nextPage: Int?, val count: Int)
+
+/** Shared pagination-envelope parser for every core.api list endpoint — {"count","next","previous","page_size","results"} (see core/api/pagination.py). */
+private suspend fun <T> fetchListPage(
+    urlString: String,
+    currentPage: Int,
+    requiresAuth: Boolean = false,
+    parseItem: (JSONObject) -> T,
+): ApiListPage<T> {
+    val json = httpJson(urlString, requiresAuth = requiresAuth)
+    val results = json.optJSONArray("results") ?: JSONArray()
+    val items = mutableListOf<T>()
+    for (i in 0 until results.length()) {
+        items += parseItem(results.getJSONObject(i))
+    }
+    val nextLink = json.optString("next", "")
+    val nextPage = if (nextLink.isBlank()) null else currentPage + 1
+    return ApiListPage(items = items, nextPage = nextPage, count = json.optInt("count", items.size))
+}
+
+/** Shared URL builder for every "Business rows filtered to one category" screen (Tuition Centers, Student Services, Places to Visit) — see core/api/views.py's _list_listings, which ANDs `category` and `q` together rather than one replacing the other. */
+private fun buildBusinessCategoryUrl(category: String, query: String, citySlug: String, page: Int, pageSize: Int = 10): String {
+    val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
+    return buildString {
+        append(API_BASE_URL)
+        append("/api/v1/listings/business/?category=")
+        append(URLEncoder.encode(category, "UTF-8"))
+        if (query.isNotBlank()) {
+            append("&q=")
+            append(URLEncoder.encode(query, "UTF-8"))
+        }
+        append("&page=")
+        append(page)
+        append("&page_size=")
+        append(pageSize)
+        if (!encodedCity.isNullOrEmpty()) {
+            append("&city=")
+            append(encodedCity)
+        }
+    }
+}
+
+/**
+ * A listing summary shape shared by Search and Favorites — both endpoints
+ * return heterogeneous listing types (business/property/job/event/news/
+ * project) using the exact same serializer fields (core/api/serializers.py's
+ * COMMON_LISTING_FIELDS, which always includes `model_key`), so one parser
+ * covers every type instead of one per screen.
+ */
+internal data class ListingSummary(
+    val id: Int,
+    val modelKey: String,
+    val title: String,
+    val subtitle: String,
+    val imageUrl: String,
+    val url: String,
+    val cityName: String,
+)
+
+private fun parseListingSummary(json: JSONObject): ListingSummary {
+    val modelKey = json.optString("model_key", "")
+    val title = if (modelKey == "business") json.optString("name", "Listing") else json.optString("title", "Listing")
+    val subtitle = when (modelKey) {
+        "business" -> json.optString("address", "")
+        "property" -> json.optString("location", "")
+        "job" -> json.optString("company", "")
+        "event" -> json.optString("location", "")
+        "news" -> json.optString("source", "")
+        "project" -> json.optString("location", "")
+        else -> ""
+    }
+    val city = json.optJSONObject("city")
+    return ListingSummary(
+        id = json.optInt("id"),
+        modelKey = modelKey,
+        title = title,
+        subtitle = subtitle,
+        imageUrl = json.optString("display_image", ""),
+        url = json.optString("url", ""),
+        cityName = city?.optString("name") ?: "",
+    )
+}
+
+internal data class SearchSection(
+    val modelKey: String,
+    val label: String,
+    val icon: ImageVector,
+    val items: List<ListingSummary>,
+)
+
+private fun searchSectionLabel(modelKey: String): String = when (modelKey) {
+    "business" -> "Businesses"
+    "property" -> "Properties"
+    "job" -> "Jobs"
+    "event" -> "Events"
+    "news" -> "News"
+    "project" -> "Projects"
+    else -> modelKey.replaceFirstChar { it.titlecase() }
+}
+
+private fun searchSectionIcon(modelKey: String): ImageVector = when (modelKey) {
+    "business" -> Icons.Outlined.Build
+    "property" -> Icons.Filled.Home
+    "job" -> Icons.Outlined.Build
+    "event" -> Icons.Outlined.Event
+    else -> Icons.Filled.Info
+}
+
+/** Wires to core.api.views.search_view (`GET /api/v1/search/?q=&city=`), which already returns every listing type — this parses its per-model `results` sections instead of re-implementing per-type search. */
+private suspend fun fetchSearchResults(query: String, citySlug: String): List<SearchSection> {
+    if (query.isBlank()) return emptyList()
+    val encodedQuery = URLEncoder.encode(query, "UTF-8")
+    val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
+    val urlString = buildString {
+        append(API_BASE_URL)
+        append("/api/v1/search/?q=")
+        append(encodedQuery)
+        if (!encodedCity.isNullOrEmpty()) {
+            append("&city=")
+            append(encodedCity)
+        }
+    }
+    val json = httpJson(urlString)
+    val resultsArray = json.optJSONArray("results") ?: JSONArray()
+    val sections = mutableListOf<SearchSection>()
+    for (i in 0 until resultsArray.length()) {
+        val section = resultsArray.getJSONObject(i)
+        val modelKey = section.optString("model_key", "")
+        val itemsArray = section.optJSONArray("items") ?: JSONArray()
+        val items = mutableListOf<ListingSummary>()
+        for (j in 0 until itemsArray.length()) {
+            items += parseListingSummary(itemsArray.getJSONObject(j))
+        }
+        if (items.isNotEmpty()) {
+            sections += SearchSection(modelKey, searchSectionLabel(modelKey), searchSectionIcon(modelKey), items)
+        }
+    }
+    return sections
+}
+
+/**
+ * `GET /api/v1/my/favorites/` (core.api.views.my_favorites) — same
+ * heterogeneous, self-describing listing shape as search, so it reuses
+ * ListingSummary/parseListingSummary rather than a second parser.
+ */
+private suspend fun fetchFavorites(page: Int): ApiListPage<ListingSummary> =
+    fetchListPage("$API_BASE_URL/api/v1/my/favorites/?page=$page", page, requiresAuth = true) { parseListingSummary(it) }
+
+/** `POST /api/v1/listings/{model_key}/{pk}/favorite/` (toggle_favorite_view) — returns the new favorited state; false means it was just removed. */
+private suspend fun toggleFavorite(modelKey: String, id: Int): Boolean =
+    httpJson("$API_BASE_URL/api/v1/listings/$modelKey/$id/favorite/", method = "POST", requiresAuth = true)
+        .optBoolean("favorited", false)
+
+internal data class NotificationItem(
+    val id: Int,
+    val type: String,
+    val message: String,
+    val url: String,
+    val isRead: Boolean,
+    val createdAt: String,
+)
+
+private fun parseNotification(json: JSONObject) = NotificationItem(
+    id = json.optInt("id"),
+    type = json.optString("type", ""),
+    message = json.optString("message", ""),
+    url = json.optString("url", ""),
+    isRead = json.optBoolean("is_read", false),
+    createdAt = json.optString("created_at", ""),
+)
+
+/**
+ * In-app notification list only (`GET /api/v1/notifications/`, core.api.
+ * views.notifications_view) — deliberately NOT OS-level push. The web's
+ * push channel (core/push.py) is real browser Web Push via VAPID keys,
+ * which has no Android equivalent without a Firebase/FCM project (a new,
+ * separate notification backend this phase explicitly does not add); this
+ * only connects to the same in-app bell feed the website's navbar shows.
+ */
+private suspend fun fetchNotifications(page: Int): ApiListPage<NotificationItem> =
+    fetchListPage("$API_BASE_URL/api/v1/notifications/?page=$page", page, requiresAuth = true) { parseNotification(it) }
+
+private suspend fun fetchUnreadNotificationCount(): Int =
+    httpJson("$API_BASE_URL/api/v1/notifications/unread-count/", requiresAuth = true).optInt("count", 0)
+
+private suspend fun markNotificationRead(id: Int) {
+    httpJson("$API_BASE_URL/api/v1/notifications/$id/read/", method = "POST", requiresAuth = true)
+}
+
+private suspend fun markAllNotificationsRead() {
+    httpJson("$API_BASE_URL/api/v1/notifications/read-all/", method = "POST", requiresAuth = true)
+}
 
 private fun safeWebUri(rawUrl: String): Uri? {
     val uri = rawUrl.trim().toUri()
@@ -1075,240 +1814,116 @@ private class BoundedItemCache<K, V>(private val maximumSize: Int) {
 private val marketplaceCache = BoundedItemCache<Int, MarketplaceItem>(200)
 private val studentServicesCache = BoundedItemCache<Int, StudentServiceItem>(200)
 
-private var marketplaceFetcher: suspend (String, String, MarketplaceTypeFilter, Int) -> MarketplacePage = { query, citySlug, typeFilter, page ->
-    fetchMarketplaceListings(query, citySlug, typeFilter, page)
+// Marketplace ("Buy / Sell / Exchange") intentionally has NO network fetch.
+//
+// The backend (core/models.py Business.category='marketplace') has no fields
+// for price, condition, or transaction type, and core/api/serializers.py's
+// MODEL_SPECIFIC_FIELDS['business'] does not expose any such fields either —
+// there is no real peer-to-peer classified-listing data to show. This screen
+// previously queried /api/v1/listings/property/ (real-estate listings) and
+// re-labeled them as marketplace goods via keyword guessing on the title/
+// description, which misrepresented Property data as something it isn't.
+//
+// Until a real marketplace data model exists on the backend, this resolves
+// to a verified empty state (see MarketplaceFeatureScreen) rather than
+// showing mismatched or invented data.
+
+private fun parseStudentService(result: JSONObject, citySlugFallback: String): StudentServiceItem {
+    val city = result.optJSONObject("city")
+    val cityName = city?.optString("name") ?: citySlugFallback.ifBlank { "Kuppam" }
+    val citySlugValue = city?.optString("slug") ?: citySlugFallback.ifBlank { "kuppam" }
+    val address = result.optString("address", "")
+    val item = StudentServiceItem(
+        id = result.optInt("id"),
+        name = result.optString("name", "Service"),
+        category = result.optString("category", "student_services"),
+        description = result.optString("description", "").ifBlank { "Service information coming soon." },
+        address = address.ifBlank { cityName },
+        phoneNumber = result.optString("phone_number", ""),
+        website = result.optString("website", ""),
+        mapsLink = result.optString("maps_link", ""),
+        imageUrl = result.optString("display_image", ""),
+        cityName = cityName,
+        citySlug = citySlugValue,
+    )
+    studentServicesCache[item.id] = item
+    return item
 }
 
-private fun buildMarketplaceUrl(query: String, citySlug: String, typeFilter: MarketplaceTypeFilter, page: Int, pageSize: Int): String {
-    val encodedQuery = URLEncoder.encode(if (query.isBlank()) "" else query, "UTF-8")
-    val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
-    return buildString {
-        append(MARKETPLACE_API_BASE_URL)
-        append("/api/v1/listings/property/?")
-        if (encodedQuery.isNotBlank()) {
-            append("q=")
-            append(encodedQuery)
-            append("&")
-        }
-        if (typeFilter != MarketplaceTypeFilter.ALL && typeFilter.apiValue != null) {
-            append("property_type=")
-            append(typeFilter.apiValue)
-            append("&")
-        }
-        append("page=")
-        append(page)
-        append("&page_size=")
-        append(pageSize)
-        if (!encodedCity.isNullOrEmpty()) {
-            append("&city=")
-            append(encodedCity)
-        }
-    }
-}
-
-private suspend fun fetchMarketplaceListings(
-    query: String,
-    citySlug: String,
-    typeFilter: MarketplaceTypeFilter,
-    page: Int,
-): MarketplacePage = withContext(Dispatchers.IO) {
-    val url = URL(buildMarketplaceUrl(query, citySlug, typeFilter, page, 10))
-    val connection = url.openConnection() as HttpURLConnection
-    connection.requestMethod = "GET"
-    connection.connectTimeout = 15000
-    connection.readTimeout = 15000
-    connection.setRequestProperty("Accept", "application/json")
-    connection.doInput = true
-
-    val responseCode = connection.responseCode
-    if (responseCode !in 200..299) {
-        throw IllegalStateException("Unable to load marketplace listings. HTTP $responseCode")
-    }
-
-    val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-    val json = JSONObject(responseText)
-    val results = json.optJSONArray("results") ?: JSONArray()
-    val nextLink = json.optString("next", "")
-    val nextPage = if (nextLink.isBlank()) null else page + 1
-    val items = mutableListOf<MarketplaceItem>()
-
-    for (i in 0 until results.length()) {
-        val result = results.getJSONObject(i)
-        val title = result.optString("title", "Listing")
-        val description = result.optString("description", "").ifBlank { "Student listing details coming soon." }
-        val location = result.optString("location", "")
-        val price = result.optString("price", "")
-        val propertyType = result.optString("property_type", "sale")
-        val contactNumber = result.optString("contact_number", "")
-        val imageUrl = result.optString("display_image", "")
-        val ownerPayload = result.optJSONObject("owner")
-        val ownerName = ownerPayload?.optString("full_name") ?: "Seller"
-        val ownerId = ownerPayload?.optInt("id")?.takeIf { it > 0 }
-        val condition = result.optString("condition", "").ifBlank { "Used" }
-        val item = MarketplaceItem(
-            id = result.optInt("id"),
-            title = title,
-            description = description,
-            price = if (price.isBlank()) "Price on request" else "₹${price.toBigDecimalOrNull()?.toPlainString() ?: price}",
-            transactionType = propertyType.lowercase(),
-            category = inferMarketplaceCategory(title, description),
-            location = location.ifBlank { "Kuppam" },
-            imageUrl = imageUrl,
-            contactNumber = contactNumber,
-            ownerName = ownerName,
-            ownerId = ownerId,
-            url = result.optString("url", ""),
-            condition = condition,
-        )
-        items += item
-        marketplaceCache[item.id] = item
-    }
-
-    MarketplacePage(items = items, nextPage = nextPage, count = json.optInt("count", items.size))
-}
-
-private fun inferMarketplaceCategory(title: String, description: String): String {
-    val haystack = (title + " " + description).lowercase()
-    return when {
-        haystack.contains("book") -> "Books"
-        haystack.contains("laptop") || haystack.contains("mobile") || haystack.contains("charger") || haystack.contains("tablet") -> "Electronics"
-        haystack.contains("chair") || haystack.contains("table") || haystack.contains("bed") || haystack.contains("sofa") -> "Furniture"
-        haystack.contains("bike") || haystack.contains("cycle") || haystack.contains("scooter") -> "Bikes"
-        haystack.contains("notebook") || haystack.contains("pen") || haystack.contains("stationery") || haystack.contains("copy") -> "Stationery"
-        else -> "Other"
-    }
-}
-
-private suspend fun fetchStudentServices(query: String, citySlug: String, category: String, page: Int): List<StudentServiceItem> = withContext(Dispatchers.IO) {
-    val encodedQuery = URLEncoder.encode(if (query.isBlank()) "" else query, "UTF-8")
-    val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
-    val categoryParam = if (category == "All" || category.isBlank()) "" else "&category=${URLEncoder.encode(category, "UTF-8")}" 
-    val urlString = buildString {
-        append(MARKETPLACE_API_BASE_URL)
-        append("/api/v1/listings/business/?")
-        if (encodedQuery.isNotBlank()) {
-            append("q=")
-            append(encodedQuery)
-            append("&")
-        }
-        append("page=")
-        append(page)
-        append("&page_size=10")
-        if (!encodedCity.isNullOrEmpty()) {
-            append("&city=")
-            append(encodedCity)
-        }
-        append(categoryParam)
-    }
-
-    val url = URL(urlString)
-    val connection = url.openConnection() as HttpURLConnection
-    connection.requestMethod = "GET"
-    connection.connectTimeout = 15000
-    connection.readTimeout = 15000
-    connection.setRequestProperty("Accept", "application/json")
-    connection.doInput = true
-
-    val responseCode = connection.responseCode
-    if (responseCode !in 200..299) {
-        throw IllegalStateException("Unable to load student services. HTTP $responseCode")
-    }
-
-    val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-    val json = JSONObject(responseText)
-    val results = json.optJSONArray("results") ?: JSONArray()
-    val items = mutableListOf<StudentServiceItem>()
-
-    for (i in 0 until results.length()) {
-        val result = results.getJSONObject(i)
-        val city = result.optJSONObject("city")
-        val cityName = city?.optString("name") ?: citySlug.ifBlank { "Kuppam" }
-        val citySlugValue = city?.optString("slug") ?: citySlug.ifBlank { "kuppam" }
-        val serviceCategory = result.optString("category", "other")
-        val name = result.optString("name", "Service")
-        val address = result.optString("address", "")
-        val phoneNumber = result.optString("phone_number", "")
-        val website = result.optString("website", "")
-        val mapsLink = result.optString("maps_link", "")
-        val imageUrl = result.optString("display_image", "")
-        val description = result.optString("description", "").ifBlank { "Service information coming soon." }
-        val item = StudentServiceItem(
-            id = result.optInt("id"),
-            name = name,
-            category = serviceCategory,
-            description = description,
-            address = address.ifBlank { cityName },
-            phoneNumber = phoneNumber,
-            website = website,
-            mapsLink = mapsLink,
-            imageUrl = imageUrl,
-            cityName = cityName,
-            citySlug = citySlugValue,
-        )
-        studentServicesCache[item.id] = item
-        items += item
-    }
-
-    items
-}
+/**
+ * Student Services always filters on the real `category=student_services`
+ * (core/models.py's Business.CATEGORY_CHOICES) rather than a stand-in list
+ * of unrelated generic business categories (school/pharmacy/transport/...)
+ * that a previous version of this screen substituted for it.
+ */
+private suspend fun fetchStudentServices(query: String, citySlug: String, page: Int): ApiListPage<StudentServiceItem> =
+    fetchListPage(buildBusinessCategoryUrl("student_services", query, citySlug, page), page) { parseStudentService(it, citySlug) }
 
 @Composable
 private fun StudentServicesFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
-    var selectedCategory by rememberSaveable { mutableStateOf("All") }
     var cityQuery by rememberSaveable { mutableStateOf("Kuppam") }
     var selectedCity by rememberSaveable { mutableStateOf<String?>(null) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
     var items by remember { mutableStateOf<List<StudentServiceItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var isLoadingMore by remember { mutableStateOf(false) }
+    var hasMore by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var page by remember { mutableStateOf(1) }
     val coroutineScope = rememberCoroutineScope()
     var activeRequest by remember { mutableStateOf<Job?>(null) }
-    val serviceCategories = listOf(
-        "All",
-        "school",
-        "college",
-        "pharmacy",
-        "hospital",
-        "transport",
-        "restaurant",
-        "grocery",
-        "salon",
-        "automobile",
-        "other",
-    )
+    val listState = rememberLazyListState()
 
-    fun loadServices() {
+    fun loadPage(reset: Boolean = false) {
         activeRequest?.cancel()
         activeRequest = coroutineScope.launch {
-            isLoading = true
-            error = null
+            if (reset) {
+                isLoading = true
+                isLoadingMore = false
+                page = 1
+                error = null
+            } else {
+                if (!hasMore || isLoadingMore) return@launch
+                isLoadingMore = true
+            }
             try {
-                val loaded = fetchStudentServices(query, selectedCity ?: cityQuery.trim(), selectedCategory, 1)
-                items = filterStudentServices(loaded, query, selectedCategory)
+                val pageToLoad = if (reset) 1 else page
+                val result = fetchStudentServices(query, selectedCity ?: cityQuery.trim(), pageToLoad)
+                items = if (reset) result.items else items + result.items
+                hasMore = result.nextPage != null
+                page = result.nextPage ?: (pageToLoad + 1)
                 error = null
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                items = emptyList()
-                error = e.message ?: "Unable to load student services right now."
+                if (reset) {
+                    items = emptyList()
+                    error = e.message ?: "Unable to load student services right now."
+                } else {
+                    error = e.message ?: "Unable to load more student services."
+                }
             } finally {
                 isLoading = false
+                isLoadingMore = false
             }
         }
     }
 
-    LaunchedEffect(query, selectedCategory, selectedCity ?: cityQuery) {
+    LaunchedEffect(query, selectedCity ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadServices()
+        loadPage(reset = true)
     }
 
     LaunchedEffect(cityQuery) {
         kotlinx.coroutines.delay(300)
-        if (cityQuery.isBlank()) {
-            citySuggestions = emptyList()
-        } else {
-            citySuggestions = fetchCitySuggestionsSafely(cityQuery)
+        citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
+    }
+
+    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
+        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
+            loadPage(reset = false)
         }
     }
 
@@ -1372,21 +1987,6 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            serviceCategories.forEach { category ->
-                val selected = category == selectedCategory
-                OneTownCityButton(
-                    text = category.replaceFirstChar { it.titlecase() },
-                    onClick = { selectedCategory = category },
-                    variant = if (selected) OneTownCityButtonVariant.Secondary else OneTownCityButtonVariant.Outlined,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-
         when {
             isLoading -> {
                 Box(
@@ -1401,20 +2001,19 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
                     title = "Unable to load student services",
                     message = error ?: "Please try again later.",
                     actionText = "Retry",
-                    onRetry = { loadServices() },
+                    onRetry = { loadPage(reset = true) },
                 )
             }
             items.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No student services found",
-                    message = "Try a different keyword, city, or service category to find nearby support and care options.",
+                    message = "Try a different keyword or city to find nearby support and care options.",
                     icon = Icons.Outlined.Build,
                     action = {
                         OneTownCityButton(
                             text = "Reset filters",
                             onClick = {
                                 query = ""
-                                selectedCategory = "All"
                                 cityQuery = "Kuppam"
                                 selectedCity = null
                                 citySuggestions = emptyList()
@@ -1426,6 +2025,7 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
             }
             else -> {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
@@ -1435,6 +2035,16 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
                             item = item,
                             onClick = { navController.navigate("student-service/${item.id}") },
                         )
+                    }
+                    if (isLoadingMore) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                OneTownCityCircularLoading(label = "Loading more")
+                            }
+                        }
                     }
                 }
             }
@@ -1726,26 +2336,89 @@ private fun StudentServiceDetailScreen(
     }
 }
 
+private val scholarshipTypeFilters = listOf(
+    "All", "government", "merit", "need_based", "minority", "sports", "research", "other",
+)
+
+private fun scholarshipTypeLabel(value: String): String = when (value) {
+    "All" -> "All"
+    "government" -> "Government"
+    "merit" -> "Merit"
+    "need_based" -> "Need-based"
+    "minority" -> "Minority"
+    "sports" -> "Sports"
+    "research" -> "Research"
+    else -> "Other"
+}
+
 @Composable
 private fun ScholarshipsFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("All") }
-    var isLoading by remember { mutableStateOf(false) }
+    var cityQuery by rememberSaveable { mutableStateOf("Kuppam") }
+    var selectedCity by rememberSaveable { mutableStateOf<CitySuggestion?>(null) }
+    var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
+    var items by remember { mutableStateOf<List<ScholarshipItem>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var isLoadingMore by remember { mutableStateOf(false) }
+    var hasMore by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-    val categories = listOf("All", "Government", "Education", "Merit", "Need-based")
-    val items = remember { emptyList<ScholarshipItem>() }
+    var page by remember { mutableStateOf(1) }
+    val coroutineScope = rememberCoroutineScope()
+    var activeRequest by remember { mutableStateOf<Job?>(null) }
+    val listState = rememberLazyListState()
 
-    fun loadScholarships() {
-        isLoading = true
-        error = null
-        // The current backend exposes no scholarship or scheme model. We intentionally avoid inventing
-        // program content or fake deadlines. This screen therefore resolves to a verified empty state.
-        isLoading = false
-        error = null
+    fun loadPage(reset: Boolean = false) {
+        activeRequest?.cancel()
+        activeRequest = coroutineScope.launch {
+            if (reset) {
+                isLoading = true
+                isLoadingMore = false
+                page = 1
+                error = null
+            } else {
+                if (!hasMore || isLoadingMore) return@launch
+                isLoadingMore = true
+            }
+            try {
+                val pageToLoad = if (reset) 1 else page
+                val result = fetchScholarships(query, selectedCity?.slug ?: cityQuery.trim(), pageToLoad)
+                val fetched = if (reset) result.items else items + result.items
+                items = filterScholarships(fetched, "", selectedCategory)
+                hasMore = result.nextPage != null
+                page = result.nextPage ?: (pageToLoad + 1)
+                error = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (reset) {
+                    items = emptyList()
+                    error = e.message ?: "Unable to load scholarship data right now."
+                } else {
+                    error = e.message ?: "Unable to load more scholarships."
+                }
+            } finally {
+                isLoading = false
+                isLoadingMore = false
+            }
+        }
     }
 
-    LaunchedEffect(query, selectedCategory) {
-        loadScholarships()
+    LaunchedEffect(query, selectedCategory, selectedCity?.slug ?: cityQuery) {
+        kotlinx.coroutines.delay(300)
+        loadPage(reset = true)
+    }
+
+    LaunchedEffect(cityQuery) {
+        kotlinx.coroutines.delay(300)
+        citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
+    }
+
+    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
+        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
+            loadPage(reset = false)
+        }
     }
 
     Column(
@@ -1766,14 +2439,56 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
             leadingIcon = Icons.Default.Search,
         )
 
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = "Location",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                OneTownCityTextField(
+                    value = cityQuery,
+                    onValueChange = { cityQuery = it; selectedCity = null },
+                    placeholder = "City or area",
+                    leadingIcon = Icons.Filled.LocationOn,
+                )
+                if (citySuggestions.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        citySuggestions.take(3).forEach { suggestion ->
+                            OneTownCityButton(
+                                text = suggestion.name,
+                                onClick = {
+                                    selectedCity = suggestion
+                                    cityQuery = suggestion.name
+                                    citySuggestions = emptyList()
+                                },
+                                variant = OneTownCityButtonVariant.Outlined,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            categories.forEach { category ->
+            scholarshipTypeFilters.forEach { category ->
                 val selected = category == selectedCategory
                 OneTownCityButton(
-                    text = category,
+                    text = scholarshipTypeLabel(category),
                     onClick = { selectedCategory = category },
                     variant = if (selected) OneTownCityButtonVariant.Secondary else OneTownCityButtonVariant.Outlined,
                     modifier = Modifier.weight(1f),
@@ -1795,20 +2510,23 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
                     title = "Unable to load scholarship data",
                     message = error ?: "Please try again later.",
                     actionText = "Retry",
-                    onRetry = { loadScholarships() },
+                    onRetry = { loadPage(reset = true) },
                 )
             }
             items.isEmpty() -> {
                 OneTownCityEmptyState(
-                    title = "No verified scholarship data available",
-                    message = "This backend does not currently expose scholarship or government-scheme records. We do not show guessed program details, deadlines, or benefits.",
+                    title = "No scholarships found",
+                    message = "No scholarships or schemes match your current search, city, or type filter.",
                     icon = Icons.Outlined.EmojiEvents,
                     action = {
                         OneTownCityButton(
-                            text = "Reset",
+                            text = "Reset filters",
                             onClick = {
                                 query = ""
                                 selectedCategory = "All"
+                                cityQuery = "Kuppam"
+                                selectedCity = null
+                                citySuggestions = emptyList()
                             },
                             variant = OneTownCityButtonVariant.Outlined,
                         )
@@ -1816,14 +2534,24 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
                 )
             }
             else -> {
-                val filtered = filterScholarships(items, query, selectedCategory)
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(filtered, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
                         ScholarshipCard(item = item, onClick = { navController.navigate("scholarship/${item.id}") })
+                    }
+                    if (isLoadingMore) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                OneTownCityCircularLoading(label = "Loading more")
+                            }
+                        }
                     }
                 }
             }
@@ -2025,19 +2753,71 @@ private fun ScholarshipDetailScreen(
 private fun LostFoundFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("All") }
-    var isLoading by remember { mutableStateOf(false) }
+    var cityQuery by rememberSaveable { mutableStateOf("Kuppam") }
+    var selectedCity by rememberSaveable { mutableStateOf<CitySuggestion?>(null) }
+    var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
+    var items by remember { mutableStateOf<List<LostFoundItem>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var isLoadingMore by remember { mutableStateOf(false) }
+    var hasMore by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var page by remember { mutableStateOf(1) }
+    val coroutineScope = rememberCoroutineScope()
+    var activeRequest by remember { mutableStateOf<Job?>(null) }
+    val listState = rememberLazyListState()
     val categories = listOf("All", "Lost", "Found")
-    val items = remember { emptyList<LostFoundItem>() }
 
-    fun loadLostFound() {
-        isLoading = true
-        error = null
-        isLoading = false
+    fun loadPage(reset: Boolean = false) {
+        activeRequest?.cancel()
+        activeRequest = coroutineScope.launch {
+            if (reset) {
+                isLoading = true
+                isLoadingMore = false
+                page = 1
+                error = null
+            } else {
+                if (!hasMore || isLoadingMore) return@launch
+                isLoadingMore = true
+            }
+            try {
+                val pageToLoad = if (reset) 1 else page
+                val result = fetchLostFound(query, selectedCity?.slug ?: cityQuery.trim(), pageToLoad)
+                val fetched = if (reset) result.items else items + result.items
+                items = filterLostFound(fetched, "", selectedCategory)
+                hasMore = result.nextPage != null
+                page = result.nextPage ?: (pageToLoad + 1)
+                error = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (reset) {
+                    items = emptyList()
+                    error = e.message ?: "Unable to load Lost & Found right now."
+                } else {
+                    error = e.message ?: "Unable to load more reports."
+                }
+            } finally {
+                isLoading = false
+                isLoadingMore = false
+            }
+        }
     }
 
-    LaunchedEffect(query, selectedCategory) {
-        loadLostFound()
+    LaunchedEffect(query, selectedCategory, selectedCity?.slug ?: cityQuery) {
+        kotlinx.coroutines.delay(300)
+        loadPage(reset = true)
+    }
+
+    LaunchedEffect(cityQuery) {
+        kotlinx.coroutines.delay(300)
+        citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
+    }
+
+    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
+        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
+            loadPage(reset = false)
+        }
     }
 
     Column(
@@ -2057,6 +2837,48 @@ private fun LostFoundFeatureScreen(navController: NavController) {
             placeholder = "Search lost or found items",
             leadingIcon = Icons.Default.Search,
         )
+
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = "Location",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                OneTownCityTextField(
+                    value = cityQuery,
+                    onValueChange = { cityQuery = it; selectedCity = null },
+                    placeholder = "City or area",
+                    leadingIcon = Icons.Filled.LocationOn,
+                )
+                if (citySuggestions.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        citySuggestions.take(3).forEach { suggestion ->
+                            OneTownCityButton(
+                                text = suggestion.name,
+                                onClick = {
+                                    selectedCity = suggestion
+                                    cityQuery = suggestion.name
+                                    citySuggestions = emptyList()
+                                },
+                                variant = OneTownCityButtonVariant.Outlined,
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -2087,20 +2909,23 @@ private fun LostFoundFeatureScreen(navController: NavController) {
                     title = "Unable to load Lost & Found",
                     message = error ?: "Please try again later.",
                     actionText = "Retry",
-                    onRetry = { loadLostFound() },
+                    onRetry = { loadPage(reset = true) },
                 )
             }
             items.isEmpty() -> {
                 OneTownCityEmptyState(
-                    title = "No verified lost or found items yet",
-                    message = "This community feature is not currently backed by a live lost-and-found listing source. We do not expose guessed ownership details or unverifiable contact data.",
+                    title = "No reports found",
+                    message = "No lost or found reports match your current search, city, or type filter.",
                     icon = Icons.Outlined.Search,
                     action = {
                         OneTownCityButton(
-                            text = "Reset",
+                            text = "Reset filters",
                             onClick = {
                                 query = ""
                                 selectedCategory = "All"
+                                cityQuery = "Kuppam"
+                                selectedCity = null
+                                citySuggestions = emptyList()
                             },
                             variant = OneTownCityButtonVariant.Outlined,
                         )
@@ -2108,14 +2933,24 @@ private fun LostFoundFeatureScreen(navController: NavController) {
                 )
             }
             else -> {
-                val filtered = filterLostFound(items, query, selectedCategory)
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(filtered, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
                         LostFoundCard(item = item, onClick = { navController.navigate("lost-found/${item.id}") })
+                    }
+                    if (isLoadingMore) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                OneTownCityCircularLoading(label = "Loading more")
+                            }
+                        }
                     }
                 }
             }
@@ -2302,23 +3137,71 @@ private fun LostFoundDetailScreen(
 @Composable
 private fun PlacesToVisitFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
-    var selectedCity by rememberSaveable { mutableStateOf("All") }
-    var selectedCategory by rememberSaveable { mutableStateOf("All") }
-    var isLoading by remember { mutableStateOf(false) }
+    var cityQuery by rememberSaveable { mutableStateOf("Kuppam") }
+    var selectedCity by rememberSaveable { mutableStateOf<CitySuggestion?>(null) }
+    var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
+    val localContext = LocalContext.current
+    var permissionState by remember { mutableStateOf(resolveLocationPermissionState(localContext)) }
+    var items by remember { mutableStateOf<List<PlaceItem>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var isLoadingMore by remember { mutableStateOf(false) }
+    var hasMore by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-    var permissionState by remember { mutableStateOf(LocationPermissionState.UNAVAILABLE) }
-    val cities = listOf("All", "Kuppam")
-    val categories = listOf("All", "Nature", "Heritage", "Education", "Food", "Relaxation")
-    val items = remember { emptyList<PlaceItem>() }
+    var page by remember { mutableStateOf(1) }
+    val coroutineScope = rememberCoroutineScope()
+    var activeRequest by remember { mutableStateOf<Job?>(null) }
+    val listState = rememberLazyListState()
 
-    fun loadPlaces() {
-        isLoading = true
-        error = null
-        isLoading = false
+    fun loadPage(reset: Boolean = false) {
+        activeRequest?.cancel()
+        activeRequest = coroutineScope.launch {
+            if (reset) {
+                isLoading = true
+                isLoadingMore = false
+                page = 1
+                error = null
+            } else {
+                if (!hasMore || isLoadingMore) return@launch
+                isLoadingMore = true
+            }
+            try {
+                val pageToLoad = if (reset) 1 else page
+                val result = fetchPlacesToVisit(query, selectedCity?.slug ?: cityQuery.trim(), pageToLoad)
+                items = if (reset) result.items else items + result.items
+                hasMore = result.nextPage != null
+                page = result.nextPage ?: (pageToLoad + 1)
+                error = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (reset) {
+                    items = emptyList()
+                    error = e.message ?: "Unable to load places right now."
+                } else {
+                    error = e.message ?: "Unable to load more places."
+                }
+            } finally {
+                isLoading = false
+                isLoadingMore = false
+            }
+        }
     }
 
-    LaunchedEffect(query, selectedCity, selectedCategory) {
-        loadPlaces()
+    LaunchedEffect(query, selectedCity?.slug ?: cityQuery) {
+        kotlinx.coroutines.delay(300)
+        loadPage(reset = true)
+    }
+
+    LaunchedEffect(cityQuery) {
+        kotlinx.coroutines.delay(300)
+        citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
+    }
+
+    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
+        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
+            loadPage(reset = false)
+        }
     }
 
     Column(
@@ -2339,62 +3222,54 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
             leadingIcon = Icons.Default.Search,
         )
 
-        Row(
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 1.dp,
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            cities.forEach { city ->
-                val selected = city == selectedCity
-                OneTownCityButton(
-                    text = city,
-                    onClick = { selectedCity = city },
-                    variant = if (selected) OneTownCityButtonVariant.Secondary else OneTownCityButtonVariant.Outlined,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            categories.forEach { category ->
-                val selected = category == selectedCategory
-                OneTownCityButton(
-                    text = category,
-                    onClick = { selectedCategory = category },
-                    variant = if (selected) OneTownCityButtonVariant.Secondary else OneTownCityButtonVariant.Outlined,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-
-        when (permissionState) {
-            LocationPermissionState.GRANTED -> {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
                 Text(
-                    text = "Location permission granted. Nearby suggestions can be shown when available.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = "Location",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
                 )
-            }
-            LocationPermissionState.DENIED -> {
-                Text(
-                    text = "Location permission denied. Browsing still works using city and category filters.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                OneTownCityTextField(
+                    value = cityQuery,
+                    onValueChange = { cityQuery = it; selectedCity = null },
+                    placeholder = "City or area",
+                    leadingIcon = Icons.Filled.LocationOn,
                 )
-            }
-            LocationPermissionState.REVOKED -> {
+                if (citySuggestions.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        citySuggestions.take(3).forEach { suggestion ->
+                            OneTownCityButton(
+                                text = suggestion.name,
+                                onClick = {
+                                    selectedCity = suggestion
+                                    cityQuery = suggestion.name
+                                    citySuggestions = emptyList()
+                                },
+                                variant = OneTownCityButtonVariant.Outlined,
+                            )
+                        }
+                    }
+                }
+                val permissionHint = when (permissionState) {
+                    LocationPermissionState.GRANTED -> "Location permission granted. Browsing uses your chosen city below."
+                    LocationPermissionState.DENIED -> "Location permission denied. Browsing still works using the city filter."
+                    LocationPermissionState.REVOKED -> "Location permission is unavailable. Browsing remains available using your chosen city."
+                    LocationPermissionState.UNAVAILABLE -> "Location unavailable on this device. City-based browsing remains available."
+                }
                 Text(
-                    text = "Location permission is unavailable. Browsing remains available using your chosen city.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            LocationPermissionState.UNAVAILABLE -> {
-                Text(
-                    text = "Location unavailable on this device. City-based browsing remains available.",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = permissionHint,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -2414,21 +3289,22 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
                     title = "Unable to load places",
                     message = error ?: "Please try again later.",
                     actionText = "Retry",
-                    onRetry = { loadPlaces() },
+                    onRetry = { loadPage(reset = true) },
                 )
             }
             items.isEmpty() -> {
                 OneTownCityEmptyState(
-                    title = "No verified places available",
-                    message = "The current backend does not expose a live places-to-visit dataset for this city. We do not invent destination details or fake distances.",
+                    title = "No places found",
+                    message = "No nearby attractions match your current search and city filter.",
                     icon = Icons.Outlined.LocationOn,
                     action = {
                         OneTownCityButton(
-                            text = "Reset",
+                            text = "Reset filters",
                             onClick = {
                                 query = ""
-                                selectedCity = "All"
-                                selectedCategory = "All"
+                                selectedCity = null
+                                cityQuery = "Kuppam"
+                                citySuggestions = emptyList()
                             },
                             variant = OneTownCityButtonVariant.Outlined,
                         )
@@ -2436,14 +3312,24 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
                 )
             }
             else -> {
-                val filtered = filterPlacesToVisit(items, query, selectedCity, selectedCategory)
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(filtered, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
                         PlaceCard(item = item, onClick = { navController.navigate("place/${item.id}") })
+                    }
+                    if (isLoadingMore) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                OneTownCityCircularLoading(label = "Loading more")
+                            }
+                        }
                     }
                 }
             }
@@ -2593,72 +3479,16 @@ private fun MarketplaceFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("All") }
     var selectedType by rememberSaveable { mutableStateOf(MarketplaceTypeFilter.ALL) }
-    var cityQuery by rememberSaveable { mutableStateOf("Kuppam") }
-    var selectedCity by rememberSaveable { mutableStateOf<String?>(null) }
-    var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
-    var items by remember { mutableStateOf<List<MarketplaceItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    val coroutineScope = rememberCoroutineScope()
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
+    // No backend marketplace model exists yet (see the comment above
+    // marketplaceCache) — this list is never populated from the network so
+    // we never show Property listings mislabeled as marketplace goods.
+    val items = remember { emptyList<MarketplaceItem>() }
+    var isLoading by remember { mutableStateOf(false) }
+    val error: String? = null
     val listState = rememberLazyListState()
 
-    fun loadPage(reset: Boolean = false) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
-            }
-
-            try {
-                val result = marketplaceFetcher(query, selectedCity ?: cityQuery.trim(), selectedType, if (reset) 1 else page)
-                val nextItems = if (reset) result.items else items + result.items
-                items = filterMarketplaceItems(nextItems, query, selectedCategory, selectedType).distinctBy { it.id }
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: ((if (reset) 1 else page) + 1)
-                error = null
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load marketplace listings."
-                } else {
-                    error = e.message ?: "Unable to load more listings."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
-        }
-    }
-
-    LaunchedEffect(query, selectedCategory, selectedType, selectedCity ?: cityQuery) {
-        kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
-    }
-
-    LaunchedEffect(cityQuery) {
-        kotlinx.coroutines.delay(300)
-        if (cityQuery.isBlank()) {
-            citySuggestions = emptyList()
-        } else {
-            citySuggestions = fetchCitySuggestionsSafely(cityQuery)
-        }
-    }
-
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
-        }
+    LaunchedEffect(query, selectedCategory, selectedType) {
+        isLoading = false
     }
 
     Column(
@@ -2690,34 +3520,10 @@ private fun MarketplaceFeatureScreen(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    text = "Location & filters",
+                    text = "Filters",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                OneTownCityTextField(
-                    value = cityQuery,
-                    onValueChange = { cityQuery = it; selectedCity = null },
-                    placeholder = "City or area",
-                    leadingIcon = Icons.Filled.LocationOn,
-                )
-                if (citySuggestions.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        citySuggestions.take(3).forEach { suggestion ->
-                            OneTownCityButton(
-                                text = suggestion.name,
-                                onClick = {
-                                    selectedCity = suggestion.slug
-                                    cityQuery = suggestion.name
-                                    citySuggestions = emptyList()
-                                },
-                                variant = OneTownCityButtonVariant.Outlined,
-                            )
-                        }
-                    }
-                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -2763,15 +3569,15 @@ private fun MarketplaceFeatureScreen(navController: NavController) {
             error != null -> {
                 OneTownCityErrorState(
                     title = "Unable to load marketplace",
-                    message = error ?: "Please try again later.",
+                    message = error,
                     actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+                    onRetry = { },
                 )
             }
             items.isEmpty() -> {
                 OneTownCityEmptyState(
-                    title = "No marketplace listings found",
-                    message = "Try a different keyword, category, or city to discover student items and exchanges near you.",
+                    title = "No verified marketplace listings available",
+                    message = "This backend does not currently expose a student buy/sell/exchange model. We do not show property listings or guessed items in their place.",
                     icon = Icons.Outlined.ShoppingCart,
                     action = {
                         OneTownCityButton(
@@ -2780,9 +3586,6 @@ private fun MarketplaceFeatureScreen(navController: NavController) {
                                 query = ""
                                 selectedCategory = "All"
                                 selectedType = MarketplaceTypeFilter.ALL
-                                cityQuery = "Kuppam"
-                                selectedCity = null
-                                citySuggestions = emptyList()
                             },
                             variant = OneTownCityButtonVariant.Outlined,
                         )
@@ -2801,16 +3604,6 @@ private fun MarketplaceFeatureScreen(navController: NavController) {
                             item = item,
                             onClick = { navController.navigate("marketplace/${item.id}") },
                         )
-                    }
-                    if (isLoadingMore) {
-                        item {
-                            Box(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                OneTownCityCircularLoading(label = "Loading more")
-                            }
-                        }
                     }
                 }
             }
@@ -3821,21 +4614,14 @@ private data class TuitionCenterItem(
     val citySlug: String,
 )
 
-private data class TuitionCentersPage(
-    val items: List<TuitionCenterItem>,
-    val nextPage: Int?,
-    val count: Int,
-)
-
 private data class CitySuggestion(
     val slug: String,
     val name: String,
 )
 
-private const val TUITION_API_BASE_URL = "https://onetowncity.com"
 private val tuitionCenterCache = BoundedItemCache<Int, TuitionCenterItem>(200)
 
-private var tuitionCentersFetcher: suspend (String, String, Int) -> TuitionCentersPage = { query, citySlug, page ->
+private var tuitionCentersFetcher: suspend (String, String, Int) -> ApiListPage<TuitionCenterItem> = { query, citySlug, page ->
     fetchTuitionCenters(query, citySlug, page)
 }
 
@@ -3843,87 +4629,46 @@ private var citySuggestionsFetcher: suspend (String) -> List<CitySuggestion> = {
     fetchCitySuggestions(query)
 }
 
-private fun buildTuitionCentersUrl(query: String, citySlug: String, page: Int, pageSize: Int): String {
-    val resolvedQuery = if (query.isBlank()) "tuition" else query
-    val encodedQuery = URLEncoder.encode(resolvedQuery, "UTF-8")
-    val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
-    return buildString {
-        append(TUITION_API_BASE_URL)
-        append("/api/v1/listings/business/?q=")
-        append(encodedQuery)
-        append("&page=")
-        append(page)
-        append("&page_size=")
-        append(pageSize)
-        if (!encodedCity.isNullOrEmpty()) {
-            append("&city=")
-            append(encodedCity)
-        }
-    }
+private fun parseTuitionCenter(result: JSONObject, citySlugFallback: String): TuitionCenterItem {
+    val city = result.optJSONObject("city")
+    val cityName = city?.optString("name") ?: "Kuppam"
+    val citySlugValue = city?.optString("slug") ?: citySlugFallback
+    val address = result.optString("address", "")
+    val item = TuitionCenterItem(
+        id = result.optInt("id"),
+        name = result.optString("name", "Tuition Center"),
+        category = result.optString("category", "tuition_center"),
+        subtitle = address.ifBlank { cityName },
+        description = result.optString("description", "").ifBlank { "Academic support and coaching options in your area." },
+        phoneNumber = result.optString("phone_number", ""),
+        website = result.optString("website", ""),
+        mapsLink = result.optString("maps_link", ""),
+        imageUrl = result.optString("display_image", ""),
+        cityName = cityName,
+        citySlug = citySlugValue,
+    )
+    tuitionCenterCache[item.id] = item
+    return item
 }
 
+/**
+ * Tuition Centers always filters on the real `category=tuition_center`
+ * (core/models.py's Business.CATEGORY_CHOICES) — a previous version of this
+ * screen substituted a plain keyword search (`q=tuition`) for the category
+ * filter, which missed listings that don't literally say "tuition" and
+ * could match unrelated ones that happen to mention it.
+ */
 private suspend fun fetchTuitionCenters(
     query: String,
     citySlug: String,
     page: Int,
-): TuitionCentersPage = withContext(Dispatchers.IO) {
-    val url = URL(buildTuitionCentersUrl(query, citySlug, page, 10))
-    val connection = url.openConnection() as HttpURLConnection
-    connection.requestMethod = "GET"
-    connection.connectTimeout = 15000
-    connection.readTimeout = 15000
-    connection.setRequestProperty("Accept", "application/json")
-    connection.doInput = true
-
-    val responseCode = connection.responseCode
-    if (responseCode !in 200..299) {
-        throw IllegalStateException("Unable to load tuition centers. HTTP $responseCode")
-    }
-
-    val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-    val json = JSONObject(responseText)
-    val results = json.optJSONArray("results") ?: JSONArray()
-    val nextLink = json.optString("next", "")
-    val nextPage = if (nextLink.isBlank()) null else page + 1
-    val items = mutableListOf<TuitionCenterItem>()
-
-    for (i in 0 until results.length()) {
-        val result = results.getJSONObject(i)
-        val city = result.optJSONObject("city")
-        val cityName = city?.optString("name") ?: "Kuppam"
-        val citySlugValue = city?.optString("slug") ?: citySlug
-        val name = result.optString("name", "Tuition Center")
-        val category = result.optString("category", "education")
-        val address = result.optString("address", "")
-        val phone = result.optString("phone_number", "")
-        val description = result.optString("description", "")
-        val website = result.optString("website", "")
-        val mapsLink = result.optString("maps_link", "")
-        val imageUrl = result.optString("display_image", "")
-        val item = TuitionCenterItem(
-            id = result.optInt("id"),
-            name = name,
-            category = category,
-            subtitle = address.ifBlank { cityName },
-            description = description.ifBlank { "Academic support and coaching options in your area." },
-            phoneNumber = phone,
-            website = website,
-            mapsLink = mapsLink,
-            imageUrl = imageUrl,
-            cityName = cityName,
-            citySlug = citySlugValue,
-        )
-        items += item
-        tuitionCenterCache[item.id] = item
-    }
-
-    TuitionCentersPage(items = items, nextPage = nextPage, count = json.optInt("count", items.size))
-}
+): ApiListPage<TuitionCenterItem> =
+    fetchListPage(buildBusinessCategoryUrl("tuition_center", query, citySlug, page), page) { parseTuitionCenter(it, citySlug) }
 
 private suspend fun fetchCitySuggestions(cityQuery: String): List<CitySuggestion> = withContext(Dispatchers.IO) {
     if (cityQuery.isBlank()) return@withContext emptyList()
     val encoded = URLEncoder.encode(cityQuery, "UTF-8")
-    val url = URL("${TUITION_API_BASE_URL}/api/v1/locations/cities/?q=$encoded")
+    val url = URL("${API_BASE_URL}/api/v1/locations/cities/?q=$encoded")
     val connection = url.openConnection() as HttpURLConnection
     connection.requestMethod = "GET"
     connection.connectTimeout = 15000
@@ -4465,6 +5210,415 @@ private fun DetailRow(icon: ImageVector, title: String) {
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
+    }
+}
+
+@Composable
+private fun SignInRequiredState(message: String) {
+    val context = LocalContext.current
+    val activity = context as? Activity
+    OneTownCityEmptyState(
+        title = "Sign in required",
+        message = message,
+        icon = Icons.Filled.Person,
+        action = {
+            OneTownCityButton(
+                text = "Sign in on the web",
+                onClick = {
+                    safeWebUri("$API_BASE_URL/signin/")?.let { uri ->
+                        try {
+                            activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                        } catch (_: ActivityNotFoundException) { }
+                    }
+                },
+                variant = OneTownCityButtonVariant.Primary,
+            )
+        },
+    )
+}
+
+@Composable
+private fun FavoritesScreen() {
+    var items by remember { mutableStateOf<List<ListingSummary>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var isLoadingMore by remember { mutableStateOf(false) }
+    var hasMore by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var requiresSignIn by remember { mutableStateOf(false) }
+    var page by remember { mutableStateOf(1) }
+    val coroutineScope = rememberCoroutineScope()
+    var activeRequest by remember { mutableStateOf<Job?>(null) }
+    val listState = rememberLazyListState()
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    fun loadPage(reset: Boolean = false) {
+        activeRequest?.cancel()
+        activeRequest = coroutineScope.launch {
+            if (reset) {
+                isLoading = true
+                isLoadingMore = false
+                page = 1
+                error = null
+                requiresSignIn = false
+            } else {
+                if (!hasMore || isLoadingMore) return@launch
+                isLoadingMore = true
+            }
+            try {
+                val pageToLoad = if (reset) 1 else page
+                val result = fetchFavorites(pageToLoad)
+                items = if (reset) result.items else items + result.items
+                hasMore = result.nextPage != null
+                page = result.nextPage ?: (pageToLoad + 1)
+                error = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: AuthRequiredException) {
+                items = emptyList()
+                requiresSignIn = true
+            } catch (e: Exception) {
+                if (reset) {
+                    items = emptyList()
+                    error = e.message ?: "Unable to load favorites right now."
+                } else {
+                    error = e.message ?: "Unable to load more favorites."
+                }
+            } finally {
+                isLoading = false
+                isLoadingMore = false
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) { loadPage(reset = true) }
+
+    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
+        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
+            loadPage(reset = false)
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(text = "Saved", style = MaterialTheme.typography.headlineSmall)
+
+        when {
+            requiresSignIn -> SignInRequiredState(message = "Sign in to save and view your favorite listings.")
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    OneTownCityCircularLoading(label = "Loading favorites")
+                }
+            }
+            error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load favorites",
+                    message = error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { loadPage(reset = true) },
+                )
+            }
+            items.isEmpty() -> {
+                OneTownCityEmptyState(
+                    title = "No favorites yet",
+                    message = "Listings you favorite will appear here.",
+                    icon = Icons.Filled.Star,
+                    action = {
+                        OneTownCityButton(
+                            text = "Refresh",
+                            onClick = { loadPage(reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
+                )
+            }
+            else -> {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp),
+                ) {
+                    itemsIndexed(items, key = { _, item -> "${item.modelKey}-${item.id}" }) { _, item ->
+                        FavoriteCard(
+                            item = item,
+                            onOpen = {
+                                safeWebUri(API_BASE_URL + item.url)?.let { uri ->
+                                    try {
+                                        activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                                    } catch (_: ActivityNotFoundException) { }
+                                }
+                            },
+                            onRemove = {
+                                coroutineScope.launch {
+                                    try {
+                                        val stillFavorited = toggleFavorite(item.modelKey, item.id)
+                                        if (!stillFavorited) {
+                                            items = items.filterNot { it.modelKey == item.modelKey && it.id == item.id }
+                                        }
+                                    } catch (e: CancellationException) {
+                                        throw e
+                                    } catch (_: Exception) { }
+                                }
+                            },
+                        )
+                    }
+                    if (isLoadingMore) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                OneTownCityCircularLoading(label = "Loading more")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FavoriteCard(
+    item: ListingSummary,
+    onOpen: () -> Unit,
+    onRemove: () -> Unit,
+) {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onOpen),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (item.imageUrl.isNotBlank()) {
+                AsyncImage(
+                    model = rememberOptimizedImageRequest(item.imageUrl),
+                    contentDescription = item.title,
+                    modifier = Modifier.size(64.dp),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(text = item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                if (item.subtitle.isNotBlank()) {
+                    Text(
+                        text = item.subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier.clickable(onClick = onRemove).padding(8.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(imageVector = Icons.Filled.Star, contentDescription = "Remove from favorites", tint = MaterialTheme.colorScheme.primary)
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotificationsScreen(navController: NavController) {
+    var items by remember { mutableStateOf<List<NotificationItem>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var isLoadingMore by remember { mutableStateOf(false) }
+    var hasMore by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var requiresSignIn by remember { mutableStateOf(false) }
+    var page by remember { mutableStateOf(1) }
+    val coroutineScope = rememberCoroutineScope()
+    var activeRequest by remember { mutableStateOf<Job?>(null) }
+    val listState = rememberLazyListState()
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    fun loadPage(reset: Boolean = false) {
+        activeRequest?.cancel()
+        activeRequest = coroutineScope.launch {
+            if (reset) {
+                isLoading = true
+                isLoadingMore = false
+                page = 1
+                error = null
+                requiresSignIn = false
+            } else {
+                if (!hasMore || isLoadingMore) return@launch
+                isLoadingMore = true
+            }
+            try {
+                val pageToLoad = if (reset) 1 else page
+                val result = fetchNotifications(pageToLoad)
+                items = if (reset) result.items else items + result.items
+                hasMore = result.nextPage != null
+                page = result.nextPage ?: (pageToLoad + 1)
+                error = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: AuthRequiredException) {
+                items = emptyList()
+                requiresSignIn = true
+            } catch (e: Exception) {
+                if (reset) {
+                    items = emptyList()
+                    error = e.message ?: "Unable to load notifications right now."
+                } else {
+                    error = e.message ?: "Unable to load more notifications."
+                }
+            } finally {
+                isLoading = false
+                isLoadingMore = false
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) { loadPage(reset = true) }
+
+    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
+        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
+            loadPage(reset = false)
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        OneTownCityTopAppBar(
+            title = "Notifications",
+            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+            onNavigationClick = { navController.popBackStack() },
+        )
+
+        if (items.any { !it.isRead }) {
+            OneTownCityButton(
+                text = "Mark all read",
+                onClick = {
+                    coroutineScope.launch {
+                        try {
+                            markAllNotificationsRead()
+                            items = items.map { it.copy(isRead = true) }
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (_: Exception) { }
+                    }
+                },
+                variant = OneTownCityButtonVariant.Outlined,
+            )
+        }
+
+        when {
+            requiresSignIn -> SignInRequiredState(message = "Sign in to see your notifications.")
+            isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    OneTownCityCircularLoading(label = "Loading notifications")
+                }
+            }
+            error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load notifications",
+                    message = error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { loadPage(reset = true) },
+                )
+            }
+            items.isEmpty() -> {
+                OneTownCityEmptyState(
+                    title = "No notifications yet",
+                    message = "You're all caught up.",
+                    icon = Icons.Filled.Check,
+                )
+            }
+            else -> {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp),
+                ) {
+                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                        NotificationCard(
+                            item = item,
+                            onClick = {
+                                if (!item.isRead) {
+                                    coroutineScope.launch {
+                                        try {
+                                            markNotificationRead(item.id)
+                                            items = items.map { existing -> if (existing.id == item.id) existing.copy(isRead = true) else existing }
+                                        } catch (e: CancellationException) {
+                                            throw e
+                                        } catch (_: Exception) { }
+                                    }
+                                }
+                                if (item.url.isNotBlank()) {
+                                    safeWebUri(API_BASE_URL + item.url)?.let { uri ->
+                                        try {
+                                            activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                                        } catch (_: ActivityNotFoundException) { }
+                                    }
+                                }
+                            },
+                        )
+                    }
+                    if (isLoadingMore) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                OneTownCityCircularLoading(label = "Loading more")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotificationCard(
+    item: NotificationItem,
+    onClick: () -> Unit,
+) {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = if (item.isRead) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f),
+        tonalElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            if (!item.isRead) {
+                Text(text = "New", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+            }
+            Text(text = item.message, style = MaterialTheme.typography.bodyLarge)
+        }
     }
 }
 
