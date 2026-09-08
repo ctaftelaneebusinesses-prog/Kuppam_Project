@@ -1,0 +1,16 @@
+<resources>
+    <!-- The Activity's launch theme, applied before Compose content is set —
+         Compose (see designsystem/DesignSystem.kt's OneTownCityTheme) owns
+         all real theming once the UI renders; this just needs to paint a
+         correct status/nav bar + background color during the brief window
+         before that, so cold start doesn't flash a default white theme. -->
+    <style name="Theme.OneTownCity" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">@color/brand_amber</item>
+        <item name="android:statusBarColor">@color/brand_navy</item>
+        <item name="android:navigationBarColor">@color/brand_navy</item>
+        <item name="android:windowBackground">@color/brand_navy</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+</resources>

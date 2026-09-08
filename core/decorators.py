@@ -4,9 +4,67 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
+from django.http import HttpResponse
 from django.shortcuts import redirect
 
 from .models import Profile, UserRole
+
+
+def client_ip(request):
+    """
+    The platform's reverse proxy appends the real client IP as the last hop
+    of X-Forwarded-For; anything before that is client-supplied and can be
+    spoofed by setting the header directly, so the first hop isn't trustworthy.
+    """
+    xff = request.META.get('HTTP_X_FORWARDED_FOR')
+    if xff:
+        return xff.split(',')[-1].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+def rate_limit(scope, limit, window_seconds):
+    """
+    A simple fixed-window rate limiter backed by the Django cache (LocMemCache
+    per-process by default, or Redis if REDIS_URL is set — shared correctly
+    across gunicorn workers either way it's configured). Keyed by the signed-in
+    user when available, falling back to client IP only for anonymous requests
+    — mobile carriers commonly NAT many real users behind one IP, so keying
+    everyone by IP alone would let one abusive user rate-limit their whole
+    carrier's other customers on a shared connection.
+
+    `scope` names the bucket (e.g. 'add_comment') so the same view can't
+    collide with an unrelated one; `limit` requests are allowed per
+    `window_seconds`. Approximate by design (a fixed window can allow up to
+    ~2x `limit` right at a window boundary) — deliberately simple rather than
+    a precise sliding-window/token-bucket implementation, since this is meant
+    to blunt casual scripted abuse (web and the native Android client share
+    this backend), not serve as a security boundary on its own.
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            identity = f'user:{request.user.pk}' if request.user.is_authenticated else f'ip:{client_ip(request)}'
+            cache_key = f'ratelimit:{scope}:{identity}'
+            try:
+                count = cache.get(cache_key, 0)
+                if count >= limit:
+                    return HttpResponse(
+                        'Too many requests — please wait a moment and try again.',
+                        status=429, content_type='text/plain',
+                    )
+                # cache.add only sets the value (and starts the window) if the
+                # key doesn't exist yet; incr() on an existing key doesn't
+                # reset its TTL, so the window's expiry is only ever set once.
+                cache.add(cache_key, 0, window_seconds)
+                cache.incr(cache_key)
+            except Exception:
+                # A cache-backend hiccup should degrade to "not rate limited"
+                # for this request, not break the underlying feature.
+                pass
+            return view_func(request, *args, **kwargs)
+        return wrapper
+    return decorator
 
 
 def staff_required(view_func):

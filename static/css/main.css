@@ -175,10 +175,11 @@ a {
     }
 }
 
-/* Down to 320px the .hk-location-trigger cap above isn't quite enough on
-   its own — shaving a little more off the hamburger and the gap next to
-   it closes the rest of the gap. Same specificity as the 413.98px block
-   above; narrower query placed after it so it wins down here. */
+/* Extra breathing room on the smallest phones, on top of
+   .hk-location-trigger collapsing to icon-only below (same breakpoint) —
+   shaving a little more off the hamburger and the gap next to it. Same
+   specificity as the 413.98px block above; narrower query placed after it
+   so it wins down here. */
 @media (max-width: 349.98px) {
     .navbar-toggler {
         padding: .25rem .35rem;
@@ -6274,35 +6275,22 @@ html[data-theme="dark"] .navbar .hk-location-trigger:focus-visible {
         transform: none !important;
     }
 
-    .hk-location-trigger {
-        max-width: 42vw;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    /* A city name (or "Choose city") plus the brand pill and hamburger
+       competing for one navbar row doesn't have enough space at phone
+       widths no matter how the trigger's own width is capped — a fixed
+       max-width just moved the overflow into the label itself, forcing an
+       ellipsis (previously observed truncating "Choose city" to "Choos…"
+       at 375px). Dropping the text label and keeping only the pin icon
+       removes the space contention at its source instead of clipping
+       around it: the icon alone is a well-understood "location" affordance,
+       the button's aria-label still names it for assistive tech, and the
+       full city name is one tap away in the picker modal either way. */
+    .hk-location-trigger span {
+        display: none;
     }
-}
 
-/* Tighter cap than the 42vw rule above — at these widths 42vw is still
-   wider than the space actually left over once the brand pill and
-   hamburger claim their share of the one-row navbar (see the 413.98px
-   block near .hk-navbar-inner), so a long city name would still force
-   the wrap this is meant to prevent. Must come after the 42vw rule
-   above (same specificity, narrower query — source order decides). */
-@media (max-width: 413.98px) {
     .hk-location-trigger {
-        max-width: 92px;
-        padding-left: .5rem;
-        padding-right: .5rem;
-    }
-}
-
-/* Down to 320px, 92px is still too wide to keep the one-row navbar (see
-   .navbar-toggler / .hk-navbar-inner > .d-flex at the 413.98px block near
-   .hk-navbar-inner) — needs a harder cap on the smallest phones. Must
-   come after the 92px rule above (same specificity, narrower query). */
-@media (max-width: 349.98px) {
-    .hk-location-trigger {
-        max-width: 66px;
-        padding-left: .4rem;
-        padding-right: .4rem;
+        padding-left: .55rem;
+        padding-right: .55rem;
     }
 }

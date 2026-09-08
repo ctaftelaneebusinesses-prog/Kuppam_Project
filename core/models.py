@@ -658,6 +658,10 @@ class Business(ListingMixin, models.Model):
         ('transport', 'Transport'),
         ('repair', 'Repair Services'),
         ('tourism', 'Places to Visit'),
+        ('tuition_center', 'Tuition & Coaching Centers'),
+        ('marketplace', 'Buy / Sell / Exchange'),
+        ('student_services', 'Student Services'),
+        ('scholarship_scheme', 'Scholarships & Govt. Schemes'),
         ('other', 'Other'),
     ]
 

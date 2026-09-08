@@ -1,0 +1,51 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.OneTownCity"
+        android:usesCleartextTraffic="false">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="unspecified">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Custom-scheme deep links used by in-app navigation (see
+                 MainActivity.kt's per-tab `deepLink` field, e.g.
+                 onetowncity://students/{categoryKey}). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="onetowncity" />
+            </intent-filter>
+
+            <!-- Real App Links (autoVerify) — requires
+                 https://onetowncity.com/.well-known/assetlinks.json to list
+                 this app's release signing certificate fingerprint (already
+                 served by core.views.assetlinks_json; still holds a
+                 placeholder fingerprint until a release keystore exists).
+                 No path restriction: Compose Navigation's per-destination
+                 navDeepLink() patterns decide which screen a given path
+                 opens once the OS has routed the Intent here. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="onetowncity.com" />
+                <data android:scheme="https" android:host="www.onetowncity.com" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
