@@ -350,8 +350,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.addEventListener('click', function () { closeAll(null); });
     })();
 
-    // Close the mobile nav drawer after clicking a link inside it
-    const navDrawerEl = document.getElementById('hkNavDrawer');
+    // Close the mobile nav drawer after clicking a link inside it.
+    // Reuses navDrawerEl from the close-on-desktop-resize block above —
+    // re-declaring it here is a SyntaxError that kills the whole file.
     if (navDrawerEl && window.bootstrap) {
         navDrawerEl.querySelectorAll('.nav-link, a.btn').forEach(function (link) {
             link.addEventListener('click', function () {
@@ -400,6 +401,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     submitBtn.disabled = true;
                 }, 0);
             }
+        });
+    });
+
+    // Working Days & Hours picker (WorkingDaysHoursWidget, core/forms.py):
+    // "Copy Monday's hours to every checked day" — the common case (same
+    // hours every day) shouldn't require re-typing the same two times 7
+    // times over. Per-day rows can still be edited individually afterward.
+    document.querySelectorAll('.hk-wh-copy-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const picker = btn.closest('.hk-working-hours-picker');
+            if (!picker) return;
+            const mondayRow = picker.querySelector('[data-wh-day="mon"]');
+            if (!mondayRow) return;
+            const openVal = mondayRow.querySelector('.hk-wh-time[name$="_open"]').value;
+            const closeVal = mondayRow.querySelector('.hk-wh-time[name$="_close"]').value;
+            if (!openVal || !closeVal) return;
+            picker.querySelectorAll('.hk-wh-row').forEach(function (row) {
+                if (row === mondayRow || !row.querySelector('.hk-wh-enable').checked) return;
+                row.querySelector('.hk-wh-time[name$="_open"]').value = openVal;
+                row.querySelector('.hk-wh-time[name$="_close"]').value = closeVal;
+            });
         });
     });
 

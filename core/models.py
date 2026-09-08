@@ -633,6 +633,76 @@ class ListingMixin(models.Model):
         return self.status == ListingStatus.APPROVED and self.is_active
 
 
+#: Which submit-form field a Category's business_subcategory value pre-fills,
+#: per listing_model — mirrors Category._LISTING_COUNT_MAP's field names.
+#: Event/News have no equivalent split field, so they're absent here; a
+#: category using either just isn't pre-filled beyond city. Shared by
+#: views.py (listing_submit/dashboard_post_create) and excel_utils.py
+#: (bulk-upload category resolution).
+SUBCATEGORY_INITIAL_FIELDS = {
+    'business': 'category',
+    'property': 'property_type',
+    'job': 'job_type',
+    'project': 'project_status',
+}
+
+
+#: Ordered (key, label) pairs for the working-days/hours picker — key matches
+#: what the WorkingDaysHoursWidget posts and what Business.working_days_hours
+#: stores per day.
+WORKING_DAYS = [
+    ('mon', 'Monday'), ('tue', 'Tuesday'), ('wed', 'Wednesday'), ('thu', 'Thursday'),
+    ('fri', 'Friday'), ('sat', 'Saturday'), ('sun', 'Sunday'),
+]
+
+
+def _format_time_12h(value):
+    try:
+        hh, mm = value.split(':')
+        hh, mm = int(hh), int(mm)
+    except (ValueError, AttributeError):
+        return value
+    period = 'AM' if hh < 12 else 'PM'
+    hh12 = hh % 12 or 12
+    return f'{hh12}:{mm:02d} {period}'
+
+
+def format_working_hours_summary(schedule):
+    """
+    Turns a Business.working_days_hours dict (e.g. {'mon': {'open': '09:00',
+    'close': '18:00'}, ...}, a day absent means closed) into a human string
+    like 'Monday–Saturday: 9:00 AM – 6:00 PM, Sunday: Closed', grouping
+    consecutive days sharing the same hours (or both closed) into one range
+    instead of listing all 7. Keeps Business.working_hours populated so every
+    existing display (business_detail.html) and export (Excel) path needs no
+    changes — see Business.save().
+    """
+    if not schedule:
+        return ''
+
+    day_tokens = []
+    for key, label in WORKING_DAYS:
+        day = schedule.get(key)
+        if day and day.get('open') and day.get('close'):
+            token = f"{_format_time_12h(day['open'])} – {_format_time_12h(day['close'])}"
+        else:
+            token = 'Closed'
+        day_tokens.append((label, token))
+
+    groups = []
+    for label, token in day_tokens:
+        if groups and groups[-1][1] == token:
+            groups[-1][0].append(label)
+        else:
+            groups.append(([label], token))
+
+    parts = []
+    for labels, token in groups:
+        range_label = labels[0] if len(labels) == 1 else f'{labels[0]}–{labels[-1]}'
+        parts.append(f'{range_label}: {token}')
+    return ', '.join(parts)
+
+
 class Business(ListingMixin, models.Model):
     """
     A local business or shop listing. Restaurants, hospitals, schools,
@@ -681,7 +751,14 @@ class Business(ListingMixin, models.Model):
     maps_link = models.URLField(max_length=500, blank=True, verbose_name='Google Maps Link')
     working_hours = models.CharField(
         max_length=150, blank=True,
-        help_text="e.g. 'Mon–Sat: 9:00 AM – 8:00 PM, Sun: Closed'"
+        help_text="e.g. 'Mon–Sat: 9:00 AM – 8:00 PM, Sun: Closed'. Auto-filled from "
+                   "working_days_hours below when that's set — see save()."
+    )
+    working_days_hours = models.JSONField(
+        default=dict, blank=True,
+        help_text="Structured schedule set via the working-days/hours picker on the listing "
+                   "form: {'mon': {'open': '09:00', 'close': '18:00'}, ...} — a day absent "
+                   "from the dict means closed. working_hours above is auto-derived from this."
     )
     is_featured = models.BooleanField(default=False, help_text='Show this business on the homepage')
     is_active = models.BooleanField(default=True, help_text='Uncheck to hide this listing from the site')
@@ -700,6 +777,8 @@ class Business(ListingMixin, models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = unique_slug_for(Business, self.name, self.pk)
+        if self.working_days_hours:
+            self.working_hours = format_working_hours_summary(self.working_days_hours)
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -752,6 +831,12 @@ class Property(ListingMixin, models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Price (₹)')
     location = models.CharField(max_length=200, help_text='Area / locality in Kuppam')
     contact_number = models.CharField(max_length=15, verbose_name='Contact', help_text='Contact number, e.g. 9876543210')
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text="Precise pin location, e.g. set via 'Use my current location' on the listing form."
+    )
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    maps_link = models.URLField(max_length=500, blank=True, verbose_name='Google Maps Link')
     image = models.ImageField(
         upload_to='properties/', blank=True, null=True,
         help_text='Upload a photo (takes priority over Image URL below if both are set)'
@@ -819,6 +904,12 @@ class Job(ListingMixin, models.Model):
         help_text='e.g. ₹15,000 - ₹25,000/month, or "Negotiable"'
     )
     contact_number = models.CharField(max_length=15, verbose_name='Contact', help_text='Contact number, e.g. 9876543210')
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text="Precise pin location, e.g. set via 'Use my current location' on the listing form."
+    )
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    maps_link = models.URLField(max_length=500, blank=True, verbose_name='Google Maps Link')
     description = models.TextField(blank=True, help_text='Optional job description, requirements, etc.')
     shift_date = models.DateField(
         null=True, blank=True, verbose_name='Shift Date',
@@ -892,6 +983,12 @@ class Event(ListingMixin, models.Model):
     location = models.CharField(max_length=200, help_text='Venue / location in Kuppam')
     description = models.TextField(blank=True, help_text='Optional details about the event')
     contact_number = models.CharField(max_length=15, blank=True, verbose_name='Contact')
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text="Precise pin location, e.g. set via 'Use my current location' on the listing form."
+    )
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    maps_link = models.URLField(max_length=500, blank=True, verbose_name='Google Maps Link')
     image = models.ImageField(
         upload_to='events/', blank=True, null=True,
         help_text='Upload a photo (takes priority over Image URL below if both are set)'
@@ -999,6 +1096,12 @@ class Project(ListingMixin, models.Model):
     location = models.CharField(max_length=200, help_text='Area / locality in Kuppam')
     expected_completion = models.DateField(null=True, blank=True, help_text='Optional expected completion date')
     department = models.CharField(max_length=150, blank=True, help_text='Optional executing department/agency')
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text="Precise pin location, e.g. set via 'Use my current location' on the listing form."
+    )
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    maps_link = models.URLField(max_length=500, blank=True, verbose_name='Google Maps Link')
     description = models.TextField(blank=True, help_text='Optional details about the project')
     image = models.ImageField(
         upload_to='projects/', blank=True, null=True,

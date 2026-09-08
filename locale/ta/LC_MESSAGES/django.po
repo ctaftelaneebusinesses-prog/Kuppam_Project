@@ -6,6 +6,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid ""
 "\"Kuppam\" is widely understood locally to mean a meeting place or confluence — a fitting name\n"
@@ -2407,3 +2408,703 @@ msgstr "மேல்-நிலை மட்டுமே, நிலையான �
 
 msgid "{{ trend }}% vs last week"
 msgstr "{{ trend }}% எதிராக கடந்த வாரம்"
+
+msgid "%(trend)s%% vs last week"
+msgstr "%(trend)s%% கடந்த வாரத்துடன் ஒப்பிடும்போது"
+
+msgid "0 approved listings for this scope"
+msgstr "இந்த வரம்பிற்கு 0 ஒப்புதல் பெற்ற பட்டியல்கள்"
+
+msgid "24/7 multilingual agent coverage"
+msgstr "24/7 பல மொழி முகவர் ஆதரவு"
+
+msgid "A record of sensitive administrative actions across the platform."
+msgstr "தளம் முழுவதும் முக்கியமான நிர்வாக நடவடிக்கைகளின் பதிவு."
+
+msgid "Actor"
+msgstr "செயல் புரிந்தவர்"
+
+msgid "Add %(cat)s"
+msgstr "%(cat)s சேர்க்கவும்"
+
+msgid "Add City Admin"
+msgstr "நகர நிர்வாகியைச் சேர்க்கவும்"
+
+msgid "Add Content"
+msgstr "உள்ளடக்கத்தைச் சேர்க்கவும்"
+
+msgid "Add Content Provider"
+msgstr "உள்ளடக்க வழங்குநரைச் சேர்க்கவும்"
+
+msgid ""
+"Add Content Providers for your city and choose which categories each one can"
+" publish into."
+msgstr ""
+"உங்கள் நகரத்திற்கான உள்ளடக்க வழங்குநர்களைச் சேர்த்து, ஒவ்வொருவரும் எந்த "
+"வகைகளில் வெளியிடலாம் என்பதைத் தேர்ந்தெடுக்கவும்."
+
+msgid "Add Sub Admin"
+msgstr "துணை நிர்வாகியைச் சேர்க்கவும்"
+
+msgid "All cities (platform-wide)"
+msgstr "அனைத்து நகரங்களும் (முழு தளம்)"
+
+msgid "Always granted"
+msgstr "எப்போதும் வழங்கப்பட்டது"
+
+msgid "Approved Content"
+msgstr "ஒப்புதல் பெற்ற உள்ளடக்கம்"
+
+msgid "Assign or remove specific permissions for this Sub Admin."
+msgstr ""
+"இந்த துணை நிர்வாகிக்கு குறிப்பிட்ட அனுமதிகளை வழங்கவும் அல்லது நீக்கவும்."
+
+msgid "Audit Logs"
+msgstr "தணிக்கை பதிவுகள்"
+
+msgid "Auto-Approve New Listings"
+msgstr "புதிய பட்டியல்களை தானாக ஒப்புதல் அளிக்கவும்"
+
+msgid "Available On"
+msgstr "கிடைக்கும் நாள்"
+
+msgid "Back to Listings"
+msgstr "பட்டியல்களுக்குத் திரும்பு"
+
+msgid "Back to Sub Admins"
+msgstr "துணை நிர்வாகிகளுக்குத் திரும்பு"
+
+msgid "Browse %(label)s listings in your city"
+msgstr "உங்கள் நகரத்தில் %(label)s பட்டியல்களை உலாவவும்"
+
+msgid "Browse general local businesses and services in your city"
+msgstr ""
+"உங்கள் நகரத்தில் உள்ள பொதுவான உள்ளூர் வணிகங்கள் மற்றும் சேவைகளை உலாவவும்"
+
+msgid "Browse real estate listings — sale, rent, plots and more in your city"
+msgstr ""
+"ரியல் எஸ்டேட் பட்டியல்களை உலாவவும் - விற்பனை, வாடகை, மனைகள் மற்றும் உங்கள் "
+"நகரத்தில் மேலும் பல"
+
+msgid "Call Now"
+msgstr "இப்போது அழைக்கவும்"
+
+msgid "Call center and BPO services"
+msgstr "கால் சென்டர் மற்றும் பிபிஓ சேவைகள்"
+
+msgid "Check homepage visibility for"
+msgstr "முகப்புப் பக்க தெரிவுநிலையைச் சரிபார்க்கவும்"
+
+msgid "Choose city"
+msgstr "நகரத்தைத் தேர்ந்தெடுக்கவும்"
+
+msgid "Choose your city"
+msgstr "உங்கள் நகரத்தைத் தேர்ந்தெடுக்கவும்"
+
+msgid "Cities"
+msgstr "நகரங்கள்"
+
+msgid "City Admin"
+msgstr "நகர நிர்வாகி"
+
+msgid "City Admin Dashboard"
+msgstr "நகர நிர்வாகி டாஷ்போர்டு"
+
+msgid "City Administration"
+msgstr "நகர நிர்வாகம்"
+
+msgid "City Admins"
+msgstr "நகர நிர்வாகிகள்"
+
+msgid "City Content Inventory"
+msgstr "நகர உள்ளடக்க பட்டியல்"
+
+msgid "City Modules"
+msgstr "நகர தொகுதிகள்"
+
+msgid "City Team"
+msgstr "நகர குழு"
+
+msgid "City activity at a glance"
+msgstr "ஒரே பார்வையில் நகர நடவடிக்கை"
+
+msgid "Comments (%(count)s)"
+msgstr "கருத்துகள் (%(count)s)"
+
+msgid "Content Providers"
+msgstr "உள்ளடக்க வழங்குநர்கள்"
+
+msgid "Content Status"
+msgstr "உள்ளடக்க நிலை"
+
+msgid "No permissions granted yet"
+msgstr "இன்னும் அனுமதிகள் வழங்கப்படவில்லை"
+
+msgid "No permissions granted yet."
+msgstr "இன்னும் அனுமதிகள் வழங்கப்படவில்லை."
+
+msgid "No platform modules are enabled to restrict."
+msgstr "கட்டுப்படுத்த தள தொகுதிகள் எதுவும் இயக்கப்படவில்லை."
+
+msgid "No repair shops listed yet for your city."
+msgstr ""
+"உங்கள் நகரத்திற்கு இன்னும் பழுதுபார்க்கும் கடைகள் பட்டியலிடப்படவில்லை."
+
+msgid "No submissions yet."
+msgstr "இன்னும் சமர்ப்பிப்புகள் இல்லை."
+
+msgid "None"
+msgstr "எதுவும் இல்லை"
+
+msgid "Not granted"
+msgstr "வழங்கப்படவில்லை"
+
+msgid "On homepage"
+msgstr "முகப்புப் பக்கத்தில்"
+
+msgid ""
+"Only used when this category publishes into Business, Property, Jobs, or "
+"Projects — matches that model's category/type/status field (e.g. "
+"Business.category, Property.property_type, Job.job_type, "
+"Project.project_status)."
+msgstr ""
+"இந்த வகை வணிகம், சொத்து, வேலைகள் அல்லது திட்டங்களில் வெளியிடப்படும் போது "
+"மட்டுமே பயன்படுத்தப்படுகிறது - அந்த மாதிரியின் category/type/status "
+"புலத்துடன் பொருந்துகிறது (எ.கா. Business.category, Property.property_type, "
+"Job.job_type, Project.project_status)."
+
+msgid "Page %(current)s of %(total)s"
+msgstr "பக்கம் %(current)s / %(total)s"
+
+msgid "Page %(num)s of %(total)s"
+msgstr "பக்கம் %(num)s / %(total)s"
+
+msgid "Pending Content"
+msgstr "நிலுவையில் உள்ள உள்ளடக்கம்"
+
+msgid "Permission"
+msgstr "அனுமதி"
+
+msgid "Permissions"
+msgstr "அனுமதிகள்"
+
+msgid "Places to Visit"
+msgstr "பார்வையிட வேண்டிய இடங்கள்"
+
+msgid "Planned and ongoing civic and infrastructure projects in your city"
+msgstr ""
+"உங்கள் நகரத்தில் திட்டமிடப்பட்ட மற்றும் நடைபெற்று வரும் நகர மற்றும் "
+"உள்கட்டமைப்பு திட்டங்கள்"
+
+msgid "Platform Modules"
+msgstr "தள தொகுதிகள்"
+
+msgid "Platform Settings"
+msgstr "தள அமைப்புகள்"
+
+msgid "Promote to Super Admin"
+msgstr "சூப்பர் அட்மினாக உயர்த்தவும்"
+
+msgid "Property Listing"
+msgstr "சொத்து பட்டியல்"
+
+msgid "Recently Submitted"
+msgstr "சமீபத்தில் சமர்ப்பிக்கப்பட்டது"
+
+msgid "Rejected Content"
+msgstr "நிராகரிக்கப்பட்ட உள்ளடக்கம்"
+
+msgid "Repair Shops Near You"
+msgstr "உங்களுக்கு அருகில் உள்ள பழுதுபார்க்கும் கடைகள்"
+
+msgid "Restaurants & Food"
+msgstr "உணவகங்கள் & உணவு"
+
+msgid ""
+"Restrict which platform modules are available in this city. A module Super "
+"Admin has disabled platform-wide can't be re-enabled here."
+msgstr ""
+"இந்த நகரத்தில் எந்த தள தொகுதிகள் கிடைக்கும் என்பதைக் கட்டுப்படுத்தவும். "
+"சூப்பர் அட்மின் தளம் முழுவதும் முடக்கிய தொகுதியை இங்கே மீண்டும் இயக்க "
+"முடியாது."
+
+msgid "Review Submitted Content"
+msgstr "சமர்ப்பிக்கப்பட்ட உள்ளடக்கத்தை மதிப்பாய்வு செய்யவும்"
+
+msgid "Reviews (%(count)s)"
+msgstr "மதிப்புரைகள் (%(count)s)"
+
+msgid "Roles & Permissions"
+msgstr "பாத்திரங்கள் & அனுமதிகள்"
+
+msgid "Save City Admin"
+msgstr "நகர நிர்வாகியைச் சேமிக்கவும்"
+
+msgid "Save Content Provider"
+msgstr "உள்ளடக்க வழங்குநரைச் சேமிக்கவும்"
+
+msgid "Save Settings"
+msgstr "அமைப்புகளைச் சேமிக்கவும்"
+
+msgid "Save Sub Admin"
+msgstr "துணை நிர்வாகியைச் சேமிக்கவும்"
+
+msgid "Save as Draft"
+msgstr "வரைவாக சேமிக்கவும்"
+
+msgid ""
+"Save it as a draft to keep working on it, or submit it for approval when "
+"you're ready."
+msgstr ""
+"தொடர்ந்து பணியாற்ற வரைவாக சேமிக்கவும், அல்லது தயாரானதும் ஒப்புதலுக்காக "
+"சமர்ப்பிக்கவும்."
+
+msgid "Scalable teams — start small, grow on demand"
+msgstr "அளவிடக்கூடிய குழுக்கள் - சிறியதாக தொடங்கி, தேவைக்கேற்ப வளரவும்"
+
+msgid "Search %(label)s"
+msgstr "%(label)s ஐத் தேடு"
+
+msgid "Search by action, description, or actor email"
+msgstr "செயல், விளக்கம் அல்லது செயல் புரிந்தவரின் மின்னஞ்சல் மூலம் தேடவும்"
+
+msgid "Search city"
+msgstr "நகரத்தைத் தேடு"
+
+msgid "Search city..."
+msgstr "நகரத்தைத் தேடு..."
+
+msgid "Showing only the modules you've been granted access to."
+msgstr "உங்களுக்கு அணுகல் வழங்கப்பட்ட தொகுதிகள் மட்டும் காட்டப்படுகின்றன."
+
+msgid "Site Name"
+msgstr "தள பெயர்"
+
+msgid "Site identity, maintenance mode, and content approval behavior."
+msgstr "தள அடையாளம், பராமரிப்பு பயன்முறை, மற்றும் உள்ளடக்க ஒப்புதல் நடத்தை."
+
+msgid "Status in"
+msgstr "நிலை"
+
+msgid "Sub Admin"
+msgstr "துணை நிர்வாகி"
+
+msgid "Sub Admin Dashboard"
+msgstr "துணை நிர்வாகி டாஷ்போர்டு"
+
+msgid "Sub Admins"
+msgstr "துணை நிர்வாகிகள்"
+
+msgid "Subcategory value"
+msgstr "துணை வகை மதிப்பு"
+
+msgid "Submissions"
+msgstr "சமர்ப்பிப்புகள்"
+
+msgid "Submit for Approval"
+msgstr "ஒப்புதலுக்காக சமர்ப்பிக்கவும்"
+
+msgid ""
+"Super Admin always has unrestricted access. Grant or revoke individual "
+"capabilities for the other roles below — these take effect as each role's "
+"own dashboard is rolled out."
+msgstr ""
+"சூப்பர் அட்மினுக்கு எப்போதும் தடையற்ற அணுகல் உண்டு. கீழே உள்ள மற்ற "
+"பாத்திரங்களுக்கு தனிப்பட்ட திறன்களை வழங்கவும் அல்லது திரும்பப் பெறவும் - "
+"ஒவ்வொரு பாத்திரத்தின் சொந்த டாஷ்போர்டு அறிமுகமாகும்போது இவை நடைமுறைக்கு "
+"வரும்."
+
+msgid "Support Email"
+msgstr "ஆதரவு மின்னஞ்சல்"
+
+msgid "Support Phone"
+msgstr "ஆதரவு தொலைபேசி"
+
+msgid "Switch entire feature areas on or off across the platform."
+msgstr "தளம் முழுவதும் முழு அம்சப் பகுதிகளையும் இயக்கவும் அல்லது முடக்கவும்."
+
+msgid ""
+"These categories have no approved listings yet, so their tile is left off "
+"the homepage entirely rather than showing an empty card. Add a listing and "
+"it reappears automatically."
+msgstr ""
+"இந்த வகைகளுக்கு இன்னும் ஒப்புதல் பெற்ற பட்டியல்கள் இல்லை, எனவே காலியான "
+"அட்டையைக் காட்டுவதற்குப் பதிலாக அவற்றின் டைல் முகப்புப் பக்கத்திலிருந்து "
+"முழுவதுமாக அகற்றப்படுகிறது. ஒரு பட்டியலைச் சேர்க்கவும், அது தானாகவே மீண்டும்"
+" தோன்றும்."
+
+msgid "Today in Your Town"
+msgstr "இன்று உங்கள் நகரத்தில்"
+
+msgid "Toggle"
+msgstr "நிலைமாற்று"
+
+msgid "Updated %(updated)s"
+msgstr "%(updated)s அன்று புதுப்பிக்கப்பட்டது"
+
+msgid "Use My Location"
+msgstr "எனது இருப்பிடத்தைப் பயன்படுத்து"
+
+msgid "Use my current location"
+msgstr "எனது தற்போதைய இருப்பிடத்தைப் பயன்படுத்து"
+
+msgid "We could not access your location."
+msgstr "உங்கள் இருப்பிடத்தை அணுக முடியவில்லை."
+
+msgid ""
+"We run round-the-clock inbound and outbound call center operations for "
+"businesses that need dependable customer support without the overhead of an "
+"in-house team. From order support and appointment scheduling to lead "
+"qualification and after-sales care, our trained agents represent your brand "
+"professionally on every call."
+msgstr ""
+"இன்-ஹவுஸ் குழுவின் சுமையின்றி நம்பகமான வாடிக்கையாளர் ஆதரவு தேவைப்படும் "
+"வணிகங்களுக்காக நாங்கள் நாள் முழுவதும் இன்பவுண்ட் மற்றும் அவுட்பவுண்ட் கால் "
+"சென்டர் செயல்பாடுகளை நடத்துகிறோம். ஆர்டர் ஆதரவு மற்றும் அப்பாயின்ட்மென்ட் "
+"திட்டமிடல் முதல் லீட் தகுதி மற்றும் விற்பனைக்குப் பிந்தைய பராமரிப்பு வரை, "
+"எங்கள் பயிற்சி பெற்ற முகவர்கள் ஒவ்வொரு அழைப்பிலும் உங்கள் பிராண்டை "
+"தொழில்முறையாக பிரதிநிதித்துவப்படுத்துகிறார்கள்."
+
+msgid ""
+"What's happening today, places worth visiting, and repair shops near you."
+msgstr ""
+"இன்று என்ன நடக்கிறது, பார்வையிட தகுந்த இடங்கள், மற்றும் உங்களுக்கு அருகில் "
+"உள்ள பழுதுபார்க்கும் கடைகள்."
+
+msgid ""
+"When on, new/edited listings from Content Providers and Explorers publish "
+"immediately instead of waiting in the pending-approval queue."
+msgstr ""
+"இயக்கப்பட்டால், உள்ளடக்க வழங்குநர்கள் மற்றும் எக்ஸ்ப்ளோரர்களின் "
+"புதிய/திருத்தப்பட்ட பட்டியல்கள் நிலுவையில் உள்ள ஒப்புதல் வரிசையில் "
+"காத்திருப்பதற்குப் பதிலாக உடனடியாக வெளியிடப்படும்."
+
+msgid ""
+"When on, only Super Admin can browse the site — everyone else sees a "
+"maintenance page."
+msgstr ""
+"இயக்கப்பட்டால், சூப்பர் அட்மின் மட்டுமே தளத்தை உலாவ முடியும் - மற்ற அனைவரும்"
+" பராமரிப்பு பக்கத்தைக் காண்பார்கள்."
+
+msgid ""
+"Your City Admin hasn't delegated any modules to your account yet. Check back"
+" once they have."
+msgstr ""
+"உங்கள் நகர நிர்வாகி இன்னும் உங்கள் கணக்கிற்கு எந்த தொகுதிகளையும் "
+"ஒப்படைக்கவில்லை. அவர்கள் ஒப்படைத்தவுடன் மீண்டும் பாருங்கள்."
+
+msgid "Your Content Areas"
+msgstr "உங்கள் உள்ளடக்கப் பகுதிகள்"
+
+msgid ""
+"Your trusted local information portal for %(city)s — businesses, jobs, real "
+"estate, and everything in between."
+msgstr ""
+"%(city)s க்கான உங்கள் நம்பகமான உள்ளூர் தகவல் போர்டல் - வணிகங்கள், வேலைகள், "
+"ரியல் எஸ்டேட், மற்றும் இன்னும் பல."
+
+msgid ""
+"Your trusted local information portal — businesses, jobs, real estate, and "
+"everything in between."
+msgstr ""
+"உங்கள் நம்பகமான உள்ளூர் தகவல் போர்டல் - வணிகங்கள், வேலைகள், ரியல் எஸ்டேட், "
+"மற்றும் இன்னும் பல."
+
+msgid "e.g. restaurant, sale, hourly"
+msgstr "எ.கா. restaurant, sale, hourly"
+
+msgid "for \"<strong>%(query)s</strong>\""
+msgstr "\"<strong>%(query)s</strong>\" க்காக"
+
+msgid "in <strong>%(label)s</strong>"
+msgstr "<strong>%(label)s</strong> இல்"
+
+msgid "in <strong>%(t)s</strong>"
+msgstr "<strong>%(t)s</strong> இல்"
+
+msgid "no city assigned yet"
+msgstr "இன்னும் நகரம் ஒதுக்கப்படவில்லை"
+
+msgid "role default"
+msgstr "பாத்திர இயல்புநிலை"
+
+msgid "%(counter)s Listing"
+msgid_plural "%(counter)s Listings"
+msgstr[0] "%(counter)s பட்டியல்"
+msgstr[1] "%(counter)s பட்டியல்கள்"
+
+msgid "%(counter)s post"
+msgid_plural "%(counter)s posts"
+msgstr[0] "%(counter)s இடுகை"
+msgstr[1] "%(counter)s இடுகைகள்"
+
+msgid "%(counter)s subcategory"
+msgid_plural "%(counter)s subcategories"
+msgstr[0] "%(counter)s துணை வகை"
+msgstr[1] "%(counter)s துணை வகைகள்"
+
+msgid "%(counter)s user"
+msgid_plural "%(counter)s users"
+msgstr[0] "%(counter)s பயனர்"
+msgstr[1] "%(counter)s பயனர்கள்"
+
+msgid "Showing %(counter)s business"
+msgid_plural "Showing %(counter)s businesses"
+msgstr[0] "%(counter)s வணிகம் காட்டப்படுகிறது"
+msgstr[1] "%(counter)s வணிகங்கள் காட்டப்படுகின்றன"
+
+msgid "Showing %(counter)s listing"
+msgid_plural "Showing %(counter)s listings"
+msgstr[0] "%(counter)s பட்டியல் காட்டப்படுகிறது"
+msgstr[1] "%(counter)s பட்டியல்கள் காட்டப்படுகின்றன"
+
+msgid "Showing %(counter)s project"
+msgid_plural "Showing %(counter)s projects"
+msgstr[0] "%(counter)s திட்டம் காட்டப்படுகிறது"
+msgstr[1] "%(counter)s திட்டங்கள் காட்டப்படுகின்றன"
+
+msgid "Showing %(counter)s property"
+msgid_plural "Showing %(counter)s properties"
+msgstr[0] "%(counter)s சொத்து காட்டப்படுகிறது"
+msgstr[1] "%(counter)s சொத்துக்கள் காட்டப்படுகின்றன"
+
+msgid "Showing %(counter)s result"
+msgid_plural "Showing %(counter)s results"
+msgstr[0] "%(counter)s முடிவு காட்டப்படுகிறது"
+msgstr[1] "%(counter)s முடிவுகள் காட்டப்படுகின்றன"
+
+msgid "Maintenance Message"
+msgstr "பராமரிப்பு செய்தி"
+
+msgid "Maintenance Mode"
+msgstr "பராமரிப்பு பயன்முறை"
+
+msgid "Manage City Admins"
+msgstr "நகர நிர்வாகிகளை நிர்வகிக்கவும்"
+
+msgid "Manage City Content"
+msgstr "நகர உள்ளடக்கத்தை நிர்வகிக்கவும்"
+
+msgid "Manage Content"
+msgstr "உள்ளடக்கத்தை நிர்வகிக்கவும்"
+
+msgid "Manage Content Providers"
+msgstr "உள்ளடக்க வழங்குநர்களை நிர்வகிக்கவும்"
+
+msgid "Manage Permissions"
+msgstr "அனுமதிகளை நிர்வகிக்கவும்"
+
+msgid "Manage Sub Admins"
+msgstr "துணை நிர்வாகிகளை நிர்வகிக்கவும்"
+
+msgid "Managing"
+msgstr "நிர்வகிக்கிறது"
+
+msgid "Module"
+msgstr "தொகுதி"
+
+msgid "My Content"
+msgstr "எனது உள்ளடக்கம்"
+
+msgid "Nearby Shops"
+msgstr "அருகிலுள்ள கடைகள்"
+
+msgid ""
+"Need help finding a business, job or property in %(city)s? Chat with us on "
+"WhatsApp."
+msgstr ""
+"%(city)s இல் வணிகம், வேலை அல்லது சொத்து கண்டுபிடிக்க உதவி தேவையா? WhatsApp "
+"இல் எங்களுடன் அரட்டையடிக்கவும்."
+
+msgid ""
+"Need help finding a business, job or property? Chat with us on WhatsApp."
+msgstr ""
+"வணிகம், வேலை அல்லது சொத்து கண்டுபிடிக்க உதவி தேவையா? WhatsApp இல் எங்களுடன் "
+"அரட்டையடிக்கவும்."
+
+msgid "New %(cat)s"
+msgstr "புதிய %(cat)s"
+
+msgid "No %(label)s found"
+msgstr "%(label)s எதுவும் கிடைக்கவில்லை"
+
+msgid "No City Admins yet."
+msgstr "இன்னும் நகர நிர்வாகிகள் இல்லை."
+
+msgid "No Content Providers yet."
+msgstr "இன்னும் உள்ளடக்க வழங்குநர்கள் இல்லை."
+
+msgid "No Sub Admins yet."
+msgstr "இன்னும் துணை நிர்வாகிகள் இல்லை."
+
+msgid "No audit log entries yet."
+msgstr "இன்னும் தணிக்கை பதிவு உள்ளீடுகள் இல்லை."
+
+msgid ""
+"No categories yet — add one from <a "
+"href=\"%(manage_categories_url)s\">Manage Categories</a> first."
+msgstr ""
+"இன்னும் வகைகள் இல்லை - முதலில் <a href=\"%(manage_categories_url)s\">வகைகளை "
+"நிர்வகிக்கவும்</a> இலிருந்து ஒன்றைச் சேர்க்கவும்."
+
+msgid "No cities assigned"
+msgstr "நகரங்கள் எதுவும் ஒதுக்கப்படவில்லை"
+
+msgid "No city assigned"
+msgstr "நகரம் எதுவும் ஒதுக்கப்படவில்லை"
+
+msgid "No delegable permissions defined yet."
+msgstr "இன்னும் ஒப்படைக்கக்கூடிய அனுமதிகள் வரையறுக்கப்படவில்லை."
+
+msgid "No modules defined yet."
+msgstr "இன்னும் தொகுதிகள் வரையறுக்கப்படவில்லை."
+
+msgid "No permissions defined yet."
+msgstr "இன்னும் அனுமதிகள் வரையறுக்கப்படவில்லை."
+
+msgid "Create City Admin accounts and assign which cities each one manages."
+msgstr ""
+"நகர நிர்வாகி கணக்குகளை உருவாக்கி, ஒவ்வொருவரும் எந்த நகரங்களை "
+"நிர்வகிப்பார்கள் என்பதை ஒதுக்கவும்."
+
+msgid ""
+"Create Sub Admin accounts for your city and control what each one can do."
+msgstr ""
+"உங்கள் நகரத்திற்கான துணை நிர்வாகி கணக்குகளை உருவாக்கி, ஒவ்வொருவரும் என்ன "
+"செய்யலாம் என்பதைக் கட்டுப்படுத்தவும்."
+
+msgid "Created %(joined)s"
+msgstr "%(joined)s அன்று உருவாக்கப்பட்டது"
+
+msgid "Deactivated"
+msgstr "செயலிழக்கச் செய்யப்பட்டது"
+
+msgid "Dedicated account manager & real-time reporting"
+msgstr "பிரத்யேக கணக்கு மேலாளர் & நிகழ்நேர அறிக்கையிடல்"
+
+msgid "Description"
+msgstr "விளக்கம்"
+
+msgid "Disable for this city"
+msgstr "இந்த நகரத்திற்கு முடக்கு"
+
+msgid "Enable for this city"
+msgstr "இந்த நகரத்திற்கு இயக்கு"
+
+msgid "Enabled"
+msgstr "இயக்கப்பட்டது"
+
+msgid ""
+"End-to-end web development, call center and BPO services from CraftLanee — "
+"for startups, businesses, educational institutions, and organizations "
+"building a strong online presence."
+msgstr ""
+"க்ராஃப்ட்லேனீயிலிருந்து முழுமையான வலை மேம்பாடு, கால் சென்டர் மற்றும் பிபிஓ "
+"சேவைகள் - ஸ்டார்ட்அப்கள், வணிகங்கள், கல்வி நிறுவனங்கள் மற்றும் வலுவான "
+"ஆன்லைன் இருப்பை உருவாக்கும் நிறுவனங்களுக்காக."
+
+msgid "Everything %(city)s has to offer, organized in one place"
+msgstr ""
+"%(city)s இல் கிடைக்கும் அனைத்தும், ஒரே இடத்தில் ஒழுங்கமைக்கப்பட்டுள்ளது"
+
+msgid "Everything your city has to offer, organized in one place"
+msgstr ""
+"உங்கள் நகரத்தில் கிடைக்கும் அனைத்தும், ஒரே இடத்தில் ஒழுங்கமைக்கப்பட்டுள்ளது"
+
+msgid "Explore %(name)s"
+msgstr "%(name)s ஐ ஆராயுங்கள்"
+
+msgid "Featured Service"
+msgstr "சிறப்பு சேவை"
+
+msgid "Finding your location..."
+msgstr "உங்கள் இருப்பிடத்தைக் கண்டறிகிறது..."
+
+msgid "Get Started"
+msgstr "தொடங்குங்கள்"
+
+msgid "Get the latest %(city)s listings and news in your inbox."
+msgstr ""
+"%(city)s இன் சமீபத்திய பட்டியல்கள் மற்றும் செய்திகளை உங்கள் இன்பாக்ஸில் "
+"பெறுங்கள்."
+
+msgid "Get the latest listings and news in your inbox."
+msgstr "சமீபத்திய பட்டியல்கள் மற்றும் செய்திகளை உங்கள் இன்பாக்ஸில் பெறுங்கள்."
+
+msgid "Granted"
+msgstr "வழங்கப்பட்டது"
+
+msgid "Granted Permissions"
+msgstr "வழங்கப்பட்ட அனுமதிகள்"
+
+msgid "Happening Today"
+msgstr "இன்று நடக்கிறது"
+
+msgid "Has approved listings for this scope"
+msgstr "இந்த வரம்பிற்கு ஒப்புதல் பெற்ற பட்டியல்கள் உள்ளன"
+
+msgid "Hidden From Your Homepage"
+msgstr "உங்கள் முகப்புப் பக்கத்திலிருந்து மறைக்கப்பட்டது"
+
+msgid "Hidden — 0 listings"
+msgstr "மறைக்கப்பட்டது - 0 பட்டியல்கள்"
+
+msgid "Hold Ctrl/Cmd to select more than one."
+msgstr ""
+"ஒன்றுக்கு மேற்பட்டவற்றைத் தேர்ந்தெடுக்க Ctrl/Cmd ஐ அழுத்திப் பிடிக்கவும்."
+
+msgid "Hourly Basis"
+msgstr "மணிநேர அடிப்படை"
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the City "
+"Admin role attaches automatically the first time they sign in with Google."
+msgstr ""
+"இந்த மின்னஞ்சல் இன்னும் உள்நுழையவில்லை என்றால், இப்போது ஒரு கணக்கு "
+"உருவாக்கப்படும், மேலும் அவர்கள் முதல் முறையாக Google மூலம் உள்நுழையும்போது "
+"நகர நிர்வாகி பங்கு தானாக இணைக்கப்படும்."
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the "
+"Content Provider role attaches automatically the first time they sign in "
+"with Google."
+msgstr ""
+"இந்த மின்னஞ்சல் இன்னும் உள்நுழையவில்லை என்றால், இப்போது ஒரு கணக்கு "
+"உருவாக்கப்படும், மேலும் அவர்கள் முதல் முறையாக Google மூலம் உள்நுழையும்போது "
+"உள்ளடக்க வழங்குநர் பங்கு தானாக இணைக்கப்படும்."
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the Sub "
+"Admin role attaches automatically the first time they sign in with Google."
+msgstr ""
+"இந்த மின்னஞ்சல் இன்னும் உள்நுழையவில்லை என்றால், இப்போது ஒரு கணக்கு "
+"உருவாக்கப்படும், மேலும் அவர்கள் முதல் முறையாக Google மூலம் உள்நுழையும்போது "
+"துணை நிர்வாகி பங்கு தானாக இணைக்கப்படும்."
+
+msgid "It will be reviewed before it goes live."
+msgstr "இது நேரலைக்கு வருவதற்கு முன் மதிப்பாய்வு செய்யப்படும்."
+
+msgid "Job Type"
+msgstr "வேலை வகை"
+
+msgid "Last active %(last_active)s"
+msgstr "கடைசியாக செயலில் இருந்தது %(last_active)s"
+
+msgid "Last reviewed by %(reviewer)s on %(reviewed_on)s"
+msgstr ""
+"%(reviewed_on)s அன்று %(reviewer)s ஆல் கடைசியாக மதிப்பாய்வு செய்யப்பட்டது"
+
+msgid "Latest Updates"
+msgstr "சமீபத்திய புதுப்பிப்புகள்"
+
+msgid "Live & Local"
+msgstr "நேரலை & உள்ளூர்"
+
+msgid "Location captured."
+msgstr "இருப்பிடம் பதிவு செய்யப்பட்டது."
+
+msgid "Location is unavailable in this browser."
+msgstr "இந்த உலாவியில் இருப்பிடம் கிடைக்கவில்லை."
+
+msgid "Location permission was denied."
+msgstr "இருப்பிட அனுமதி மறுக்கப்பட்டது."

@@ -1,13 +1,102 @@
+import re
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from .models import (
     Business, Category, Event, Job, Location, News, PlatformSettings, Profile, Project, Property,
+    WORKING_DAYS,
 )
 
 User = get_user_model()
+
+
+#: Matches an actual Google Maps URL (maps.google.*, google.*/maps, goo.gl/maps,
+#: maps.app.goo.gl) rather than just any well-formed URL — used both as the
+#: HTML `pattern` attribute (frontend rejection) and, compiled below, for the
+#: matching backend check in BusinessSubmitForm.clean_maps_link.
+GOOGLE_MAPS_URL_PATTERN = (
+    r'https?://(www\.)?(google\.[a-zA-Z.]{2,10}/maps|maps\.google\.[a-zA-Z.]{2,10}'
+    r'|goo\.gl/maps|maps\.app\.goo\.gl)(/|\?|$).*'
+)
+GOOGLE_MAPS_URL_RE = re.compile(GOOGLE_MAPS_URL_PATTERN, re.IGNORECASE)
+
+
+def _clean_10_digit_phone(value, label='Phone number'):
+    """Shared exactly-10-digits check reused by every listing form's
+    phone/contact field (see BusinessSubmitForm, PropertySubmitForm,
+    JobSubmitForm, EventSubmitForm below)."""
+    digits = value.strip()
+    if not digits.isdigit() or len(digits) != 10:
+        raise forms.ValidationError(f'{label} must contain exactly 10 digits.')
+    return digits
+
+
+class LocationFieldsMixin(forms.Form):
+    """
+    Shared latitude/longitude/maps_link fields — mixed into every listing
+    form (Business/Property/Job/Event/Project below) alongside forms.ModelForm
+    so `class FooSubmitForm(LocationFieldsMixin, forms.ModelForm)` picks up
+    all three without repeating the field declarations 5 times. Pair with
+    `clean()` calling _clean_location_fields(self) for the matching
+    conditional-requirement logic.
+    """
+    latitude = forms.DecimalField(required=False, widget=forms.HiddenInput(attrs={'id': 'id_latitude'}))
+    longitude = forms.DecimalField(required=False, widget=forms.HiddenInput(attrs={'id': 'id_longitude'}))
+    # required=False at the Django level — the real "is this mandatory"
+    # decision happens in _clean_location_fields, since it depends on
+    # whether latitude/longitude were also submitted (Django validates
+    # required=True fields before clean() ever runs, which is too early to
+    # know that). The HTML `required` attribute is still set here so the
+    # asterisk convention (partials/form_field.html) and native browser
+    # validation both still treat it as required by default; main.js's "Use
+    # my current location" handler removes that attribute (and hides the
+    # field) once a location is actually captured.
+    maps_link = forms.URLField(
+        required=False,
+        widget=forms.URLInput(attrs={
+            'class': 'form-control', 'placeholder': 'Google Maps link', 'required': 'required',
+            'pattern': GOOGLE_MAPS_URL_PATTERN,
+            'title': 'Enter a Google Maps link, e.g. https://maps.google.com/... or https://maps.app.goo.gl/...',
+        }),
+    )
+
+
+def _clean_location_fields(form):
+    """
+    Shared conditional Maps-link requirement, called from clean() on every
+    listing form that carries latitude/longitude + maps_link (Business,
+    Property, Job, Event, Project — see _location_field_kwargs above).
+
+    If the visitor shared their location (both latitude/longitude were
+    captured via the "Use my current location" button), a manual maps_link
+    becomes optional and is auto-derived from the coordinates when left
+    blank — the user should never have to manually enter a Google Maps link
+    once their location is known. Without a shared location, maps_link is
+    required and must actually look like a Google Maps URL.
+    """
+    cleaned = form.cleaned_data
+    lat, lng = cleaned.get('latitude'), cleaned.get('longitude')
+    maps_link = (cleaned.get('maps_link') or '').strip()
+
+    if lat is not None and lng is not None:
+        cleaned['maps_link'] = maps_link or f'https://www.google.com/maps?q={lat},{lng}'
+        return
+
+    if not maps_link:
+        form.add_error('maps_link', 'Share your location, or enter a Google Maps link.')
+        return
+    if not GOOGLE_MAPS_URL_RE.match(maps_link):
+        form.add_error(
+            'maps_link',
+            'Enter a valid Google Maps link, e.g. https://maps.google.com/... or https://maps.app.goo.gl/...'
+        )
+        return
+    cleaned['maps_link'] = maps_link
 
 
 class AdminLoginForm(AuthenticationForm):
@@ -221,6 +310,19 @@ class AdminRequestForm(forms.Form):
         label='What do you want to manage?',
     )
 
+    def __init__(self, *args, queryset=None, **kwargs):
+        """
+        `queryset` lets a caller restrict which categories are offered —
+        e.g. request_additional_category() excludes categories the Content
+        Provider already holds an AdminCategoryPermission for, so "Add
+        Another Category" only ever offers genuinely new ones. Defaults to
+        every active category, matching the original first-time-applicant
+        behaviour (admin_request_new) unchanged.
+        """
+        super().__init__(*args, **kwargs)
+        if queryset is not None:
+            self.fields['categories'].queryset = queryset
+
 
 class AdminRequestReviewForm(forms.Form):
     ACTION_CHOICES = [('approve', 'Approve'), ('reject', 'Reject'), ('changes_requested', 'Request Changes')]
@@ -235,56 +337,188 @@ class AdminRequestReviewForm(forms.Form):
 # Listing submission forms (Content Provider "Add My Listing" wizard)
 # ---------------------------------------------------------------------------
 
-class BusinessSubmitForm(forms.ModelForm):
+class WorkingDaysHoursWidget(forms.Widget):
+    """
+    Renders Business.working_days_hours' 7-day picker: each day gets an
+    enable checkbox + start/end time inputs. POSTed as
+    <name>_<day>_enabled/<name>_<day>_open/<name>_<day>_close per day and
+    reassembled here into the {'mon': {'open': '09:00', 'close': '18:00'},
+    ...} dict shape Business.working_days_hours stores. Renders its own
+    label/layout (not the shared floating-label wrapper) — see
+    partials/form_field.html's is_working_hours_widget check. The "copy to
+    all checked days" button is wired up in static/js/main.js.
+    """
+    #: Marks this widget for partials/form_field.html to render bare (its
+    #: own full-width block) instead of the standard floating-label wrapper.
+    is_working_hours_widget = True
+
+    def value_from_datadict(self, data, files, name):
+        schedule = {}
+        for key, _label in WORKING_DAYS:
+            if data.get(f'{name}_{key}_enabled'):
+                open_time = (data.get(f'{name}_{key}_open') or '').strip()
+                close_time = (data.get(f'{name}_{key}_close') or '').strip()
+                if open_time and close_time:
+                    schedule[key] = {'open': open_time, 'close': close_time}
+        return schedule
+
+    def value_omitted_from_data(self, data, files, name):
+        # An empty schedule ("nothing checked") is itself a meaningful
+        # submitted value, not "field absent" — never fall back to initial.
+        return False
+
+    def render(self, name, value, attrs=None, renderer=None):
+        value = value or {}
+        rows = []
+        for key, label in WORKING_DAYS:
+            day = value.get(key) or {}
+            rows.append(format_html(
+                '<div class="hk-wh-row" data-wh-day="{key}">'
+                '<label class="hk-wh-day-label form-check">'
+                '<input type="checkbox" class="form-check-input hk-wh-enable" '
+                'name="{name}_{key}_enabled" {checked}> {label}'
+                '</label>'
+                '<input type="time" class="form-control form-control-sm hk-wh-time" '
+                'name="{name}_{key}_open" value="{open_val}" aria-label="{label} opening time">'
+                '<span class="hk-wh-sep">{to}</span>'
+                '<input type="time" class="form-control form-control-sm hk-wh-time" '
+                'name="{name}_{key}_close" value="{close_val}" aria-label="{label} closing time">'
+                '</div>',
+                key=key, name=name, checked='checked' if day else '', label=label,
+                open_val=day.get('open', ''), close_val=day.get('close', ''), to='to',
+            ))
+        return format_html(
+            '<div class="hk-working-hours-picker" data-wh-name="{name}">{rows}'
+            '<button type="button" class="btn btn-outline-secondary btn-sm mt-2 hk-wh-copy-btn">'
+            '<i class="bi bi-copy"></i> Copy Monday’s hours to every checked day</button></div>',
+            name=name, rows=mark_safe(''.join(rows)),
+        )
+
+
+class WorkingDaysHoursField(forms.Field):
+    widget = WorkingDaysHoursWidget
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('required', False)
+        kwargs.setdefault('label', 'Working Days & Hours')
+        super().__init__(*args, **kwargs)
+
+    def clean(self, value):
+        if not isinstance(value, dict):
+            return {}
+        valid_keys = dict(WORKING_DAYS)
+        cleaned = {}
+        for key, hours in value.items():
+            if key not in valid_keys:
+                continue
+            open_time, close_time = hours.get('open'), hours.get('close')
+            if open_time and close_time and open_time >= close_time:
+                raise forms.ValidationError(f'Closing time must be after opening time for {valid_keys[key]}.')
+            cleaned[key] = {'open': open_time, 'close': close_time}
+        return cleaned
+
+
+class BusinessSubmitForm(LocationFieldsMixin, forms.ModelForm):
+    # Re-declared (rather than left to ModelForm's Meta.widgets-only
+    # inference) so it can be made required/pattern-constrained here even
+    # though the underlying model field is blank=True — that blank=True is
+    # for legacy rows and Django admin edits, not this public submission form.
+    phone_number = forms.CharField(
+        max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Phone Number', 'maxlength': '10',
+            'inputmode': 'numeric', 'pattern': '[0-9]{10}',
+            'title': 'Enter exactly 10 digits',
+        }),
+    )
+    working_days_hours = WorkingDaysHoursField(required=False)
+
     class Meta:
         model = Business
         fields = [
             'name', 'category', 'city', 'address', 'phone_number', 'description', 'website',
-            'maps_link', 'working_hours', 'image', 'image_url', 'latitude', 'longitude',
+            'maps_link', 'image', 'image_url', 'latitude', 'longitude',
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Business Name'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'city': forms.Select(attrs={'class': 'form-select'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Full Address'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
             'website': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://... (website or social media page)'}),
-            'maps_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Google Maps link'}),
-            'working_hours': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Mon–Sat: 9:00 AM – 8:00 PM'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
-            # Populated by the "Use my current location" button (see
-            # listing_submit.html) so Repair Services listings can power
-            # distance-sorted "near me" search — never hand-typed.
-            'latitude': forms.HiddenInput(attrs={'id': 'id_latitude'}),
-            'longitude': forms.HiddenInput(attrs={'id': 'id_longitude'}),
         }
 
+    def clean_phone_number(self):
+        return _clean_10_digit_phone(self.cleaned_data['phone_number'])
 
-class PropertySubmitForm(forms.ModelForm):
+    def clean(self):
+        cleaned = super().clean()
+        _clean_location_fields(self)
+        return cleaned
+
+    def save(self, commit=True):
+        # working_days_hours isn't in Meta.fields (it's not a plain model
+        # field ModelForm's construct_instance() can auto-copy — see
+        # WorkingDaysHoursField above), so it needs to be assigned by hand.
+        obj = super().save(commit=False)
+        obj.working_days_hours = self.cleaned_data.get('working_days_hours', {})
+        if commit:
+            obj.save()
+        return obj
+
+
+class PropertySubmitForm(LocationFieldsMixin, forms.ModelForm):
+    contact_number = forms.CharField(
+        max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Contact Number', 'maxlength': '10',
+            'inputmode': 'numeric', 'pattern': '[0-9]{10}', 'title': 'Enter exactly 10 digits',
+        }),
+    )
+
     class Meta:
         model = Property
-        fields = ['title', 'property_type', 'price', 'location', 'city', 'contact_number', 'description', 'image', 'image_url']
+        fields = [
+            'title', 'property_type', 'price', 'location', 'city', 'contact_number', 'description',
+            'maps_link', 'image', 'image_url', 'latitude', 'longitude',
+        ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Property Title'}),
             'property_type': forms.Select(attrs={'class': 'form-select'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price (₹)'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Location'}),
             'city': forms.Select(attrs={'class': 'form-select'}),
-            'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
         }
 
+    def clean_contact_number(self):
+        return _clean_10_digit_phone(self.cleaned_data['contact_number'], 'Contact number')
 
-class JobSubmitForm(forms.ModelForm):
+    def clean(self):
+        cleaned = super().clean()
+        _clean_location_fields(self)
+        return cleaned
+
+
+class JobSubmitForm(LocationFieldsMixin, forms.ModelForm):
+    contact_number = forms.CharField(
+        max_length=10,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Contact Number', 'maxlength': '10',
+            'inputmode': 'numeric', 'pattern': '[0-9]{10}', 'title': 'Enter exactly 10 digits',
+        }),
+    )
+
     class Meta:
         model = Job
         fields = [
             'job_title', 'company', 'job_type', 'location', 'city', 'salary', 'contact_number', 'description',
-            'shift_date', 'shift_start_time', 'shift_end_time', 'image', 'image_url',
+            'shift_date', 'shift_start_time', 'shift_end_time', 'maps_link', 'image', 'image_url',
+            'latitude', 'longitude',
         ]
         widgets = {
             'job_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Job Title'}),
@@ -293,7 +527,6 @@ class JobSubmitForm(forms.ModelForm):
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Location'}),
             'city': forms.Select(attrs={'class': 'form-select'}),
             'salary': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Salary (optional)'}),
-            'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
             # Optional on every job (not just Hourly Basis) — e.g. a one-day
             # hiring drive can carry a date/window too.
@@ -304,22 +537,52 @@ class JobSubmitForm(forms.ModelForm):
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
         }
 
+    def clean_contact_number(self):
+        return _clean_10_digit_phone(self.cleaned_data['contact_number'], 'Contact number')
 
-class EventSubmitForm(forms.ModelForm):
+    def clean(self):
+        cleaned = super().clean()
+        _clean_location_fields(self)
+        return cleaned
+
+
+class EventSubmitForm(LocationFieldsMixin, forms.ModelForm):
+    # Stays optional (blank=True on the model) — only format-checked when filled.
+    contact_number = forms.CharField(
+        max_length=10, required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Contact Number (optional)', 'maxlength': '10',
+            'inputmode': 'numeric', 'pattern': '[0-9]{10}', 'title': 'Enter exactly 10 digits',
+        }),
+    )
+
     class Meta:
         model = Event
-        fields = ['title', 'event_date', 'event_time', 'location', 'city', 'contact_number', 'description', 'image', 'image_url']
+        fields = [
+            'title', 'event_date', 'event_time', 'location', 'city', 'contact_number', 'description',
+            'maps_link', 'image', 'image_url', 'latitude', 'longitude',
+        ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Event Title'}),
             'event_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'event_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venue / Location'}),
             'city': forms.Select(attrs={'class': 'form-select'}),
-            'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Number (optional)'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
         }
+
+    def clean_contact_number(self):
+        contact = self.cleaned_data.get('contact_number', '').strip()
+        if not contact:
+            return contact
+        return _clean_10_digit_phone(contact, 'Contact number')
+
+    def clean(self):
+        cleaned = super().clean()
+        _clean_location_fields(self)
+        return cleaned
 
 
 class NewsSubmitForm(forms.ModelForm):
@@ -336,10 +599,13 @@ class NewsSubmitForm(forms.ModelForm):
         }
 
 
-class ProjectSubmitForm(forms.ModelForm):
+class ProjectSubmitForm(LocationFieldsMixin, forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'project_status', 'location', 'city', 'expected_completion', 'department', 'description', 'image', 'image_url']
+        fields = [
+            'title', 'project_status', 'location', 'city', 'expected_completion', 'department', 'description',
+            'maps_link', 'image', 'image_url', 'latitude', 'longitude',
+        ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Project Title'}),
             'project_status': forms.Select(attrs={'class': 'form-select'}),
@@ -351,6 +617,11 @@ class ProjectSubmitForm(forms.ModelForm):
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
         }
+
+    def clean(self):
+        cleaned = super().clean()
+        _clean_location_fields(self)
+        return cleaned
 
 
 LISTING_SUBMIT_FORMS = {

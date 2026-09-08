@@ -9,7 +9,19 @@
 </div>
 
 <div class="card mb-4" id="hkAddContent">
-    <div class="card-header bg-white fw-semibold">{% trans "Add a New Listing" %}</div>
+    <div class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <span class="fw-semibold">{% trans "Add a New Listing" %}</span>
+        {% if request.profile.is_admin %}
+        <div class="d-flex gap-2">
+            <a href="{% url 'core:my_category_requests' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-list-check"></i> {% trans "My Category Requests" %}
+            </a>
+            <a href="{% url 'core:request_additional_category' %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-plus-circle"></i> {% trans "Add Another Category" %}
+            </a>
+        </div>
+        {% endif %}
+    </div>
     <div class="card-body">
         {% if permitted_category_groups %}
         <div class="hk-quickadd-grid">

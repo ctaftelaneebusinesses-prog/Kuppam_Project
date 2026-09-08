@@ -130,6 +130,7 @@ from datetime import date, time, timedelta
 from math import asin, cos, radians, sin, sqrt
 from urllib.parse import urlencode
 
+from django import forms
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
@@ -168,7 +169,7 @@ from .models import (
     Category, CityModule, Comment, ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus,
     LoginHistory, News, NewsletterSubscriber, Notification, Permission, PlatformModule, PlatformSettings,
     PostImage, PostVideo, PostView, Profile, Project, Property, PushSubscription, Report, Review,
-    RolePermission, Share, UserPermission, UserRole, Location, unique_slug_for,
+    RolePermission, Share, SUBCATEGORY_INITIAL_FIELDS, UserPermission, UserRole, Location, unique_slug_for,
 )
 from .location_service import active_location, reverse_geocode, save_location, search_cities, serialize_location
 from .push import notify, notify_bulk
@@ -188,13 +189,37 @@ LISTING_MODELS = {
 #: Which submit-form field a Category's business_subcategory value pre-fills,
 #: per listing_model — mirrors Category._LISTING_COUNT_MAP's field names.
 #: Event/News have no equivalent split field, so they're absent here; a
-#: category using either just isn't pre-filled beyond city.
-SUBCATEGORY_INITIAL_FIELDS = {
-    'business': 'category',
-    'property': 'property_type',
-    'job': 'job_type',
-    'project': 'project_status',
-}
+#: category using either just isn't pre-filled beyond city. Lives in models.py
+#: (imported below) rather than here so excel_utils.py can reuse it too
+#: without a views.py <-> excel_utils.py circular import.
+
+
+def _lock_subcategory_field(form, category):
+    """
+    When `category` maps to a fixed classification value (business_subcategory
+    — e.g. Category "Places to Visit" pre-fills Business.category='tourism'
+    via SUBCATEGORY_INITIAL_FIELDS above), that choice was already made by
+    picking this category from the picker one screen earlier. Hide the
+    redundant field instead of asking again — its value is still submitted
+    (see _apply_subcategory_lock, which pins it server-side too).
+    """
+    if not category or not category.business_subcategory:
+        return
+    field_name = SUBCATEGORY_INITIAL_FIELDS.get(category.listing_model)
+    if not field_name or field_name not in form.fields:
+        return
+    form.fields[field_name].widget = forms.HiddenInput()
+    form.fields[field_name].required = False
+
+
+def _apply_subcategory_lock(obj, category):
+    """Companion to _lock_subcategory_field: forces the locked classification
+    value onto `obj` after save, regardless of what the hidden field posted,
+    so it can't be tampered with client-side."""
+    if category and category.business_subcategory:
+        field_name = SUBCATEGORY_INITIAL_FIELDS.get(category.listing_model)
+        if field_name:
+            setattr(obj, field_name, category.business_subcategory)
 
 #: Status filter options for moderator-facing screens (Listing Approvals,
 #: Posts) — excludes Draft, which _scope_listing_qs already keeps out of
@@ -381,35 +406,33 @@ def _haversine_km(lat1, lon1, lat2, lon2):
     return 2 * 6371 * asin(sqrt(a))
 
 
-def nearby_repair_shops(request):
+def _nearby_businesses(request, lat, lng, category=None, radius_km=NEARBY_REPAIR_RADIUS_KM, limit=20):
     """
-    JSON endpoint behind the homepage "Repair Shops Near You" widget's
-    "Use My Location" button. Takes the visitor's browser-reported GPS
-    position and returns Repair Services businesses that have their own
-    coordinates set (via 'Use my current location' on the listing form),
-    sorted by actual distance and capped to NEARBY_REPAIR_RADIUS_KM — the
-    visitor's already-selected city (see active_location) isn't precise
-    enough for "nearby my current spot", so this ranks within it by GPS
-    distance instead of just listing every repair shop in the city.
+    Shared "nearest N businesses with a saved GPS pin, within radius_km"
+    query — ranks by actual haversine distance from (lat, lng) rather than
+    just listing everything in the visitor's selected city (see
+    active_location), since a city isn't precise enough for "near my
+    current spot". `category` optionally restricts to one Business.category
+    value (e.g. 'repair', 'other' for general shops/refill points); omit it
+    to search across every business category at once. Reused by both
+    nearby_repair_shops (kept for backward compatibility with the existing
+    homepage widget/nearby-repair.js) and the generic nearby_businesses
+    endpoint below.
     """
-    try:
-        lat = float(request.GET['lat'])
-        lng = float(request.GET['lng'])
-    except (KeyError, TypeError, ValueError):
-        return JsonResponse({'error': 'Invalid coordinates.'}, status=400)
+    candidates = _public_qs(Business, request).filter(latitude__isnull=False, longitude__isnull=False)
+    if category:
+        candidates = candidates.filter(category=category)
 
-    candidates = _public_qs(Business, request).filter(
-        category='repair', latitude__isnull=False, longitude__isnull=False,
-    )
     nearby = []
     for business in candidates:
         distance_km = _haversine_km(lat, lng, float(business.latitude), float(business.longitude))
-        if distance_km <= NEARBY_REPAIR_RADIUS_KM:
+        if distance_km <= radius_km:
             nearby.append((distance_km, business))
     nearby.sort(key=lambda pair: pair[0])
 
-    results = [{
+    return [{
         'name': business.name,
+        'category': business.category,
         'address': business.address,
         'phone': business.phone_number,
         'distance_km': round(distance_km, 1),
@@ -417,8 +440,44 @@ def nearby_repair_shops(request):
         'image': business.display_image,
         'placeholder_icon': business.placeholder_icon,
         'maps_link': business.maps_link or '',
-    } for distance_km, business in nearby[:20]]
-    return JsonResponse({'results': results})
+    } for distance_km, business in nearby[:limit]]
+
+
+def _parse_nearby_coords(request):
+    try:
+        return float(request.GET['lat']), float(request.GET['lng'])
+    except (KeyError, TypeError, ValueError):
+        return None, None
+
+
+def nearby_repair_shops(request):
+    """
+    JSON endpoint behind the homepage "Repair Shops Near You" widget's
+    "Use My Location" button — kept as its own URL/response shape for
+    static/js/nearby-repair.js. Thin wrapper around _nearby_businesses with
+    category='repair' fixed; see nearby_businesses below for the generic,
+    any-category version (any Business category — e.g. 'refill'/'other' —
+    can be searched the same way going forward).
+    """
+    lat, lng = _parse_nearby_coords(request)
+    if lat is None:
+        return JsonResponse({'error': 'Invalid coordinates.'}, status=400)
+    return JsonResponse({'results': _nearby_businesses(request, lat, lng, category='repair')})
+
+
+def nearby_businesses(request):
+    """
+    Generic "nearby businesses" JSON endpoint — same GPS-distance ranking as
+    nearby_repair_shops, but for any Business category (or every category at
+    once): /api/businesses/nearby/?lat=..&lng=..&category=<Business.category
+    value, optional>. Powers "nearby businesses"/"refill shops near me"
+    style features without needing a dedicated endpoint per category.
+    """
+    lat, lng = _parse_nearby_coords(request)
+    if lat is None:
+        return JsonResponse({'error': 'Invalid coordinates.'}, status=400)
+    category = request.GET.get('category', '').strip() or None
+    return JsonResponse({'results': _nearby_businesses(request, lat, lng, category=category)})
 
 
 def _bump_views(request, model_cls, pk):
@@ -641,18 +700,23 @@ def home(request):
     featured_projects = _public_qs(Project, request).filter(is_featured=True)[:6] \
         or _public_qs(Project, request).order_by('-created_at')[:6]
 
-    # "Today in Your Town": events actually happening today + news actually
-    # published today. Genuinely-dated content only — no falling back to
-    # older items under a "Today" label, since that reads as misleading
-    # (an August article still showing under "Happening Today" in
+    # "Today in Your Town": events actually happening today + "What's
+    # Happening in Your Village" posts actually published today (see the
+    # village-happenings Category seeded in 0042_seed_village_happenings_
+    # category.py) — scoped to that category rather than every News article
+    # site-wide, so this section is genuinely about local happenings rather
+    # than blending in unrelated news. Genuinely-dated content only — no
+    # falling back to older items under a "Today" label, since that reads as
+    # misleading (an August post still showing under "Happening Today" in
     # September). When nothing is dated today, recent_news_fallback backs a
     # separately-labeled "Latest Updates" block instead (see home.html) —
     # computed only then, so a live day never pays for the extra query.
     today = timezone.localdate()
     events_today = _public_qs(Event, request).filter(event_date=today).order_by('event_time')[:6]
-    news_today = _public_qs(News, request).filter(published_date=today).order_by('-created_at')[:6]
+    village_news_qs = _public_qs(News, request).filter(listing_category__key='village-happenings')
+    news_today = village_news_qs.filter(published_date=today).order_by('-created_at')[:6]
     recent_news_fallback = [] if (events_today or news_today) \
-        else list(_public_qs(News, request).order_by('-published_date')[:3])
+        else list(village_news_qs.order_by('-published_date')[:3])
     places_to_visit = _public_qs(Business, request).filter(category='tourism').order_by('-is_featured', 'name')[:6]
     repair_shops_initial = _public_qs(Business, request).filter(category='repair').order_by('-is_featured', 'name')[:6]
 
@@ -1195,12 +1259,22 @@ def event_detail(request, slug):
 
 def news_list(request):
     """
-    News listing page with search (by title or content) and pagination.
-    Most recently published articles are shown first.
+    News listing page with search (by title or content), an optional
+    category filter (e.g. ?category=village-happenings for "What's
+    Happening in Your Village" — mirrors directory_list's ?type= pattern),
+    and pagination. Most recently published articles are shown first.
     """
     articles = _public_qs(News, request)
 
     query = request.GET.get('q', '').strip()
+    category_key = request.GET.get('category', '').strip()
+
+    news_categories = Category.objects.filter(is_active=True, listing_model='news').order_by('order', 'label')
+    selected_category = news_categories.filter(key=category_key).first() if category_key else None
+    if selected_category:
+        articles = articles.filter(listing_category=selected_category)
+    else:
+        category_key = ''
 
     if query:
         articles = articles.filter(
@@ -1212,10 +1286,13 @@ def news_list(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_title': 'OneTownCity News',
+        'page_title': selected_category.label if selected_category else 'OneTownCity News',
         'page_obj': page_obj,
         'query': query,
         'total_results': articles.count(),
+        'news_categories': news_categories,
+        'selected_category_key': category_key,
+        'selected_category': selected_category,
     }
     return render(request, 'news_list.html', context)
 
@@ -1354,8 +1431,20 @@ def upload_view(request, model_key):
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
+            # Only a plain Content Provider's own upload gets attributed to
+            # them and routed through the approval queue (see
+            # process_excel_upload's `profile` param) — staff and Super
+            # Admin uploads keep their existing unowned/auto-published
+            # behaviour exactly as before. request.profile doesn't exist at
+            # all for a staff user (excel_upload_allowed never sets it for
+            # that branch), hence getattr rather than request.profile directly.
+            profile = getattr(request, 'profile', None)
+            owner_profile = profile if (profile and profile.is_admin) else None
+            default_city = active_location(request) if owner_profile else None
             try:
-                result = process_excel_upload(form.cleaned_data['file'], config)
+                result = process_excel_upload(
+                    form.cleaned_data['file'], config, profile=owner_profile, default_city=default_city,
+                )
             except ExcelValidationError as exc:
                 messages.error(request, str(exc))
             else:
@@ -1582,6 +1671,22 @@ def log_audit(request, action, description):
 
 def _notify_super_admins(message, url='', type='admin_request_submitted'):
     admins = User.objects.filter(profile__role=UserRole.SUPER_ADMIN)
+    notify_bulk(admins, type, message, url=url)
+
+
+def _notify_category_reviewers(message, url='', type='admin_request_submitted'):
+    """
+    Like _notify_super_admins, but for the full audience that can actually
+    review a Content Request (see core.decorators.content_providers_required,
+    the same gate dashboard_admin_requests/dashboard_admin_request_detail use):
+    every Super Admin, every City Admin, and every Sub Admin granted
+    view_content_providers. Used for request_additional_category — an
+    existing Content Provider's ask isn't tied to one city, so unlike
+    _notify_city_admins/_notify_sub_admins this isn't city-scoped.
+    """
+    admins = list(User.objects.filter(profile__role__in=(UserRole.SUPER_ADMIN, UserRole.CITY_ADMIN)))
+    sub_admins = User.objects.filter(profile__role=UserRole.SUB_ADMIN).select_related('profile')
+    admins.extend(u for u in sub_admins if u.profile.has_permission('view_content_providers'))
     notify_bulk(admins, type, message, url=url)
 
 
@@ -1896,6 +2001,72 @@ def admin_request_pending(request):
     admin_request = AdminRequest.objects.filter(user=request.user).order_by('-created_at').first()
     context = {'page_title': 'Application Status - OneTownCity', 'admin_request': admin_request}
     return render(request, 'admin_request_pending.html', context)
+
+
+@onboarding_required
+def request_additional_category(request):
+    """
+    "Add Another Category" for an existing Content Provider — unlike
+    admin_request_new (which is only for someone who isn't an Admin yet and
+    bounces an existing one straight to My Listings), this is exactly for
+    someone who already holds some AdminCategoryPermission grants and wants
+    more. Offers only categories they don't already have, and only blocks a
+    new submission while one is still PENDING — unlike admin_request_new,
+    an existing APPROVED request never blocks this (that's just their
+    current baseline, not a reason to stop them asking for more).
+    """
+    profile = request.profile
+    if not profile.is_admin:
+        messages.error(request, 'Only Content Providers can request additional categories.')
+        return redirect('core:my_listings')
+
+    granted_ids = set(AdminCategoryPermission.objects.filter(admin=request.user).values_list('category_id', flat=True))
+    available_qs = Category.objects.filter(is_active=True).exclude(id__in=granted_ids)
+
+    if AdminRequest.objects.filter(user=request.user, status=AdminRequestStatus.PENDING).exists():
+        messages.info(request, 'You already have a category request awaiting review.')
+        return redirect('core:my_category_requests')
+
+    if request.method == 'POST':
+        form = AdminRequestForm(request.POST, queryset=available_qs)
+        if form.is_valid():
+            admin_request = AdminRequest.objects.create(user=request.user)
+            admin_request.categories.set(form.cleaned_data['categories'])
+            _notify_category_reviewers(
+                f'{profile.full_name or request.user.email} requested additional categories: '
+                + ', '.join(c.label for c in form.cleaned_data['categories']),
+                url=reverse('core:dashboard_admin_request_detail', args=[admin_request.pk]),
+            )
+            messages.success(request, 'Your request has been submitted for review.', extra_tags='celebrate-confetti')
+            return redirect('core:my_category_requests')
+    else:
+        form = AdminRequestForm(queryset=available_qs)
+
+    context = {
+        'page_title': 'Add Another Category - OneTownCity',
+        'form': form,
+        'top_categories': Category.objects.filter(parent=None, is_active=True).exclude(id__in=granted_ids).prefetch_related(
+            Prefetch('children', queryset=Category.objects.filter(is_active=True).exclude(id__in=granted_ids).order_by('order', 'label'))
+        ).order_by('order', 'label'),
+        'active_nav': 'my_listings',
+    }
+    return render(request, 'dashboard/request_category.html', context)
+
+
+@onboarding_required
+def my_category_requests(request):
+    """Every AdminRequest this Content Provider has ever submitted (first
+    application plus every "Add Another Category" ask since), newest first,
+    with its Pending/Approved/Rejected/Changes Requested status — the
+    visibility the user asked for beyond just the single latest one
+    admin_request_pending shows."""
+    requests_qs = AdminRequest.objects.filter(user=request.user).prefetch_related('categories').order_by('-created_at')
+    context = {
+        'page_title': 'My Category Requests - OneTownCity',
+        'requests': requests_qs,
+        'active_nav': 'my_listings',
+    }
+    return render(request, 'dashboard/my_category_requests.html', context)
 
 
 # ===========================================================================
@@ -2219,10 +2390,12 @@ def listing_submit(request, category_key):
     if request.method == 'POST':
         form = form_cls(request.POST, request.FILES)
         _restrict_city_field(form, profile)
+        _lock_subcategory_field(form, category)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.owner = request.user
             obj.listing_category = category
+            _apply_subcategory_lock(obj, category)
             if not CityModule.is_enabled_for_city(category.listing_model, obj.city_id):
                 messages.error(request, f'{category.label} listings are currently unavailable in this city.')
             else:
@@ -2269,6 +2442,7 @@ def listing_submit(request, category_key):
                 initial[field] = category.business_subcategory
         form = form_cls(initial=initial)
         _restrict_city_field(form, profile)
+        _lock_subcategory_field(form, category)
 
     context = {
         'page_title': f'Add {category.label} - OneTownCity', 'form': form, 'category': category,
@@ -2290,12 +2464,15 @@ def listing_edit(request, model_key, pk):
 
     form_cls = LISTING_SUBMIT_FORMS[model_key]
     was_draft = obj.status == ListingStatus.DRAFT
+    category = obj.listing_category
 
     if request.method == 'POST':
         form = form_cls(request.POST, request.FILES, instance=obj)
         _restrict_city_field(form, profile)
+        _lock_subcategory_field(form, category)
         if form.is_valid():
             obj = form.save(commit=False)
+            _apply_subcategory_lock(obj, category)
             was_rejected = obj.status in (ListingStatus.REJECTED, ListingStatus.CHANGES_REQUESTED)
             # A listing that's already been submitted once can't be sent
             # back to draft through an edit — 'draft' is only honored while
@@ -2326,6 +2503,7 @@ def listing_edit(request, model_key, pk):
     else:
         form = form_cls(instance=obj)
         _restrict_city_field(form, profile)
+        _lock_subcategory_field(form, category)
 
     ct = ContentType.objects.get_for_model(obj)
     context = {
@@ -3109,7 +3287,7 @@ def dashboard_message_toggle_read(request, pk):
     return redirect(_safe_next(request, reverse('core:dashboard_messages')))
 
 
-@super_admin_required
+@content_providers_required
 def dashboard_admin_requests(request):
     status_filter = request.GET.get('status', '').strip()
     requests_qs = AdminRequest.objects.select_related('user__profile').prefetch_related('categories').order_by('-created_at')
@@ -3117,7 +3295,7 @@ def dashboard_admin_requests(request):
         requests_qs = requests_qs.filter(status=status_filter)
 
     context = {
-        'page_title': 'Admin Requests - OneTownCity',
+        'page_title': 'Content Requests - OneTownCity',
         'requests': requests_qs,
         'status_filter': status_filter,
         'status_choices': AdminRequestStatus.choices,
@@ -3126,7 +3304,7 @@ def dashboard_admin_requests(request):
     return render(request, 'dashboard/admin_requests.html', context)
 
 
-@super_admin_required
+@content_providers_required
 def dashboard_admin_request_detail(request, pk):
     admin_request = get_object_or_404(
         AdminRequest.objects.select_related('user__profile').prefetch_related('categories'), pk=pk
@@ -3178,7 +3356,7 @@ def dashboard_admin_request_detail(request, pk):
         form = AdminRequestReviewForm()
 
     context = {
-        'page_title': 'Review Admin Request - OneTownCity',
+        'page_title': 'Review Content Request - OneTownCity',
         'admin_request': admin_request,
         'form': form,
         'active_nav': 'requests',
@@ -3901,10 +4079,12 @@ def dashboard_post_create(request, category_key):
 
     if request.method == 'POST':
         form = form_cls(request.POST, request.FILES)
+        _lock_subcategory_field(form, category)
         if form.is_valid():
             obj = form.save(commit=False)
             obj.owner = request.user
             obj.listing_category = category
+            _apply_subcategory_lock(obj, category)
             obj.status = ListingStatus.APPROVED
             obj.reviewed_by = request.user
             obj.reviewed_at = timezone.now()
@@ -3918,6 +4098,7 @@ def dashboard_post_create(request, category_key):
             if field:
                 initial[field] = category.business_subcategory
         form = form_cls(initial=initial)
+        _lock_subcategory_field(form, category)
 
     return render(request, 'dashboard/post_create.html', {
         'page_title': f'New {category.label} - OneTownCity',

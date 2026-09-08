@@ -52,6 +52,27 @@ def unread_messages(request):
     return {'unread_message_count': ContactMessage.objects.filter(is_read=False).count()}
 
 
+def pending_admin_requests(request):
+    """
+    Pending Content Provider request count for the "Content Requests" sidebar
+    badge — visible to whoever can actually review them (see
+    core.decorators.content_providers_required, the same gate used on
+    dashboard_admin_requests/dashboard_admin_request_detail): Super Admin,
+    City Admin, or a Sub Admin granted view_content_providers. Queried fresh
+    on every request (no caching) so it — and the badge disappearing at
+    zero — reflects approve/reject/changes-requested decisions immediately
+    on the next page load, the same way unread_message_count above does.
+    """
+    profile = getattr(request.user, 'profile', None) if request.user.is_authenticated else None
+    if not profile:
+        return {}
+    allowed = profile.is_super_admin or profile.is_city_admin or profile.has_permission('view_content_providers')
+    if not allowed:
+        return {}
+    from .models import AdminRequest, AdminRequestStatus
+    return {'pending_admin_request_count': AdminRequest.objects.filter(status=AdminRequestStatus.PENDING).count()}
+
+
 CATEGORY_TREE_CACHE_KEY = 'core:nav_category_tree'
 # Re-read on literally every page view (nav dropdown) but only changes when a
 # Super Admin edits categories — cached with a short TTL as a safety net, and

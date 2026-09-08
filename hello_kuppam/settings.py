@@ -85,6 +85,7 @@ TEMPLATES = [
                 'core.context_processors.push_config',
                 'core.context_processors.notifications',
                 'core.context_processors.unread_messages',
+                'core.context_processors.pending_admin_requests',
                 'core.context_processors.category_tree',
             ],
         },
@@ -113,6 +114,14 @@ DATABASES = {
         conn_max_age=0,
     )
 }
+# libpq's own connect_timeout defaults to 0 (wait forever) — without this, a
+# stalled TCP handshake to Supabase (packet loss, pooler momentarily out of
+# slots, network hiccup) hangs the request, and the whole browser tab with
+# it, indefinitely instead of failing fast. A form submit stuck on "Please
+# wait..." forever with the Network tab showing the request still pending
+# is this exact symptom. Bounding it means a bad connection surfaces as a
+# retryable error within seconds instead of an unrecoverable hang.
+DATABASES['default'].setdefault('OPTIONS', {})['connect_timeout'] = 10
 # ------------------------------------------------------------------
 # CACHING
 # ------------------------------------------------------------------

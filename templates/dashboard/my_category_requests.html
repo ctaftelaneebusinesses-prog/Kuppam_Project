@@ -1,0 +1,53 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="hk-dash-topbar d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <h3 class="fw-bold mb-0">{% trans "My Category Requests" %}</h3>
+    <a href="{% url 'core:request_additional_category' %}" class="btn btn-primary hk-cta-btn">
+        <i class="bi bi-plus-circle"></i> {% trans "Add Another Category" %}
+    </a>
+</div>
+
+{% if requests %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>{% trans "Requested Categories" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th>{% trans "Submitted" %}</th>
+                    <th>{% trans "Note" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>
+                        {% for category in req.categories.all %}
+                        <span class="badge bg-secondary-subtle text-secondary">{{ category.label }}</span>
+                        {% endfor %}
+                    </td>
+                    <td><span class="hk-status-pill hk-status-{{ req.status }}">{{ req.get_status_display }}</span></td>
+                    <td class="small text-muted">{{ req.created_at|date:"d M Y, H:i" }}</td>
+                    <td class="small text-muted">{{ req.review_note|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info text-center py-5 hk-empty-state">
+    <i class="bi bi-tags display-4 d-block mb-3"></i>
+    <p class="fw-bold mb-1">{% trans "No category requests yet" %}</p>
+    <p class="text-muted mb-3">{% trans "Request access to another category whenever you're ready to add more kinds of listings." %}</p>
+    <a href="{% url 'core:request_additional_category' %}" class="btn btn-primary hk-cta-btn">
+        <i class="bi bi-plus-circle"></i> {% trans "Add Another Category" %}
+    </a>
+</div>
+{% endif %}
+{% endblock %}

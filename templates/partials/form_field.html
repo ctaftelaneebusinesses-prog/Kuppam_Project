@@ -1,0 +1,35 @@
+{% comment %}
+Shared per-field renderer for the listing submission forms (listing_submit.html,
+post_create.html) — one place for the floating-label wrapper, help text,
+errors, and the required-field asterisk convention, instead of duplicating
+this block in every template that loops over `{% for field in form %}`.
+Usage: {% include 'partials/form_field.html' with field=field %}
+{% endcomment %}
+{% if field.field.widget.input_type == 'hidden' %}
+    {{ field }}
+{% elif field.field.widget.input_type == 'file' %}
+<div class="mb-3">
+    <label for="{{ field.id_for_label }}" class="form-label">
+        {{ field.label }}{% if field.field.required %}<span class="text-danger"> *</span>{% endif %}
+    </label>
+    {{ field }}
+    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+    {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
+</div>
+{% elif field.field.widget.is_working_hours_widget %}
+<div class="mb-3">
+    <label class="form-label">{{ field.label }}</label>
+    {{ field }}
+    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+    {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
+</div>
+{% else %}
+<div class="form-floating mb-3 {% if field.errors %}hk-field-invalid{% endif %}" data-field-name="{{ field.name }}">
+    {{ field }}
+    <label for="{{ field.id_for_label }}">
+        {{ field.label }}{% if field.field.required or field.field.widget.attrs.required %}<span class="text-danger"> *</span>{% endif %}
+    </label>
+    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+    {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
+</div>
+{% endif %}

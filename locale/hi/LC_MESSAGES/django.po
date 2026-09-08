@@ -6,6 +6,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid ""
 "\"Kuppam\" is widely understood locally to mean a meeting place or confluence — a fitting name\n"
@@ -2367,3 +2368,681 @@ msgstr "केवल शीर्ष-स्तरीय, स्थिर पथ"
 
 msgid "{{ trend }}% vs last week"
 msgstr "{{ trend }}% बनाम पिछले सप्ताह"
+
+msgid "%(trend)s%% vs last week"
+msgstr "%(trend)s%% पिछले सप्ताह की तुलना में"
+
+msgid "0 approved listings for this scope"
+msgstr "इस क्षेत्र के लिए 0 स्वीकृत लिस्टिंग"
+
+msgid "24/7 multilingual agent coverage"
+msgstr "24/7 बहुभाषी एजेंट सहायता"
+
+msgid "A record of sensitive administrative actions across the platform."
+msgstr "प्लेटफ़ॉर्म पर संवेदनशील प्रशासनिक कार्यों का रिकॉर्ड।"
+
+msgid "Actor"
+msgstr "कर्ता"
+
+msgid "Add %(cat)s"
+msgstr "%(cat)s जोड़ें"
+
+msgid "Add City Admin"
+msgstr "सिटी एडमिन जोड़ें"
+
+msgid "Add Content"
+msgstr "सामग्री जोड़ें"
+
+msgid "Add Content Provider"
+msgstr "सामग्री प्रदाता जोड़ें"
+
+msgid ""
+"Add Content Providers for your city and choose which categories each one can"
+" publish into."
+msgstr ""
+"अपने शहर के लिए सामग्री प्रदाता जोड़ें और चुनें कि हर एक किन श्रेणियों में "
+"प्रकाशित कर सकता है।"
+
+msgid "Add Sub Admin"
+msgstr "सब एडमिन जोड़ें"
+
+msgid "All cities (platform-wide)"
+msgstr "सभी शहर (संपूर्ण प्लेटफ़ॉर्म)"
+
+msgid "Always granted"
+msgstr "हमेशा प्रदत्त"
+
+msgid "Approved Content"
+msgstr "स्वीकृत सामग्री"
+
+msgid "Assign or remove specific permissions for this Sub Admin."
+msgstr "इस सब एडमिन के लिए विशिष्ट अनुमतियाँ निर्धारित करें या हटाएं।"
+
+msgid "Audit Logs"
+msgstr "ऑडिट लॉग"
+
+msgid "Auto-Approve New Listings"
+msgstr "नई लिस्टिंग स्वतः स्वीकृत करें"
+
+msgid "Available On"
+msgstr "उपलब्धता"
+
+msgid "Back to Listings"
+msgstr "लिस्टिंग पर वापस जाएं"
+
+msgid "Back to Sub Admins"
+msgstr "सब एडमिन पर वापस जाएं"
+
+msgid "Browse %(label)s listings in your city"
+msgstr "अपने शहर में %(label)s लिस्टिंग ब्राउज़ करें"
+
+msgid "Browse general local businesses and services in your city"
+msgstr "अपने शहर के सामान्य स्थानीय व्यवसाय और सेवाएं ब्राउज़ करें"
+
+msgid "Browse real estate listings — sale, rent, plots and more in your city"
+msgstr ""
+"रियल एस्टेट लिस्टिंग ब्राउज़ करें - बिक्री, किराया, प्लॉट और अपने शहर में और"
+" भी बहुत कुछ"
+
+msgid "Call Now"
+msgstr "अभी कॉल करें"
+
+msgid "Call center and BPO services"
+msgstr "कॉल सेंटर और बीपीओ सेवाएं"
+
+msgid "Check homepage visibility for"
+msgstr "होमपेज दृश्यता जांचें"
+
+msgid "Choose city"
+msgstr "शहर चुनें"
+
+msgid "Choose your city"
+msgstr "अपना शहर चुनें"
+
+msgid "Cities"
+msgstr "शहर"
+
+msgid "City Admin"
+msgstr "सिटी एडमिन"
+
+msgid "City Admin Dashboard"
+msgstr "सिटी एडमिन डैशबोर्ड"
+
+msgid "City Administration"
+msgstr "सिटी प्रशासन"
+
+msgid "City Admins"
+msgstr "सिटी एडमिन्स"
+
+msgid "City Content Inventory"
+msgstr "सिटी सामग्री सूची"
+
+msgid "City Modules"
+msgstr "सिटी मॉड्यूल"
+
+msgid "City Team"
+msgstr "सिटी टीम"
+
+msgid "City activity at a glance"
+msgstr "एक नज़र में शहर की गतिविधि"
+
+msgid "Comments (%(count)s)"
+msgstr "टिप्पणियाँ (%(count)s)"
+
+msgid "Content Providers"
+msgstr "सामग्री प्रदाता"
+
+msgid "Content Status"
+msgstr "सामग्री स्थिति"
+
+msgid "No permissions granted yet"
+msgstr "अभी तक कोई अनुमति प्रदान नहीं की गई"
+
+msgid "No permissions granted yet."
+msgstr "अभी तक कोई अनुमति प्रदान नहीं की गई।"
+
+msgid "No platform modules are enabled to restrict."
+msgstr "प्रतिबंधित करने के लिए कोई प्लेटफ़ॉर्म मॉड्यूल सक्षम नहीं हैं।"
+
+msgid "No repair shops listed yet for your city."
+msgstr "आपके शहर के लिए अभी तक कोई मरम्मत की दुकान सूचीबद्ध नहीं है।"
+
+msgid "No submissions yet."
+msgstr "अभी तक कोई सबमिशन नहीं।"
+
+msgid "None"
+msgstr "कोई नहीं"
+
+msgid "Not granted"
+msgstr "प्रदान नहीं किया गया"
+
+msgid "On homepage"
+msgstr "होमपेज पर"
+
+msgid ""
+"Only used when this category publishes into Business, Property, Jobs, or "
+"Projects — matches that model's category/type/status field (e.g. "
+"Business.category, Property.property_type, Job.job_type, "
+"Project.project_status)."
+msgstr ""
+"केवल तब उपयोग किया जाता है जब यह श्रेणी व्यवसाय, संपत्ति, नौकरियों या "
+"परियोजनाओं में प्रकाशित होती है - उस मॉडल के category/type/status फ़ील्ड से "
+"मेल खाता है (जैसे Business.category, Property.property_type, Job.job_type, "
+"Project.project_status)।"
+
+msgid "Page %(current)s of %(total)s"
+msgstr "पृष्ठ %(current)s / %(total)s"
+
+msgid "Page %(num)s of %(total)s"
+msgstr "पृष्ठ %(num)s / %(total)s"
+
+msgid "Pending Content"
+msgstr "लंबित सामग्री"
+
+msgid "Permission"
+msgstr "अनुमति"
+
+msgid "Permissions"
+msgstr "अनुमतियाँ"
+
+msgid "Places to Visit"
+msgstr "घूमने की जगहें"
+
+msgid "Planned and ongoing civic and infrastructure projects in your city"
+msgstr "आपके शहर में नियोजित और चल रही नागरिक एवं बुनियादी ढांचा परियोजनाएं"
+
+msgid "Platform Modules"
+msgstr "प्लेटफ़ॉर्म मॉड्यूल"
+
+msgid "Platform Settings"
+msgstr "प्लेटफ़ॉर्म सेटिंग्स"
+
+msgid "Promote to Super Admin"
+msgstr "सुपर एडमिन में पदोन्नत करें"
+
+msgid "Property Listing"
+msgstr "संपत्ति लिस्टिंग"
+
+msgid "Recently Submitted"
+msgstr "हाल ही में सबमिट किया गया"
+
+msgid "Rejected Content"
+msgstr "अस्वीकृत सामग्री"
+
+msgid "Repair Shops Near You"
+msgstr "आपके पास मरम्मत की दुकानें"
+
+msgid "Restaurants & Food"
+msgstr "रेस्तरां और भोजन"
+
+msgid ""
+"Restrict which platform modules are available in this city. A module Super "
+"Admin has disabled platform-wide can't be re-enabled here."
+msgstr ""
+"तय करें कि इस शहर में कौन से प्लेटफ़ॉर्म मॉड्यूल उपलब्ध हैं। जिस मॉड्यूल को "
+"सुपर एडमिन ने पूरे प्लेटफ़ॉर्म पर अक्षम किया है, उसे यहाँ पुनः सक्षम नहीं "
+"किया जा सकता।"
+
+msgid "Review Submitted Content"
+msgstr "सबमिट की गई सामग्री की समीक्षा करें"
+
+msgid "Reviews (%(count)s)"
+msgstr "समीक्षाएं (%(count)s)"
+
+msgid "Roles & Permissions"
+msgstr "भूमिकाएं और अनुमतियाँ"
+
+msgid "Save City Admin"
+msgstr "सिटी एडमिन सहेजें"
+
+msgid "Save Content Provider"
+msgstr "सामग्री प्रदाता सहेजें"
+
+msgid "Save Settings"
+msgstr "सेटिंग्स सहेजें"
+
+msgid "Save Sub Admin"
+msgstr "सब एडमिन सहेजें"
+
+msgid "Save as Draft"
+msgstr "ड्राफ्ट के रूप में सहेजें"
+
+msgid ""
+"Save it as a draft to keep working on it, or submit it for approval when "
+"you're ready."
+msgstr ""
+"इस पर काम जारी रखने के लिए इसे ड्राफ्ट के रूप में सहेजें, या तैयार होने पर "
+"स्वीकृति के लिए सबमिट करें।"
+
+msgid "Scalable teams — start small, grow on demand"
+msgstr "स्केलेबल टीमें - छोटी शुरुआत करें, मांग पर बढ़ें"
+
+msgid "Search %(label)s"
+msgstr "%(label)s खोजें"
+
+msgid "Search by action, description, or actor email"
+msgstr "कार्रवाई, विवरण, या कर्ता ईमेल द्वारा खोजें"
+
+msgid "Search city"
+msgstr "शहर खोजें"
+
+msgid "Search city..."
+msgstr "शहर खोजें..."
+
+msgid "Showing only the modules you've been granted access to."
+msgstr "केवल वे मॉड्यूल दिखाए जा रहे हैं जिनकी आपको पहुंच दी गई है।"
+
+msgid "Site Name"
+msgstr "साइट का नाम"
+
+msgid "Site identity, maintenance mode, and content approval behavior."
+msgstr "साइट पहचान, रखरखाव मोड, और सामग्री स्वीकृति व्यवहार।"
+
+msgid "Status in"
+msgstr "में स्थिति"
+
+msgid "Sub Admin"
+msgstr "सब एडमिन"
+
+msgid "Sub Admin Dashboard"
+msgstr "सब एडमिन डैशबोर्ड"
+
+msgid "Sub Admins"
+msgstr "सब एडमिन्स"
+
+msgid "Subcategory value"
+msgstr "उप-श्रेणी मान"
+
+msgid "Submissions"
+msgstr "सबमिशन"
+
+msgid "Submit for Approval"
+msgstr "स्वीकृति के लिए सबमिट करें"
+
+msgid ""
+"Super Admin always has unrestricted access. Grant or revoke individual "
+"capabilities for the other roles below — these take effect as each role's "
+"own dashboard is rolled out."
+msgstr ""
+"सुपर एडमिन को हमेशा असीमित पहुंच होती है। नीचे दी गई अन्य भूमिकाओं के लिए "
+"व्यक्तिगत क्षमताएं प्रदान करें या वापस लें - ये हर भूमिका के अपने डैशबोर्ड "
+"के लागू होने पर प्रभावी होती हैं।"
+
+msgid "Support Email"
+msgstr "सहायता ईमेल"
+
+msgid "Support Phone"
+msgstr "सहायता फ़ोन"
+
+msgid "Switch entire feature areas on or off across the platform."
+msgstr "पूरे प्लेटफ़ॉर्म पर संपूर्ण फ़ीचर क्षेत्रों को चालू या बंद करें।"
+
+msgid ""
+"These categories have no approved listings yet, so their tile is left off "
+"the homepage entirely rather than showing an empty card. Add a listing and "
+"it reappears automatically."
+msgstr ""
+"इन श्रेणियों में अभी तक कोई स्वीकृत लिस्टिंग नहीं है, इसलिए खाली कार्ड "
+"दिखाने के बजाय इनकी टाइल होमपेज से पूरी तरह हटा दी जाती है। एक लिस्टिंग "
+"जोड़ें और यह स्वतः फिर से दिखने लगेगी।"
+
+msgid "Today in Your Town"
+msgstr "आज आपके शहर में"
+
+msgid "Toggle"
+msgstr "टॉगल करें"
+
+msgid "Updated %(updated)s"
+msgstr "%(updated)s को अपडेट किया गया"
+
+msgid "Use My Location"
+msgstr "मेरा स्थान उपयोग करें"
+
+msgid "Use my current location"
+msgstr "मेरा वर्तमान स्थान उपयोग करें"
+
+msgid "We could not access your location."
+msgstr "हम आपके स्थान तक नहीं पहुंच सके।"
+
+msgid ""
+"We run round-the-clock inbound and outbound call center operations for "
+"businesses that need dependable customer support without the overhead of an "
+"in-house team. From order support and appointment scheduling to lead "
+"qualification and after-sales care, our trained agents represent your brand "
+"professionally on every call."
+msgstr ""
+"हम उन व्यवसायों के लिए चौबीसों घंटे इनबाउंड और आउटबाउंड कॉल सेंटर संचालन "
+"चलाते हैं जिन्हें इन-हाउस टीम के बोझ के बिना भरोसेमंद ग्राहक सहायता चाहिए। "
+"ऑर्डर सहायता और अपॉइंटमेंट शेड्यूलिंग से लेकर लीड क्वालिफिकेशन और बिक्री के "
+"बाद की देखभाल तक, हमारे प्रशिक्षित एजेंट हर कॉल पर आपके ब्रांड का पेशेवर "
+"तरीके से प्रतिनिधित्व करते हैं।"
+
+msgid ""
+"What's happening today, places worth visiting, and repair shops near you."
+msgstr "आज क्या हो रहा है, घूमने लायक जगहें, और आपके पास मरम्मत की दुकानें।"
+
+msgid ""
+"When on, new/edited listings from Content Providers and Explorers publish "
+"immediately instead of waiting in the pending-approval queue."
+msgstr ""
+"चालू होने पर, सामग्री प्रदाताओं और एक्सप्लोरर्स की नई/संपादित लिस्टिंग "
+"लंबित-स्वीकृति कतार में प्रतीक्षा करने के बजाय तुरंत प्रकाशित हो जाती हैं।"
+
+msgid ""
+"When on, only Super Admin can browse the site — everyone else sees a "
+"maintenance page."
+msgstr ""
+"चालू होने पर, केवल सुपर एडमिन साइट ब्राउज़ कर सकते हैं - बाकी सभी को रखरखाव "
+"पृष्ठ दिखाई देगा।"
+
+msgid ""
+"Your City Admin hasn't delegated any modules to your account yet. Check back"
+" once they have."
+msgstr ""
+"आपके सिटी एडमिन ने अभी तक आपके खाते में कोई मॉड्यूल नहीं सौंपा है। जब वे "
+"सौंप दें तब वापस देखें।"
+
+msgid "Your Content Areas"
+msgstr "आपके सामग्री क्षेत्र"
+
+msgid ""
+"Your trusted local information portal for %(city)s — businesses, jobs, real "
+"estate, and everything in between."
+msgstr ""
+"%(city)s के लिए आपका विश्वसनीय स्थानीय सूचना पोर्टल - व्यवसाय, नौकरियां, "
+"रियल एस्टेट, और भी बहुत कुछ।"
+
+msgid ""
+"Your trusted local information portal — businesses, jobs, real estate, and "
+"everything in between."
+msgstr ""
+"आपका विश्वसनीय स्थानीय सूचना पोर्टल - व्यवसाय, नौकरियां, रियल एस्टेट, और भी "
+"बहुत कुछ।"
+
+msgid "e.g. restaurant, sale, hourly"
+msgstr "जैसे restaurant, sale, hourly"
+
+msgid "for \"<strong>%(query)s</strong>\""
+msgstr "\"<strong>%(query)s</strong>\" के लिए"
+
+msgid "in <strong>%(label)s</strong>"
+msgstr "<strong>%(label)s</strong> में"
+
+msgid "in <strong>%(t)s</strong>"
+msgstr "<strong>%(t)s</strong> में"
+
+msgid "no city assigned yet"
+msgstr "अभी तक कोई शहर निर्धारित नहीं"
+
+msgid "role default"
+msgstr "भूमिका डिफ़ॉल्ट"
+
+msgid "%(counter)s Listing"
+msgid_plural "%(counter)s Listings"
+msgstr[0] "%(counter)s लिस्टिंग"
+msgstr[1] "%(counter)s लिस्टिंग"
+
+msgid "%(counter)s post"
+msgid_plural "%(counter)s posts"
+msgstr[0] "%(counter)s पोस्ट"
+msgstr[1] "%(counter)s पोस्ट"
+
+msgid "%(counter)s subcategory"
+msgid_plural "%(counter)s subcategories"
+msgstr[0] "%(counter)s उप-श्रेणी"
+msgstr[1] "%(counter)s उप-श्रेणियाँ"
+
+msgid "%(counter)s user"
+msgid_plural "%(counter)s users"
+msgstr[0] "%(counter)s उपयोगकर्ता"
+msgstr[1] "%(counter)s उपयोगकर्ता"
+
+msgid "Showing %(counter)s business"
+msgid_plural "Showing %(counter)s businesses"
+msgstr[0] "%(counter)s व्यवसाय दिखाया जा रहा है"
+msgstr[1] "%(counter)s व्यवसाय दिखाए जा रहे हैं"
+
+msgid "Showing %(counter)s listing"
+msgid_plural "Showing %(counter)s listings"
+msgstr[0] "%(counter)s लिस्टिंग दिखाई जा रही है"
+msgstr[1] "%(counter)s लिस्टिंग दिखाई जा रही हैं"
+
+msgid "Showing %(counter)s project"
+msgid_plural "Showing %(counter)s projects"
+msgstr[0] "%(counter)s परियोजना दिखाई जा रही है"
+msgstr[1] "%(counter)s परियोजनाएं दिखाई जा रही हैं"
+
+msgid "Showing %(counter)s property"
+msgid_plural "Showing %(counter)s properties"
+msgstr[0] "%(counter)s संपत्ति दिखाई जा रही है"
+msgstr[1] "%(counter)s संपत्तियां दिखाई जा रही हैं"
+
+msgid "Showing %(counter)s result"
+msgid_plural "Showing %(counter)s results"
+msgstr[0] "%(counter)s परिणाम दिखाया जा रहा है"
+msgstr[1] "%(counter)s परिणाम दिखाए जा रहे हैं"
+
+msgid "Maintenance Message"
+msgstr "रखरखाव संदेश"
+
+msgid "Maintenance Mode"
+msgstr "रखरखाव मोड"
+
+msgid "Manage City Admins"
+msgstr "सिटी एडमिन प्रबंधित करें"
+
+msgid "Manage City Content"
+msgstr "सिटी सामग्री प्रबंधित करें"
+
+msgid "Manage Content"
+msgstr "सामग्री प्रबंधित करें"
+
+msgid "Manage Content Providers"
+msgstr "सामग्री प्रदाता प्रबंधित करें"
+
+msgid "Manage Permissions"
+msgstr "अनुमतियाँ प्रबंधित करें"
+
+msgid "Manage Sub Admins"
+msgstr "सब एडमिन प्रबंधित करें"
+
+msgid "Managing"
+msgstr "प्रबंधन कर रहे हैं"
+
+msgid "Module"
+msgstr "मॉड्यूल"
+
+msgid "My Content"
+msgstr "मेरी सामग्री"
+
+msgid "Nearby Shops"
+msgstr "आस-पास की दुकानें"
+
+msgid ""
+"Need help finding a business, job or property in %(city)s? Chat with us on "
+"WhatsApp."
+msgstr ""
+"%(city)s में व्यवसाय, नौकरी या संपत्ति खोजने में मदद चाहिए? WhatsApp पर हमसे"
+" चैट करें।"
+
+msgid ""
+"Need help finding a business, job or property? Chat with us on WhatsApp."
+msgstr ""
+"व्यवसाय, नौकरी या संपत्ति खोजने में मदद चाहिए? WhatsApp पर हमसे चैट करें।"
+
+msgid "New %(cat)s"
+msgstr "नया %(cat)s"
+
+msgid "No %(label)s found"
+msgstr "कोई %(label)s नहीं मिला"
+
+msgid "No City Admins yet."
+msgstr "अभी तक कोई सिटी एडमिन नहीं।"
+
+msgid "No Content Providers yet."
+msgstr "अभी तक कोई सामग्री प्रदाता नहीं।"
+
+msgid "No Sub Admins yet."
+msgstr "अभी तक कोई सब एडमिन नहीं।"
+
+msgid "No audit log entries yet."
+msgstr "अभी तक कोई ऑडिट लॉग प्रविष्टि नहीं।"
+
+msgid ""
+"No categories yet — add one from <a "
+"href=\"%(manage_categories_url)s\">Manage Categories</a> first."
+msgstr ""
+"अभी तक कोई श्रेणी नहीं - पहले <a "
+"href=\"%(manage_categories_url)s\">श्रेणियाँ प्रबंधित करें</a> से एक जोड़ें।"
+
+msgid "No cities assigned"
+msgstr "कोई शहर निर्धारित नहीं"
+
+msgid "No city assigned"
+msgstr "कोई शहर निर्धारित नहीं"
+
+msgid "No delegable permissions defined yet."
+msgstr "अभी तक कोई सौंपने योग्य अनुमतियाँ परिभाषित नहीं।"
+
+msgid "No modules defined yet."
+msgstr "अभी तक कोई मॉड्यूल परिभाषित नहीं।"
+
+msgid "No permissions defined yet."
+msgstr "अभी तक कोई अनुमतियाँ परिभाषित नहीं।"
+
+msgid "Create City Admin accounts and assign which cities each one manages."
+msgstr "सिटी एडमिन खाते बनाएं और तय करें कि हर एक कौन से शहर संभालेगा।"
+
+msgid ""
+"Create Sub Admin accounts for your city and control what each one can do."
+msgstr ""
+"अपने शहर के लिए सब एडमिन खाते बनाएं और नियंत्रित करें कि हर एक क्या कर सकता "
+"है।"
+
+msgid "Created %(joined)s"
+msgstr "%(joined)s को बनाया गया"
+
+msgid "Deactivated"
+msgstr "निष्क्रिय किया गया"
+
+msgid "Dedicated account manager & real-time reporting"
+msgstr "समर्पित खाता प्रबंधक और रीयल-टाइम रिपोर्टिंग"
+
+msgid "Description"
+msgstr "विवरण"
+
+msgid "Disable for this city"
+msgstr "इस शहर के लिए अक्षम करें"
+
+msgid "Enable for this city"
+msgstr "इस शहर के लिए सक्षम करें"
+
+msgid "Enabled"
+msgstr "सक्षम"
+
+msgid ""
+"End-to-end web development, call center and BPO services from CraftLanee — "
+"for startups, businesses, educational institutions, and organizations "
+"building a strong online presence."
+msgstr ""
+"क्राफ्टलेनी की ओर से एंड-टू-एंड वेब डेवलपमेंट, कॉल सेंटर और बीपीओ सेवाएं - "
+"स्टार्टअप, व्यवसायों, शैक्षणिक संस्थानों और मजबूत ऑनलाइन उपस्थिति बनाने वाले"
+" संगठनों के लिए।"
+
+msgid "Everything %(city)s has to offer, organized in one place"
+msgstr "%(city)s में जो कुछ भी उपलब्ध है, वह सब एक ही जगह"
+
+msgid "Everything your city has to offer, organized in one place"
+msgstr "आपके शहर में जो कुछ भी उपलब्ध है, वह सब एक ही जगह"
+
+msgid "Explore %(name)s"
+msgstr "%(name)s देखें"
+
+msgid "Featured Service"
+msgstr "विशेष सेवा"
+
+msgid "Finding your location..."
+msgstr "आपका स्थान खोजा जा रहा है..."
+
+msgid "Get Started"
+msgstr "शुरू करें"
+
+msgid "Get the latest %(city)s listings and news in your inbox."
+msgstr "%(city)s की नवीनतम लिस्टिंग और समाचार अपने इनबॉक्स में पाएं।"
+
+msgid "Get the latest listings and news in your inbox."
+msgstr "नवीनतम लिस्टिंग और समाचार अपने इनबॉक्स में पाएं।"
+
+msgid "Granted"
+msgstr "स्वीकृत"
+
+msgid "Granted Permissions"
+msgstr "स्वीकृत अनुमतियाँ"
+
+msgid "Happening Today"
+msgstr "आज हो रहा है"
+
+msgid "Has approved listings for this scope"
+msgstr "इस क्षेत्र के लिए स्वीकृत लिस्टिंग हैं"
+
+msgid "Hidden From Your Homepage"
+msgstr "आपके होमपेज से छिपा हुआ"
+
+msgid "Hidden — 0 listings"
+msgstr "छिपा हुआ - 0 लिस्टिंग"
+
+msgid "Hold Ctrl/Cmd to select more than one."
+msgstr "एक से अधिक चुनने के लिए Ctrl/Cmd दबाए रखें।"
+
+msgid "Hourly Basis"
+msgstr "प्रति घंटा आधार"
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the City "
+"Admin role attaches automatically the first time they sign in with Google."
+msgstr ""
+"यदि यह ईमेल अभी तक साइन इन नहीं हुआ है, तो अभी एक खाता बनाया जाता है और जब "
+"वे पहली बार Google से साइन इन करेंगे तो सिटी एडमिन भूमिका स्वतः जुड़ जाएगी।"
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the "
+"Content Provider role attaches automatically the first time they sign in "
+"with Google."
+msgstr ""
+"यदि यह ईमेल अभी तक साइन इन नहीं हुआ है, तो अभी एक खाता बनाया जाता है और जब "
+"वे पहली बार Google से साइन इन करेंगे तो सामग्री प्रदाता भूमिका स्वतः जुड़ "
+"जाएगी।"
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the Sub "
+"Admin role attaches automatically the first time they sign in with Google."
+msgstr ""
+"यदि यह ईमेल अभी तक साइन इन नहीं हुआ है, तो अभी एक खाता बनाया जाता है और जब "
+"वे पहली बार Google से साइन इन करेंगे तो सब एडमिन भूमिका स्वतः जुड़ जाएगी।"
+
+msgid "It will be reviewed before it goes live."
+msgstr "लाइव होने से पहले इसकी समीक्षा की जाएगी।"
+
+msgid "Job Type"
+msgstr "नौकरी का प्रकार"
+
+msgid "Last active %(last_active)s"
+msgstr "अंतिम सक्रिय %(last_active)s"
+
+msgid "Last reviewed by %(reviewer)s on %(reviewed_on)s"
+msgstr "अंतिम बार %(reviewer)s द्वारा %(reviewed_on)s को समीक्षा की गई"
+
+msgid "Latest Updates"
+msgstr "नवीनतम अपडेट"
+
+msgid "Live & Local"
+msgstr "लाइव और स्थानीय"
+
+msgid "Location captured."
+msgstr "स्थान प्राप्त हो गया।"
+
+msgid "Location is unavailable in this browser."
+msgstr "इस ब्राउज़र में स्थान उपलब्ध नहीं है।"
+
+msgid "Location permission was denied."
+msgstr "स्थान अनुमति अस्वीकृत कर दी गई।"
