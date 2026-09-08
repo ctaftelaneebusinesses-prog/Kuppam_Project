@@ -72,13 +72,19 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('scroll', toggleNavbar, { passive: true });
     }
 
-    // Mobile nav drawer (Bootstrap offcanvas): resizing the window past the
-    // lg breakpoint while it's open doesn't auto-close it — that's a plain
-    // JS/CSS-class state Bootstrap only toggles on click, not on resize — so
-    // without this, opening it at mobile width then widening the window
-    // (or rotating a tablet) leaves it visibly open on top of the desktop
-    // nav, reading as two nav/category menus at once.
+    // Mobile nav drawer (Bootstrap offcanvas). Single lookup shared by two
+    // independent behaviors below (resize-close and link-click-close) —
+    // previously declared as two separate `const navDrawerEl` in this same
+    // scope, which is a SyntaxError (duplicate declaration) that silently
+    // broke this entire script's execution on every page.
     const navDrawerEl = document.getElementById('hkNavDrawer');
+
+    // Resizing the window past the lg breakpoint while it's open doesn't
+    // auto-close it — that's a plain JS/CSS-class state Bootstrap only
+    // toggles on click, not on resize — so without this, opening it at
+    // mobile width then widening the window (or rotating a tablet) leaves
+    // it visibly open on top of the desktop nav, reading as two nav/
+    // category menus at once.
     if (navDrawerEl && window.bootstrap && window.bootstrap.Offcanvas) {
         const desktopQuery = window.matchMedia('(min-width: 992px)');
         const closeIfDesktop = function (e) {
@@ -349,6 +355,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.addEventListener('click', function () { closeAll(null); });
     })();
+
 
     // Close the mobile nav drawer after clicking a link inside it.
     // Reuses navDrawerEl from the close-on-desktop-resize block above —

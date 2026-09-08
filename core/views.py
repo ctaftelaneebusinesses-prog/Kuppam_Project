@@ -186,6 +186,16 @@ LISTING_MODELS = {
     'project': Project,
 }
 
+#: Every "one page across all 6 listing types" view (my_listings,
+#: dashboard_pending_listings, core.api.views.my_listings_view) fetches per
+#: model and merges the results into one Python-sorted list — an unbounded
+#: per-model fetch means a Super Admin's page (or a prolific single owner's)
+#: grows without limit as the site does. Bounding each model's query to this
+#: many rows before the merge keeps that fetch itself cheap regardless of
+#: total row count; it is not a hard cap on how many listings the app knows
+#: about, only on how many feed into any one of these merged views.
+MAX_LISTINGS_PER_MODEL_SCAN = 500
+
 #: Which submit-form field a Category's business_subcategory value pre-fills,
 #: per listing_model — mirrors Category._LISTING_COUNT_MAP's field names.
 #: Event/News have no equivalent split field, so they're absent here; a
@@ -2320,7 +2330,8 @@ def my_listings(request):
     items = []
     for key, model_cls in LISTING_MODELS.items():
         qs = model_cls.objects.all() if profile.is_super_admin else model_cls.objects.filter(owner=request.user)
-        for obj in qs.select_related('listing_category'):
+        qs = qs.select_related('listing_category').order_by('-created_at')[:MAX_LISTINGS_PER_MODEL_SCAN]
+        for obj in qs:
             items.append({'model_key': key, 'obj': obj})
     items.sort(key=lambda item: item['obj'].created_at, reverse=True)
 
@@ -2377,6 +2388,88 @@ def _resolve_submission_status(profile, listing_model, save_mode):
     return ListingStatus.PENDING
 
 
+def apply_new_listing_submission(obj, profile, category, actor, save_mode='submit', ip_address=None):
+    """
+    The state machine for a brand-new listing submission: resolves and sets
+    `obj.status`, saves it, and fans out the same notifications/audit-log
+    entry regardless of which client submitted it — shared by the web
+    dashboard (listing_submit, below) and core.api._create_listing so the
+    two clients can never drift apart on when a listing auto-publishes vs.
+    enters review, or who gets notified.
+
+    Raises django.core.exceptions.ValidationError (uncaught here — each
+    caller translates it into its own idiom: messages.error for the web
+    view, a DRF ValidationError for the API) if the category's module is
+    disabled for the target city; nothing is persisted in that case.
+
+    Returns the resolved status so callers can still branch their own
+    UI-only messaging on it without recomputing the resolution rules.
+    """
+    if not CityModule.is_enabled_for_city(category.listing_model, obj.city_id):
+        raise ValidationError(f'{category.label} listings are currently unavailable in this city.')
+
+    obj.status = _resolve_submission_status(profile, category.listing_model, save_mode)
+    if obj.status == ListingStatus.APPROVED:
+        obj.reviewed_by = actor
+        obj.reviewed_at = timezone.now()
+    obj.save()
+
+    if obj.status == ListingStatus.PENDING:
+        detail_url = reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk])
+        message = f'New {category.label} listing submitted: "{obj}"'
+        _notify_super_admins(message, url=detail_url, type='listing_submitted')
+        _notify_city_admins(obj.city, message, url=detail_url, type='listing_submitted')
+        _notify_sub_admins(obj.city, category.listing_model, message, url=detail_url, type='listing_submitted')
+        AuditLog.objects.create(
+            actor=actor, action='content.submit',
+            description=f'{profile.get_role_display()} submitted "{obj}" for approval'[:300],
+            ip_address=ip_address,
+        )
+    return obj.status
+
+
+def apply_listing_edit_state(obj, profile, model_key, save_mode='submit', ip_address=None):
+    """
+    The edit-time counterpart of apply_new_listing_submission — same
+    shared-by-web-and-API contract. `obj` must be the ModelForm's
+    `form.save(commit=False)` result with `status` not yet reassigned (a
+    submit form's Meta.fields never includes 'status', so obj.status still
+    holds the pre-edit value at this point) — used to detect whether this
+    edit is leaving a draft or a rejected/changes-requested listing, which
+    changes whether the review queue and its notifications are touched.
+
+    Saves `obj` and returns its resolved status, same as
+    apply_new_listing_submission.
+    """
+    was_draft = obj.status == ListingStatus.DRAFT
+    was_rejected = obj.status in (ListingStatus.REJECTED, ListingStatus.CHANGES_REQUESTED)
+
+    # A listing that's already been submitted once can't be sent back to
+    # draft through an edit — 'draft' is only honored while it's still a
+    # draft; every other edit is itself a (re)submission.
+    effective_save_mode = save_mode if was_draft else 'submit'
+    obj.status = _resolve_submission_status(profile, model_key, effective_save_mode)
+    if obj.status in (ListingStatus.APPROVED, ListingStatus.PENDING):
+        obj.rejection_reason = ''
+    if obj.status == ListingStatus.APPROVED:
+        obj.reviewed_by = profile.user
+        obj.reviewed_at = timezone.now()
+    obj.save()
+
+    if obj.status == ListingStatus.PENDING:
+        verb = 'resubmitted' if was_rejected else 'submitted'
+        detail_url = reverse('core:dashboard_post_detail', args=[model_key, obj.pk])
+        message = f'"{obj}" was {verb} for approval'
+        _notify_city_admins(obj.city, message, url=detail_url, type='listing_submitted')
+        _notify_sub_admins(obj.city, model_key, message, url=detail_url, type='listing_submitted')
+        AuditLog.objects.create(
+            actor=profile.user, action='content.submit',
+            description=f'{profile.get_role_display()} {verb} "{obj}" for approval'[:300],
+            ip_address=ip_address,
+        )
+    return obj.status
+
+
 @onboarding_required
 def listing_submit(request, category_key):
     profile = request.profile
@@ -2396,40 +2489,26 @@ def listing_submit(request, category_key):
             obj.owner = request.user
             obj.listing_category = category
             _apply_subcategory_lock(obj, category)
-            if not CityModule.is_enabled_for_city(category.listing_model, obj.city_id):
-                messages.error(request, f'{category.label} listings are currently unavailable in this city.')
+            save_mode = request.POST.get('save_mode', 'submit')
+            try:
+                status = apply_new_listing_submission(
+                    obj, profile, category, request.user,
+                    save_mode=save_mode,
+                    ip_address=_client_ip(request),
+                )
+            except ValidationError as exc:
+                messages.error(request, exc.message)
             else:
-                save_mode = request.POST.get('save_mode', 'submit')
-                obj.status = _resolve_submission_status(profile, category.listing_model, save_mode)
-                if obj.status == ListingStatus.APPROVED:
-                    obj.reviewed_by = request.user
-                    obj.reviewed_at = timezone.now()
-                    obj.save()
+                if status == ListingStatus.APPROVED:
                     messages.success(request, 'Your listing was published.', extra_tags='celebrate-confetti')
-                elif obj.status == ListingStatus.DRAFT:
-                    obj.save()
+                elif status == ListingStatus.DRAFT:
                     messages.success(request, 'Saved as a draft — submit it for approval whenever you\'re ready.')
                 else:
-                    obj.save()
-                    _notify_super_admins(
-                        f'New {category.label} listing submitted: "{obj}"',
-                        url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
-                        type='listing_submitted',
+                    messages.success(
+                        request,
+                        'Your listing was submitted and is pending approval.',
+                        extra_tags='celebrate-confetti',
                     )
-                    _notify_city_admins(
-                        obj.city,
-                        f'New {category.label} listing submitted: "{obj}"',
-                        url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
-                        type='listing_submitted',
-                    )
-                    _notify_sub_admins(
-                        obj.city, category.listing_model,
-                        f'New {category.label} listing submitted: "{obj}"',
-                        url=reverse('core:dashboard_post_detail', args=[category.listing_model, obj.pk]),
-                        type='listing_submitted',
-                    )
-                    log_audit(request, 'content.submit', f'{profile.get_role_display()} submitted "{obj}" for approval')
-                    messages.success(request, 'Your listing was submitted and is pending approval.', extra_tags='celebrate-confetti')
                 return redirect('core:my_listings')
     else:
         initial = {}
@@ -2474,31 +2553,27 @@ def listing_edit(request, model_key, pk):
             obj = form.save(commit=False)
             _apply_subcategory_lock(obj, category)
             was_rejected = obj.status in (ListingStatus.REJECTED, ListingStatus.CHANGES_REQUESTED)
+
             # A listing that's already been submitted once can't be sent
             # back to draft through an edit — 'draft' is only honored while
             # it's still a draft; every other edit is itself a (re)submission.
             save_mode = request.POST.get('save_mode', 'submit') if was_draft else 'submit'
-            obj.status = _resolve_submission_status(profile, model_key, save_mode)
-            if obj.status in (ListingStatus.APPROVED, ListingStatus.PENDING):
-                obj.rejection_reason = ''
-            if obj.status == ListingStatus.APPROVED:
-                obj.reviewed_by = request.user
-                obj.reviewed_at = timezone.now()
-            obj.save()
 
-            if obj.status == ListingStatus.DRAFT:
+            status = apply_listing_edit_state(
+                obj,
+                profile,
+                model_key,
+                save_mode=save_mode,
+                ip_address=_client_ip(request),
+            )
+
+            if status == ListingStatus.DRAFT:
                 messages.success(request, 'Draft updated.')
-            elif obj.status == ListingStatus.APPROVED:
+            elif status == ListingStatus.APPROVED:
                 messages.success(request, 'Listing updated.')
             else:
                 note = ' It has been submitted and is pending approval.' if was_draft else ' It will be reviewed again before going live.'
                 messages.success(request, f'Listing updated.{note}')
-            if obj.status == ListingStatus.PENDING:
-                verb = 'resubmitted' if was_rejected else 'submitted'
-                detail_url = reverse('core:dashboard_post_detail', args=[model_key, obj.pk])
-                _notify_city_admins(obj.city, f'"{obj}" was {verb} for approval', url=detail_url, type='listing_submitted')
-                _notify_sub_admins(obj.city, model_key, f'"{obj}" was {verb} for approval', url=detail_url, type='listing_submitted')
-                log_audit(request, 'content.submit', f'{profile.get_role_display()} {verb} "{obj}" for approval')
             return redirect('core:my_listings')
     else:
         form = form_cls(instance=obj)
@@ -3950,6 +4025,7 @@ def dashboard_pending_listings(request):
         qs = _scope_listing_qs(request, model_cls.objects.select_related('owner', 'listing_category'), key)
         if status_filter:
             qs = qs.filter(status=status_filter)
+        qs = qs.order_by('-created_at')[:MAX_LISTINGS_PER_MODEL_SCAN]
         for obj in qs:
             items.append({'model_key': key, 'obj': obj})
     items.sort(key=lambda item: item['obj'].created_at, reverse=True)

@@ -13,6 +13,10 @@ urlpatterns = [
     path('robots.txt', robots_txt, name='robots_txt'),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('sw.js', service_worker, name='service_worker'),
+    # The native Android client (android/app/src/main/java/com/onetowncity/app)
+    # calls this exact prefix — see e.g. MainActivity.kt's *_API_BASE_URL
+    # constants building "/api/v1/listings/...", "/api/v1/locations/...".
+    path('api/v1/', include('core.api.urls')),
     path('', include('core.urls')),
 ]
 

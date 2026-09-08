@@ -10,3 +10,20 @@ staticfiles/
 .idea/
 .DS_Store
 chrome_profile*/
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+
+# Android signing keys
+android/keystores/*.jks
+android/keystores/*.keystore
+*.jks
+*.keystore
+
+# Android Studio
+android/.idea/
+android/*.iml
+android/app/*.iml
