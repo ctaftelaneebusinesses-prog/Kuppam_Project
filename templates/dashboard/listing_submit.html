@@ -23,23 +23,7 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% for field in form %}
-                    {% if field.field.widget.input_type == 'hidden' %}
-                        {{ field }}
-                    {% elif field.field.widget.input_type == 'file' %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-                        {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
-                    </div>
-                    {% else %}
-                    <div class="form-floating mb-3 {% if field.errors %}hk-field-invalid{% endif %}">
-                        {{ field }}
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-                        {% if field.errors %}<div class="hk-field-error">{{ field.errors|striptags }}</div>{% endif %}
-                    </div>
-                    {% endif %}
+                        {% include 'partials/form_field.html' with field=field %}
                     {% endfor %}
                     {% if form.latitude %}
                     <button type="button" id="hkUseMyLocationBtn" class="btn btn-outline-primary btn-sm mb-3">
@@ -139,6 +123,14 @@
     var status = document.getElementById('hkUseMyLocationStatus');
     if (!locateBtn || !latInput || !lngInput) return;
 
+    // Once a location is captured, the server auto-derives maps_link from
+    // it (see core.forms._clean_location_fields) — hide the manual field
+    // and drop its `required` attribute (set server-side by default; see
+    // LocationFieldsMixin in core/forms.py) so the visitor genuinely never
+    // has to type a Google Maps link themselves.
+    var mapsLinkWrap = document.querySelector('[data-field-name="maps_link"]');
+    var mapsLinkInput = mapsLinkWrap ? mapsLinkWrap.querySelector('input') : null;
+
     locateBtn.addEventListener('click', function () {
         if (!navigator.geolocation) {
             status.textContent = '{% trans "Location is unavailable in this browser." %}';
@@ -149,8 +141,12 @@
         navigator.geolocation.getCurrentPosition(function (position) {
             latInput.value = position.coords.latitude;
             lngInput.value = position.coords.longitude;
-            status.textContent = '{% trans "Location captured." %}';
+            status.textContent = '{% trans "Location captured — you don\'t need to enter a Maps link." %}';
             locateBtn.disabled = false;
+            if (mapsLinkWrap && mapsLinkInput) {
+                mapsLinkWrap.hidden = true;
+                mapsLinkInput.removeAttribute('required');
+            }
         }, function (error) {
             status.textContent = error.code === 1
                 ? '{% trans "Location permission was denied." %}'

@@ -6,6 +6,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid ""
 "\"Kuppam\" is widely understood locally to mean a meeting place or confluence — a fitting name\n"
@@ -2384,3 +2385,691 @@ msgstr "ఉన్నత స్థాయి మాత్రమే, స్థి�
 
 msgid "{{ trend }}% vs last week"
 msgstr "{{ trend }}% vs గత వారం"
+
+msgid "%(trend)s%% vs last week"
+msgstr "%(trend)s%% గత వారంతో పోలిస్తే"
+
+msgid "0 approved listings for this scope"
+msgstr "ఈ పరిధికి 0 ఆమోదించిన లిస్టింగ్‌లు"
+
+msgid "24/7 multilingual agent coverage"
+msgstr "24/7 బహుభాషా ఏజెంట్ మద్దతు"
+
+msgid "A record of sensitive administrative actions across the platform."
+msgstr "ప్లాట్‌ఫారమ్ అంతటా సున్నితమైన పరిపాలనా చర్యల రికార్డు."
+
+msgid "Actor"
+msgstr "చర్య చేసినవారు"
+
+msgid "Add %(cat)s"
+msgstr "%(cat)s జోడించండి"
+
+msgid "Add City Admin"
+msgstr "సిటీ అడ్మిన్‌ను జోడించండి"
+
+msgid "Add Content"
+msgstr "కంటెంట్ జోడించండి"
+
+msgid "Add Content Provider"
+msgstr "కంటెంట్ ప్రొవైడర్‌ను జోడించండి"
+
+msgid ""
+"Add Content Providers for your city and choose which categories each one can"
+" publish into."
+msgstr ""
+"మీ నగరం కోసం కంటెంట్ ప్రొవైడర్‌లను జోడించి, ప్రతి ఒక్కరు ఏ వర్గాలలో "
+"ప్రచురించగలరో ఎంచుకోండి."
+
+msgid "Add Sub Admin"
+msgstr "సబ్ అడ్మిన్‌ను జోడించండి"
+
+msgid "All cities (platform-wide)"
+msgstr "అన్ని నగరాలు (మొత్తం ప్లాట్‌ఫారమ్)"
+
+msgid "Always granted"
+msgstr "ఎల్లప్పుడూ మంజూరు చేయబడింది"
+
+msgid "Approved Content"
+msgstr "ఆమోదించిన కంటెంట్"
+
+msgid "Assign or remove specific permissions for this Sub Admin."
+msgstr "ఈ సబ్ అడ్మిన్ కోసం నిర్దిష్ట అనుమతులను కేటాయించండి లేదా తీసివేయండి."
+
+msgid "Audit Logs"
+msgstr "ఆడిట్ లాగ్‌లు"
+
+msgid "Auto-Approve New Listings"
+msgstr "కొత్త లిస్టింగ్‌లను ఆటోమేటిక్‌గా ఆమోదించండి"
+
+msgid "Available On"
+msgstr "అందుబాటులో ఉండే తేదీ"
+
+msgid "Back to Listings"
+msgstr "లిస్టింగ్‌లకు తిరిగి వెళ్లండి"
+
+msgid "Back to Sub Admins"
+msgstr "సబ్ అడ్మిన్‌లకు తిరిగి వెళ్లండి"
+
+msgid "Browse %(label)s listings in your city"
+msgstr "మీ నగరంలో %(label)s లిస్టింగ్‌లను బ్రౌజ్ చేయండి"
+
+msgid "Browse general local businesses and services in your city"
+msgstr "మీ నగరంలోని సాధారణ స్థానిక వ్యాపారాలు మరియు సేవలను బ్రౌజ్ చేయండి"
+
+msgid "Browse real estate listings — sale, rent, plots and more in your city"
+msgstr ""
+"రియల్ ఎస్టేట్ లిస్టింగ్‌లను బ్రౌజ్ చేయండి - అమ్మకం, అద్దె, ప్లాట్‌లు మరియు "
+"మీ నగరంలో మరిన్ని"
+
+msgid "Call Now"
+msgstr "ఇప్పుడే కాల్ చేయండి"
+
+msgid "Call center and BPO services"
+msgstr "కాల్ సెంటర్ మరియు బిపిఓ సేవలు"
+
+msgid "Check homepage visibility for"
+msgstr "హోమ్‌పేజీ దృశ్యమానతను తనిఖీ చేయండి"
+
+msgid "Choose city"
+msgstr "నగరాన్ని ఎంచుకోండి"
+
+msgid "Choose your city"
+msgstr "మీ నగరాన్ని ఎంచుకోండి"
+
+msgid "Cities"
+msgstr "నగరాలు"
+
+msgid "City Admin"
+msgstr "సిటీ అడ్మిన్"
+
+msgid "City Admin Dashboard"
+msgstr "సిటీ అడ్మిన్ డాష్‌బోర్డ్"
+
+msgid "City Administration"
+msgstr "సిటీ పరిపాలన"
+
+msgid "City Admins"
+msgstr "సిటీ అడ్మిన్‌లు"
+
+msgid "City Content Inventory"
+msgstr "సిటీ కంటెంట్ జాబితా"
+
+msgid "City Modules"
+msgstr "సిటీ మాడ్యూల్స్"
+
+msgid "City Team"
+msgstr "సిటీ టీమ్"
+
+msgid "City activity at a glance"
+msgstr "ఒక్క చూపులో నగర కార్యకలాపాలు"
+
+msgid "Comments (%(count)s)"
+msgstr "వ్యాఖ్యలు (%(count)s)"
+
+msgid "Content Providers"
+msgstr "కంటెంట్ ప్రొవైడర్‌లు"
+
+msgid "Content Status"
+msgstr "కంటెంట్ స్థితి"
+
+msgid "No permissions granted yet"
+msgstr "ఇంకా అనుమతులు మంజూరు చేయబడలేదు"
+
+msgid "No permissions granted yet."
+msgstr "ఇంకా అనుమతులు మంజూరు చేయబడలేదు."
+
+msgid "No platform modules are enabled to restrict."
+msgstr "పరిమితం చేయడానికి ప్లాట్‌ఫారమ్ మాడ్యూల్స్ ఏవీ ప్రారంభించబడలేదు."
+
+msgid "No repair shops listed yet for your city."
+msgstr "మీ నగరం కోసం ఇంకా రిపేర్ షాప్‌లు లిస్ట్ చేయబడలేదు."
+
+msgid "No submissions yet."
+msgstr "ఇంకా సమర్పణలు లేవు."
+
+msgid "None"
+msgstr "ఏదీ లేదు"
+
+msgid "Not granted"
+msgstr "మంజూరు చేయబడలేదు"
+
+msgid "On homepage"
+msgstr "హోమ్‌పేజీలో"
+
+msgid ""
+"Only used when this category publishes into Business, Property, Jobs, or "
+"Projects — matches that model's category/type/status field (e.g. "
+"Business.category, Property.property_type, Job.job_type, "
+"Project.project_status)."
+msgstr ""
+"ఈ వర్గం వ్యాపారం, ఆస్తి, ఉద్యోగాలు లేదా ప్రాజెక్టులలో ప్రచురించబడినప్పుడు "
+"మాత్రమే ఉపయోగించబడుతుంది - ఆ మోడల్ యొక్క category/type/status ఫీల్డ్‌తో "
+"సరిపోలుతుంది (ఉదా. Business.category, Property.property_type, Job.job_type, "
+"Project.project_status)."
+
+msgid "Page %(current)s of %(total)s"
+msgstr "పేజీ %(current)s / %(total)s"
+
+msgid "Page %(num)s of %(total)s"
+msgstr "పేజీ %(num)s / %(total)s"
+
+msgid "Pending Content"
+msgstr "పెండింగ్ కంటెంట్"
+
+msgid "Permission"
+msgstr "అనుమతి"
+
+msgid "Permissions"
+msgstr "అనుమతులు"
+
+msgid "Places to Visit"
+msgstr "సందర్శించాల్సిన ప్రదేశాలు"
+
+msgid "Planned and ongoing civic and infrastructure projects in your city"
+msgstr ""
+"మీ నగరంలో ప్రణాళికాబద్ధమైన మరియు కొనసాగుతున్న పౌర మరియు మౌలిక సదుపాయాల "
+"ప్రాజెక్టులు"
+
+msgid "Platform Modules"
+msgstr "ప్లాట్‌ఫారమ్ మాడ్యూల్స్"
+
+msgid "Platform Settings"
+msgstr "ప్లాట్‌ఫారమ్ సెట్టింగ్‌లు"
+
+msgid "Promote to Super Admin"
+msgstr "సూపర్ అడ్మిన్‌గా ప్రమోట్ చేయండి"
+
+msgid "Property Listing"
+msgstr "ఆస్తి లిస్టింగ్"
+
+msgid "Recently Submitted"
+msgstr "ఇటీవల సమర్పించినవి"
+
+msgid "Rejected Content"
+msgstr "తిరస్కరించిన కంటెంట్"
+
+msgid "Repair Shops Near You"
+msgstr "మీ దగ్గర్లోని రిపేర్ షాప్‌లు"
+
+msgid "Restaurants & Food"
+msgstr "రెస్టారెంట్‌లు & ఆహారం"
+
+msgid ""
+"Restrict which platform modules are available in this city. A module Super "
+"Admin has disabled platform-wide can't be re-enabled here."
+msgstr ""
+"ఈ నగరంలో ఏ ప్లాట్‌ఫారమ్ మాడ్యూల్స్ అందుబాటులో ఉన్నాయో పరిమితం చేయండి. సూపర్ "
+"అడ్మిన్ ప్లాట్‌ఫారమ్ అంతటా నిలిపివేసిన మాడ్యూల్‌ను ఇక్కడ మళ్లీ "
+"ప్రారంభించలేరు."
+
+msgid "Review Submitted Content"
+msgstr "సమర్పించిన కంటెంట్‌ను సమీక్షించండి"
+
+msgid "Reviews (%(count)s)"
+msgstr "సమీక్షలు (%(count)s)"
+
+msgid "Roles & Permissions"
+msgstr "పాత్రలు & అనుమతులు"
+
+msgid "Save City Admin"
+msgstr "సిటీ అడ్మిన్‌ను సేవ్ చేయండి"
+
+msgid "Save Content Provider"
+msgstr "కంటెంట్ ప్రొవైడర్‌ను సేవ్ చేయండి"
+
+msgid "Save Settings"
+msgstr "సెట్టింగ్‌లను సేవ్ చేయండి"
+
+msgid "Save Sub Admin"
+msgstr "సబ్ అడ్మిన్‌ను సేవ్ చేయండి"
+
+msgid "Save as Draft"
+msgstr "డ్రాఫ్ట్‌గా సేవ్ చేయండి"
+
+msgid ""
+"Save it as a draft to keep working on it, or submit it for approval when "
+"you're ready."
+msgstr ""
+"దీనిపై పని కొనసాగించడానికి డ్రాఫ్ట్‌గా సేవ్ చేయండి, లేదా సిద్ధమైనప్పుడు "
+"ఆమోదం కోసం సమర్పించండి."
+
+msgid "Scalable teams — start small, grow on demand"
+msgstr "స్కేలబుల్ టీమ్‌లు - చిన్నగా ప్రారంభించి, డిమాండ్‌ను బట్టి పెరగండి"
+
+msgid "Search %(label)s"
+msgstr "%(label)s ను వెతకండి"
+
+msgid "Search by action, description, or actor email"
+msgstr "చర్య, వివరణ లేదా చర్య చేసినవారి ఇమెయిల్ ద్వారా వెతకండి"
+
+msgid "Search city"
+msgstr "నగరాన్ని వెతకండి"
+
+msgid "Search city..."
+msgstr "నగరాన్ని వెతకండి..."
+
+msgid "Showing only the modules you've been granted access to."
+msgstr "మీకు యాక్సెస్ మంజూరు చేయబడిన మాడ్యూల్స్ మాత్రమే చూపబడుతున్నాయి."
+
+msgid "Site Name"
+msgstr "సైట్ పేరు"
+
+msgid "Site identity, maintenance mode, and content approval behavior."
+msgstr "సైట్ గుర్తింపు, మెయింటెనెన్స్ మోడ్, మరియు కంటెంట్ ఆమోద ప్రవర్తన."
+
+msgid "Status in"
+msgstr "స్థితి"
+
+msgid "Sub Admin"
+msgstr "సబ్ అడ్మిన్"
+
+msgid "Sub Admin Dashboard"
+msgstr "సబ్ అడ్మిన్ డాష్‌బోర్డ్"
+
+msgid "Sub Admins"
+msgstr "సబ్ అడ్మిన్‌లు"
+
+msgid "Subcategory value"
+msgstr "ఉప-వర్గం విలువ"
+
+msgid "Submissions"
+msgstr "సమర్పణలు"
+
+msgid "Submit for Approval"
+msgstr "ఆమోదం కోసం సమర్పించండి"
+
+msgid ""
+"Super Admin always has unrestricted access. Grant or revoke individual "
+"capabilities for the other roles below — these take effect as each role's "
+"own dashboard is rolled out."
+msgstr ""
+"సూపర్ అడ్మిన్‌కు ఎల్లప్పుడూ అపరిమిత యాక్సెస్ ఉంటుంది. దిగువ ఉన్న ఇతర "
+"పాత్రలకు వ్యక్తిగత సామర్థ్యాలను మంజూరు చేయండి లేదా ఉపసంహరించండి - ప్రతి "
+"పాత్ర యొక్క స్వంత డాష్‌బోర్డ్ అమలులోకి వచ్చినప్పుడు ఇవి అమలులోకి వస్తాయి."
+
+msgid "Support Email"
+msgstr "సపోర్ట్ ఇమెయిల్"
+
+msgid "Support Phone"
+msgstr "సపోర్ట్ ఫోన్"
+
+msgid "Switch entire feature areas on or off across the platform."
+msgstr "ప్లాట్‌ఫారమ్ అంతటా మొత్తం ఫీచర్ ప్రాంతాలను ఆన్ లేదా ఆఫ్ చేయండి."
+
+msgid ""
+"These categories have no approved listings yet, so their tile is left off "
+"the homepage entirely rather than showing an empty card. Add a listing and "
+"it reappears automatically."
+msgstr ""
+"ఈ వర్గాలకు ఇంకా ఆమోదించిన లిస్టింగ్‌లు లేవు, కాబట్టి ఖాళీ కార్డును "
+"చూపించడానికి బదులుగా వాటి టైల్ హోమ్‌పేజీ నుండి పూర్తిగా తీసివేయబడుతుంది. ఒక "
+"లిస్టింగ్‌ను జోడించండి మరియు అది ఆటోమేటిక్‌గా మళ్లీ కనిపిస్తుంది."
+
+msgid "Today in Your Town"
+msgstr "ఈరోజు మీ నగరంలో"
+
+msgid "Toggle"
+msgstr "టోగుల్ చేయండి"
+
+msgid "Updated %(updated)s"
+msgstr "%(updated)s న అప్‌డేట్ చేయబడింది"
+
+msgid "Use My Location"
+msgstr "నా స్థానాన్ని ఉపయోగించండి"
+
+msgid "Use my current location"
+msgstr "నా ప్రస్తుత స్థానాన్ని ఉపయోగించండి"
+
+msgid "We could not access your location."
+msgstr "మేము మీ స్థానాన్ని యాక్సెస్ చేయలేకపోయాము."
+
+msgid ""
+"We run round-the-clock inbound and outbound call center operations for "
+"businesses that need dependable customer support without the overhead of an "
+"in-house team. From order support and appointment scheduling to lead "
+"qualification and after-sales care, our trained agents represent your brand "
+"professionally on every call."
+msgstr ""
+"ఇన్-హౌస్ టీమ్ భారం లేకుండా నమ్మదగిన కస్టమర్ సపోర్ట్ కావాల్సిన వ్యాపారాల కోసం"
+" మేము రోజంతా ఇన్‌బౌండ్ మరియు అవుట్‌బౌండ్ కాల్ సెంటర్ కార్యకలాపాలను "
+"నిర్వహిస్తాము. ఆర్డర్ సపోర్ట్ మరియు అపాయింట్‌మెంట్ షెడ్యూలింగ్ నుండి లీడ్ "
+"క్వాలిఫికేషన్ మరియు అమ్మకాల తర్వాత సంరక్షణ వరకు, మా శిక్షణ పొందిన ఏజెంట్లు "
+"ప్రతి కాల్‌లో మీ బ్రాండ్‌ను వృత్తిపరంగా ప్రాతినిధ్యం వహిస్తారు."
+
+msgid ""
+"What's happening today, places worth visiting, and repair shops near you."
+msgstr ""
+"ఈరోజు ఏమి జరుగుతోంది, సందర్శించదగిన ప్రదేశాలు, మరియు మీ దగ్గర్లోని రిపేర్ "
+"షాప్‌లు."
+
+msgid ""
+"When on, new/edited listings from Content Providers and Explorers publish "
+"immediately instead of waiting in the pending-approval queue."
+msgstr ""
+"ఆన్‌లో ఉన్నప్పుడు, కంటెంట్ ప్రొవైడర్‌లు మరియు ఎక్స్‌ప్లోరర్‌ల నుండి "
+"కొత్త/సవరించిన లిస్టింగ్‌లు పెండింగ్-ఆమోద క్యూలో వేచి ఉండకుండా వెంటనే "
+"ప్రచురించబడతాయి."
+
+msgid ""
+"When on, only Super Admin can browse the site — everyone else sees a "
+"maintenance page."
+msgstr ""
+"ఆన్‌లో ఉన్నప్పుడు, సూపర్ అడ్మిన్ మాత్రమే సైట్‌ను బ్రౌజ్ చేయగలరు - మిగతా "
+"అందరూ మెయింటెనెన్స్ పేజీని చూస్తారు."
+
+msgid ""
+"Your City Admin hasn't delegated any modules to your account yet. Check back"
+" once they have."
+msgstr ""
+"మీ సిటీ అడ్మిన్ ఇంకా మీ ఖాతాకు ఏ మాడ్యూల్‌లను అప్పగించలేదు. వారు అప్పగించిన "
+"తర్వాత మళ్లీ చూడండి."
+
+msgid "Your Content Areas"
+msgstr "మీ కంటెంట్ ప్రాంతాలు"
+
+msgid ""
+"Your trusted local information portal for %(city)s — businesses, jobs, real "
+"estate, and everything in between."
+msgstr ""
+"%(city)s కోసం మీ నమ్మకమైన స్థానిక సమాచార పోర్టల్ - వ్యాపారాలు, ఉద్యోగాలు, "
+"రియల్ ఎస్టేట్, మరియు మరిన్ని."
+
+msgid ""
+"Your trusted local information portal — businesses, jobs, real estate, and "
+"everything in between."
+msgstr ""
+"మీ నమ్మకమైన స్థానిక సమాచార పోర్టల్ - వ్యాపారాలు, ఉద్యోగాలు, రియల్ ఎస్టేట్, "
+"మరియు మరిన్ని."
+
+msgid "e.g. restaurant, sale, hourly"
+msgstr "ఉదా: restaurant, sale, hourly"
+
+msgid "for \"<strong>%(query)s</strong>\""
+msgstr "\"<strong>%(query)s</strong>\" కోసం"
+
+msgid "in <strong>%(label)s</strong>"
+msgstr "<strong>%(label)s</strong> లో"
+
+msgid "in <strong>%(t)s</strong>"
+msgstr "<strong>%(t)s</strong> లో"
+
+msgid "no city assigned yet"
+msgstr "ఇంకా నగరం కేటాయించబడలేదు"
+
+msgid "role default"
+msgstr "పాత్ర డిఫాల్ట్"
+
+msgid "%(counter)s Listing"
+msgid_plural "%(counter)s Listings"
+msgstr[0] "%(counter)s లిస్టింగ్"
+msgstr[1] "%(counter)s లిస్టింగ్‌లు"
+
+msgid "%(counter)s post"
+msgid_plural "%(counter)s posts"
+msgstr[0] "%(counter)s పోస్ట్"
+msgstr[1] "%(counter)s పోస్ట్‌లు"
+
+msgid "%(counter)s subcategory"
+msgid_plural "%(counter)s subcategories"
+msgstr[0] "%(counter)s ఉప-వర్గం"
+msgstr[1] "%(counter)s ఉప-వర్గాలు"
+
+msgid "%(counter)s user"
+msgid_plural "%(counter)s users"
+msgstr[0] "%(counter)s వినియోగదారు"
+msgstr[1] "%(counter)s వినియోగదారులు"
+
+msgid "Showing %(counter)s business"
+msgid_plural "Showing %(counter)s businesses"
+msgstr[0] "%(counter)s వ్యాపారం చూపబడుతోంది"
+msgstr[1] "%(counter)s వ్యాపారాలు చూపబడుతున్నాయి"
+
+msgid "Showing %(counter)s listing"
+msgid_plural "Showing %(counter)s listings"
+msgstr[0] "%(counter)s లిస్టింగ్ చూపబడుతోంది"
+msgstr[1] "%(counter)s లిస్టింగ్‌లు చూపబడుతున్నాయి"
+
+msgid "Showing %(counter)s project"
+msgid_plural "Showing %(counter)s projects"
+msgstr[0] "%(counter)s ప్రాజెక్ట్ చూపబడుతోంది"
+msgstr[1] "%(counter)s ప్రాజెక్ట్‌లు చూపబడుతున్నాయి"
+
+msgid "Showing %(counter)s property"
+msgid_plural "Showing %(counter)s properties"
+msgstr[0] "%(counter)s ఆస్తి చూపబడుతోంది"
+msgstr[1] "%(counter)s ఆస్తులు చూపబడుతున్నాయి"
+
+msgid "Showing %(counter)s result"
+msgid_plural "Showing %(counter)s results"
+msgstr[0] "%(counter)s ఫలితం చూపబడుతోంది"
+msgstr[1] "%(counter)s ఫలితాలు చూపబడుతున్నాయి"
+
+msgid "Maintenance Message"
+msgstr "మెయింటెనెన్స్ సందేశం"
+
+msgid "Maintenance Mode"
+msgstr "మెయింటెనెన్స్ మోడ్"
+
+msgid "Manage City Admins"
+msgstr "సిటీ అడ్మిన్‌లను నిర్వహించండి"
+
+msgid "Manage City Content"
+msgstr "సిటీ కంటెంట్‌ను నిర్వహించండి"
+
+msgid "Manage Content"
+msgstr "కంటెంట్‌ను నిర్వహించండి"
+
+msgid "Manage Content Providers"
+msgstr "కంటెంట్ ప్రొవైడర్‌లను నిర్వహించండి"
+
+msgid "Manage Permissions"
+msgstr "అనుమతులను నిర్వహించండి"
+
+msgid "Manage Sub Admins"
+msgstr "సబ్ అడ్మిన్‌లను నిర్వహించండి"
+
+msgid "Managing"
+msgstr "నిర్వహిస్తోంది"
+
+msgid "Module"
+msgstr "మాడ్యూల్"
+
+msgid "My Content"
+msgstr "నా కంటెంట్"
+
+msgid "Nearby Shops"
+msgstr "సమీప దుకాణాలు"
+
+msgid ""
+"Need help finding a business, job or property in %(city)s? Chat with us on "
+"WhatsApp."
+msgstr ""
+"%(city)s లో వ్యాపారం, ఉద్యోగం లేదా ఆస్తిని కనుగొనడంలో సహాయం కావాలా? WhatsApp"
+" లో మాతో చాట్ చేయండి."
+
+msgid ""
+"Need help finding a business, job or property? Chat with us on WhatsApp."
+msgstr ""
+"వ్యాపారం, ఉద్యోగం లేదా ఆస్తిని కనుగొనడంలో సహాయం కావాలా? WhatsApp లో మాతో "
+"చాట్ చేయండి."
+
+msgid "New %(cat)s"
+msgstr "కొత్త %(cat)s"
+
+msgid "No %(label)s found"
+msgstr "%(label)s కనుగొనబడలేదు"
+
+msgid "No City Admins yet."
+msgstr "ఇంకా సిటీ అడ్మిన్‌లు లేరు."
+
+msgid "No Content Providers yet."
+msgstr "ఇంకా కంటెంట్ ప్రొవైడర్‌లు లేరు."
+
+msgid "No Sub Admins yet."
+msgstr "ఇంకా సబ్ అడ్మిన్‌లు లేరు."
+
+msgid "No audit log entries yet."
+msgstr "ఇంకా ఆడిట్ లాగ్ ఎంట్రీలు లేవు."
+
+msgid ""
+"No categories yet — add one from <a "
+"href=\"%(manage_categories_url)s\">Manage Categories</a> first."
+msgstr ""
+"ఇంకా వర్గాలు లేవు - మొదట <a href=\"%(manage_categories_url)s\">వర్గాలను "
+"నిర్వహించండి</a> నుండి ఒకటి జోడించండి."
+
+msgid "No cities assigned"
+msgstr "నగరాలు కేటాయించబడలేదు"
+
+msgid "No city assigned"
+msgstr "నగరం కేటాయించబడలేదు"
+
+msgid "No delegable permissions defined yet."
+msgstr "ఇంకా అప్పగించదగిన అనుమతులు నిర్వచించబడలేదు."
+
+msgid "No modules defined yet."
+msgstr "ఇంకా మాడ్యూల్స్ నిర్వచించబడలేదు."
+
+msgid "No permissions defined yet."
+msgstr "ఇంకా అనుమతులు నిర్వచించబడలేదు."
+
+msgid "Create City Admin accounts and assign which cities each one manages."
+msgstr ""
+"సిటీ అడ్మిన్ ఖాతాలను సృష్టించి, ప్రతి ఒక్కరు ఏ నగరాలను నిర్వహిస్తారో "
+"కేటాయించండి."
+
+msgid ""
+"Create Sub Admin accounts for your city and control what each one can do."
+msgstr ""
+"మీ నగరం కోసం సబ్ అడ్మిన్ ఖాతాలను సృష్టించి, ప్రతి ఒక్కరు ఏమి చేయగలరో "
+"నియంత్రించండి."
+
+msgid "Created %(joined)s"
+msgstr "%(joined)s న సృష్టించబడింది"
+
+msgid "Deactivated"
+msgstr "నిష్క్రియం చేయబడింది"
+
+msgid "Dedicated account manager & real-time reporting"
+msgstr "అంకితమైన ఖాతా మేనేజర్ & రియల్-టైమ్ రిపోర్టింగ్"
+
+msgid "Description"
+msgstr "వివరణ"
+
+msgid "Disable for this city"
+msgstr "ఈ నగరం కోసం నిలిపివేయండి"
+
+msgid "Enable for this city"
+msgstr "ఈ నగరం కోసం ప్రారంభించండి"
+
+msgid "Enabled"
+msgstr "ప్రారంభించబడింది"
+
+msgid ""
+"End-to-end web development, call center and BPO services from CraftLanee — "
+"for startups, businesses, educational institutions, and organizations "
+"building a strong online presence."
+msgstr ""
+"క్రాఫ్ట్‌లేనీ నుండి ఎండ్-టు-ఎండ్ వెబ్ డెవలప్‌మెంట్, కాల్ సెంటర్ మరియు బిపిఓ "
+"సేవలు - స్టార్టప్‌లు, వ్యాపారాలు, విద్యా సంస్థలు మరియు బలమైన ఆన్‌లైన్ "
+"ఉనికిని నిర్మించే సంస్థల కోసం."
+
+msgid "Everything %(city)s has to offer, organized in one place"
+msgstr "%(city)s లో లభించే ప్రతిదీ, ఒకే చోట నిర్వహించబడింది"
+
+msgid "Everything your city has to offer, organized in one place"
+msgstr "మీ నగరంలో లభించే ప్రతిదీ, ఒకే చోట నిర్వహించబడింది"
+
+msgid "Explore %(name)s"
+msgstr "%(name)s ను అన్వేషించండి"
+
+msgid "Featured Service"
+msgstr "ఫీచర్డ్ సేవ"
+
+msgid "Finding your location..."
+msgstr "మీ స్థానాన్ని కనుగొంటోంది..."
+
+msgid "Get Started"
+msgstr "ప్రారంభించండి"
+
+msgid "Get the latest %(city)s listings and news in your inbox."
+msgstr "%(city)s తాజా లిస్టింగ్‌లు మరియు వార్తలను మీ ఇన్‌బాక్స్‌లో పొందండి."
+
+msgid "Get the latest listings and news in your inbox."
+msgstr "తాజా లిస్టింగ్‌లు మరియు వార్తలను మీ ఇన్‌బాక్స్‌లో పొందండి."
+
+msgid "Granted"
+msgstr "మంజూరు చేయబడింది"
+
+msgid "Granted Permissions"
+msgstr "మంజూరు చేయబడిన అనుమతులు"
+
+msgid "Happening Today"
+msgstr "ఈరోజు జరుగుతోంది"
+
+msgid "Has approved listings for this scope"
+msgstr "ఈ పరిధికి ఆమోదించిన లిస్టింగ్‌లు ఉన్నాయి"
+
+msgid "Hidden From Your Homepage"
+msgstr "మీ హోమ్‌పేజీ నుండి దాచబడింది"
+
+msgid "Hidden — 0 listings"
+msgstr "దాచబడింది - 0 లిస్టింగ్‌లు"
+
+msgid "Hold Ctrl/Cmd to select more than one."
+msgstr "ఒకటి కంటే ఎక్కువ ఎంచుకోవడానికి Ctrl/Cmd నొక్కి ఉంచండి."
+
+msgid "Hourly Basis"
+msgstr "గంట ప్రాతిపదికన"
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the City "
+"Admin role attaches automatically the first time they sign in with Google."
+msgstr ""
+"ఈ ఇమెయిల్ ఇంకా సైన్ ఇన్ కాకపోతే, ఇప్పుడు ఒక ఖాతా సృష్టించబడుతుంది మరియు వారు"
+" మొదటిసారి Google తో సైన్ ఇన్ అయినప్పుడు సిటీ అడ్మిన్ పాత్ర ఆటోమేటిక్‌గా "
+"జోడించబడుతుంది."
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the "
+"Content Provider role attaches automatically the first time they sign in "
+"with Google."
+msgstr ""
+"ఈ ఇమెయిల్ ఇంకా సైన్ ఇన్ కాకపోతే, ఇప్పుడు ఒక ఖాతా సృష్టించబడుతుంది మరియు వారు"
+" మొదటిసారి Google తో సైన్ ఇన్ అయినప్పుడు కంటెంట్ ప్రొవైడర్ పాత్ర "
+"ఆటోమేటిక్‌గా జోడించబడుతుంది."
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the Sub "
+"Admin role attaches automatically the first time they sign in with Google."
+msgstr ""
+"ఈ ఇమెయిల్ ఇంకా సైన్ ఇన్ కాకపోతే, ఇప్పుడు ఒక ఖాతా సృష్టించబడుతుంది మరియు వారు"
+" మొదటిసారి Google తో సైన్ ఇన్ అయినప్పుడు సబ్ అడ్మిన్ పాత్ర ఆటోమేటిక్‌గా "
+"జోడించబడుతుంది."
+
+msgid "It will be reviewed before it goes live."
+msgstr "ఇది లైవ్ కావడానికి ముందు సమీక్షించబడుతుంది."
+
+msgid "Job Type"
+msgstr "ఉద్యోగ రకం"
+
+msgid "Last active %(last_active)s"
+msgstr "చివరిసారి యాక్టివ్‌గా ఉన్నది %(last_active)s"
+
+msgid "Last reviewed by %(reviewer)s on %(reviewed_on)s"
+msgstr "%(reviewed_on)s న %(reviewer)s చివరిసారి సమీక్షించారు"
+
+msgid "Latest Updates"
+msgstr "తాజా అప్‌డేట్‌లు"
+
+msgid "Live & Local"
+msgstr "లైవ్ & లోకల్"
+
+msgid "Location captured."
+msgstr "స్థానం క్యాప్చర్ చేయబడింది."
+
+msgid "Location is unavailable in this browser."
+msgstr "ఈ బ్రౌజర్‌లో స్థానం అందుబాటులో లేదు."
+
+msgid "Location permission was denied."
+msgstr "స్థాన అనుమతి తిరస్కరించబడింది."

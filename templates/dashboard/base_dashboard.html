@@ -35,9 +35,10 @@
                 <a class="nav-link hk-dash-link {% if active_nav == 'profile' %}active{% endif %}" href="{% url 'core:dashboard_profile' %}">
                     <i class="bi bi-person-vcard"></i> {% trans "My Profile" %}
                 </a>
-                {% if request.profile.is_super_admin %}
+                {% if request.profile.is_super_admin or request.profile.is_city_admin or request.profile|has_permission:"view_content_providers" %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'requests' %}active{% endif %}" href="{% url 'core:dashboard_admin_requests' %}">
-                    <i class="bi bi-person-plus"></i> {% trans "Admin Requests" %}
+                    <i class="bi bi-person-plus"></i> {% trans "Content Requests" %}
+                    {% if pending_admin_request_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ pending_admin_request_count }}</span>{% endif %}
                 </a>
                 {% endif %}
                 {% if request.profile.is_super_admin or request.profile.is_city_admin or request.profile.is_sub_admin and request.profile.has_any_content_access %}
@@ -109,9 +110,9 @@
                     {% if unread_message_count %}<span class="badge bg-danger rounded-pill ms-auto">{{ unread_message_count }}</span>{% endif %}
                 </a>
                 {% endif %}
-                {% if user.is_staff or request.profile.is_super_admin %}
+                {% if user.is_staff or request.profile.is_super_admin or request.profile.is_admin %}
                 <a class="nav-link hk-dash-link {% if active_nav == 'uploads' %}active{% endif %}" href="{% url 'core:upload_hub' %}">
-                    <i class="bi bi-cloud-arrow-up"></i> {% trans "Uploads" %}
+                    <i class="bi bi-cloud-arrow-up"></i> {% trans "Import from Excel" %}
                 </a>
                 {% endif %}
 

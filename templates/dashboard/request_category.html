@@ -1,0 +1,81 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="hk-dash-topbar">
+    <h3 class="fw-bold mb-0">{% trans "Add Another Category" %}</h3>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <p class="text-muted mb-4">{% trans "Pick any category you're not already approved for. A Super Admin, City Admin, or authorized Sub Admin will review your request before you can add content under it." %}</p>
+
+        {% if top_categories %}
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="hk-cat-card mb-4">
+                        <div class="hk-cat-table-wrap">
+                            <table class="hk-cat-table mb-0">
+                                <tbody>
+                                    {% for category in top_categories %}
+                                    <tr class="hk-cat-row-top collapsed"
+                                        {% if category.children.all %}data-bs-toggle="collapse" data-bs-target="#reqCat{{ category.pk }}" aria-expanded="false" aria-controls="reqCat{{ category.pk }}"{% endif %}>
+                                        <td>
+                                            {% if category.children.all %}
+                                            <span class="hk-cat-chevron"><i class="bi bi-chevron-right"></i></span>
+                                            {% else %}
+                                            <span class="d-inline-block" style="width:22px;"></span>
+                                            {% endif %}
+                                            <div class="form-check d-inline-flex align-items-center gap-2 mb-0" onclick="event.stopPropagation()">
+                                                <input class="form-check-input mt-0" type="checkbox" name="categories" value="{{ category.pk }}" id="reqCatCb{{ category.pk }}">
+                                                <label class="form-check-label fw-semibold mb-0" for="reqCatCb{{ category.pk }}"><i class="bi {{ category.icon }}"></i> {{ category.label }}</label>
+                                            </div>
+                                            {% if category.children.all %}<span class="hk-cat-subcount">{{ category.children.all|length }}</span>{% endif %}
+                                        </td>
+                                    </tr>
+                                    {% if category.children.all %}
+                                    <tr class="hk-cat-drawer-row">
+                                        <td class="hk-cat-drawer-cell">
+                                            <div class="collapse" id="reqCat{{ category.pk }}">
+                                                <div class="hk-cat-drawer">
+                                                    {% for sub in category.children.all %}
+                                                    <div class="form-check d-flex align-items-center gap-2 py-1">
+                                                        <input class="form-check-input mt-0" type="checkbox" name="categories" value="{{ sub.pk }}" id="reqCatCb{{ sub.pk }}">
+                                                        <label class="form-check-label mb-0" for="reqCatCb{{ sub.pk }}"><i class="bi bi-arrow-return-right text-muted"></i> {{ sub.label }}</label>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% if form.categories.errors %}
+                        <div class="text-danger small mt-2 mb-3">{{ form.categories.errors }}</div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary hk-cta-btn">
+                        {% trans "Submit for Review" %} <i class="bi bi-send"></i>
+                    </button>
+                    <a href="{% url 'core:my_listings' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center py-5 hk-empty-state">
+            <i class="bi bi-check-circle display-4 d-block mb-3"></i>
+            <p class="fw-bold mb-1">{% trans "You already manage every available category" %}</p>
+            <p class="text-muted mb-0">{% trans "There's nothing new to request right now." %}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

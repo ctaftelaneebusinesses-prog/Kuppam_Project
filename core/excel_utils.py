@@ -19,7 +19,10 @@ from django.core.validators import URLValidator
 from django.db import DataError, IntegrityError, transaction
 from django.utils import timezone
 
-from .models import Business, Property, Job, Event, News, Project
+from .models import (
+    Business, Property, Job, Event, News, Project, Category, ListingStatus, PlatformSettings,
+    SUBCATEGORY_INITIAL_FIELDS,
+)
 
 
 class RowValidationError(Exception):
@@ -645,12 +648,23 @@ UPLOAD_CONFIGS = {
 # ------------------------------------------------------------------
 # Core engine
 # ------------------------------------------------------------------
-def process_excel_upload(uploaded_file, config):
+def process_excel_upload(uploaded_file, config, profile=None, default_city=None):
     """
     Reads the uploaded Excel file, validates its columns, and inserts or
     updates records for the given module config. Returns an UploadResult.
     Raises ExcelValidationError for file-level problems (unreadable file,
     missing required columns).
+
+    `profile` is passed only for a Content Provider's own upload (never for
+    staff/Super Admin/City Admin — see upload_view, which keeps their
+    bulk-import behaviour exactly as it was: unowned, auto-published). When
+    given, every row is additionally attributed to them (owner), given a
+    resolved listing_category (matched against their AdminCategoryPermission
+    grants — see SUBCATEGORY_INITIAL_FIELDS), a `default_city` fallback when
+    the row has none, and the same PENDING/APPROVED status a manual
+    listing_submit submission would get — so a bulk-imported row behaves
+    exactly like one they typed in by hand: it shows up in My Listings and
+    goes through the same approval queue, rather than silently bypassing it.
     """
     try:
         df = pd.read_excel(uploaded_file, engine='openpyxl')
@@ -671,6 +685,24 @@ def process_excel_upload(uploaded_file, config):
 
     model = config['model']
     parse_row = config['parse_row']
+    listing_model_key = model._meta.model_name  # 'business'/'property'/'job'/'event'/'news'/'project'
+
+    owner_status = None
+    subcat_field = None
+    permitted_ids = set()
+    fallback_category = None
+    category_cache = {}
+    if profile is not None:
+        owner_status = (
+            ListingStatus.APPROVED
+            if listing_model_key == 'news' or PlatformSettings.load().auto_approve_listings
+            else ListingStatus.PENDING
+        )
+        subcat_field = SUBCATEGORY_INITIAL_FIELDS.get(listing_model_key)
+        permitted_ids = set(profile.managed_category_ids())
+        fallback_category = Category.objects.filter(
+            id__in=permitted_ids, listing_model=listing_model_key
+        ).order_by('order').first()
 
     inserted = 0
     updated = 0
@@ -688,6 +720,36 @@ def process_excel_upload(uploaded_file, config):
         except RowValidationError as exc:
             errors.append(f'Row {row_number}: {exc}')
             continue
+
+        if profile is not None:
+            subcat_value = defaults.get(subcat_field) if subcat_field else None
+            if subcat_value:
+                # A specific category was named in the row — it must match
+                # one of this Content Provider's permitted categories
+                # exactly. Falling back to *some other* permitted category
+                # here would silently re-tag the row (e.g. a Grocery Store
+                # row landing under "Places to Visit" just because that's
+                # the uploader's only grant) instead of rejecting it.
+                if subcat_value not in category_cache:
+                    category_cache[subcat_value] = Category.objects.filter(
+                        id__in=permitted_ids, listing_model=listing_model_key, business_subcategory=subcat_value,
+                    ).first()
+                resolved_category = category_cache[subcat_value]
+                if resolved_category is None:
+                    errors.append(f"Row {row_number}: you aren't approved for the \"{subcat_value}\" category.")
+                    continue
+            else:
+                # No category column/value on this row at all — fall back to
+                # whichever single category this uploader is permitted for.
+                resolved_category = fallback_category
+                if resolved_category is None:
+                    errors.append(f'Row {row_number}: you aren\'t approved for any matching category.')
+                    continue
+            defaults['owner'] = profile.user
+            defaults['listing_category'] = resolved_category
+            defaults['status'] = owner_status
+            if not defaults.get('city') and default_city is not None:
+                defaults['city'] = default_city
 
         try:
             with transaction.atomic():

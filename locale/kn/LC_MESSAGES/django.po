@@ -6,6 +6,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid ""
 "\"Kuppam\" is widely understood locally to mean a meeting place or confluence — a fitting name\n"
@@ -2383,3 +2384,693 @@ msgstr "ಉನ್ನತ ಮಟ್ಟದ ಮಾತ್ರ, ಸ್ಥಿರ ಮಾ�
 
 msgid "{{ trend }}% vs last week"
 msgstr "{{ trend }}% ವಿರುದ್ಧ ಕಳೆದ ವಾರ"
+
+msgid "%(trend)s%% vs last week"
+msgstr "%(trend)s%% ಕಳೆದ ವಾರಕ್ಕೆ ಹೋಲಿಸಿದರೆ"
+
+msgid "0 approved listings for this scope"
+msgstr "ಈ ವ್ಯಾಪ್ತಿಗೆ 0 ಅನುಮೋದಿತ ಪಟ್ಟಿಗಳು"
+
+msgid "24/7 multilingual agent coverage"
+msgstr "24/7 ಬಹುಭಾಷಾ ಏಜೆಂಟ್ ಬೆಂಬಲ"
+
+msgid "A record of sensitive administrative actions across the platform."
+msgstr "ವೇದಿಕೆಯಾದ್ಯಂತ ಸೂಕ್ಷ್ಮ ಆಡಳಿತಾತ್ಮಕ ಕ್ರಿಯೆಗಳ ದಾಖಲೆ."
+
+msgid "Actor"
+msgstr "ಕ್ರಿಯೆ ಮಾಡಿದವರು"
+
+msgid "Add %(cat)s"
+msgstr "%(cat)s ಸೇರಿಸಿ"
+
+msgid "Add City Admin"
+msgstr "ಸಿಟಿ ಅಡ್ಮಿನ್ ಸೇರಿಸಿ"
+
+msgid "Add Content"
+msgstr "ವಿಷಯ ಸೇರಿಸಿ"
+
+msgid "Add Content Provider"
+msgstr "ವಿಷಯ ಒದಗಿಸುವವರನ್ನು ಸೇರಿಸಿ"
+
+msgid ""
+"Add Content Providers for your city and choose which categories each one can"
+" publish into."
+msgstr ""
+"ನಿಮ್ಮ ನಗರಕ್ಕೆ ವಿಷಯ ಒದಗಿಸುವವರನ್ನು ಸೇರಿಸಿ ಮತ್ತು ಪ್ರತಿಯೊಬ್ಬರೂ ಯಾವ ವರ್ಗಗಳಲ್ಲಿ "
+"ಪ್ರಕಟಿಸಬಹುದು ಎಂಬುದನ್ನು ಆಯ್ಕೆಮಾಡಿ."
+
+msgid "Add Sub Admin"
+msgstr "ಸಬ್ ಅಡ್ಮಿನ್ ಸೇರಿಸಿ"
+
+msgid "All cities (platform-wide)"
+msgstr "ಎಲ್ಲಾ ನಗರಗಳು (ಇಡೀ ವೇದಿಕೆ)"
+
+msgid "Always granted"
+msgstr "ಯಾವಾಗಲೂ ನೀಡಲಾಗಿದೆ"
+
+msgid "Approved Content"
+msgstr "ಅನುಮೋದಿತ ವಿಷಯ"
+
+msgid "Assign or remove specific permissions for this Sub Admin."
+msgstr "ಈ ಸಬ್ ಅಡ್ಮಿನ್‌ಗೆ ನಿರ್ದಿಷ್ಟ ಅನುಮತಿಗಳನ್ನು ನಿಗದಿಪಡಿಸಿ ಅಥವಾ ತೆಗೆದುಹಾಕಿ."
+
+msgid "Audit Logs"
+msgstr "ಆಡಿಟ್ ಲಾಗ್‌ಗಳು"
+
+msgid "Auto-Approve New Listings"
+msgstr "ಹೊಸ ಪಟ್ಟಿಗಳನ್ನು ಸ್ವಯಂ-ಅನುಮೋದಿಸಿ"
+
+msgid "Available On"
+msgstr "ಲಭ್ಯವಿರುವ ದಿನಾಂಕ"
+
+msgid "Back to Listings"
+msgstr "ಪಟ್ಟಿಗಳಿಗೆ ಹಿಂತಿರುಗಿ"
+
+msgid "Back to Sub Admins"
+msgstr "ಸಬ್ ಅಡ್ಮಿನ್‌ಗಳಿಗೆ ಹಿಂತಿರುಗಿ"
+
+msgid "Browse %(label)s listings in your city"
+msgstr "ನಿಮ್ಮ ನಗರದಲ್ಲಿ %(label)s ಪಟ್ಟಿಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"
+
+msgid "Browse general local businesses and services in your city"
+msgstr "ನಿಮ್ಮ ನಗರದ ಸಾಮಾನ್ಯ ಸ್ಥಳೀಯ ವ್ಯಾಪಾರಗಳು ಮತ್ತು ಸೇವೆಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"
+
+msgid "Browse real estate listings — sale, rent, plots and more in your city"
+msgstr ""
+"ರಿಯಲ್ ಎಸ್ಟೇಟ್ ಪಟ್ಟಿಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ - ಮಾರಾಟ, ಬಾಡಿಗೆ, ಪ್ಲಾಟ್‌ಗಳು ಮತ್ತು "
+"ನಿಮ್ಮ ನಗರದಲ್ಲಿ ಇನ್ನಷ್ಟು"
+
+msgid "Call Now"
+msgstr "ಈಗಲೇ ಕರೆ ಮಾಡಿ"
+
+msgid "Call center and BPO services"
+msgstr "ಕಾಲ್ ಸೆಂಟರ್ ಮತ್ತು ಬಿಪಿಒ ಸೇವೆಗಳು"
+
+msgid "Check homepage visibility for"
+msgstr "ಹೋಮ್‌ಪೇಜ್ ಗೋಚರತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ"
+
+msgid "Choose city"
+msgstr "ನಗರವನ್ನು ಆಯ್ಕೆಮಾಡಿ"
+
+msgid "Choose your city"
+msgstr "ನಿಮ್ಮ ನಗರವನ್ನು ಆಯ್ಕೆಮಾಡಿ"
+
+msgid "Cities"
+msgstr "ನಗರಗಳು"
+
+msgid "City Admin"
+msgstr "ಸಿಟಿ ಅಡ್ಮಿನ್"
+
+msgid "City Admin Dashboard"
+msgstr "ಸಿಟಿ ಅಡ್ಮಿನ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+
+msgid "City Administration"
+msgstr "ಸಿಟಿ ಆಡಳಿತ"
+
+msgid "City Admins"
+msgstr "ಸಿಟಿ ಅಡ್ಮಿನ್‌ಗಳು"
+
+msgid "City Content Inventory"
+msgstr "ಸಿಟಿ ವಿಷಯ ಪಟ್ಟಿ"
+
+msgid "City Modules"
+msgstr "ಸಿಟಿ ಮಾಡ್ಯೂಲ್‌ಗಳು"
+
+msgid "City Team"
+msgstr "ಸಿಟಿ ತಂಡ"
+
+msgid "City activity at a glance"
+msgstr "ಒಂದೇ ನೋಟದಲ್ಲಿ ನಗರ ಚಟುವಟಿಕೆ"
+
+msgid "Comments (%(count)s)"
+msgstr "ಕಾಮೆಂಟ್‌ಗಳು (%(count)s)"
+
+msgid "Content Providers"
+msgstr "ವಿಷಯ ಒದಗಿಸುವವರು"
+
+msgid "Content Status"
+msgstr "ವಿಷಯ ಸ್ಥಿತಿ"
+
+msgid "No permissions granted yet"
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಅನುಮತಿಗಳನ್ನು ನೀಡಿಲ್ಲ"
+
+msgid "No permissions granted yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಅನುಮತಿಗಳನ್ನು ನೀಡಿಲ್ಲ."
+
+msgid "No platform modules are enabled to restrict."
+msgstr "ನಿರ್ಬಂಧಿಸಲು ಯಾವುದೇ ವೇದಿಕೆ ಮಾಡ್ಯೂಲ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿಲ್ಲ."
+
+msgid "No repair shops listed yet for your city."
+msgstr "ನಿಮ್ಮ ನಗರಕ್ಕೆ ಇನ್ನೂ ಯಾವುದೇ ರಿಪೇರಿ ಅಂಗಡಿಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಿಲ್ಲ."
+
+msgid "No submissions yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಸಲ್ಲಿಕೆಗಳಿಲ್ಲ."
+
+msgid "None"
+msgstr "ಯಾವುದೂ ಇಲ್ಲ"
+
+msgid "Not granted"
+msgstr "ನೀಡಿಲ್ಲ"
+
+msgid "On homepage"
+msgstr "ಹೋಮ್‌ಪೇಜ್‌ನಲ್ಲಿ"
+
+msgid ""
+"Only used when this category publishes into Business, Property, Jobs, or "
+"Projects — matches that model's category/type/status field (e.g. "
+"Business.category, Property.property_type, Job.job_type, "
+"Project.project_status)."
+msgstr ""
+"ಈ ವರ್ಗವು ವ್ಯಾಪಾರ, ಆಸ್ತಿ, ಉದ್ಯೋಗಗಳು ಅಥವಾ ಯೋಜನೆಗಳಲ್ಲಿ ಪ್ರಕಟವಾದಾಗ ಮಾತ್ರ "
+"ಬಳಸಲಾಗುತ್ತದೆ - ಆ ಮಾದರಿಯ category/type/status ಕ್ಷೇತ್ರಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುತ್ತದೆ "
+"(ಉದಾ: Business.category, Property.property_type, Job.job_type, "
+"Project.project_status)."
+
+msgid "Page %(current)s of %(total)s"
+msgstr "ಪುಟ %(current)s / %(total)s"
+
+msgid "Page %(num)s of %(total)s"
+msgstr "ಪುಟ %(num)s / %(total)s"
+
+msgid "Pending Content"
+msgstr "ಬಾಕಿ ಇರುವ ವಿಷಯ"
+
+msgid "Permission"
+msgstr "ಅನುಮತಿ"
+
+msgid "Permissions"
+msgstr "ಅನುಮತಿಗಳು"
+
+msgid "Places to Visit"
+msgstr "ಭೇಟಿ ನೀಡಬಹುದಾದ ಸ್ಥಳಗಳು"
+
+msgid "Planned and ongoing civic and infrastructure projects in your city"
+msgstr ""
+"ನಿಮ್ಮ ನಗರದಲ್ಲಿ ಯೋಜಿತ ಮತ್ತು ನಡೆಯುತ್ತಿರುವ ನಾಗರಿಕ ಮತ್ತು ಮೂಲಸೌಕರ್ಯ ಯೋಜನೆಗಳು"
+
+msgid "Platform Modules"
+msgstr "ವೇದಿಕೆ ಮಾಡ್ಯೂಲ್‌ಗಳು"
+
+msgid "Platform Settings"
+msgstr "ವೇದಿಕೆ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"
+
+msgid "Promote to Super Admin"
+msgstr "ಸೂಪರ್ ಅಡ್ಮಿನ್‌ಗೆ ಬಡ್ತಿ ನೀಡಿ"
+
+msgid "Property Listing"
+msgstr "ಆಸ್ತಿ ಪಟ್ಟಿ"
+
+msgid "Recently Submitted"
+msgstr "ಇತ್ತೀಚೆಗೆ ಸಲ್ಲಿಸಲಾಗಿದೆ"
+
+msgid "Rejected Content"
+msgstr "ತಿರಸ್ಕರಿಸಿದ ವಿಷಯ"
+
+msgid "Repair Shops Near You"
+msgstr "ನಿಮ್ಮ ಹತ್ತಿರದ ರಿಪೇರಿ ಅಂಗಡಿಗಳು"
+
+msgid "Restaurants & Food"
+msgstr "ರೆಸ್ಟೋರೆಂಟ್‌ಗಳು ಮತ್ತು ಆಹಾರ"
+
+msgid ""
+"Restrict which platform modules are available in this city. A module Super "
+"Admin has disabled platform-wide can't be re-enabled here."
+msgstr ""
+"ಈ ನಗರದಲ್ಲಿ ಯಾವ ವೇದಿಕೆ ಮಾಡ್ಯೂಲ್‌ಗಳು ಲಭ್ಯವಿವೆ ಎಂಬುದನ್ನು ನಿರ್ಬಂಧಿಸಿ. ಸೂಪರ್ "
+"ಅಡ್ಮಿನ್ ವೇದಿಕೆಯಾದ್ಯಂತ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿದ ಮಾಡ್ಯೂಲ್ ಅನ್ನು ಇಲ್ಲಿ "
+"ಮರು-ಸಕ್ರಿಯಗೊಳಿಸಲಾಗುವುದಿಲ್ಲ."
+
+msgid "Review Submitted Content"
+msgstr "ಸಲ್ಲಿಸಿದ ವಿಷಯವನ್ನು ಪರಿಶೀಲಿಸಿ"
+
+msgid "Reviews (%(count)s)"
+msgstr "ವಿಮರ್ಶೆಗಳು (%(count)s)"
+
+msgid "Roles & Permissions"
+msgstr "ಪಾತ್ರಗಳು ಮತ್ತು ಅನುಮತಿಗಳು"
+
+msgid "Save City Admin"
+msgstr "ಸಿಟಿ ಅಡ್ಮಿನ್ ಉಳಿಸಿ"
+
+msgid "Save Content Provider"
+msgstr "ವಿಷಯ ಒದಗಿಸುವವರನ್ನು ಉಳಿಸಿ"
+
+msgid "Save Settings"
+msgstr "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಉಳಿಸಿ"
+
+msgid "Save Sub Admin"
+msgstr "ಸಬ್ ಅಡ್ಮಿನ್ ಉಳಿಸಿ"
+
+msgid "Save as Draft"
+msgstr "ಡ್ರಾಫ್ಟ್ ಆಗಿ ಉಳಿಸಿ"
+
+msgid ""
+"Save it as a draft to keep working on it, or submit it for approval when "
+"you're ready."
+msgstr ""
+"ಇದರ ಮೇಲೆ ಕೆಲಸ ಮುಂದುವರಿಸಲು ಡ್ರಾಫ್ಟ್ ಆಗಿ ಉಳಿಸಿ, ಅಥವಾ ಸಿದ್ಧವಾದಾಗ ಅನುಮೋದನೆಗಾಗಿ "
+"ಸಲ್ಲಿಸಿ."
+
+msgid "Scalable teams — start small, grow on demand"
+msgstr "ಸ್ಕೇಲೆಬಲ್ ತಂಡಗಳು - ಚಿಕ್ಕದಾಗಿ ಪ್ರಾರಂಭಿಸಿ, ಬೇಡಿಕೆಗೆ ಅನುಗುಣವಾಗಿ ಬೆಳೆಯಿರಿ"
+
+msgid "Search %(label)s"
+msgstr "%(label)s ಹುಡುಕಿ"
+
+msgid "Search by action, description, or actor email"
+msgstr "ಕ್ರಿಯೆ, ವಿವರಣೆ, ಅಥವಾ ಕ್ರಿಯೆ ಮಾಡಿದವರ ಇಮೇಲ್ ಮೂಲಕ ಹುಡುಕಿ"
+
+msgid "Search city"
+msgstr "ನಗರವನ್ನು ಹುಡುಕಿ"
+
+msgid "Search city..."
+msgstr "ನಗರವನ್ನು ಹುಡುಕಿ..."
+
+msgid "Showing only the modules you've been granted access to."
+msgstr "ನಿಮಗೆ ಪ್ರವೇಶ ನೀಡಲಾದ ಮಾಡ್ಯೂಲ್‌ಗಳನ್ನು ಮಾತ್ರ ತೋರಿಸಲಾಗುತ್ತಿದೆ."
+
+msgid "Site Name"
+msgstr "ಸೈಟ್ ಹೆಸರು"
+
+msgid "Site identity, maintenance mode, and content approval behavior."
+msgstr "ಸೈಟ್ ಗುರುತು, ನಿರ್ವಹಣಾ ಮೋಡ್, ಮತ್ತು ವಿಷಯ ಅನುಮೋದನೆ ವರ್ತನೆ."
+
+msgid "Status in"
+msgstr "ಸ್ಥಿತಿ"
+
+msgid "Sub Admin"
+msgstr "ಸಬ್ ಅಡ್ಮಿನ್"
+
+msgid "Sub Admin Dashboard"
+msgstr "ಸಬ್ ಅಡ್ಮಿನ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್"
+
+msgid "Sub Admins"
+msgstr "ಸಬ್ ಅಡ್ಮಿನ್‌ಗಳು"
+
+msgid "Subcategory value"
+msgstr "ಉಪ-ವರ್ಗ ಮೌಲ್ಯ"
+
+msgid "Submissions"
+msgstr "ಸಲ್ಲಿಕೆಗಳು"
+
+msgid "Submit for Approval"
+msgstr "ಅನುಮೋದನೆಗಾಗಿ ಸಲ್ಲಿಸಿ"
+
+msgid ""
+"Super Admin always has unrestricted access. Grant or revoke individual "
+"capabilities for the other roles below — these take effect as each role's "
+"own dashboard is rolled out."
+msgstr ""
+"ಸೂಪರ್ ಅಡ್ಮಿನ್‌ಗೆ ಯಾವಾಗಲೂ ಅನಿಯಂತ್ರಿತ ಪ್ರವೇಶವಿದೆ. ಕೆಳಗಿನ ಇತರ ಪಾತ್ರಗಳಿಗೆ "
+"ವೈಯಕ್ತಿಕ ಸಾಮರ್ಥ್ಯಗಳನ್ನು ನೀಡಿ ಅಥವಾ ಹಿಂಪಡೆಯಿರಿ - ಪ್ರತಿ ಪಾತ್ರದ ಸ್ವಂತ "
+"ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಜಾರಿಗೆ ಬಂದಂತೆ ಇವು ಜಾರಿಗೆ ಬರುತ್ತವೆ."
+
+msgid "Support Email"
+msgstr "ಬೆಂಬಲ ಇಮೇಲ್"
+
+msgid "Support Phone"
+msgstr "ಬೆಂಬಲ ಫೋನ್"
+
+msgid "Switch entire feature areas on or off across the platform."
+msgstr ""
+"ಸಂಪೂರ್ಣ ವೇದಿಕೆಯಾದ್ಯಂತ ಸಂಪೂರ್ಣ ವೈಶಿಷ್ಟ್ಯ ಪ್ರದೇಶಗಳನ್ನು ಆನ್ ಅಥವಾ ಆಫ್ ಮಾಡಿ."
+
+msgid ""
+"These categories have no approved listings yet, so their tile is left off "
+"the homepage entirely rather than showing an empty card. Add a listing and "
+"it reappears automatically."
+msgstr ""
+"ಈ ವರ್ಗಗಳಿಗೆ ಇನ್ನೂ ಅನುಮೋದಿತ ಪಟ್ಟಿಗಳಿಲ್ಲ, ಆದ್ದರಿಂದ ಖಾಲಿ ಕಾರ್ಡ್ ತೋರಿಸುವ ಬದಲು "
+"ಅವುಗಳ ಟೈಲ್ ಅನ್ನು ಹೋಮ್‌ಪೇಜ್‌ನಿಂದ ಸಂಪೂರ್ಣವಾಗಿ ತೆಗೆದುಹಾಕಲಾಗುತ್ತದೆ. ಪಟ್ಟಿಯನ್ನು "
+"ಸೇರಿಸಿ ಮತ್ತು ಅದು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಮತ್ತೆ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತದೆ."
+
+msgid "Today in Your Town"
+msgstr "ಇಂದು ನಿಮ್ಮ ನಗರದಲ್ಲಿ"
+
+msgid "Toggle"
+msgstr "ಟಾಗಲ್ ಮಾಡಿ"
+
+msgid "Updated %(updated)s"
+msgstr "%(updated)s ರಂದು ನವೀಕರಿಸಲಾಗಿದೆ"
+
+msgid "Use My Location"
+msgstr "ನನ್ನ ಸ್ಥಳವನ್ನು ಬಳಸಿ"
+
+msgid "Use my current location"
+msgstr "ನನ್ನ ಪ್ರಸ್ತುತ ಸ್ಥಳವನ್ನು ಬಳಸಿ"
+
+msgid "We could not access your location."
+msgstr "ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪ್ರವೇಶಿಸಲು ನಮಗೆ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ."
+
+msgid ""
+"We run round-the-clock inbound and outbound call center operations for "
+"businesses that need dependable customer support without the overhead of an "
+"in-house team. From order support and appointment scheduling to lead "
+"qualification and after-sales care, our trained agents represent your brand "
+"professionally on every call."
+msgstr ""
+"ಇನ್-ಹೌಸ್ ತಂಡದ ಹೊರೆಯಿಲ್ಲದೆ ವಿಶ್ವಾಸಾರ್ಹ ಗ್ರಾಹಕ ಬೆಂಬಲ ಬಯಸುವ ವ್ಯಾಪಾರಗಳಿಗಾಗಿ ನಾವು"
+" ದಿನದ 24 ಗಂಟೆಗಳೂ ಇನ್‌ಬೌಂಡ್ ಮತ್ತು ಔಟ್‌ಬೌಂಡ್ ಕಾಲ್ ಸೆಂಟರ್ ಕಾರ್ಯಾಚರಣೆಗಳನ್ನು "
+"ನಡೆಸುತ್ತೇವೆ. ಆರ್ಡರ್ ಬೆಂಬಲ ಮತ್ತು ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್ ವೇಳಾಪಟ್ಟಿಯಿಂದ ಲೀಡ್ ಅರ್ಹತೆ "
+"ಮತ್ತು ಮಾರಾಟದ ನಂತರದ ಆರೈಕೆಯವರೆಗೆ, ನಮ್ಮ ತರಬೇತಿ ಪಡೆದ ಏಜೆಂಟ್‌ಗಳು ಪ್ರತಿ ಕರೆಯಲ್ಲಿ "
+"ನಿಮ್ಮ ಬ್ರ್ಯಾಂಡ್ ಅನ್ನು ವೃತ್ತಿಪರವಾಗಿ ಪ್ರತಿನಿಧಿಸುತ್ತಾರೆ."
+
+msgid ""
+"What's happening today, places worth visiting, and repair shops near you."
+msgstr ""
+"ಇಂದು ಏನಾಗುತ್ತಿದೆ, ಭೇಟಿ ನೀಡಲು ಯೋಗ್ಯವಾದ ಸ್ಥಳಗಳು, ಮತ್ತು ನಿಮ್ಮ ಹತ್ತಿರದ ರಿಪೇರಿ "
+"ಅಂಗಡಿಗಳು."
+
+msgid ""
+"When on, new/edited listings from Content Providers and Explorers publish "
+"immediately instead of waiting in the pending-approval queue."
+msgstr ""
+"ಆನ್ ಆಗಿರುವಾಗ, ವಿಷಯ ಒದಗಿಸುವವರು ಮತ್ತು ಎಕ್ಸ್‌ಪ್ಲೋರರ್‌ಗಳ ಹೊಸ/ಸಂಪಾದಿತ ಪಟ್ಟಿಗಳು "
+"ಬಾಕಿ-ಅನುಮೋದನೆ ಸಾಲಿನಲ್ಲಿ ಕಾಯುವ ಬದಲು ತಕ್ಷಣ ಪ್ರಕಟವಾಗುತ್ತವೆ."
+
+msgid ""
+"When on, only Super Admin can browse the site — everyone else sees a "
+"maintenance page."
+msgstr ""
+"ಆನ್ ಆಗಿರುವಾಗ, ಸೂಪರ್ ಅಡ್ಮಿನ್ ಮಾತ್ರ ಸೈಟ್ ಬ್ರೌಸ್ ಮಾಡಬಹುದು - ಉಳಿದವರೆಲ್ಲರೂ "
+"ನಿರ್ವಹಣಾ ಪುಟವನ್ನು ನೋಡುತ್ತಾರೆ."
+
+msgid ""
+"Your City Admin hasn't delegated any modules to your account yet. Check back"
+" once they have."
+msgstr ""
+"ನಿಮ್ಮ ಸಿಟಿ ಅಡ್ಮಿನ್ ಇನ್ನೂ ನಿಮ್ಮ ಖಾತೆಗೆ ಯಾವುದೇ ಮಾಡ್ಯೂಲ್‌ಗಳನ್ನು ನಿಯೋಜಿಸಿಲ್ಲ. "
+"ಅವರು ನಿಯೋಜಿಸಿದ ನಂತರ ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ."
+
+msgid "Your Content Areas"
+msgstr "ನಿಮ್ಮ ವಿಷಯ ಪ್ರದೇಶಗಳು"
+
+msgid ""
+"Your trusted local information portal for %(city)s — businesses, jobs, real "
+"estate, and everything in between."
+msgstr ""
+"%(city)s ಗಾಗಿ ನಿಮ್ಮ ವಿಶ್ವಾಸಾರ್ಹ ಸ್ಥಳೀಯ ಮಾಹಿತಿ ಪೋರ್ಟಲ್ - ವ್ಯಾಪಾರಗಳು, "
+"ಉದ್ಯೋಗಗಳು, ರಿಯಲ್ ಎಸ್ಟೇಟ್, ಮತ್ತು ಇನ್ನಷ್ಟು."
+
+msgid ""
+"Your trusted local information portal — businesses, jobs, real estate, and "
+"everything in between."
+msgstr ""
+"ನಿಮ್ಮ ವಿಶ್ವಾಸಾರ್ಹ ಸ್ಥಳೀಯ ಮಾಹಿತಿ ಪೋರ್ಟಲ್ - ವ್ಯಾಪಾರಗಳು, ಉದ್ಯೋಗಗಳು, ರಿಯಲ್ "
+"ಎಸ್ಟೇಟ್, ಮತ್ತು ಇನ್ನಷ್ಟು."
+
+msgid "e.g. restaurant, sale, hourly"
+msgstr "ಉದಾ: restaurant, sale, hourly"
+
+msgid "for \"<strong>%(query)s</strong>\""
+msgstr "\"<strong>%(query)s</strong>\" ಗಾಗಿ"
+
+msgid "in <strong>%(label)s</strong>"
+msgstr "<strong>%(label)s</strong> ನಲ್ಲಿ"
+
+msgid "in <strong>%(t)s</strong>"
+msgstr "<strong>%(t)s</strong> ನಲ್ಲಿ"
+
+msgid "no city assigned yet"
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ನಗರವನ್ನು ನಿಗದಿಪಡಿಸಿಲ್ಲ"
+
+msgid "role default"
+msgstr "ಪಾತ್ರ ಡೀಫಾಲ್ಟ್"
+
+msgid "%(counter)s Listing"
+msgid_plural "%(counter)s Listings"
+msgstr[0] "%(counter)s ಪಟ್ಟಿ"
+msgstr[1] "%(counter)s ಪಟ್ಟಿಗಳು"
+
+msgid "%(counter)s post"
+msgid_plural "%(counter)s posts"
+msgstr[0] "%(counter)s ಪೋಸ್ಟ್"
+msgstr[1] "%(counter)s ಪೋಸ್ಟ್‌ಗಳು"
+
+msgid "%(counter)s subcategory"
+msgid_plural "%(counter)s subcategories"
+msgstr[0] "%(counter)s ಉಪ-ವರ್ಗ"
+msgstr[1] "%(counter)s ಉಪ-ವರ್ಗಗಳು"
+
+msgid "%(counter)s user"
+msgid_plural "%(counter)s users"
+msgstr[0] "%(counter)s ಬಳಕೆದಾರ"
+msgstr[1] "%(counter)s ಬಳಕೆದಾರರು"
+
+msgid "Showing %(counter)s business"
+msgid_plural "Showing %(counter)s businesses"
+msgstr[0] "%(counter)s ವ್ಯಾಪಾರ ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+msgstr[1] "%(counter)s ವ್ಯಾಪಾರಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+
+msgid "Showing %(counter)s listing"
+msgid_plural "Showing %(counter)s listings"
+msgstr[0] "%(counter)s ಪಟ್ಟಿ ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+msgstr[1] "%(counter)s ಪಟ್ಟಿಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+
+msgid "Showing %(counter)s project"
+msgid_plural "Showing %(counter)s projects"
+msgstr[0] "%(counter)s ಯೋಜನೆ ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+msgstr[1] "%(counter)s ಯೋಜನೆಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+
+msgid "Showing %(counter)s property"
+msgid_plural "Showing %(counter)s properties"
+msgstr[0] "%(counter)s ಆಸ್ತಿ ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+msgstr[1] "%(counter)s ಆಸ್ತಿಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+
+msgid "Showing %(counter)s result"
+msgid_plural "Showing %(counter)s results"
+msgstr[0] "%(counter)s ಫಲಿತಾಂಶ ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+msgstr[1] "%(counter)s ಫಲಿತಾಂಶಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ"
+
+msgid "Maintenance Message"
+msgstr "ನಿರ್ವಹಣಾ ಸಂದೇಶ"
+
+msgid "Maintenance Mode"
+msgstr "ನಿರ್ವಹಣಾ ಮೋಡ್"
+
+msgid "Manage City Admins"
+msgstr "ಸಿಟಿ ಅಡ್ಮಿನ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ"
+
+msgid "Manage City Content"
+msgstr "ಸಿಟಿ ವಿಷಯವನ್ನು ನಿರ್ವಹಿಸಿ"
+
+msgid "Manage Content"
+msgstr "ವಿಷಯವನ್ನು ನಿರ್ವಹಿಸಿ"
+
+msgid "Manage Content Providers"
+msgstr "ವಿಷಯ ಒದಗಿಸುವವರನ್ನು ನಿರ್ವಹಿಸಿ"
+
+msgid "Manage Permissions"
+msgstr "ಅನುಮತಿಗಳನ್ನು ನಿರ್ವಹಿಸಿ"
+
+msgid "Manage Sub Admins"
+msgstr "ಸಬ್ ಅಡ್ಮಿನ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ"
+
+msgid "Managing"
+msgstr "ನಿರ್ವಹಿಸುತ್ತಿದೆ"
+
+msgid "Module"
+msgstr "ಮಾಡ್ಯೂಲ್"
+
+msgid "My Content"
+msgstr "ನನ್ನ ವಿಷಯ"
+
+msgid "Nearby Shops"
+msgstr "ಹತ್ತಿರದ ಅಂಗಡಿಗಳು"
+
+msgid ""
+"Need help finding a business, job or property in %(city)s? Chat with us on "
+"WhatsApp."
+msgstr ""
+"%(city)s ನಲ್ಲಿ ವ್ಯಾಪಾರ, ಉದ್ಯೋಗ ಅಥವಾ ಆಸ್ತಿ ಹುಡುಕಲು ಸಹಾಯ ಬೇಕೇ? WhatsApp ನಲ್ಲಿ "
+"ನಮ್ಮೊಂದಿಗೆ ಚಾಟ್ ಮಾಡಿ."
+
+msgid ""
+"Need help finding a business, job or property? Chat with us on WhatsApp."
+msgstr ""
+"ವ್ಯಾಪಾರ, ಉದ್ಯೋಗ ಅಥವಾ ಆಸ್ತಿ ಹುಡುಕಲು ಸಹಾಯ ಬೇಕೇ? WhatsApp ನಲ್ಲಿ ನಮ್ಮೊಂದಿಗೆ ಚಾಟ್"
+" ಮಾಡಿ."
+
+msgid "New %(cat)s"
+msgstr "ಹೊಸ %(cat)s"
+
+msgid "No %(label)s found"
+msgstr "ಯಾವುದೇ %(label)s ಕಂಡುಬಂದಿಲ್ಲ"
+
+msgid "No City Admins yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಸಿಟಿ ಅಡ್ಮಿನ್‌ಗಳಿಲ್ಲ."
+
+msgid "No Content Providers yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ವಿಷಯ ಒದಗಿಸುವವರಿಲ್ಲ."
+
+msgid "No Sub Admins yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಸಬ್ ಅಡ್ಮಿನ್‌ಗಳಿಲ್ಲ."
+
+msgid "No audit log entries yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಆಡಿಟ್ ಲಾಗ್ ನಮೂದುಗಳಿಲ್ಲ."
+
+msgid ""
+"No categories yet — add one from <a "
+"href=\"%(manage_categories_url)s\">Manage Categories</a> first."
+msgstr ""
+"ಇನ್ನೂ ಯಾವುದೇ ವರ್ಗಗಳಿಲ್ಲ - ಮೊದಲು <a "
+"href=\"%(manage_categories_url)s\">ವರ್ಗಗಳನ್ನು ನಿರ್ವಹಿಸಿ</a> ನಿಂದ ಒಂದನ್ನು "
+"ಸೇರಿಸಿ."
+
+msgid "No cities assigned"
+msgstr "ಯಾವುದೇ ನಗರಗಳನ್ನು ನಿಗದಿಪಡಿಸಿಲ್ಲ"
+
+msgid "No city assigned"
+msgstr "ಯಾವುದೇ ನಗರವನ್ನು ನಿಗದಿಪಡಿಸಿಲ್ಲ"
+
+msgid "No delegable permissions defined yet."
+msgstr "ಇನ್ನೂ ನಿಯೋಜಿಸಬಹುದಾದ ಅನುಮತಿಗಳನ್ನು ವ್ಯಾಖ್ಯಾನಿಸಿಲ್ಲ."
+
+msgid "No modules defined yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಮಾಡ್ಯೂಲ್‌ಗಳನ್ನು ವ್ಯಾಖ್ಯಾನಿಸಿಲ್ಲ."
+
+msgid "No permissions defined yet."
+msgstr "ಇನ್ನೂ ಯಾವುದೇ ಅನುಮತಿಗಳನ್ನು ವ್ಯಾಖ್ಯಾನಿಸಿಲ್ಲ."
+
+msgid "Create City Admin accounts and assign which cities each one manages."
+msgstr ""
+"ಸಿಟಿ ಅಡ್ಮಿನ್ ಖಾತೆಗಳನ್ನು ರಚಿಸಿ ಮತ್ತು ಪ್ರತಿಯೊಬ್ಬರೂ ಯಾವ ನಗರಗಳನ್ನು "
+"ನಿರ್ವಹಿಸುತ್ತಾರೆ ಎಂಬುದನ್ನು ನಿಗದಿಪಡಿಸಿ."
+
+msgid ""
+"Create Sub Admin accounts for your city and control what each one can do."
+msgstr ""
+"ನಿಮ್ಮ ನಗರಕ್ಕೆ ಸಬ್ ಅಡ್ಮಿನ್ ಖಾತೆಗಳನ್ನು ರಚಿಸಿ ಮತ್ತು ಪ್ರತಿಯೊಬ್ಬರೂ ಏನು ಮಾಡಬಹುದು "
+"ಎಂಬುದನ್ನು ನಿಯಂತ್ರಿಸಿ."
+
+msgid "Created %(joined)s"
+msgstr "%(joined)s ರಂದು ರಚಿಸಲಾಗಿದೆ"
+
+msgid "Deactivated"
+msgstr "ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"
+
+msgid "Dedicated account manager & real-time reporting"
+msgstr "ಮೀಸಲಾದ ಖಾತೆ ವ್ಯವಸ್ಥಾಪಕ ಮತ್ತು ರಿಯಲ್-ಟೈಮ್ ವರದಿ"
+
+msgid "Description"
+msgstr "ವಿವರಣೆ"
+
+msgid "Disable for this city"
+msgstr "ಈ ನಗರಕ್ಕೆ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Enable for this city"
+msgstr "ಈ ನಗರಕ್ಕೆ ಸಕ್ರಿಯಗೊಳಿಸಿ"
+
+msgid "Enabled"
+msgstr "ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"
+
+msgid ""
+"End-to-end web development, call center and BPO services from CraftLanee — "
+"for startups, businesses, educational institutions, and organizations "
+"building a strong online presence."
+msgstr ""
+"ಕ್ರಾಫ್ಟ್‌ಲೇನಿಯಿಂದ ಎಂಡ್-ಟು-ಎಂಡ್ ವೆಬ್ ಅಭಿವೃದ್ಧಿ, ಕಾಲ್ ಸೆಂಟರ್ ಮತ್ತು ಬಿಪಿಒ "
+"ಸೇವೆಗಳು - ಸ್ಟಾರ್ಟಪ್‌ಗಳು, ವ್ಯಾಪಾರಗಳು, ಶೈಕ್ಷಣಿಕ ಸಂಸ್ಥೆಗಳು ಮತ್ತು ಬಲವಾದ ಆನ್‌ಲೈನ್"
+" ಇರುವಿಕೆಯನ್ನು ನಿರ್ಮಿಸುವ ಸಂಸ್ಥೆಗಳಿಗಾಗಿ."
+
+msgid "Everything %(city)s has to offer, organized in one place"
+msgstr "%(city)s ನಲ್ಲಿ ಲಭ್ಯವಿರುವ ಎಲ್ಲವೂ, ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ಜೋಡಿಸಲಾಗಿದೆ"
+
+msgid "Everything your city has to offer, organized in one place"
+msgstr "ನಿಮ್ಮ ನಗರದಲ್ಲಿ ಲಭ್ಯವಿರುವ ಎಲ್ಲವೂ, ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ಜೋಡಿಸಲಾಗಿದೆ"
+
+msgid "Explore %(name)s"
+msgstr "%(name)s ಅನ್ವೇಷಿಸಿ"
+
+msgid "Featured Service"
+msgstr "ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದ ಸೇವೆ"
+
+msgid "Finding your location..."
+msgstr "ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ..."
+
+msgid "Get Started"
+msgstr "ಪ್ರಾರಂಭಿಸಿ"
+
+msgid "Get the latest %(city)s listings and news in your inbox."
+msgstr ""
+"%(city)s ನ ಇತ್ತೀಚಿನ ಪಟ್ಟಿಗಳು ಮತ್ತು ಸುದ್ದಿಯನ್ನು ನಿಮ್ಮ ಇನ್‌ಬಾಕ್ಸ್‌ನಲ್ಲಿ "
+"ಪಡೆಯಿರಿ."
+
+msgid "Get the latest listings and news in your inbox."
+msgstr "ಇತ್ತೀಚಿನ ಪಟ್ಟಿಗಳು ಮತ್ತು ಸುದ್ದಿಯನ್ನು ನಿಮ್ಮ ಇನ್‌ಬಾಕ್ಸ್‌ನಲ್ಲಿ ಪಡೆಯಿರಿ."
+
+msgid "Granted"
+msgstr "ನೀಡಲಾಗಿದೆ"
+
+msgid "Granted Permissions"
+msgstr "ನೀಡಲಾದ ಅನುಮತಿಗಳು"
+
+msgid "Happening Today"
+msgstr "ಇಂದು ನಡೆಯುತ್ತಿದೆ"
+
+msgid "Has approved listings for this scope"
+msgstr "ಈ ವ್ಯಾಪ್ತಿಗೆ ಅನುಮೋದಿತ ಪಟ್ಟಿಗಳಿವೆ"
+
+msgid "Hidden From Your Homepage"
+msgstr "ನಿಮ್ಮ ಹೋಮ್‌ಪೇಜ್‌ನಿಂದ ಮರೆಮಾಡಲಾಗಿದೆ"
+
+msgid "Hidden — 0 listings"
+msgstr "ಮರೆಮಾಡಲಾಗಿದೆ - 0 ಪಟ್ಟಿಗಳು"
+
+msgid "Hold Ctrl/Cmd to select more than one."
+msgstr "ಒಂದಕ್ಕಿಂತ ಹೆಚ್ಚು ಆಯ್ಕೆ ಮಾಡಲು Ctrl/Cmd ಒತ್ತಿ ಹಿಡಿಯಿರಿ."
+
+msgid "Hourly Basis"
+msgstr "ಗಂಟೆಗಳ ಆಧಾರ"
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the City "
+"Admin role attaches automatically the first time they sign in with Google."
+msgstr ""
+"ಈ ಇಮೇಲ್ ಇನ್ನೂ ಸೈನ್ ಇನ್ ಆಗಿಲ್ಲದಿದ್ದರೆ, ಈಗ ಖಾತೆಯನ್ನು ರಚಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ಅವರು "
+"ಮೊದಲ ಬಾರಿ Google ನೊಂದಿಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿದಾಗ ಸಿಟಿ ಅಡ್ಮಿನ್ ಪಾತ್ರ ಸ್ವಯಂಚಾಲಿತವಾಗಿ "
+"ಲಗತ್ತಿಸಲಾಗುತ್ತದೆ."
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the "
+"Content Provider role attaches automatically the first time they sign in "
+"with Google."
+msgstr ""
+"ಈ ಇಮೇಲ್ ಇನ್ನೂ ಸೈನ್ ಇನ್ ಆಗಿಲ್ಲದಿದ್ದರೆ, ಈಗ ಖಾತೆಯನ್ನು ರಚಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ಅವರು "
+"ಮೊದಲ ಬಾರಿ Google ನೊಂದಿಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿದಾಗ ವಿಷಯ ಒದಗಿಸುವವರ ಪಾತ್ರ "
+"ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಲಗತ್ತಿಸಲಾಗುತ್ತದೆ."
+
+msgid ""
+"If this email hasn't signed in yet, an account is created now and the Sub "
+"Admin role attaches automatically the first time they sign in with Google."
+msgstr ""
+"ಈ ಇಮೇಲ್ ಇನ್ನೂ ಸೈನ್ ಇನ್ ಆಗಿಲ್ಲದಿದ್ದರೆ, ಈಗ ಖಾತೆಯನ್ನು ರಚಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ಅವರು "
+"ಮೊದಲ ಬಾರಿ Google ನೊಂದಿಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿದಾಗ ಸಬ್ ಅಡ್ಮಿನ್ ಪಾತ್ರ ಸ್ವಯಂಚಾಲಿತವಾಗಿ "
+"ಲಗತ್ತಿಸಲಾಗುತ್ತದೆ."
+
+msgid "It will be reviewed before it goes live."
+msgstr "ಇದು ಲೈವ್ ಆಗುವ ಮೊದಲು ಪರಿಶೀಲಿಸಲಾಗುತ್ತದೆ."
+
+msgid "Job Type"
+msgstr "ಉದ್ಯೋಗ ಪ್ರಕಾರ"
+
+msgid "Last active %(last_active)s"
+msgstr "ಕೊನೆಯ ಸಕ್ರಿಯ %(last_active)s"
+
+msgid "Last reviewed by %(reviewer)s on %(reviewed_on)s"
+msgstr "%(reviewed_on)s ರಂದು %(reviewer)s ಕೊನೆಯದಾಗಿ ಪರಿಶೀಲಿಸಿದ್ದಾರೆ"
+
+msgid "Latest Updates"
+msgstr "ಇತ್ತೀಚಿನ ನವೀಕರಣಗಳು"
+
+msgid "Live & Local"
+msgstr "ಲೈವ್ ಮತ್ತು ಸ್ಥಳೀಯ"
+
+msgid "Location captured."
+msgstr "ಸ್ಥಳ ಸೆರೆಹಿಡಿಯಲಾಗಿದೆ."
+
+msgid "Location is unavailable in this browser."
+msgstr "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಸ್ಥಳ ಲಭ್ಯವಿಲ್ಲ."
+
+msgid "Location permission was denied."
+msgstr "ಸ್ಥಳ ಅನುಮತಿಯನ್ನು ನಿರಾಕರಿಸಲಾಗಿದೆ."

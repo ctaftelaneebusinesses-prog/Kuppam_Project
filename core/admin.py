@@ -49,6 +49,9 @@ class BusinessAdmin(ImagePreviewMixin, admin.ModelAdmin):
         ('Contact Details', {
             'fields': ('city', 'address', 'phone_number')
         }),
+        ('Location & Hours', {
+            'fields': ('maps_link', 'latitude', 'longitude', 'working_days_hours', 'working_hours')
+        }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
             'description': 'Upload a photo directly, or paste an external Image URL. '
@@ -77,6 +80,9 @@ class PropertyAdmin(ImagePreviewMixin, admin.ModelAdmin):
         }),
         ('Contact Details', {
             'fields': ('contact_number',)
+        }),
+        ('Map', {
+            'fields': ('maps_link', 'latitude', 'longitude')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -107,6 +113,9 @@ class JobAdmin(ImagePreviewMixin, admin.ModelAdmin):
         ('Contact Details', {
             'fields': ('contact_number',)
         }),
+        ('Map', {
+            'fields': ('maps_link', 'latitude', 'longitude')
+        }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
             'description': 'Upload a photo directly, or paste an external Image URL. '
@@ -132,6 +141,9 @@ class EventAdmin(ImagePreviewMixin, admin.ModelAdmin):
         }),
         ('Location & Contact', {
             'fields': ('city', 'location', 'contact_number')
+        }),
+        ('Map', {
+            'fields': ('maps_link', 'latitude', 'longitude')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),
@@ -178,6 +190,9 @@ class ProjectAdmin(ImagePreviewMixin, admin.ModelAdmin):
     fieldsets = (
         ('Basic Information', {
             'fields': ('title', 'project_status', 'city', 'location', 'expected_completion', 'department', 'description')
+        }),
+        ('Map', {
+            'fields': ('maps_link', 'latitude', 'longitude')
         }),
         ('Media', {
             'fields': ('image_preview', 'image', 'image_url'),

@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/locations/select/', views.location_select, name='location_select'),
     path('api/locations/reverse-geocode/', views.location_reverse_geocode, name='location_reverse_geocode'),
     path('api/businesses/nearby-repair/', views.nearby_repair_shops, name='nearby_repair_shops'),
+    path('api/businesses/nearby/', views.nearby_businesses, name='nearby_businesses'),
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
     path('newsletter/subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
@@ -35,6 +36,8 @@ urlpatterns = [
     path('welcome/intent/', views.choose_intent, name='choose_intent'),
     path('welcome/upload-request/', views.admin_request_new, name='admin_request_new'),
     path('welcome/upload-request/status/', views.admin_request_pending, name='admin_request_pending'),
+    path('dashboard/categories/request/', views.request_additional_category, name='request_additional_category'),
+    path('dashboard/categories/requests/', views.my_category_requests, name='my_category_requests'),
 
     # Businesses
     path('businesses/', views.business_list, name='business_list'),

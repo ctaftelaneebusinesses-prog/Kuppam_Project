@@ -89,6 +89,7 @@ TEMPLATES = [
                 'core.context_processors.push_config',
                 'core.context_processors.notifications',
                 'core.context_processors.unread_messages',
+                'core.context_processors.pending_admin_requests',
                 'core.context_processors.category_tree',
             ],
         },
@@ -117,15 +118,21 @@ DATABASES = {
         conn_max_age=0,
     )
 }
-
 # `manage.py test` needs CREATE DATABASE rights on whatever DATABASE_URL
 # points at to spin up its throwaway test DB — the Supabase pooler
-# connection this project otherwise uses doesn't grant that. Running the
-# test suite against a local in-memory SQLite DB instead sidesteps that
-# entirely; it's only ever used under the test runner, never for a real
-# request, so it doesn't affect production behavior.
+# connection this project otherwise uses doesn't grant that. Running
+# the test suite against a local in-memory SQLite DB instead sidesteps
+# that entirely; it's only ever used under the test runner, never for
+# a real request, so it doesn't affect production behavior.
 if 'test' in sys.argv:
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'}
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
+else:
+    # Bound the PostgreSQL connection handshake so a stalled network
+    # connection fails promptly instead of hanging the request.
+    DATABASES['default'].setdefault('OPTIONS', {})['connect_timeout'] = 10
 # ------------------------------------------------------------------
 # CACHING
 # ------------------------------------------------------------------
