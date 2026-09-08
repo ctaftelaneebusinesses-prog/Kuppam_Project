@@ -1,0 +1,64 @@
+{% comment %}
+Reusable scholarship card. Include with:
+  {% include 'partials/scholarship_card.html' with scholarship=<scholarship_instance> %}
+{% endcomment %}
+{% load i18n hk_extras %}
+<div class="card h-100 hk-card">
+    {% if scholarship.is_featured %}
+    <span class="hk-badge-featured">
+        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
+    </span>
+    {% endif %}
+    {% if scholarship.has_image %}
+    <img src="{{ scholarship.display_image }}" class="card-img-top hk-card-img" alt="{{ scholarship.title }}" loading="lazy" data-fallback-icon="{{ scholarship.placeholder_icon }}">
+    {% else %}
+    <div class="hk-card-placeholder"><i class="bi {{ scholarship.placeholder_icon }}"></i></div>
+    {% endif %}
+    <div class="card-body d-flex flex-column">
+        <span class="badge bg-primary-subtle text-primary mb-2 align-self-start">
+            {{ scholarship.get_scholarship_type_display }}
+        </span>
+        {% if not scholarship.is_open %}
+        <span class="badge bg-secondary mb-2 align-self-start">{% trans "Closed" %}</span>
+        {% endif %}
+        <div class="d-flex align-items-center mb-3">
+            <div class="hk-icon-circle me-3">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div>
+                <h5 class="card-title mb-0">{{ scholarship.title }}</h5>
+                <p class="text-muted small mb-0">{{ scholarship.provider }}</p>
+            </div>
+        </div>
+        <div class="hk-card-meta-row">
+            <span class="hk-rating">
+                <i class="bi bi-star-fill"></i>
+                {% if scholarship.review_count %}{{ scholarship.avg_rating }} ({{ scholarship.review_count }}){% else %}{% trans "New" %}{% endif %}
+            </span>
+            <span><i class="bi bi-eye"></i> {{ scholarship.view_count }}</span>
+        </div>
+        {% if scholarship.application_deadline %}
+        <p class="card-text text-muted small mb-1">
+            <i class="bi bi-calendar-event text-primary"></i> {% trans "Deadline" %}: {{ scholarship.application_deadline|date:"d M Y" }}
+        </p>
+        {% else %}
+        <p class="card-text text-muted small mb-1">
+            <i class="bi bi-calendar-check text-primary"></i> {% trans "Open year-round" %}
+        </p>
+        {% endif %}
+        <a href="{% url 'core:scholarship_detail' scholarship.slug %}" class="btn btn-outline-primary mt-auto">
+            {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
+        </a>
+        <div class="hk-card-actions">
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'core:toggle_favorite' 'scholarship' scholarship.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
+            </form>
+            {% else %}
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
+            {% endif %}
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:scholarship_detail' scholarship.slug %}" data-title="{{ scholarship.title }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
+        </div>
+    </div>
+</div>

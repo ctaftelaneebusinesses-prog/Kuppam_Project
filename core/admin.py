@@ -2,9 +2,9 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     AdminCategoryPermission, AdminCityPermission, AdminRequest, AuditLog, Business, Category, CityModule,
-    Comment, ContactMessage, Event, Favorite, Job, Like, LoginHistory, News, NewsletterSubscriber,
+    Comment, ContactMessage, Event, Favorite, Job, Like, LoginHistory, LostFound, News, NewsletterSubscriber,
     Notification, Permission, PlatformModule, PlatformSettings, PostImage, PostVideo, Profile, Project,
-    Property, Report, Review, RolePermission, Share, TranslationCache, Location, UserPermission,
+    Property, Report, Review, RolePermission, Scholarship, Share, TranslationCache, Location, UserPermission,
 )
 
 
@@ -201,6 +201,60 @@ class ProjectAdmin(ImagePreviewMixin, admin.ModelAdmin):
         }),
         ('Visibility', {
             'fields': ('is_featured', 'is_active')
+        }),
+    )
+
+
+@admin.register(Scholarship)
+class ScholarshipAdmin(ImagePreviewMixin, admin.ModelAdmin):
+    list_display = ('image_preview', 'title', 'scholarship_type', 'provider', 'application_deadline', 'owner', 'status', 'is_featured', 'is_active', 'created_at')
+    list_filter = ('scholarship_type', 'status', 'is_featured', 'is_active')
+    search_fields = ('title', 'provider', 'description', 'eligibility')
+    list_editable = ('is_featured', 'is_active')
+    ordering = ('-is_featured', 'application_deadline', '-created_at')
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'scholarship_type', 'provider', 'city', 'description', 'eligibility')
+        }),
+        ('Application', {
+            'fields': ('application_deadline', 'official_url', 'contact_number'),
+            'description': 'The official URL must be a real, verifiable link — never invented or a placeholder.',
+        }),
+        ('Media', {
+            'fields': ('image_preview', 'image', 'image_url'),
+            'description': 'Upload a photo directly, or paste an external Image URL. '
+                            'An uploaded photo always takes priority when both are set.',
+        }),
+        ('Visibility', {
+            'fields': ('is_featured', 'is_active')
+        }),
+    )
+
+
+@admin.register(LostFound)
+class LostFoundAdmin(ImagePreviewMixin, admin.ModelAdmin):
+    list_display = ('image_preview', 'title', 'report_type', 'item_category', 'event_date', 'location', 'owner', 'status', 'is_resolved', 'is_active', 'created_at')
+    list_filter = ('report_type', 'item_category', 'status', 'is_resolved', 'is_active')
+    search_fields = ('title', 'description', 'location', 'contact_number')
+    list_editable = ('is_resolved', 'is_active')
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('report_type', 'title', 'item_category', 'city', 'location', 'event_date', 'description')
+        }),
+        ('Contact', {
+            'fields': ('contact_number',),
+            'description': 'Optional — shown publicly on the post if provided. Otherwise reachable only via comments.',
+        }),
+        ('Media', {
+            'fields': ('image_preview', 'image', 'image_url'),
+            'description': 'Upload a photo directly, or paste an external Image URL. '
+                            'An uploaded photo always takes priority when both are set.',
+        }),
+        ('Status', {
+            'fields': ('is_resolved', 'is_active')
         }),
     )
 

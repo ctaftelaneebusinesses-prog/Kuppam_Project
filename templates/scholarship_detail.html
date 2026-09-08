@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load i18n hk_extras %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ scholarship.description|default:page_title|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ scholarship.title }} — OneTownCity{% endblock %}
+{% block og_description %}{{ scholarship.description|default:page_title|truncatechars:160 }}{% endblock %}
+{% block og_image %}{{ scholarship.display_image }}{% endblock %}
+{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ scholarship.get_absolute_url }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:scholarship_list' %}">{% trans "Scholarships & Government Schemes" %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ scholarship.title }}</li>
+        </ol>
+    </nav>
+
+    <!-- Gradient Hero -->
+    <div class="hk-detail-hero p-4 p-md-5 mb-4">
+        <div class="d-flex align-items-center flex-wrap gap-3">
+            <div class="hk-icon-circle hk-icon-circle-lg">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div>
+                {% if scholarship.is_featured %}
+                <span class="badge bg-warning text-dark mb-2">
+                    <i class="bi bi-star-fill"></i> {% trans "Featured" %}
+                </span>
+                {% endif %}
+                <span class="badge bg-primary-subtle text-primary mb-2">{{ scholarship.get_scholarship_type_display }}</span>
+                {% if not scholarship.is_open %}
+                <span class="badge bg-secondary mb-2">{% trans "Closed" %}</span>
+                {% endif %}
+                <h1 class="fw-bold mb-1">{{ scholarship.title }}</h1>
+                <p class="mb-0 fs-5 opacity-75">
+                    <i class="bi bi-bank"></i> {{ scholarship.provider }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if scholarship.has_image %}
+    <div class="row g-4 mb-1">
+        <div class="col-12">
+            <img src="{{ scholarship.display_image }}" class="img-fluid w-100 hk-detail-img" alt="{{ scholarship.title }}" data-fallback-icon="{{ scholarship.placeholder_icon }}">
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            {% if scholarship.description %}
+            <h6 class="fw-bold mb-2"><i class="bi bi-file-text text-primary"></i> {% trans "About this Scholarship" %}</h6>
+            <div class="hk-description-box mb-4">
+                {{ scholarship|translate_field:"description"|linebreaksbr }}
+            </div>
+            {% endif %}
+            {% if scholarship.eligibility %}
+            <h6 class="fw-bold mb-2"><i class="bi bi-check2-square text-primary"></i> {% trans "Eligibility" %}</h6>
+            <div class="hk-description-box">
+                {{ scholarship|translate_field:"eligibility"|linebreaksbr }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="row g-3 mb-3">
+                {% if scholarship.application_deadline %}
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-calendar-event"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Deadline</div>
+                            <div class="hk-meta-value">{{ scholarship.application_deadline|date:"d M Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-bank"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Provider</div>
+                            <div class="hk-meta-value">{{ scholarship.provider|truncatechars:22 }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% if scholarship.contact_number %}
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Contact</div>
+                            <div class="hk-meta-value">
+                                <a href="tel:{{ scholarship.contact_number }}">{{ scholarship.contact_number }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if scholarship.official_url %}
+            <a href="{{ scholarship.official_url }}" target="_blank" rel="noopener" class="btn btn-primary btn-lg w-100 mb-2 hk-cta-btn">
+                <i class="bi bi-box-arrow-up-right"></i> Official Application Page
+            </a>
+            {% endif %}
+            <a href="{% url 'core:scholarship_list' %}" class="btn btn-outline-secondary btn-lg w-100">
+                <i class="bi bi-arrow-left"></i> Back to Listings
+            </a>
+        </div>
+    </div>
+
+    {% include 'partials/community_widget.html' with obj=scholarship %}
+
+    {% if related_scholarships %}
+    <div class="mt-5">
+        <h4 class="hk-related-heading mb-4">More {{ scholarship.get_scholarship_type_display }} Scholarships</h4>
+        <div class="row g-4">
+            {% for related in related_scholarships %}
+            <div class="col-sm-6 col-lg-4">
+                {% include 'partials/scholarship_card.html' with scholarship=related %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

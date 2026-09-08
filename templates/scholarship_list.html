@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
+        <div class="hk-section-icon"><i class="bi bi-mortarboard-fill"></i></div>
+        <div>
+            <h2 class="fw-bold mb-0">Scholarships &amp; Government Schemes</h2>
+            <p class="text-muted mb-0">Find scholarships and government schemes for students, verified and kept up to date</p>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="hk-search-bar mb-4">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12">
+                <label class="form-label" for="scholarship-search-input">
+                    <i class="bi bi-funnel"></i> Search &amp; Filter Scholarships
+                </label>
+            </div>
+            <div class="col-12 col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search text-primary"></i></span>
+                    <input
+                        type="text"
+                        id="scholarship-search-input"
+                        name="q"
+                        class="form-control"
+                        placeholder="Search by title, provider or description..."
+                        value="{{ query }}"
+                    >
+                </div>
+            </div>
+            <div class="col-8 col-md-2">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for value, label in type_choices %}
+                    <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-4 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results count -->
+    <div class="hk-results-bar mb-4">
+        <i class="bi bi-list-check"></i>
+        {% if query or selected_type %}
+            Showing {{ total_results }} result{{ total_results|pluralize }}
+            {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
+            &mdash; <a href="{% url 'core:scholarship_list' %}">Clear filters <i class="bi bi-x-circle"></i></a>
+        {% else %}
+            Showing {{ total_results }} scholarship{{ total_results|pluralize }} &amp; scheme{{ total_results|pluralize }}
+        {% endif %}
+    </div>
+
+    <!-- Grid -->
+    {% if page_obj %}
+    <div class="hk-grid-auto">
+        {% for scholarship in page_obj %}
+        <div data-aos="fade-up">
+            {% include 'partials/scholarship_card.html' with scholarship=scholarship %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-5" aria-label="Scholarship listing pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="First page">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Previous page">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Next page">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" aria-label="Last page">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center py-5 hk-empty-state">
+        <i class="bi bi-mortarboard display-4 d-block mb-3"></i>
+        <p class="fw-bold mb-1">No scholarships found</p>
+        <p class="text-muted mb-3">
+            {% if query or selected_type %}
+                No scholarships match your search/filters. Try adjusting them.
+            {% else %}
+                There are no scholarships listed right now. Please check back soon.
+            {% endif %}
+        </p>
+        {% if query or selected_type %}
+        <a href="{% url 'core:scholarship_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
+        <div class="hk-section-icon"><i class="bi bi-search-heart"></i></div>
+        <div>
+            <h2 class="fw-bold mb-0">Lost &amp; Found</h2>
+            <p class="text-muted mb-0">Report or search for lost and found items in your city</p>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="hk-search-bar mb-4">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12">
+                <label class="form-label" for="lost-found-search-input">
+                    <i class="bi bi-funnel"></i> Search &amp; Filter
+                </label>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search text-primary"></i></span>
+                    <input
+                        type="text"
+                        id="lost-found-search-input"
+                        name="q"
+                        class="form-control"
+                        placeholder="Search by title, description or location..."
+                        value="{{ query }}"
+                    >
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="type" class="form-select">
+                    <option value="">Lost &amp; Found</option>
+                    {% for value, label in type_choices %}
+                    <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for value, label in category_choices %}
+                    <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results count -->
+    <div class="hk-results-bar mb-4">
+        <i class="bi bi-list-check"></i>
+        {% if query or selected_type or selected_category %}
+            Showing {{ total_results }} result{{ total_results|pluralize }}
+            {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
+            &mdash; <a href="{% url 'core:lost_found_list' %}">Clear filters <i class="bi bi-x-circle"></i></a>
+        {% else %}
+            Showing {{ total_results }} report{{ total_results|pluralize }}
+        {% endif %}
+    </div>
+
+    <!-- Grid -->
+    {% if page_obj %}
+    <div class="hk-grid-auto">
+        {% for item in page_obj %}
+        <div data-aos="fade-up">
+            {% include 'partials/lost_found_card.html' with item=item %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-5" aria-label="Lost and found listing pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="First page">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Previous page">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Next page">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Last page">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center py-5 hk-empty-state">
+        <i class="bi bi-search-heart display-4 d-block mb-3"></i>
+        <p class="fw-bold mb-1">No reports found</p>
+        <p class="text-muted mb-3">
+            {% if query or selected_type or selected_category %}
+                No lost/found reports match your search/filters. Try adjusting them.
+            {% else %}
+                There are no lost/found reports right now. Please check back soon.
+            {% endif %}
+        </p>
+        {% if query or selected_type or selected_category %}
+        <a href="{% url 'core:lost_found_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% comment %}
+Reusable lost/found card. Include with:
+  {% include 'partials/lost_found_card.html' with item=<lostfound_instance> %}
+{% endcomment %}
+{% load i18n hk_extras %}
+<div class="card h-100 hk-card">
+    <span class="hk-badge-featured {% if item.report_type == 'found' %}bg-success{% else %}bg-danger{% endif %}">
+        <i class="bi {% if item.report_type == 'found' %}bi-check-circle{% else %}bi-question-circle{% endif %}"></i> {{ item.get_report_type_display }}
+    </span>
+    {% if item.has_image %}
+    <img src="{{ item.display_image }}" class="card-img-top hk-card-img" alt="{{ item.title }}" loading="lazy" data-fallback-icon="{{ item.placeholder_icon }}">
+    {% else %}
+    <div class="hk-card-placeholder"><i class="bi {{ item.placeholder_icon }}"></i></div>
+    {% endif %}
+    <div class="card-body d-flex flex-column">
+        {% if item.is_resolved %}
+        <span class="badge bg-secondary mb-2 align-self-start"><i class="bi bi-check2-all"></i> {% trans "Resolved" %}</span>
+        {% endif %}
+        <div class="d-flex align-items-center mb-3">
+            <div class="hk-icon-circle me-3">
+                <i class="bi bi-search-heart"></i>
+            </div>
+            <div>
+                <h5 class="card-title mb-0">{{ item.title }}</h5>
+                <p class="text-muted small mb-0">{{ item.get_item_category_display }}</p>
+            </div>
+        </div>
+        <div class="hk-card-meta-row">
+            <span class="hk-rating">
+                <i class="bi bi-calendar3"></i> {{ item.event_date|date:"d M Y" }}
+            </span>
+            <span><i class="bi bi-eye"></i> {{ item.view_count }}</span>
+        </div>
+        <p class="card-text text-muted small mb-3">
+            <i class="bi bi-geo-alt text-primary"></i> {{ item.location|truncatechars:60 }}
+        </p>
+        <a href="{% url 'core:lost_found_detail' item.slug %}" class="btn btn-outline-primary mt-auto">
+            {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
+        </a>
+        <div class="hk-card-actions">
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'core:toggle_favorite' 'lostfound' item.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
+            </form>
+            {% else %}
+            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
+            {% endif %}
+            <a href="{{ item.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="{% trans 'Open in Google Maps' %}"><i class="bi bi-geo"></i></a>
+            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:lost_found_detail' item.slug %}" data-title="{{ item.title }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
+        </div>
+    </div>
+</div>

@@ -120,34 +120,9 @@
     </div>
     <div class="hk-grid-auto">
         {% for cat in categories %}
-        {% if cat.listing_model == 'property' %}
-            {% url 'core:property_list' as cat_url %}
-        {% elif cat.listing_model == 'job' %}
-            {% url 'core:job_list' as cat_url %}
-        {% elif cat.listing_model == 'event' %}
-            {% url 'core:event_list' as cat_url %}
-        {% elif cat.listing_model == 'news' %}
-            {% url 'core:news_list' as cat_url %}
-        {% elif cat.listing_model == 'project' %}
-            {% url 'core:project_list' as cat_url %}
-        {% elif cat.key == 'restaurants' %}
-            {% url 'core:restaurant_list' as cat_url %}
-        {% elif cat.key == 'hospitals' %}
-            {% url 'core:hospital_list' as cat_url %}
-        {% elif cat.key == 'education' %}
-            {% url 'core:education_list' as cat_url %}
-        {% elif cat.key == 'transport' %}
-            {% url 'core:transport_list' as cat_url %}
-        {% elif cat.key == 'repair' %}
-            {% url 'core:repair_list' as cat_url %}
-        {% elif cat.key == 'tourism' %}
-            {% url 'core:places_to_visit_list' as cat_url %}
-        {% else %}
-            {% url 'core:business_list' as cat_url %}
-        {% endif %}
         <div id="{{ cat.key }}" data-aos="fade-up">
             <div class="hk-service-card">
-                <a href="{{ cat_url }}" class="text-decoration-none">
+                <a href="{{ cat.list_url }}" class="text-decoration-none">
                     <div class="hk-service-card-media">
                         <div class="hk-service-card-media-inner">
                             <img src="{% static cat.image %}" alt="{{ cat.label }}" loading="lazy">
@@ -157,9 +132,9 @@
                     </div>
                 </a>
                 <div class="hk-service-card-body">
-                    <h5><a href="{{ cat_url }}" class="text-decoration-none text-dark">{{ cat.label|dyntrans }}</a></h5>
+                    <h5><a href="{{ cat.list_url }}" class="text-decoration-none text-dark">{{ cat.label|dyntrans }}</a></h5>
                     <p>{{ cat.description|dyntrans }}</p>
-                    <a href="{{ cat_url }}" class="btn btn-primary">
+                    <a href="{{ cat.list_url }}" class="btn btn-primary">
                         {% blocktrans with name=cat.label|dyntrans %}Explore {{ name }}{% endblocktrans %} <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>

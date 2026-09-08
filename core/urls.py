@@ -56,6 +56,9 @@ urlpatterns = [
     path('transport/', views.directory_list, {'category': 'transport'}, name='transport_list'),
     path('repair-services/', views.directory_list, {'category': 'repair'}, name='repair_list'),
     path('places-to-visit/', views.directory_list, {'category': 'tourism'}, name='places_to_visit_list'),
+    path('tuition-centers/', views.directory_list, {'category': 'tuition_center'}, name='tuition_center_list'),
+    path('student-services/', views.directory_list, {'category': 'student_services'}, name='student_services_list'),
+    path('marketplace/', views.directory_list, {'category': 'marketplace'}, name='marketplace_list'),
 
     # Properties
     path('properties/', views.property_list, name='property_list'),
@@ -76,6 +79,14 @@ urlpatterns = [
     # Upcoming Projects
     path('projects/', views.project_list, name='project_list'),
     path('projects/<slug:slug>/', views.project_detail, name='project_detail'),
+
+    # Scholarships & Government Schemes
+    path('scholarships/', views.scholarship_list, name='scholarship_list'),
+    path('scholarships/<slug:slug>/', views.scholarship_detail, name='scholarship_detail'),
+
+    # Lost & Found
+    path('lost-found/', views.lost_found_list, name='lost_found_list'),
+    path('lost-found/<slug:slug>/', views.lost_found_detail, name='lost_found_detail'),
 
     # Community features (generic across all 5 listing types, keyed by model_key/pk)
     path('l/<str:model_key>/<int:pk>/like/', views.toggle_like, name='toggle_like'),

@@ -2,8 +2,8 @@
 from django.contrib.auth import get_user_model
 
 from core.models import (
-    AdminCategoryPermission, Business, Category, Event, Job, ListingStatus, Location, News, Profile, Project,
-    Property, UserRole,
+    AdminCategoryPermission, Business, Category, Event, Job, ListingStatus, Location, LostFound, News, Profile,
+    Project, Property, Scholarship, UserRole,
 )
 
 User = get_user_model()
@@ -89,6 +89,22 @@ def make_project(owner=None, city=None, listing_category=None, status=ListingSta
     )
 
 
+def make_scholarship(owner=None, city=None, listing_category=None, status=ListingStatus.APPROVED, is_active=True):
+    return Scholarship.objects.create(
+        title=_next_username('Scholarship'), scholarship_type='merit', provider='Test Foundation',
+        owner=owner, city=city, listing_category=listing_category, status=status, is_active=is_active,
+    )
+
+
+def make_lostfound(owner=None, city=None, listing_category=None, status=ListingStatus.APPROVED, is_active=True, report_type='lost'):
+    from django.utils import timezone
+    return LostFound.objects.create(
+        report_type=report_type, title=_next_username('LostItem'), item_category='other',
+        event_date=timezone.localdate(), location='Main Rd',
+        owner=owner, city=city, listing_category=listing_category, status=status, is_active=is_active,
+    )
+
+
 MAKERS = {
     'business': make_business,
     'property': make_property,
@@ -96,4 +112,6 @@ MAKERS = {
     'event': make_event,
     'news': make_news,
     'project': make_project,
+    'scholarship': make_scholarship,
+    'lostfound': make_lostfound,
 }

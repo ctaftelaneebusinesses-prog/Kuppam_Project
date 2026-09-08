@@ -167,9 +167,10 @@ from .forms import (
 from .models import (
     AdminCategoryPermission, AdminCityPermission, AdminRequest, AdminRequestStatus, AuditLog, Business,
     Category, CityModule, Comment, ContactMessage, Event, Favorite, Intent, Job, Like, ListingStatus,
-    LoginHistory, News, NewsletterSubscriber, Notification, Permission, PlatformModule, PlatformSettings,
-    PostImage, PostVideo, PostView, Profile, Project, Property, PushSubscription, Report, Review,
-    RolePermission, Share, SUBCATEGORY_INITIAL_FIELDS, UserPermission, UserRole, Location, unique_slug_for,
+    LoginHistory, LostFound, LostFoundType, News, NewsletterSubscriber, Notification, Permission, PlatformModule,
+    PlatformSettings, PostImage, PostVideo, PostView, Profile, Project, Property, PushSubscription, Report,
+    Review, RolePermission, Scholarship, Share, SUBCATEGORY_INITIAL_FIELDS, UserPermission, UserRole,
+    Location, unique_slug_for,
 )
 from .location_service import active_location, reverse_geocode, save_location, search_cities, serialize_location
 from .push import notify, notify_bulk
@@ -184,6 +185,8 @@ LISTING_MODELS = {
     'event': Event,
     'news': News,
     'project': Project,
+    'scholarship': Scholarship,
+    'lostfound': LostFound,
 }
 
 #: Every "one page across all 6 listing types" view (my_listings,
@@ -556,6 +559,9 @@ DIRECTORY_CATEGORIES = {
     'transport': {'categories': ['transport'], 'label': 'Transport', 'icon': 'bi-bus-front'},
     'repair': {'categories': ['repair'], 'label': 'Repair Services', 'icon': 'bi-wrench-adjustable'},
     'tourism': {'categories': ['tourism'], 'label': 'Places to Visit', 'icon': 'bi-binoculars'},
+    'tuition_center': {'categories': ['tuition_center'], 'label': 'Tuition & Coaching Centers', 'icon': 'bi-book-half'},
+    'student_services': {'categories': ['student_services'], 'label': 'Student Services', 'icon': 'bi-life-preserver'},
+    'marketplace': {'categories': ['marketplace'], 'label': 'Buy / Sell / Exchange', 'icon': 'bi-arrow-left-right'},
 }
 
 #: Union of every category value claimed by a dedicated directory page —
@@ -653,6 +659,36 @@ CATEGORIES = [
         'image': 'images/services/business.jpg',
         'description': 'Discover parks, temples, monuments, and local attractions worth visiting.',
         'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['tourism']['categories']).count(),
+    },
+    {
+        'name': 'Tuition & Coaching Centers', 'icon': 'bi-book-half', 'slug': 'tuition_center',
+        'image': 'images/services/education.jpg',
+        'description': 'Find tuition centers, coaching institutes, and academic support near you.',
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['tuition_center']['categories']).count(),
+    },
+    {
+        'name': 'Student Services', 'icon': 'bi-life-preserver', 'slug': 'student_services',
+        'image': 'images/services/business.jpg',
+        'description': 'Local services useful to students — hostels, printing, courier, and more.',
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['student_services']['categories']).count(),
+    },
+    {
+        'name': 'Buy / Sell / Exchange', 'icon': 'bi-arrow-left-right', 'slug': 'marketplace',
+        'image': 'images/services/shops.jpg',
+        'description': 'Shops and outlets for buying, selling, or exchanging used goods.',
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['marketplace']['categories']).count(),
+    },
+    {
+        'name': 'Scholarships & Government Schemes', 'icon': 'bi-mortarboard-fill', 'slug': 'scholarships',
+        'image': 'images/services/education.jpg',
+        'description': 'Find scholarships and government schemes for students, verified and kept up to date.',
+        'count_fn': lambda: _public_qs(Scholarship).count(),
+    },
+    {
+        'name': 'Lost & Found', 'icon': 'bi-search-heart', 'slug': 'lost-found',
+        'image': 'images/services/business.jpg',
+        'description': 'Report or search for lost and found items in your city.',
+        'count_fn': lambda: _public_qs(LostFound).count(),
     },
 ]
 
@@ -809,6 +845,11 @@ SEARCH_CATEGORY_REDIRECT = {
     'projects': 'core:project_list',
     'repair': 'core:repair_list',
     'tourism': 'core:places_to_visit_list',
+    'tuition_center': 'core:tuition_center_list',
+    'student_services': 'core:student_services_list',
+    'marketplace': 'core:marketplace_list',
+    'scholarships': 'core:scholarship_list',
+    'lost-found': 'core:lost_found_list',
 }
 
 SEARCH_RESULT_LIMIT = 6
@@ -820,6 +861,8 @@ _SEARCH_FILTERS = {
     'event': lambda q: Q(title__icontains=q) | Q(description__icontains=q) | Q(location__icontains=q),
     'news': lambda q: Q(title__icontains=q) | Q(content__icontains=q),
     'project': lambda q: Q(title__icontains=q) | Q(description__icontains=q) | Q(location__icontains=q),
+    'scholarship': lambda q: Q(title__icontains=q) | Q(provider__icontains=q) | Q(description__icontains=q),
+    'lostfound': lambda q: Q(title__icontains=q) | Q(description__icontains=q) | Q(location__icontains=q),
 }
 
 
@@ -876,6 +919,8 @@ def search(request):
             _section('event', 'Events', 'bi-calendar-event', _public_qs(Event, request), 'core:event_list', 'partials/event_card.html', 'event'),
             _section('news', 'News', 'bi-newspaper', _public_qs(News, request), 'core:news_list', 'partials/news_card.html', 'article'),
             _section('project', 'Upcoming Projects', 'bi-cone-striped', _public_qs(Project, request), 'core:project_list', 'partials/project_card.html', 'project'),
+            _section('scholarship', 'Scholarships & Government Schemes', 'bi-mortarboard-fill', _public_qs(Scholarship, request), 'core:scholarship_list', 'partials/scholarship_card.html', 'scholarship'),
+            _section('lostfound', 'Lost & Found', 'bi-search-heart', _public_qs(LostFound, request), 'core:lost_found_list', 'partials/lost_found_card.html', 'item'),
         ]
         results = [s for s in sections if s['count']]
         total_results = sum(s['count'] for s in sections)
@@ -1387,6 +1432,123 @@ def project_detail(request, slug):
         **_community_context(request, project),
     }
     return render(request, 'project_detail.html', context)
+
+
+def scholarship_list(request):
+    """
+    Scholarships & Government Schemes listing page with search (by title,
+    provider or description), a type filter, and pagination. Open-ended
+    schemes and the soonest deadlines are surfaced first (model ordering).
+    """
+    scholarships = _public_qs(Scholarship, request)
+
+    query = request.GET.get('q', '').strip()
+    scholarship_type = request.GET.get('type', '').strip()
+
+    if query:
+        scholarships = scholarships.filter(
+            Q(title__icontains=query) | Q(provider__icontains=query) | Q(description__icontains=query)
+        )
+
+    if scholarship_type in dict(Scholarship.TYPE_CHOICES):
+        scholarships = scholarships.filter(scholarship_type=scholarship_type)
+    else:
+        scholarship_type = ''
+
+    paginator = Paginator(scholarships, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_title': 'Scholarships & Government Schemes - OneTownCity',
+        'page_obj': page_obj,
+        'query': query,
+        'selected_type': scholarship_type,
+        'type_choices': Scholarship.TYPE_CHOICES,
+        'total_results': scholarships.count(),
+    }
+    return render(request, 'scholarship_list.html', context)
+
+
+def scholarship_detail(request, slug):
+    """Detail page for a single scholarship/government scheme."""
+    scholarship = get_object_or_404(_detail_qs(request, Scholarship), slug=slug)
+    _bump_views(request, Scholarship, scholarship.pk)
+    related_scholarships = (
+        _public_qs(Scholarship, request)
+        .filter(scholarship_type=scholarship.scholarship_type)
+        .exclude(pk=scholarship.pk)[:3]
+    )
+
+    context = {
+        'page_title': f'{scholarship.title} - OneTownCity',
+        'scholarship': scholarship,
+        'related_scholarships': related_scholarships,
+        **_community_context(request, scholarship),
+    }
+    return render(request, 'scholarship_detail.html', context)
+
+
+def lost_found_list(request):
+    """
+    Lost & Found listing page with search (by title, description or
+    location), Lost/Found and item-category filters, and pagination.
+    """
+    items = _public_qs(LostFound, request)
+
+    query = request.GET.get('q', '').strip()
+    report_type = request.GET.get('type', '').strip()
+    item_category = request.GET.get('category', '').strip()
+
+    if query:
+        items = items.filter(
+            Q(title__icontains=query) | Q(description__icontains=query) | Q(location__icontains=query)
+        )
+
+    if report_type in dict(LostFoundType.choices):
+        items = items.filter(report_type=report_type)
+    else:
+        report_type = ''
+
+    if item_category in dict(LostFound.CATEGORY_CHOICES):
+        items = items.filter(item_category=item_category)
+    else:
+        item_category = ''
+
+    paginator = Paginator(items, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_title': 'Lost & Found - OneTownCity',
+        'page_obj': page_obj,
+        'query': query,
+        'selected_type': report_type,
+        'type_choices': LostFoundType.choices,
+        'selected_category': item_category,
+        'category_choices': LostFound.CATEGORY_CHOICES,
+        'total_results': items.count(),
+    }
+    return render(request, 'lost_found_list.html', context)
+
+
+def lost_found_detail(request, slug):
+    """Detail page for a single lost/found item report."""
+    item = get_object_or_404(_detail_qs(request, LostFound), slug=slug)
+    _bump_views(request, LostFound, item.pk)
+    related_items = (
+        _public_qs(LostFound, request)
+        .filter(report_type=item.report_type)
+        .exclude(pk=item.pk)[:3]
+    )
+
+    context = {
+        'page_title': f'{item.title} - OneTownCity',
+        'item': item,
+        'related_items': related_items,
+        **_community_context(request, item),
+    }
+    return render(request, 'lost_found_detail.html', context)
 
 
 LISTING_MODEL_KEYS_BY_CLASS = {model_cls: key for key, model_cls in LISTING_MODELS.items()}

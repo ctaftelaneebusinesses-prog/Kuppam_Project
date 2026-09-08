@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block body_attrs %}data-category-bg="{% if directory_key == 'restaurants' %}restaurant{% elif directory_key == 'hospitals' %}health{% elif directory_key == 'education' %}education{% elif directory_key == 'transport' %}transport{% endif %}" data-subcategory="{{ selected_subcategory }}"{% endblock %}
 
 {% block content %}
-{% if directory_key == 'restaurants' %}{% trans "Restaurants & Food" as directory_label_t %}{% elif directory_key == 'hospitals' %}{% trans "Hospitals & Healthcare" as directory_label_t %}{% elif directory_key == 'education' %}{% trans "Education" as directory_label_t %}{% elif directory_key == 'transport' %}{% trans "Transport" as directory_label_t %}{% else %}{% trans "Listings" as directory_label_t %}{% endif %}
+{% with directory_label_t=directory_label|dyntrans %}
+{% if directory_key == 'restaurants' %}{% trans "Restaurants & Food" as directory_label_t %}{% elif directory_key == 'hospitals' %}{% trans "Hospitals & Healthcare" as directory_label_t %}{% elif directory_key == 'education' %}{% trans "Education" as directory_label_t %}{% elif directory_key == 'transport' %}{% trans "Transport" as directory_label_t %}{% endif %}
 <section class="container py-5">
 
     <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
@@ -130,4 +131,5 @@
     {% endif %}
 
 </section>
+{% endwith %}
 {% endblock %}

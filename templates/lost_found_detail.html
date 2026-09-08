@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load i18n hk_extras %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ item.description|default:page_title|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ item.get_report_type_display }}: {{ item.title }} — OneTownCity{% endblock %}
+{% block og_description %}{{ item.description|default:page_title|truncatechars:160 }}{% endblock %}
+{% block og_image %}{{ item.display_image }}{% endblock %}
+{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ item.get_absolute_url }}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'core:lost_found_list' %}">{% trans "Lost & Found" %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ item.title }}</li>
+        </ol>
+    </nav>
+
+    <!-- Gradient Hero -->
+    <div class="hk-detail-hero p-4 p-md-5 mb-4">
+        <div class="d-flex align-items-center flex-wrap gap-3">
+            <div class="hk-icon-circle hk-icon-circle-lg">
+                <i class="bi bi-search-heart"></i>
+            </div>
+            <div>
+                <span class="badge mb-2 {% if item.report_type == 'found' %}bg-success{% else %}bg-danger{% endif %}">
+                    <i class="bi {% if item.report_type == 'found' %}bi-check-circle{% else %}bi-question-circle{% endif %}"></i> {{ item.get_report_type_display }}
+                </span>
+                {% if item.is_resolved %}
+                <span class="badge bg-secondary mb-2"><i class="bi bi-check2-all"></i> {% trans "Resolved" %}</span>
+                {% endif %}
+                <h1 class="fw-bold mb-1">{{ item.title }}</h1>
+                <p class="mb-0 fs-5 opacity-75">
+                    <i class="bi bi-tag"></i> {{ item.get_item_category_display }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if item.has_image %}
+    <div class="row g-4 mb-1">
+        <div class="col-12">
+            <img src="{{ item.display_image }}" class="img-fluid w-100 hk-detail-img" alt="{{ item.title }}" data-fallback-icon="{{ item.placeholder_icon }}">
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            {% if item.description %}
+            <h6 class="fw-bold mb-2"><i class="bi bi-file-text text-primary"></i> {% trans "Description" %}</h6>
+            <div class="hk-description-box">
+                {{ item|translate_field:"description"|linebreaksbr }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Location</div>
+                            <div class="hk-meta-value">{{ item.location|truncatechars:22 }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-calendar3"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Date {% if item.report_type == 'found' %}Found{% else %}Lost{% endif %}</div>
+                            <div class="hk-meta-value">{{ item.event_date|date:"d M Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% if item.contact_number %}
+                <div class="col-12 col-sm-6 col-lg-6">
+                    <div class="hk-meta-item">
+                        <div class="hk-meta-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div>
+                            <div class="hk-meta-label">Contact</div>
+                            <div class="hk-meta-value">
+                                <a href="tel:{{ item.contact_number }}">{{ item.contact_number }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if item.contact_number %}
+            <a href="tel:{{ item.contact_number }}" class="btn btn-primary btn-lg w-100 mb-2 hk-cta-btn">
+                <i class="bi bi-telephone"></i> Call
+            </a>
+            {% else %}
+            <div class="alert alert-info small mb-2">
+                <i class="bi bi-info-circle"></i>
+                {% trans "The reporter hasn't shared a phone number. Use the comments below to reach out." %}
+            </div>
+            {% endif %}
+            <a href="{% url 'core:lost_found_list' %}" class="btn btn-outline-secondary btn-lg w-100">
+                <i class="bi bi-arrow-left"></i> Back to Listings
+            </a>
+        </div>
+    </div>
+
+    {% include 'partials/community_widget.html' with obj=item %}
+
+    {% if related_items %}
+    <div class="mt-5">
+        <h4 class="hk-related-heading mb-4">More {{ item.get_report_type_display }} Reports</h4>
+        <div class="row g-4">
+            {% for related in related_items %}
+            <div class="col-sm-6 col-lg-4">
+                {% include 'partials/lost_found_card.html' with item=related %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

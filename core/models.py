@@ -261,6 +261,8 @@ class Category(models.Model):
         ('event', 'Event'),
         ('news', 'News'),
         ('project', 'Project'),
+        ('scholarship', 'Scholarship / Government Scheme'),
+        ('lostfound', 'Lost & Found'),
     ]
 
     key = models.SlugField(max_length=50, unique=True)
@@ -312,13 +314,17 @@ class Category(models.Model):
     _SEARCH_REDIRECT_KEYS = {
         'property': 'real-estate', 'job': 'jobs', 'event': 'events',
         'news': 'news', 'project': 'projects',
+        'scholarship': 'scholarships', 'lostfound': 'lost-found',
     }
 
     #: Business-model categories with their own dedicated directory page,
     #: fully excluded from the general Businesses page/permission bucket
     #: (see DIRECTORY_CATEGORIES in views.py) rather than being one of its
     #: filter chips.
-    _BUSINESS_DIRECTORY_KEYS = ('restaurants', 'hospitals', 'education', 'transport', 'repair', 'tourism')
+    _BUSINESS_DIRECTORY_KEYS = (
+        'restaurants', 'hospitals', 'education', 'transport', 'repair', 'tourism',
+        'tuition_center', 'student_services', 'marketplace',
+    )
 
     @property
     def search_redirect_key(self):
@@ -335,10 +341,13 @@ class Category(models.Model):
         'restaurants': 'core:restaurant_list', 'hospitals': 'core:hospital_list',
         'education': 'core:education_list', 'transport': 'core:transport_list',
         'repair': 'core:repair_list', 'tourism': 'core:places_to_visit_list',
+        'tuition_center': 'core:tuition_center_list', 'student_services': 'core:student_services_list',
+        'marketplace': 'core:marketplace_list',
     }
     _LIST_URL_NAMES = {
         'property': 'core:property_list', 'job': 'core:job_list', 'event': 'core:event_list',
         'news': 'core:news_list', 'project': 'core:project_list',
+        'scholarship': 'core:scholarship_list', 'lostfound': 'core:lost_found_list',
     }
 
     @property
@@ -376,6 +385,8 @@ class Category(models.Model):
         'event': ('Event', None),
         'news': ('News', None),
         'project': ('Project', 'project_status'),
+        'scholarship': ('Scholarship', None),
+        'lostfound': ('LostFound', None),
     }
 
     @property
@@ -806,6 +817,8 @@ class Business(ListingMixin, models.Model):
         'hospital': 'bi-hospital', 'school': 'bi-mortarboard',
         'college': 'bi-mortarboard', 'transport': 'bi-bus-front',
         'repair': 'bi-wrench-adjustable', 'tourism': 'bi-binoculars', 'other': 'bi-shop-window',
+        'tuition_center': 'bi-book-half', 'student_services': 'bi-life-preserver',
+        'marketplace': 'bi-arrow-left-right',
     }
 
     @property
@@ -1155,6 +1168,181 @@ class Project(ListingMixin, models.Model):
         return self.PLACEHOLDER_ICONS.get(self.project_status, 'bi-cone-striped')
 
 
+class Scholarship(ListingMixin, models.Model):
+    """
+    A scholarship or government scheme relevant to students. A standalone
+    listing type (like Job/Event/Project), not a Business — a scholarship
+    has no address/phone-book identity of its own; it has a provider,
+    eligibility, and a deadline. Reviewed and published exactly like every
+    other listing (ListingMixin's status/owner/moderation workflow); never
+    auto-generated or seeded with placeholder data.
+    """
+    TYPE_CHOICES = [
+        ('government', 'Government Scheme'),
+        ('merit', 'Merit-based'),
+        ('need_based', 'Need-based'),
+        ('minority', 'Minority / Community'),
+        ('sports', 'Sports'),
+        ('research', 'Research / Fellowship'),
+        ('other', 'Other'),
+    ]
+
+    title = models.CharField(max_length=200, verbose_name='Scholarship / Scheme Title')
+    scholarship_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='other', verbose_name='Type')
+    provider = models.CharField(
+        max_length=200, verbose_name='Provider / Authority',
+        help_text="Issuing authority, e.g. 'Government of Andhra Pradesh' or 'Reliance Foundation'",
+    )
+    description = models.TextField(blank=True, help_text='What this scholarship/scheme covers')
+    eligibility = models.TextField(blank=True, help_text='Who can apply')
+    application_deadline = models.DateField(
+        null=True, blank=True,
+        help_text='Leave blank if the scheme has no fixed deadline / is open year-round',
+    )
+    official_url = models.URLField(
+        max_length=500, blank=True, verbose_name='Official URL',
+        help_text='Link to the real official application/information page — never a placeholder or invented link',
+    )
+    contact_number = models.CharField(max_length=15, blank=True, help_text='Optional helpline/contact number')
+    image = models.ImageField(
+        upload_to='scholarships/', blank=True, null=True,
+        help_text='Upload a photo (takes priority over Image URL below if both are set)',
+    )
+    image_url = models.URLField(max_length=500, blank=True, null=True, verbose_name='Image URL')
+    is_featured = models.BooleanField(default=False, help_text='Show this scholarship on the homepage')
+    is_active = models.BooleanField(default=True, help_text='Uncheck to hide this listing from the site')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-is_featured', 'application_deadline', '-created_at']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
+        verbose_name = 'Scholarship / Government Scheme'
+        verbose_name_plural = 'Scholarships & Government Schemes'
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = unique_slug_for(Scholarship, self.title, self.pk)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('core:scholarship_detail', kwargs={'slug': self.slug})
+
+    @property
+    def display_image(self):
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        return 'https://placehold.co/600x400?text=OneTownCity+Scholarship'
+
+    @property
+    def has_image(self):
+        return bool(self.image or self.image_url)
+
+    placeholder_icon = 'bi-mortarboard-fill'
+
+    @property
+    def is_open(self):
+        """False once application_deadline has passed; always True when no deadline was set."""
+        return self.application_deadline is None or self.application_deadline >= timezone.localdate()
+
+
+class LostFoundType(models.TextChoices):
+    LOST = 'lost', 'Lost'
+    FOUND = 'found', 'Found'
+
+
+class LostFound(ListingMixin, models.Model):
+    """
+    A user-reported lost or found item.
+
+    Named `LostFound` (no underscore) rather than `LostFoundItem` so its
+    Django model_name ('lostfound') matches the 'lostfound' key this project
+    uses for it everywhere else (LISTING_MODELS, MODEL_SPECIFIC_FIELDS,
+    Category.listing_model) — core/views.py's _community_context derives
+    `model_key` from `obj._meta.model_name` for every listing type, and
+    core.api's toggle_favorite/toggle_like/comments/reviews/report endpoints
+    all look up LISTING_MODELS by that same string, so the two must agree.
+
+    Privacy: contact_number here is an explicit, optional, per-post field the
+    reporter chooses to publish (same pattern as Business.phone_number /
+    Job.contact_number) — never the reporter's account/profile phone number,
+    which core.api.serializers.PublicOwnerSerializer already keeps private.
+    Leaving it blank is a real, supported choice: the generic Comments
+    feature (already available on every listing type) is the reply
+    mechanism in that case.
+    """
+    CATEGORY_CHOICES = [
+        ('electronics', 'Electronics'),
+        ('documents', 'Documents / ID Cards'),
+        ('bag_wallet', 'Bag / Wallet'),
+        ('jewellery', 'Jewellery'),
+        ('keys', 'Keys'),
+        ('pet', 'Pet'),
+        ('clothing', 'Clothing'),
+        ('other', 'Other'),
+    ]
+
+    report_type = models.CharField(max_length=10, choices=LostFoundType.choices, verbose_name='Lost or Found')
+    title = models.CharField(max_length=200, help_text="Short description, e.g. 'Black leather wallet'")
+    item_category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
+    description = models.TextField(blank=True)
+    event_date = models.DateField(default=timezone.localdate, verbose_name='Date lost/found')
+    location = models.CharField(max_length=200, help_text="Where it was lost/found, e.g. 'Near Kuppam Bus Stand'")
+    contact_number = models.CharField(
+        max_length=15, blank=True,
+        help_text='Optional — shown publicly on this post if provided. Leave blank to be reachable only through comments.',
+    )
+    image = models.ImageField(
+        upload_to='lost_found/', blank=True, null=True,
+        help_text='A photo of the item (or a similar one) helps a lot',
+    )
+    image_url = models.URLField(max_length=500, blank=True, null=True, verbose_name='Image URL')
+    is_resolved = models.BooleanField(default=False, help_text='Mark resolved once the item has been returned / reunited with its owner')
+    is_active = models.BooleanField(default=True, help_text='Uncheck to hide this listing from the site')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['status', 'is_active', 'city'])]
+        verbose_name = 'Lost & Found Item'
+        verbose_name_plural = 'Lost & Found Items'
+
+    def __str__(self):
+        return f'{self.get_report_type_display()}: {self.title}'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = unique_slug_for(LostFound, self.title, self.pk)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('core:lost_found_detail', kwargs={'slug': self.slug})
+
+    @property
+    def display_image(self):
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        return 'https://placehold.co/600x400?text=Lost+%26+Found'
+
+    @property
+    def has_image(self):
+        return bool(self.image or self.image_url)
+
+    PLACEHOLDER_ICONS = {'lost': 'bi-question-circle', 'found': 'bi-check-circle'}
+
+    @property
+    def placeholder_icon(self):
+        return self.PLACEHOLDER_ICONS.get(self.report_type, 'bi-search')
+
+
 LISTING_CONTENT_TYPE_LIMIT = (
     models.Q(app_label='core', model='business')
     | models.Q(app_label='core', model='property')
@@ -1162,6 +1350,8 @@ LISTING_CONTENT_TYPE_LIMIT = (
     | models.Q(app_label='core', model='event')
     | models.Q(app_label='core', model='news')
     | models.Q(app_label='core', model='project')
+    | models.Q(app_label='core', model='scholarship')
+    | models.Q(app_label='core', model='lostfound')
 )
 
 

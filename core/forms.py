@@ -4,12 +4,13 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from .models import (
-    Business, Category, Event, Job, Location, News, PlatformSettings, Profile, Project, Property,
-    WORKING_DAYS,
+    Business, Category, Event, Job, Location, LostFound, News, PlatformSettings, Profile, Project, Property,
+    Scholarship, WORKING_DAYS,
 )
 
 User = get_user_model()
@@ -599,6 +600,81 @@ class NewsSubmitForm(forms.ModelForm):
         }
 
 
+class ScholarshipSubmitForm(forms.ModelForm):
+    contact_number = forms.CharField(
+        max_length=10, required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Contact Number (optional)', 'maxlength': '10',
+            'inputmode': 'numeric', 'pattern': '[0-9]{10}', 'title': 'Enter exactly 10 digits',
+        }),
+    )
+
+    class Meta:
+        model = Scholarship
+        fields = [
+            'title', 'scholarship_type', 'provider', 'city', 'description', 'eligibility',
+            'application_deadline', 'official_url', 'contact_number', 'image', 'image_url',
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Scholarship / Scheme Title'}),
+            'scholarship_type': forms.Select(attrs={'class': 'form-select'}),
+            'provider': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Provider / Authority'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description (optional)'}),
+            'eligibility': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Eligibility (optional)'}),
+            'application_deadline': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'official_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Official application/info URL (optional)'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
+        }
+
+    def clean_contact_number(self):
+        contact = self.cleaned_data.get('contact_number', '').strip()
+        if not contact:
+            return contact
+        return _clean_10_digit_phone(contact, 'Contact number')
+
+
+class LostFoundSubmitForm(forms.ModelForm):
+    contact_number = forms.CharField(
+        max_length=10, required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 'placeholder': 'Contact Number (optional — or use comments)', 'maxlength': '10',
+            'inputmode': 'numeric', 'pattern': '[0-9]{10}', 'title': 'Enter exactly 10 digits',
+        }),
+    )
+
+    class Meta:
+        model = LostFound
+        fields = [
+            'report_type', 'title', 'item_category', 'city', 'description', 'event_date', 'location',
+            'contact_number', 'image', 'image_url',
+        ]
+        widgets = {
+            'report_type': forms.Select(attrs={'class': 'form-select'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "e.g. 'Black leather wallet'"}),
+            'item_category': forms.Select(attrs={'class': 'form-select'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Description (optional)'}),
+            'event_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Where it was lost/found"}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Image URL (optional)'}),
+        }
+
+    def clean_contact_number(self):
+        contact = self.cleaned_data.get('contact_number', '').strip()
+        if not contact:
+            return contact
+        return _clean_10_digit_phone(contact, 'Contact number')
+
+    def clean_event_date(self):
+        event_date = self.cleaned_data.get('event_date')
+        if event_date and event_date > timezone.localdate():
+            raise forms.ValidationError('The date lost/found cannot be in the future.')
+        return event_date
+
+
 class ProjectSubmitForm(LocationFieldsMixin, forms.ModelForm):
     class Meta:
         model = Project
@@ -631,6 +707,8 @@ LISTING_SUBMIT_FORMS = {
     'event': EventSubmitForm,
     'news': NewsSubmitForm,
     'project': ProjectSubmitForm,
+    'scholarship': ScholarshipSubmitForm,
+    'lostfound': LostFoundSubmitForm,
 }
 
 

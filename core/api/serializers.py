@@ -71,6 +71,14 @@ MODEL_SPECIFIC_FIELDS = {
     'event': ['title', 'event_date', 'location', 'contact_number', 'description', 'is_featured', 'is_active', 'is_upcoming'],
     'news': ['title', 'content', 'published_date', 'source', 'is_featured', 'is_active'],
     'project': ['title', 'project_status', 'location', 'expected_completion', 'department', 'description', 'is_featured', 'is_active'],
+    'scholarship': [
+        'title', 'scholarship_type', 'provider', 'description', 'eligibility', 'application_deadline',
+        'official_url', 'contact_number', 'is_featured', 'is_active', 'is_open',
+    ],
+    'lostfound': [
+        'report_type', 'title', 'item_category', 'description', 'event_date', 'location', 'contact_number',
+        'is_resolved', 'is_active',
+    ],
 }
 
 
