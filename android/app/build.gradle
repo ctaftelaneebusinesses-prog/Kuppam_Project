@@ -3,6 +3,22 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { localProperties.load(it) }
+}
+
+// Public Supabase project URL + anon (publishable) key — the same two values
+// the web app injects into signin.html via {{ SUPABASE_URL }} / {{ SUPABASE_ANON_KEY }}
+// (see hello_kuppam/settings.py and core/supabase_auth.py). Not secrets: the
+// anon key is designed for client embedding and is already shipped to every
+// browser that loads the sign-in page. Sourced from local.properties (gitignored,
+// mirrors the Django .env) with an env var fallback for CI, matching the
+// release-signing lookup pattern below.
+def supabaseUrl = System.getenv('ONETOWNCITY_SUPABASE_URL') ?: localProperties.getProperty('SUPABASE_URL') ?: ''
+def supabaseAnonKey = System.getenv('ONETOWNCITY_SUPABASE_ANON_KEY') ?: localProperties.getProperty('SUPABASE_ANON_KEY') ?: ''
+
 android {
     namespace 'com.onetowncity.app'
     compileSdk = 36
@@ -13,6 +29,9 @@ android {
         targetSdk = 36
         versionCode 1
         versionName '1.0.0'
+
+        buildConfigField 'String', 'SUPABASE_URL', "\"${supabaseUrl}\""
+        buildConfigField 'String', 'SUPABASE_ANON_KEY', "\"${supabaseAnonKey}\""
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
@@ -55,6 +74,7 @@ android {
 
     buildFeatures {
         compose true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.14'
@@ -91,6 +111,13 @@ dependencies {
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
     implementation 'io.coil-kt:coil-compose:2.7.0'
+
+    // Chrome Custom Tabs — hosts the Supabase-hosted Google OAuth page (the
+    // same provider config the web app uses via supabase-js) so Android never
+    // implements its own copy of the Google sign-in flow.
+    implementation 'androidx.browser:browser:1.8.0'
+    // Encrypted at-rest storage for the Supabase access/refresh token pair.
+    implementation 'androidx.security:security-crypto:1.1.0'
 
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'

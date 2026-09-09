@@ -104,6 +104,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.onetowncity.app.auth.SessionManager
 import com.onetowncity.app.designsystem.OneTownCityBottomNavItem
 import com.onetowncity.app.designsystem.OneTownCityBottomNavigation
 import com.onetowncity.app.designsystem.OneTownCityButton
@@ -130,12 +131,25 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Restores the persisted Supabase session (if any) synchronously so
+        // the first Compose frame already knows sign-in state, instead of
+        // flashing signed-out UI for a frame while an async load completes.
+        SessionManager.init(applicationContext)
 
         setContent {
             OneTownCityTheme {
                 OneTownCityAppShell()
             }
         }
+    }
+
+    // MainActivity is singleTask (see AndroidManifest.xml), so returning from
+    // the OAuth Custom Tab redelivers here via onNewIntent rather than a new
+    // onCreate. setIntent(...) makes the redirect URI visible to
+    // AuthCallbackScreen's LaunchedEffect via LocalContext's Activity.intent.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
     }
 }
 
@@ -311,12 +325,6 @@ private suspend fun reverseGeocodeCurrentLocation(latitude: Double, longitude: D
     } catch (e: Exception) {
         ReverseGeocodeResult.Failure("We could not reach OneTownCity to resolve your location. Please check your connection and try again.")
     }
-}
-
-private enum class PlaceholderState {
-    EMPTY,
-    LOADING,
-    ERROR,
 }
 
 private val appTabs = listOf(
@@ -616,23 +624,11 @@ private fun OneTownCityAppShell() {
                     ),
                 ) {
                     when (tab) {
-                        AppTab.HOME -> PlaceholderShellScreen(
-                            title = "Home",
-                            description = "Your feed and community updates will appear here when content is ready.",
-                            state = PlaceholderState.LOADING,
-                            icon = Icons.Outlined.Home,
-                            onPrimaryAction = { },
-                        )
-                        AppTab.SEARCH -> SearchScreen()
+                        AppTab.HOME -> HomeScreen(navController = navController, city = resolvedCity)
+                        AppTab.SEARCH -> SearchScreen(navController = navController)
                         AppTab.STUDENTS -> StudentsHubScreen(navController)
-                        AppTab.SAVED -> FavoritesScreen()
-                        AppTab.PROFILE -> PlaceholderShellScreen(
-                            title = "Profile",
-                            description = "Profile details and account controls are coming soon.",
-                            state = PlaceholderState.ERROR,
-                            icon = Icons.Outlined.Person,
-                            onPrimaryAction = { },
-                        )
+                        AppTab.SAVED -> FavoritesScreen(navController)
+                        AppTab.PROFILE -> ProfileScreen()
                     }
                 }
             }
@@ -822,12 +818,77 @@ private fun OneTownCityAppShell() {
                     TuitionCenterDetailScreen(navController = navController, item = item)
                 }
             }
+
+            composable(route = "sign-in") {
+                SignInScreen(navController = navController)
+            }
+
+            composable(
+                route = "auth-callback",
+                deepLinks = listOf(navDeepLink { uriPattern = "onetowncity://auth-callback" }),
+            ) {
+                AuthCallbackScreen(navController = navController)
+            }
+
+            composable(
+                route = "businesses?category={categoryKey}",
+                arguments = listOf(navArgument("categoryKey") { type = NavType.StringType; nullable = true }),
+            ) { backStackEntry ->
+                BusinessBrowseScreen(
+                    navController = navController,
+                    initialCategoryKey = backStackEntry.arguments?.getString("categoryKey"),
+                )
+            }
+
+            composable(
+                route = "business/{itemId}",
+                arguments = listOf(navArgument("itemId") { type = NavType.IntType }),
+            ) { backStackEntry ->
+                val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
+                BusinessDetailScreen(navController = navController, businessId = itemId)
+            }
+
+            composable(
+                route = "properties?category={categoryKey}",
+                arguments = listOf(navArgument("categoryKey") { type = NavType.StringType; nullable = true }),
+            ) { backStackEntry ->
+                PropertyBrowseScreen(
+                    navController = navController,
+                    initialCategoryKey = backStackEntry.arguments?.getString("categoryKey"),
+                )
+            }
+
+            composable(
+                route = "property/{itemId}",
+                arguments = listOf(navArgument("itemId") { type = NavType.IntType }),
+            ) { backStackEntry ->
+                val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
+                PropertyDetailScreen(navController = navController, propertyId = itemId)
+            }
+
+            composable(
+                route = "projects?category={categoryKey}",
+                arguments = listOf(navArgument("categoryKey") { type = NavType.StringType; nullable = true }),
+            ) { backStackEntry ->
+                ProjectBrowseScreen(
+                    navController = navController,
+                    initialCategoryKey = backStackEntry.arguments?.getString("categoryKey"),
+                )
+            }
+
+            composable(
+                route = "project/{itemId}",
+                arguments = listOf(navArgument("itemId") { type = NavType.IntType }),
+            ) { backStackEntry ->
+                val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
+                ProjectDetailScreen(navController = navController, projectId = itemId)
+            }
         }
     }
 }
 
 @Composable
-private fun SearchScreen() {
+private fun SearchScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var cityQuery by rememberSaveable { mutableStateOf("") }
     var selectedCity by rememberSaveable { mutableStateOf<CitySuggestion?>(null) }
@@ -994,10 +1055,21 @@ private fun SearchScreen() {
                             SearchResultCard(
                                 item = result,
                                 onClick = {
-                                    safeWebUri(API_BASE_URL + result.url)?.let { uri ->
-                                        try {
-                                            activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                                        } catch (_: ActivityNotFoundException) { }
+                                    // Business/Property/Project have real native detail
+                                    // screens (Phase 4) that fetch by id, so route there
+                                    // directly; every other model_key still opens the web
+                                    // listing page since no native screen exists for it.
+                                    when (result.modelKey) {
+                                        "business" -> navController.navigate("business/${result.id}")
+                                        "property" -> navController.navigate("property/${result.id}")
+                                        "project" -> navController.navigate("project/${result.id}")
+                                        else -> {
+                                            safeWebUri(API_BASE_URL + result.url)?.let { uri ->
+                                                try {
+                                                    activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                                                } catch (_: ActivityNotFoundException) { }
+                                            }
+                                        }
                                     }
                                 },
                             )
@@ -1518,20 +1590,18 @@ internal fun filterMarketplaceItems(
     }
 }
 
-private const val API_BASE_URL = "https://onetowncity.com"
+internal const val API_BASE_URL = "https://onetowncity.com"
 
 /**
- * No native sign-in flow exists yet (see the Phase 0/Phase 2 audit — Android
- * has no Supabase auth integration, unlike the web's core/supabase_auth.py
- * bridge). Every auth-required call below goes through this single function
- * instead of hardcoding "no token" in each screen, so wiring up real sign-in
- * later only means changing this one place. core/api/authentication.py's
- * SupabaseTokenAuthentication already accepts `Authorization: Bearer <token>`
- * from a native client — this is that seam, just with nothing behind it yet.
+ * Every auth-required call below goes through this single function rather
+ * than each screen reading the session directly, so core/api/authentication.py's
+ * SupabaseTokenAuthentication (Authorization: Bearer <token>) is wired up in
+ * exactly one place. Backed by SessionManager's in-memory, refreshed access
+ * token (see auth/SessionManager.kt) — null when signed out.
  */
-private fun currentAuthToken(): String? = null
+private suspend fun currentAuthToken(): String? = SessionManager.ensureFreshAccessToken()
 
-private class AuthRequiredException : Exception("Sign in to use this feature.")
+internal class AuthRequiredException : Exception("Sign in to use this feature.")
 
 /**
  * Single low-level HTTP+JSON call shared by every screen's network code —
@@ -1543,7 +1613,7 @@ private class AuthRequiredException : Exception("Sign in to use this feature.")
  * IllegalStateException (with the server's own message where available) for
  * every other non-2xx response.
  */
-private suspend fun httpJson(
+internal suspend fun httpJson(
     urlString: String,
     method: String = "GET",
     jsonBody: String? = null,
@@ -1579,7 +1649,7 @@ private suspend fun httpJson(
     }
 }
 
-private fun apiErrorMessage(responseText: String, fallback: String): String {
+internal fun apiErrorMessage(responseText: String, fallback: String): String {
     if (responseText.isBlank()) return fallback
     return runCatching { JSONObject(responseText) }.getOrNull()
         ?.optJSONObject("error")
@@ -1591,7 +1661,7 @@ private fun apiErrorMessage(responseText: String, fallback: String): String {
 internal data class ApiListPage<T>(val items: List<T>, val nextPage: Int?, val count: Int)
 
 /** Shared pagination-envelope parser for every core.api list endpoint — {"count","next","previous","page_size","results"} (see core/api/pagination.py). */
-private suspend fun <T> fetchListPage(
+internal suspend fun <T> fetchListPage(
     urlString: String,
     currentPage: Int,
     requiresAuth: Boolean = false,
@@ -1609,7 +1679,7 @@ private suspend fun <T> fetchListPage(
 }
 
 /** Shared URL builder for every "Business rows filtered to one category" screen (Tuition Centers, Student Services, Places to Visit) — see core/api/views.py's _list_listings, which ANDs `category` and `q` together rather than one replacing the other. */
-private fun buildBusinessCategoryUrl(category: String, query: String, citySlug: String, page: Int, pageSize: Int = 10): String {
+internal fun buildBusinessCategoryUrl(category: String, query: String, citySlug: String, page: Int, pageSize: Int = 10): String {
     val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
     return buildString {
         append(API_BASE_URL)
@@ -1647,7 +1717,7 @@ internal data class ListingSummary(
     val cityName: String,
 )
 
-private fun parseListingSummary(json: JSONObject): ListingSummary {
+internal fun parseListingSummary(json: JSONObject): ListingSummary {
     val modelKey = json.optString("model_key", "")
     val title = if (modelKey == "business") json.optString("name", "Listing") else json.optString("title", "Listing")
     val subtitle = when (modelKey) {
@@ -1781,13 +1851,13 @@ private suspend fun markAllNotificationsRead() {
     httpJson("$API_BASE_URL/api/v1/notifications/read-all/", method = "POST", requiresAuth = true)
 }
 
-private fun safeWebUri(rawUrl: String): Uri? {
+internal fun safeWebUri(rawUrl: String): Uri? {
     val uri = rawUrl.trim().toUri()
     return uri.takeIf { it.scheme.equals("https", ignoreCase = true) }
 }
 
 @Composable
-private fun rememberOptimizedImageRequest(url: String): ImageRequest {
+internal fun rememberOptimizedImageRequest(url: String): ImageRequest {
     val context = LocalContext.current
     return remember(url) {
         ImageRequest.Builder(context)
@@ -1798,7 +1868,7 @@ private fun rememberOptimizedImageRequest(url: String): ImageRequest {
     }
 }
 
-private class BoundedItemCache<K, V>(private val maximumSize: Int) {
+internal class BoundedItemCache<K, V>(private val maximumSize: Int) {
     private val values = LinkedHashMap<K, V>(maximumSize, 0.75f, true)
 
     @Synchronized
@@ -4614,7 +4684,7 @@ private data class TuitionCenterItem(
     val citySlug: String,
 )
 
-private data class CitySuggestion(
+internal data class CitySuggestion(
     val slug: String,
     val name: String,
 )
@@ -4702,7 +4772,7 @@ private suspend fun fetchCitySuggestionsSafely(
     emptyList()
 }
 
-private suspend fun fetchCitySuggestionsSafely(cityQuery: String): List<CitySuggestion> =
+internal suspend fun fetchCitySuggestionsSafely(cityQuery: String): List<CitySuggestion> =
     fetchCitySuggestionsSafely(cityQuery, ::fetchCitySuggestions)
 
 @Composable
@@ -5191,7 +5261,7 @@ private fun TuitionCenterDetailScreen(
 }
 
 @Composable
-private fun DetailRow(icon: ImageVector, title: String) {
+internal fun DetailRow(icon: ImageVector, title: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -5214,23 +5284,15 @@ private fun DetailRow(icon: ImageVector, title: String) {
 }
 
 @Composable
-private fun SignInRequiredState(message: String) {
-    val context = LocalContext.current
-    val activity = context as? Activity
+internal fun SignInRequiredState(message: String, navController: NavController) {
     OneTownCityEmptyState(
         title = "Sign in required",
         message = message,
         icon = Icons.Filled.Person,
         action = {
             OneTownCityButton(
-                text = "Sign in on the web",
-                onClick = {
-                    safeWebUri("$API_BASE_URL/signin/")?.let { uri ->
-                        try {
-                            activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                        } catch (_: ActivityNotFoundException) { }
-                    }
-                },
+                text = "Sign in",
+                onClick = { navController.navigate("sign-in") },
                 variant = OneTownCityButtonVariant.Primary,
             )
         },
@@ -5238,7 +5300,7 @@ private fun SignInRequiredState(message: String) {
 }
 
 @Composable
-private fun FavoritesScreen() {
+private fun FavoritesScreen(navController: NavController) {
     var items by remember { mutableStateOf<List<ListingSummary>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var isLoadingMore by remember { mutableStateOf(false) }
@@ -5308,7 +5370,7 @@ private fun FavoritesScreen() {
         Text(text = "Saved", style = MaterialTheme.typography.headlineSmall)
 
         when {
-            requiresSignIn -> SignInRequiredState(message = "Sign in to save and view your favorite listings.")
+            requiresSignIn -> SignInRequiredState(message = "Sign in to save and view your favorite listings.", navController = navController)
             isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
@@ -5528,7 +5590,7 @@ private fun NotificationsScreen(navController: NavController) {
         }
 
         when {
-            requiresSignIn -> SignInRequiredState(message = "Sign in to see your notifications.")
+            requiresSignIn -> SignInRequiredState(message = "Sign in to see your notifications.", navController = navController)
             isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
@@ -5618,103 +5680,6 @@ private fun NotificationCard(
                 Text(text = "New", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
             }
             Text(text = item.message, style = MaterialTheme.typography.bodyLarge)
-        }
-    }
-}
-
-@Composable
-private fun PlaceholderShellScreen(
-    title: String,
-    description: String,
-    state: PlaceholderState,
-    icon: ImageVector,
-    onPrimaryAction: () -> Unit,
-) {
-    val scrollState = rememberScrollState()
-
-    Column(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-            .verticalScroll(scrollState)
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Surface(
-            tonalElevation = 1.dp,
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.32f),
-                    modifier = Modifier.size(44.dp),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(22.dp),
-                        )
-                    }
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    Text(
-                        text = "Native shell",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-
-        when (state) {
-            PlaceholderState.LOADING -> {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        OneTownCityCircularLoading(label = "Loading content")
-                    }
-                }
-            }
-            PlaceholderState.ERROR -> {
-                OneTownCityErrorState(
-                    title = "Unable to load this section",
-                    message = description,
-                    actionText = "Retry",
-                    onRetry = onPrimaryAction,
-                )
-            }
-            PlaceholderState.EMPTY -> {
-                OneTownCityEmptyState(
-                    title = "$title is empty",
-                    message = description,
-                    icon = icon,
-                    action = {
-                        OneTownCityButton(
-                            text = "Refresh",
-                            onClick = onPrimaryAction,
-                            variant = OneTownCityButtonVariant.Outlined,
-                        )
-                    },
-                )
-            }
         }
     }
 }

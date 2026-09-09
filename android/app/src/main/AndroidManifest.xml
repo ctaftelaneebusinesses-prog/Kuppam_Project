@@ -3,6 +3,15 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!-- API 30+ package-visibility: lets CustomTabsIntent (SignInScreen's
+         "Continue with Google") find an installed Custom Tabs provider
+         instead of silently degrading straight to a plain browser launch. -->
+    <queries>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
