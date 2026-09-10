@@ -27,3 +27,13 @@ android/keystores/*.keystore
 android/.idea/
 android/*.iml
 android/app/*.iml
+
+# Playwright e2e (Phase 5 tooling)
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+e2e/audit-results/
+e2e/.cache/
+e2e/screens/
+e2e/*_results.json
+perf-baseline-results.json

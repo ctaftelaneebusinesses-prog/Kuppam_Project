@@ -129,14 +129,23 @@ import dj_database_url
 DATABASES = {
     'default': dj_database_url.parse(
         os.getenv('DATABASE_URL'),
-        # Persistent connections pin one Supabase pooler slot (15 total in
-        # session mode, the only mode this project's Supabase plan exposes)
-        # per thread for their whole lifetime. With 2 gunicorn workers x 4
-        # threads that's up to 8 slots held continuously, and a killed/
-        # restarted worker (OOM, timeout) doesn't release its slot cleanly —
-        # a couple of crash cycles is enough to exhaust the pool and start
-        # 500ing every request. Keeping this at 0 closes each connection
-        # right after its request instead of holding it for minutes.
+        # Phase C infra confirmation (2026-09-10): the configured DATABASE_URL
+        # port was verified as 6543 — Supabase's TRANSACTION-mode pgbouncer
+        # pooler, not session mode. Owner-confirmed limits: 15 backend
+        # (pooler-to-Postgres) connections on this Supabase Nano project,
+        # 200 max client (app-to-pooler) connections through Supavisor.
+        # Single Railway instance running 3 gunicorn workers x 6 threads
+        # (18 concurrent request slots) is far below both ceilings.
+        # conn_max_age=0 is kept for a different, still-solid reason under
+        # transaction mode specifically: pgbouncer only assigns a real
+        # Postgres server connection to a client for the duration of one
+        # transaction, then returns it to the pool — a Django-side
+        # "persistent" connection held across requests doesn't map onto that
+        # model at all, and would just occupy a transaction-pooler client
+        # slot indefinitely without actually reusing a server-side
+        # connection the way conn_max_age>0 assumes. Closing the connection
+        # after each request is the architecturally correct choice for a
+        # transaction pooler, not merely a conservative one.
         conn_max_age=0,
     )
 }
@@ -292,11 +301,53 @@ LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = 'core:home'
 
 # ------------------------------------------------------------------
-# EMAIL (Contact form â€” console backend for development)
+# EMAIL (Contact form)
 # ------------------------------------------------------------------
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@hellokuppam.com'
-CONTACT_RECEIVER_EMAIL = 'admin@hellokuppam.com'
+# No SMTP/email provider has been chosen yet (checked .env.example — every
+# value is blank) — a specific provider/host/credential is deliberately NOT
+# invented here. What this does provide is provider-agnostic: every setting
+# Django's SMTP backend needs, sourced only from env vars, plus a backend
+# default that reacts to whether EMAIL_HOST is actually set instead of
+# requiring the owner to separately remember to also flip EMAIL_BACKEND —
+# that second, easy-to-forget step is exactly how a "configured" provider
+# can still silently keep using the console backend in production.
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
+
+# EMAIL_BACKEND is still a full override (e.g. for an API-based, non-SMTP
+# provider package) — but its *default* is derived from EMAIL_HOST rather
+# than hardcoded to console, so setting EMAIL_HOST/USER/PASSWORD alone is
+# enough to switch to real delivery.
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend' if EMAIL_HOST else 'django.core.mail.backends.console.EmailBackend',
+)
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'ctaftelaneebusinesses@gmail.com')
+# Used only if Django's own error-to-admins email (ADMINS/LOGGING's
+# AdminEmailHandler) is ever wired up — neither is configured in this
+# project today, so this has no effect on its own; kept explicit so it
+# doesn't fall back to Django's built-in 'root@localhost' default.
+SERVER_EMAIL = os.getenv('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
+# Owner-approved OneTownCity support address (Phase B, 2026-09-10) — was
+# previously defaulting to the old hellokuppam.com domain.
+CONTACT_RECEIVER_EMAIL = os.getenv('CONTACT_RECEIVER_EMAIL', 'ctaftelaneebusinesses@gmail.com')
+
+if not DEBUG and EMAIL_BACKEND == 'django.core.mail.backends.console.EmailBackend':
+    # Deliberately a warning, not a hard startup failure — email is a
+    # feature dependency (contact-form notifications), not a security-
+    # critical one like SECRET_KEY above, so it shouldn't be able to take
+    # the whole site down. But "must not silently use console" means this
+    # has to be visible somewhere, not just an unlogged no-op.
+    logging.getLogger(__name__).warning(
+        'EMAIL_HOST is not set — running with DEBUG=False but still on the console '
+        'email backend. Contact-form notifications (and any other outgoing mail) '
+        'will only print to the server log, not actually deliver anywhere.'
+    )
 
 # ------------------------------------------------------------------
 # SUPABASE (Auth + Storage)
@@ -333,4 +384,11 @@ VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', '')
 # gate the existing username/password staff login for Django's own
 # /admin/ backend and the Excel upload tools — that flow is untouched.
 GOOGLE_LOGIN_URL = 'core:google_login'
+
+# SHA-256 fingerprint of the Android release signing certificate, for
+# /.well-known/assetlinks.json (see core.views.assetlinks_json). Empty by
+# default — only a real production keystore can produce this; see Phase 6's
+# signing review. An empty value serves an empty fingerprint list, which
+# fails App Links verification cleanly rather than shipping a wrong/fake one.
+ANDROID_RELEASE_CERT_SHA256 = os.getenv('ANDROID_RELEASE_CERT_SHA256', '')
 

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from core.sitemaps import sitemaps
-from core.views import robots_txt, service_worker
+from core.views import assetlinks_json, robots_txt, service_worker
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -13,6 +13,7 @@ urlpatterns = [
     path('robots.txt', robots_txt, name='robots_txt'),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path('sw.js', service_worker, name='service_worker'),
+    path('.well-known/assetlinks.json', assetlinks_json, name='assetlinks_json'),
     # The native Android client (android/app/src/main/java/com/onetowncity/app)
     # calls this exact prefix — see e.g. MainActivity.kt's *_API_BASE_URL
     # constants building "/api/v1/listings/...", "/api/v1/locations/...".

@@ -125,6 +125,7 @@
 #     return render(request, 'contact.html', context)
 
 import json
+import logging
 import re
 from datetime import date, time, timedelta
 from math import asin, cos, radians, sin, sqrt
@@ -521,9 +522,10 @@ def _community_context(request, obj):
     is_favorited = bool(user) and Favorite.objects.filter(content_type=ct, object_id=obj.pk, user=user).exists()
     comments = (
         Comment.objects.filter(content_type=ct, object_id=obj.pk, parent__isnull=True)
-        .select_related('user').prefetch_related('replies__user')
+        .select_related('user', 'user__profile')
+        .prefetch_related(Prefetch('replies', queryset=Comment.objects.select_related('user', 'user__profile')))
     )
-    reviews = Review.objects.filter(content_type=ct, object_id=obj.pk).select_related('user')
+    reviews = Review.objects.filter(content_type=ct, object_id=obj.pk).select_related('user', 'user__profile')
 
     return {
         'model_key': obj._meta.model_name,
@@ -693,6 +695,36 @@ CATEGORIES = [
         'count_fn': lambda: _public_qs(LostFound).count(),
     },
 ]
+
+
+def assetlinks_json(request):
+    """
+    Serves /.well-known/assetlinks.json for Android App Links verification
+    (see AndroidManifest.xml's autoVerify="true" intent-filter, which has
+    claimed since Phase 4 that this view already existed — it didn't; this
+    is the Phase 6 fix for that gap).
+
+    The SHA-256 certificate fingerprint of the actual release signing
+    keystore is never hardcoded or invented here — only a real production
+    keystore can produce it, and none exists in this project yet (Phase 6
+    signing review: only android/keystores/TEST-ONLY-DO-NOT-USE-FOR-RELEASE.jks
+    is present, explicitly not a production cert). Until
+    ANDROID_RELEASE_CERT_SHA256 is set to a real fingerprint, this serves an
+    empty fingerprint list, so App Links verification fails cleanly/safely
+    (Android just won't auto-open links in-app) rather than 404ing or
+    shipping a fingerprint that doesn't match anything.
+    """
+    fingerprint = settings.ANDROID_RELEASE_CERT_SHA256
+    return JsonResponse([
+        {
+            'relation': ['delegate_permission/common.handle_all_urls'],
+            'target': {
+                'namespace': 'android_app',
+                'package_name': 'com.onetowncity.app',
+                'sha256_cert_fingerprints': [fingerprint] if fingerprint else [],
+            },
+        },
+    ], safe=False)
 
 
 def service_worker(request):
@@ -1750,13 +1782,23 @@ def contact(request):
 
             full_message = f"From: {name} <{email}>\n\n{message}"
 
-            send_mail(
-                subject=f'[OneTownCity Contact] {subject}',
-                message=full_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.CONTACT_RECEIVER_EMAIL],
-                fail_silently=True,
-            )
+            try:
+                send_mail(
+                    subject=f'[OneTownCity Contact] {subject}',
+                    message=full_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[settings.CONTACT_RECEIVER_EMAIL],
+                    fail_silently=False,
+                )
+            except Exception:
+                # The submission itself is already saved above (visible in
+                # the admin regardless), so a mail-provider hiccup shouldn't
+                # turn into a 500 for the person submitting the form — but
+                # it must not vanish unlogged either, or a broken provider
+                # could go unnoticed indefinitely.
+                logging.getLogger(__name__).exception(
+                    'Contact form email notification failed to send (message was still saved to the database).'
+                )
             messages.success(request, 'Thank you for reaching out! We will get back to you soon.')
             return redirect('core:contact')
     else:
