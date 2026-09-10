@@ -23,10 +23,15 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.core.net.toUri
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -68,6 +73,40 @@ private fun launchGoogleSignIn(context: Context) {
             context.startActivity(Intent(Intent.ACTION_VIEW, uri))
         } catch (_: ActivityNotFoundException) { }
     }
+}
+
+/**
+ * Opens a real OneTownCity web page (Privacy Policy, Terms of Service) in a
+ * Custom Tab — same fallback-to-plain-browser pattern as launchGoogleSignIn.
+ * Android never re-hosts this content locally; it always reflects whatever
+ * the web app currently serves at that URL.
+ */
+private fun openWebPage(context: Context, path: String) {
+    val uri = "$API_BASE_URL$path".toUri()
+    val customTabsIntent = CustomTabsIntent.Builder().build()
+    try {
+        customTabsIntent.launchUrl(context, uri)
+    } catch (_: ActivityNotFoundException) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+        } catch (_: ActivityNotFoundException) { }
+    }
+}
+
+/**
+ * DELETE /api/v1/auth/me/ (core.api.views.me's DELETE method — the exact
+ * same backend service the web "Delete My Account" page calls; see
+ * core.account_deletion.delete_user_account). No deletion logic lives here
+ * — this only calls the real endpoint with the same {"confirm": "DELETE"}
+ * contract the web flow requires, and reports whatever the server does.
+ */
+private suspend fun deleteMyAccount() {
+    httpJson(
+        "$API_BASE_URL/api/v1/auth/me/",
+        method = "DELETE",
+        jsonBody = """{"confirm":"DELETE"}""",
+        requiresAuth = true,
+    )
 }
 
 @Composable
@@ -291,8 +330,123 @@ internal fun ProfileScreen() {
                         coroutineScope.launch { SessionManager.signOut() }
                     },
                 )
+                DeleteAccountSection(coroutineScope = coroutineScope)
             }
         }
+
+        // Privacy Policy / Terms / Support must be reachable whether or not
+        // the visitor is signed in — unlike account deletion, none of these
+        // require an account, so they live outside the `when` above instead
+        // of only inside the profile != null branch.
+        LegalLinksSection(context = context)
+    }
+}
+
+/**
+ * Privacy Policy / Terms of Service / Support — reachable regardless of
+ * sign-in state (see ProfileScreen). None of these require an account.
+ */
+@Composable
+private fun LegalLinksSection(context: Context) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        HorizontalDivider()
+        OneTownCityButton(
+            text = "Privacy Policy",
+            onClick = { openWebPage(context, "/privacy-policy/") },
+            variant = OneTownCityButtonVariant.Text,
+        )
+        OneTownCityButton(
+            text = "Terms of Service",
+            onClick = { openWebPage(context, "/terms-of-service/") },
+            variant = OneTownCityButtonVariant.Text,
+        )
+        OneTownCityButton(
+            text = "Support",
+            onClick = { openWebPage(context, "/contact/") },
+            variant = OneTownCityButtonVariant.Text,
+        )
+    }
+}
+
+/** Delete My Account — signed-in only (see ProfileScreen's profile != null branch). */
+@Composable
+private fun DeleteAccountSection(coroutineScope: kotlinx.coroutines.CoroutineScope) {
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+    var isDeleting by remember { mutableStateOf(false) }
+    var deleteError by remember { mutableStateOf<String?>(null) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        HorizontalDivider()
+        if (deleteError != null) {
+            Text(
+                text = deleteError ?: "",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        OneTownCityButton(
+            text = if (isDeleting) "Deleting account..." else "Delete My Account",
+            onClick = { deleteError = null; showDeleteConfirm = true },
+            variant = OneTownCityButtonVariant.Outlined,
+            enabled = !isDeleting,
+        )
+    }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { if (!isDeleting) showDeleteConfirm = false },
+            title = { Text("Delete your account?") },
+            text = {
+                Text(
+                    "This permanently deletes your OneTownCity account, profile, favorites, " +
+                        "and notifications. Comments and reviews you posted stay visible but are " +
+                        "no longer linked to you. This cannot be undone.",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !isDeleting,
+                    onClick = {
+                        coroutineScope.launch {
+                            isDeleting = true
+                            deleteError = null
+                            try {
+                                deleteMyAccount()
+                                showDeleteConfirm = false
+                                SessionManager.signOut()
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: AuthRequiredException) {
+                                deleteError = "Your session expired. Please sign in again and retry."
+                                showDeleteConfirm = false
+                            } catch (e: java.io.IOException) {
+                                // Genuine network failure (no connection, DNS, timeout) — distinct
+                                // from a real server-returned error, which httpJson surfaces as
+                                // IllegalStateException below with the server's own message.
+                                deleteError = "Couldn't reach OneTownCity. Check your connection and try again."
+                                showDeleteConfirm = false
+                            } catch (e: Exception) {
+                                deleteError = e.message ?: "Unable to delete your account right now. Please try again."
+                                showDeleteConfirm = false
+                            } finally {
+                                isDeleting = false
+                            }
+                        }
+                    },
+                ) {
+                    if (isDeleting) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                    } else {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(enabled = !isDeleting, onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel")
+                }
+            },
+        )
     }
 }
 
