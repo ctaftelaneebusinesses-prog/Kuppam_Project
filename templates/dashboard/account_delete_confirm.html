@@ -1,0 +1,59 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<h3 class="fw-bold mb-1 text-danger" data-aos="fade-up">{% trans "Delete My Account" %}</h3>
+<p class="text-muted mb-4" data-aos="fade-up">{% trans "This action is permanent and cannot be undone." %}</p>
+
+<div class="row g-4">
+    <div class="col-xl-9 col-xxl-8 mx-auto" data-aos="fade-up">
+        <div class="card border-danger">
+            <div class="card-header bg-white text-danger fw-semibold">
+                <i class="bi bi-exclamation-triangle"></i> {% trans "What happens when you delete your account" %}
+            </div>
+            <div class="card-body">
+                <p class="fw-semibold mb-2">{% trans "Deleted immediately and permanently:" %}</p>
+                <ul class="mb-3">
+                    <li>{% trans "Your profile (name, phone, address, photo) and sign-in identity" %}</li>
+                    <li>{% trans "Your likes, favorites, and notifications" %}</li>
+                    <li>{% trans "Your saved push-notification devices and sign-in history" %}</li>
+                    <li>{% trans "Any pending Admin/Content Provider application and delegated permissions" %}</li>
+                </ul>
+                <p class="fw-semibold mb-2">{% trans "Kept, but no longer linked to you:" %}</p>
+                <ul class="mb-3">
+                    <li>{% trans "Comments and reviews you posted stay visible (shown as \"Deleted User\") so replies and ratings from other users aren't affected." %}</li>
+                    <li>{% trans "Reports you filed are kept for moderation records, with your identity removed." %}</li>
+                </ul>
+                <p class="fw-semibold mb-2">{% trans "Not deleted automatically:" %}</p>
+                <ul class="mb-4">
+                    <li>{% trans "Businesses, properties, jobs, or other listings you posted stay live and public, no longer linked to your account. If you want a listing removed too, delete it from My Listings before deleting your account." %}</li>
+                </ul>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="hkDeleteConfirmInput" class="form-label fw-semibold">
+                            {% blocktrans %}Type <code>DELETE</code> to confirm{% endblocktrans %}
+                        </label>
+                        <input type="text" name="confirm" id="hkDeleteConfirmInput" class="form-control" autocomplete="off" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash3"></i> {% trans "Permanently Delete My Account" %}
+                        </button>
+                        <a href="{% url 'core:dashboard_profile' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

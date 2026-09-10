@@ -66,18 +66,18 @@ Requires the surrounding view to have merged in _community_context(request, obj)
                 {% for comment in comments %}
                 <div class="hk-comment-item mb-2">
                     <div class="d-flex gap-2">
-                        <div class="hk-comment-avatar">{{ comment.user.profile.full_name|default:comment.user.username|first|upper }}</div>
+                        <div class="hk-comment-avatar">{{ comment.user.profile.full_name|default:comment.user.username|default:"Deleted User"|first|upper }}</div>
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="fw-semibold small">{{ comment.user.profile.full_name|default:comment.user.username }}</span>
+                                <span class="fw-semibold small">{{ comment.user.profile.full_name|default:comment.user.username|default:"Deleted User" }}</span>
                                 <span class="small text-muted">{{ comment.created_at|date:"d M Y, H:i" }}</span>
                             </div>
                             <div class="small mt-1">{{ comment.body }}</div>
                             {% for reply in comment.replies.all %}
                             <div class="d-flex gap-2 mt-2 ps-2 border-start">
-                                <div class="hk-comment-avatar" style="width:28px;height:28px;min-width:28px;font-size:.7rem;">{{ reply.user.profile.full_name|default:reply.user.username|first|upper }}</div>
+                                <div class="hk-comment-avatar" style="width:28px;height:28px;min-width:28px;font-size:.7rem;">{{ reply.user.profile.full_name|default:reply.user.username|default:"Deleted User"|first|upper }}</div>
                                 <div>
-                                    <span class="fw-semibold small">{{ reply.user.profile.full_name|default:reply.user.username }}</span>
+                                    <span class="fw-semibold small">{{ reply.user.profile.full_name|default:reply.user.username|default:"Deleted User" }}</span>
                                     <div class="small">{{ reply.body }}</div>
                                 </div>
                             </div>
@@ -129,7 +129,7 @@ Requires the surrounding view to have merged in _community_context(request, obj)
                 {% for review in reviews %}
                 <div class="hk-review-item mb-2">
                     <div class="d-flex justify-content-between align-items-start">
-                        <span class="fw-semibold small">{{ review.user.profile.full_name|default:review.user.username }}</span>
+                        <span class="fw-semibold small">{{ review.user.profile.full_name|default:review.user.username|default:"Deleted User" }}</span>
                         <span class="small text-muted">{{ review.created_at|date:"d M Y" }}</span>
                     </div>
                     <div class="hk-star-display my-1">

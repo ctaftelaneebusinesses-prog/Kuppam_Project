@@ -10,6 +10,21 @@
 <div class="row g-4">
     <div class="col-xl-9 col-xxl-8 mx-auto" data-aos="fade-up">
         {% include 'dashboard/partials/profile_card.html' %}
+
+        <div class="card border-danger mt-4">
+            <div class="card-header bg-white text-danger fw-semibold">
+                <i class="bi bi-exclamation-triangle"></i> {% trans "Danger Zone" %}
+            </div>
+            <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <div class="fw-semibold">{% trans "Delete my account" %}</div>
+                    <div class="text-muted small">{% trans "Permanently delete your OneTownCity account and personal data. This cannot be undone." %}</div>
+                </div>
+                <a href="{% url 'core:account_delete_confirm' %}" class="btn btn-outline-danger btn-sm">
+                    {% trans "Delete My Account" %}
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

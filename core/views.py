@@ -3056,6 +3056,44 @@ def dashboard_profile(request):
     return render(request, 'dashboard/profile.html', context)
 
 
+@onboarding_required
+def account_delete_confirm(request):
+    """
+    'Delete My Account' confirmation page, linked from the Danger Zone on
+    My Profile. GET only ever shows the consequences (never deletes —
+    satisfies the "no deletion from a GET request" requirement by
+    construction); POST performs the actual deletion via the same
+    core.account_deletion.delete_user_account() the API's DELETE
+    /api/v1/auth/me/ endpoint calls, so web and Android/API delete an
+    account identically.
+
+    Accounts here are Google/Supabase-authenticated and have no usable
+    Django password (see core.supabase_auth.resolve_supabase_identity), so
+    a password re-auth prompt isn't available as a confirmation step —
+    typing the literal word DELETE is the confirmation gate instead, mirrored
+    by the API's `confirm: "DELETE"` request-body requirement.
+    """
+    if request.method == 'POST':
+        if request.POST.get('confirm', '').strip().upper() != 'DELETE':
+            messages.error(request, 'Type DELETE exactly (all caps) to confirm — your account was not deleted.')
+            return redirect('core:account_delete_confirm')
+
+        try:
+            delete_user_account(request.user)
+        except AccountDeletionError:
+            messages.error(request, 'This account has already been deleted.')
+            return redirect('core:home')
+
+        logout(request)
+        messages.success(request, 'Your OneTownCity account and personal data have been deleted.')
+        return redirect('core:home')
+
+    return render(request, 'dashboard/account_delete_confirm.html', {
+        'page_title': 'Delete My Account - OneTownCity',
+        'active_nav': 'profile',
+    })
+
+
 def _owner_engagement_analytics(own_items):
     """
     Real engagement analytics for a Content Provider's own listings, built

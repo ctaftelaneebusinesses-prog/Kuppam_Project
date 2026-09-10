@@ -27,6 +27,7 @@ from rest_framework.exceptions import NotAuthenticated, NotFound, PermissionDeni
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from ..account_deletion import AccountDeletionError, delete_user_account
 from ..decorators import rate_limit
 from ..forms import LISTING_SUBMIT_FORMS, CommentForm, ReportForm, ReviewForm
 from ..location_service import reverse_geocode, search_cities
@@ -46,16 +47,50 @@ from .serializers import (
 
 AUTH_REQUIRED = [IsAuthenticated, IsActiveAccount]
 
+# Every listing serializer nests `owner` (PublicOwnerSerializer) and `city`
+# (LocationSerializer, whose .state/.district properties walk city.parent /
+# city.parent.parent — see core/models.py's Location) — without prefetching
+# the city's parent chain too, each serialized row costs 1-2 extra queries
+# just for LocationSerializer. Confirmed via CaptureQueriesContext: a
+# 20-result business listing page issued 40 extra core_location queries
+# before this was added (one per .state/.district access).
+_LISTING_SELECT_RELATED = ('owner__profile', 'listing_category', 'city', 'city__parent', 'city__parent__parent')
+
 
 # ---------------------------------------------------------------------------
 # Auth
 # ---------------------------------------------------------------------------
 
-@api_view(['GET'])
+@api_view(['GET', 'DELETE'])
 @permission_classes(AUTH_REQUIRED)
 def me(request):
-    """The authenticated caller's own profile — works for either a session (web) or a Supabase bearer token (native)."""
-    return Response(MeSerializer(get_profile(request.user)).data)
+    """
+    GET: the authenticated caller's own profile — works for either a session
+    (web) or a Supabase bearer token (native).
+
+    DELETE: permanently deletes the caller's own account and personal data
+    (core.account_deletion.delete_user_account — the same function the
+    web's "Delete My Account" page calls, so both clients delete an account
+    identically). Ownership can't be bypassed since there's no id in the
+    URL — it always acts on request.user, never a client-supplied id.
+    Requires {"confirm": "DELETE"} in the request body so a client bug that
+    fires an empty DELETE can't silently wipe an account; this mirrors the
+    "type DELETE to confirm" step the web flow requires (these accounts have
+    no usable password to re-prompt for — see core.supabase_auth).
+    """
+    if request.method == 'GET':
+        return Response(MeSerializer(get_profile(request.user)).data)
+
+    if request.data.get('confirm') != 'DELETE':
+        raise ValidationError({'confirm': 'Send {"confirm": "DELETE"} to permanently delete your account.'})
+
+    try:
+        delete_user_account(request.user)
+    except AccountDeletionError as exc:
+        raise NotFound(str(exc))
+
+    django_logout(request)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['POST'])
@@ -145,7 +180,7 @@ def search_view(request):
             sections.append({
                 'model_key': key,
                 'count': count,
-                'items': LISTING_SERIALIZERS[key](qs.select_related('owner__profile', 'listing_category', 'city')[:limit], many=True).data,
+                'items': LISTING_SERIALIZERS[key](qs.select_related(*_LISTING_SELECT_RELATED)[:limit], many=True).data,
             })
 
     return Response({
@@ -171,7 +206,7 @@ def _get_visible_listing(request, model_cls, pk):
     callers can 404 with a consistent API error envelope.
     """
     profile = get_profile(request.user)
-    select = ('owner__profile', 'listing_category', 'city')
+    select = _LISTING_SELECT_RELATED
     if profile and profile.is_super_admin:
         return model_cls.objects.filter(pk=pk).select_related(*select).first()
     obj = _public_qs(model_cls).filter(pk=pk).select_related(*select).first()
@@ -218,7 +253,7 @@ def _list_listings(request, model_key, model_cls):
     qs = qs.order_by(ordering) if ordering in _LISTING_ORDERINGS else qs.order_by('-created_at')
 
     paginator = StandardResultsSetPagination()
-    page = paginator.paginate_queryset(qs.select_related('owner__profile', 'listing_category', 'city'), request)
+    page = paginator.paginate_queryset(qs.select_related(*_LISTING_SELECT_RELATED), request)
     return paginator.get_paginated_response(LISTING_SERIALIZERS[model_key](page, many=True).data)
 
 
@@ -319,7 +354,7 @@ def my_listings_view(request):
         # one Python-sorted list, so an unbounded per-model fetch (all of
         # them, for a Super Admin) grows without limit as the site does.
         qs = (
-            qs.select_related('owner__profile', 'listing_category', 'city')
+            qs.select_related(*_LISTING_SELECT_RELATED)
             .order_by('-created_at')[:MAX_LISTINGS_PER_MODEL_SCAN]
         )
         items.extend((obj.created_at, key, obj) for obj in qs)
@@ -345,7 +380,7 @@ def my_favorites(request):
         Favorite.objects.filter(user=request.user)
         .select_related('content_type')
         .prefetch_related(GenericPrefetch('content_object', [
-            model.objects.select_related('owner__profile', 'listing_category', 'city')
+            model.objects.select_related(*_LISTING_SELECT_RELATED)
             for model in LISTING_MODELS.values()
         ]))
         .order_by('-created_at')

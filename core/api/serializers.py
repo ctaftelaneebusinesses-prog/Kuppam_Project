@@ -49,6 +49,14 @@ class PublicOwnerSerializer(serializers.Serializer):
         return profile.display_photo if profile else None
 
 
+#: Shape-compatible stand-in for PublicOwnerSerializer(...).data when a
+#: Comment/Review's `user` is NULL — the account was deleted (see
+#: core.account_deletion; Comment.user/Review.user are on_delete=SET_NULL
+#: precisely so the comment/review itself survives). Keeps the response
+#: shape identical for clients instead of a hole where `user` used to be.
+_DELETED_USER = {'id': None, 'full_name': 'Deleted User', 'display_photo': None}
+
+
 # ---------------------------------------------------------------------------
 # Listings — one ModelSerializer per listing type, built from a shared field
 # list instead of six hand-written near-duplicates. Every field is read-only;
@@ -126,7 +134,7 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_user(self, obj):
-        return PublicOwnerSerializer(obj.user).data
+        return PublicOwnerSerializer(obj.user).data if obj.user_id else _DELETED_USER
 
     def get_replies(self, obj):
         # Only populated when the view prefetched `replies` (top-level comment
@@ -147,7 +155,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_user(self, obj):
-        return PublicOwnerSerializer(obj.user).data
+        return PublicOwnerSerializer(obj.user).data if obj.user_id else _DELETED_USER
 
 
 class NotificationSerializer(serializers.ModelSerializer):

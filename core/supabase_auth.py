@@ -32,7 +32,47 @@ def get_supabase_client():
 
 
 def fetch_supabase_user(access_token):
-    """Returns the Supabase auth user for a valid access token, or raises SupabaseAuthError."""
+    """
+    Returns the Supabase auth user for a valid access token, or raises SupabaseAuthError.
+
+    Phase 5.5 note — this call goes over the network to Supabase's Auth API
+    on every single authenticated request (no caching, no local JWT
+    verification). Two things were deliberately NOT done here, both
+    documented rather than guessed at:
+
+    1. Local JWT verification: would need the exact signing algorithm,
+       issuer, audience, JWKS/public-key source, key-rotation behavior, and
+       Supabase project configuration confirmed first — none of that could
+       be verified in the Phase 5.5 session (this sandbox's outbound network
+       reaches the Supabase Postgres pooler host fine but times out reaching
+       the Supabase REST/Auth API host, *.supabase.co, so even the JWKS
+       endpoint couldn't be inspected live), and no JWT secret or public key
+       material exists anywhere in this project's config to work from
+       either. Per the explicit rule this was reviewed under: if it isn't
+       verified, don't change authentication.
+
+    2. Short-TTL result caching (NOT implemented, no measured benefit could
+       be established without reaching the real endpoint — but specified in
+       case a future session has working connectivity):
+         - Cache key: a hash (not the raw token — never log or key on it
+           directly) of the access_token, e.g. sha256(access_token).
+         - Value: the (id, email, user_metadata) fields actually used by
+           resolve_supabase_identity() below — nothing else.
+         - TTL: short, e.g. 30-60s — well under a Supabase access token's
+           typical lifetime, so this only dedupes bursts of calls for the
+           *same* token in a short window (e.g. a page loading several API
+           calls at once), not a cache users could still be "valid" on long
+           after a revoke.
+         - Invalidation: none needed beyond TTL expiry — there is no
+           explicit revoke-webhook from Supabase to invalidate on, so the
+           bound on staleness is the TTL itself, not an event.
+         - Security implication to weigh before ever adding this: a
+           revoked/expired token could still be accepted by this app for up
+           to the TTL. profile.is_blocked / is_suspended enforcement is
+           unaffected either way (IsActiveAccount checks the live Django
+           Profile row every request, never cached) — only the "is this
+           Supabase token itself still good" check would be briefly stale.
+    """
     if not access_token:
         raise SupabaseAuthError('Missing access token.')
 
@@ -46,6 +86,43 @@ def fetch_supabase_user(access_token):
         raise SupabaseAuthError('Invalid or expired sign-in session.')
 
     return response.user
+
+
+_admin_client_instance = None
+
+
+def _admin_client():
+    """
+    A Supabase client authorized with the service-role key, for Admin API
+    calls only (never the anon-key client `get_supabase_client()` uses for
+    verifying end-user tokens). Same service-role-for-server-only-privileged-
+    ops pattern as core.storage.SupabaseMediaStorage's upload/delete client
+    — this key must never reach a browser or the Android app.
+    """
+    global _admin_client_instance
+    if _admin_client_instance is None:
+        if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
+            raise SupabaseAuthError('Supabase admin operations require SUPABASE_SERVICE_ROLE_KEY.')
+        _admin_client_instance = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
+    return _admin_client_instance
+
+
+def delete_supabase_user(supabase_uid):
+    """
+    Permanently deletes the Supabase Auth identity for `supabase_uid` via
+    the Admin API. Called by core.account_deletion once the local Django
+    account is gone, so the same Google/Supabase identity can't sign back in
+    and have resolve_supabase_identity() silently recreate the "deleted"
+    account (it would otherwise find no Profile with that supabase_uid, and
+    just make a new one — the account would appear un-deleted after all).
+    """
+    if not supabase_uid:
+        return
+    client = _admin_client()
+    try:
+        client.auth.admin.delete_user(supabase_uid)
+    except Exception as exc:
+        raise SupabaseAuthError(f'Failed to delete Supabase Auth identity {supabase_uid}.') from exc
 
 
 def unique_username(base_text):

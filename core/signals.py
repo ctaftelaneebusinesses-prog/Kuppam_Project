@@ -45,7 +45,7 @@ def on_like_or_share_changed(sender, instance, **kwargs):
 @receiver(post_delete, sender=Comment)
 def on_comment_changed(sender, instance, created=False, **kwargs):
     _recount(instance)
-    if created:
+    if created and instance.user_id:
         obj = _target(instance)
         owner_id = getattr(obj, 'owner_id', None)
         if owner_id and owner_id != instance.user_id:
@@ -66,7 +66,7 @@ def on_category_changed(sender, instance, **kwargs):
 @receiver(post_delete, sender=Review)
 def on_review_changed(sender, instance, created=False, **kwargs):
     _recount(instance)
-    if created:
+    if created and instance.user_id:
         obj = _target(instance)
         owner_id = getattr(obj, 'owner_id', None)
         if owner_id and owner_id != instance.user_id:

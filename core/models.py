@@ -1375,7 +1375,12 @@ class Comment(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=LISTING_CONTENT_TYPE_LIMIT)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
+    # SET_NULL (not CASCADE): a thread's replies are other users' data, not
+    # the comment author's — deleting the author's account must not cascade
+    # into deleting (and thereby collapsing) replies someone else wrote. See
+    # core.account_deletion, which relies on this to detach a deleted user's
+    # comments instead of removing them.
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     body = models.TextField()
     is_flagged = models.BooleanField(default=False)
@@ -1393,7 +1398,11 @@ class Review(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=LISTING_CONTENT_TYPE_LIMIT)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
+    # SET_NULL, not CASCADE — see Comment.user above; also needed so
+    # unique_together below doesn't block reassigning several deleted
+    # users' reviews of the same listing (Postgres treats NULL as distinct
+    # for uniqueness purposes, so any number of NULL-user rows can coexist).
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews')
     rating = models.PositiveSmallIntegerField(choices=[(i, str(i)) for i in range(1, 6)])
     body = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1459,7 +1468,11 @@ class Report(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=LISTING_CONTENT_TYPE_LIMIT)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reports')
+    # SET_NULL (not CASCADE): a moderation report is retained as part of the
+    # site's moderation trail even after the reporter deletes their account
+    # (same retain-but-detach reasoning as AuditLog.actor above) — it must
+    # not vanish just because the person who filed it is gone.
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
     reason = models.CharField(max_length=200)
     details = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')

@@ -118,6 +118,7 @@ urlpatterns = [
     # Dashboard (role-dispatched: Super Admin vs Admin/Content Provider)
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/profile/', views.dashboard_profile, name='dashboard_profile'),
+    path('dashboard/profile/delete/', views.account_delete_confirm, name='account_delete_confirm'),
     path('dashboard/users/', views.dashboard_users, name='dashboard_users'),
     path('dashboard/users/<int:user_id>/', views.dashboard_user_detail, name='dashboard_user_detail'),
     path('dashboard/users/<int:user_id>/block/', views.dashboard_user_toggle_block, name='dashboard_user_toggle_block'),

@@ -154,7 +154,7 @@
                         {% for comment in comments %}
                         <div class="mb-2 pb-2 border-bottom">
                             <div class="d-flex justify-content-between">
-                                <span class="fw-semibold small">{{ comment.user.profile.full_name|default:comment.user.username }}</span>
+                                <span class="fw-semibold small">{{ comment.user.profile.full_name|default:comment.user.username|default:"Deleted User" }}</span>
                                 <span class="small text-muted">{{ comment.created_at|date:"d M Y" }}</span>
                             </div>
                             <div class="small">{{ comment.body }}</div>
@@ -172,7 +172,7 @@
                         {% for review in reviews %}
                         <div class="mb-2 pb-2 border-bottom">
                             <div class="d-flex justify-content-between">
-                                <span class="fw-semibold small">{{ review.user.profile.full_name|default:review.user.username }}</span>
+                                <span class="fw-semibold small">{{ review.user.profile.full_name|default:review.user.username|default:"Deleted User" }}</span>
                                 <span class="small text-muted">{{ review.created_at|date:"d M Y" }}</span>
                             </div>
                             <div>{% for i in "12345" %}{% if forloop.counter <= review.rating %}<i class="bi bi-star-fill text-warning"></i>{% else %}<i class="bi bi-star text-warning"></i>{% endif %}{% endfor %}</div>

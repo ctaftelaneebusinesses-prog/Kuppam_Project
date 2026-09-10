@@ -26,16 +26,95 @@
     <div class="row justify-content-center">
         <div class="col-lg-9">
             <div class="hk-description-box">
-                <p>OneTownCity ("we", "us") respects your privacy. This page explains, in plain terms,
-                what information we collect when you use this site and how it is used.</p>
-                <p><strong>Information we collect:</strong> account details you provide when signing in
-                (name, email, profile photo via Google), listings you submit, and basic usage data such
-                as pages viewed and searches performed.</p>
-                <p><strong>How we use it:</strong> to operate the directory, show you relevant listings,
-                manage your submissions and favorites, and send you service-related notifications.</p>
-                <p><strong>What we don't do:</strong> we don't sell your personal data to third parties.</p>
-                <p class="text-muted small mb-0">This is placeholder legal text for development purposes —
-                replace with your finalized privacy policy before launch.</p>
+                <p class="text-muted small">Last updated: September 10, 2026</p>
+
+                <p>OneTownCity ("we", "us", "OneTownCity") operates this local discovery platform
+                (the "Service"), available on the web and as an Android app. This policy explains what
+                information we collect, how we use it, and the choices you have — including how to
+                delete your account and data.</p>
+
+                <h2 class="h4 mt-4">Information We Collect</h2>
+                <p><strong>Account information:</strong> when you sign in with Google, we receive your
+                name, email address, and profile photo. We create a OneTownCity profile linked to that
+                identity. If you choose to add a phone number, address, city, state, or pincode to your
+                profile, we store what you provide.</p>
+                <p><strong>Location information:</strong> the Android app requests location permission
+                (precise or approximate) to detect your city and show nearby listings. You can decline
+                this permission and select your city manually instead.</p>
+                <p><strong>Content you submit:</strong> listings (businesses, properties, jobs, events,
+                and other categories), photos and videos in listing galleries, your profile photo,
+                comments, reviews, favorites, and reports you file against content.</p>
+                <p><strong>Authentication data:</strong> a unique identifier from our authentication
+                provider (Supabase, see below) and a session/access token used to keep you signed in.
+                On Android, this token is stored using Android's encrypted storage APIs.</p>
+                <p><strong>Basic technical data:</strong> we record IP address and device/browser
+                information for sign-in events and security logs (for example, to detect repeated failed
+                sign-in attempts), and standard web server logs.</p>
+
+                <h2 class="h4 mt-4">How We Use Your Information</h2>
+                <p>To operate the directory (show listings, search, and city-based browsing), manage your
+                submissions and favorites, show your reviews and comments alongside listings, send
+                service-related notifications (such as when your listing is approved), moderate content,
+                and keep the platform secure (for example, detecting abusive sign-in attempts).</p>
+
+                <h2 class="h4 mt-4">Authentication &amp; Third-Party Infrastructure</h2>
+                <p>Sign-in is handled by <strong>Supabase</strong>, our authentication and infrastructure
+                provider — we never see or store your Google password. Supabase also hosts our database
+                and the photos/videos you upload. Supabase acts as an infrastructure provider for
+                OneTownCity; we don't share your personal information with them for their own marketing
+                or advertising purposes.</p>
+
+                <h2 class="h4 mt-4">User-Generated Content</h2>
+                <p>Listings, reviews, comments, and photos you submit as part of using the Service are
+                public and visible to other visitors, by design — that's how the directory works. Your
+                private actions (favorites, notification settings) are visible only to you.</p>
+
+                <h2 class="h4 mt-4">What We Don't Do</h2>
+                <p>We don't sell your personal data to third parties. The OneTownCity Android app
+                contains no analytics, advertising, or crash-reporting SDKs.</p>
+
+                <h2 class="h4 mt-4">Account and Data Deletion</h2>
+                <p>You can permanently delete your account at any time — from
+                <a href="{% url 'core:dashboard_profile' %}">My Profile</a> (Danger Zone) on the web, or
+                from the Profile screen in the Android app. Deleting your account:</p>
+                <ul>
+                    <li>Immediately deletes your profile, profile photo, favorites, likes, notifications,
+                    saved devices, and sign-in history.</li>
+                    <li>Deletes your authentication identity with Supabase, so the same Google account
+                    cannot be used to silently recreate your deleted account.</li>
+                    <li>Keeps comments and reviews you posted visible (shown as "Deleted User") so replies
+                    and ratings from other users aren't affected — but removes the link to your identity.</li>
+                    <li>Keeps reports you filed for moderation records, with your identity removed.</li>
+                    <li>Leaves businesses, properties, jobs, or other listings you posted live and public,
+                    no longer linked to your account. Delete them individually from My Listings first if
+                    you want them removed too.</li>
+                </ul>
+                <p>This action cannot be undone.</p>
+
+                <h2 class="h4 mt-4">How Long We Keep Information</h2>
+                <p>We keep your account information for as long as your account is active. If you delete
+                your account, we remove your personal data as described above; content that remains part
+                of the public directory (like listings, or comments/reviews shown as "Deleted User")
+                continues to exist but is no longer linked to your identity.</p>
+
+                <h2 class="h4 mt-4">Security</h2>
+                <p>Connections to OneTownCity are encrypted (HTTPS). On Android, your sign-in session is
+                stored using the device's encrypted storage. We don't display passwords, tokens, or
+                private keys anywhere in the app.</p>
+
+                <h2 class="h4 mt-4">Children's Privacy</h2>
+                <p>OneTownCity is intended for a general audience and is not directed at children under
+                13. If you believe a child has provided us with personal information, please contact us
+                using the details below so we can address it.</p>
+
+                <h2 class="h4 mt-4">Changes to This Policy</h2>
+                <p>We may update this policy from time to time. We'll post any changes on this page and
+                update the "Last updated" date above.</p>
+
+                <h2 class="h4 mt-4">Contact Us</h2>
+                <p>Questions about this policy or your data? Contact us at
+                <a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a>, or
+                use the <a href="{% url 'core:contact' %}">Contact page</a>.</p>
             </div>
         </div>
     </div>
