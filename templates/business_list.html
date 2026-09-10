@@ -37,7 +37,7 @@
                 </div>
             </div>
             <div class="col-8 col-md-4">
-                <select name="category" class="form-select">
+                <select name="category" class="form-select" aria-label="{% trans 'Filter by category' %}">
                     <option value="">{% trans "All Categories" %}</option>
                     {% for value, label in category_choices %}
                     <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>

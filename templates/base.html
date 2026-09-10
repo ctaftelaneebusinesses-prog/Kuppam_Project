@@ -35,6 +35,16 @@
 
     <link rel="canonical" href="{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
 
+    <!-- Same navy/amber/white mark already shipped as the Android launcher
+         icon (android/app/src/main/res/drawable/ic_splash.xml) — kept in
+         sync rather than a separate web-only design. -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#020617">
+
     {% block schema %}
     <script type="application/ld+json">
     {
@@ -354,7 +364,7 @@
                     <form class="hk-newsletter-form d-flex align-items-center" action="{% url 'core:newsletter_subscribe' %}" method="post">
                         {% csrf_token %}
                         <input type="email" name="email" required class="form-control form-control-sm ms-2" placeholder="{% trans 'Your email address' %}" aria-label="{% trans 'Email for newsletter' %}">
-                        <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">
+                        <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3" aria-label="{% trans 'Subscribe to newsletter' %}">
                             <i class="bi bi-send"></i>
                         </button>
                     </form>

@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="col-6 col-md-2">
-                <select name="type" class="form-select">
+                <select name="type" class="form-select" aria-label="Filter by job type">
                     <option value="">All Job Types</option>
                     {% for value, label in job_type_choices %}
                     <option value="{{ value }}" {% if selected_job_type == value %}selected{% endif %}>{{ label }}</option>
@@ -48,12 +48,12 @@
                 </button>
             </div>
             <div class="col-12 col-md-6 mt-2">
-                <label class="form-label small text-muted mb-1">
+                <label class="form-label small text-muted mb-1" for="job-available-date">
                     <i class="bi bi-clock-history"></i> Available on this date/time (Hourly Basis jobs)
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
-                    <input type="date" name="date" class="form-control" value="{{ selected_date }}">
+                    <input type="date" name="date" id="job-available-date" class="form-control" value="{{ selected_date }}">
                     <span class="input-group-text"><i class="bi bi-clock"></i></span>
                     <input type="time" name="time" class="form-control" value="{{ selected_time }}" title="Optional — narrows to jobs whose shift covers this time of day">
                 </div>

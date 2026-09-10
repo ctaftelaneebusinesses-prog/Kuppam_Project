@@ -58,7 +58,14 @@
     --hk-gray-200: #E2E5EF;
     --hk-gray-300: #CBD0DF;
     --hk-gray-400: #A6ABC0;
-    --hk-gray-500: #7C8199;
+    /* WCAG AA fix: the original #7C8199 only reached 3.85:1 against white
+       (needs 4.5:1) — this is used site-wide for "soft ink" text (card
+       meta/ratings, filter labels, results-bar counts; see --hk-ink-soft
+       below and main.css). Darkened at the same hue/saturation to #5E6278
+       (6.01:1 against white), confirmed via the WCAG relative-luminance
+       formula, not eyeballed. Axe-core (Phase 5 audit) confirmed 0
+       color-contrast violations after this change. */
+    --hk-gray-500: #5E6278;
     --hk-gray-600: #5B607A;
     --hk-gray-700: #3E4258;
     --hk-gray-800: #262A3D;

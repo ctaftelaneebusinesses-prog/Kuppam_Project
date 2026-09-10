@@ -39,7 +39,7 @@
                 </div>
             </div>
             <div class="col-8 col-md-4">
-                <select name="category" class="form-select">
+                <select name="category" class="form-select" aria-label="Filter by category">
                     <option value="">All Categories</option>
                     {% for cat in categories %}
                     <option value="{{ cat.slug }}" {% if category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>

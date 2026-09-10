@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="col-8 col-md-2">
-                <select name="type" class="form-select">
+                <select name="type" class="form-select" aria-label="Filter by type">
                     <option value="">All Types</option>
                     {% for value, label in type_choices %}
                     <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>

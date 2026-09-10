@@ -6252,6 +6252,21 @@ html[data-theme="dark"] .text-secondary {
     color: var(--hk-ink-soft) !important;
 }
 
+/* The footer (templates/base.html) is always visually dark regardless of
+   the light/dark theme toggle (--hk-footer-bg: var(--hk-dark-bg)), so in
+   light mode its .text-secondary text was still using Bootstrap's
+   light-mode default color, which only reached ~4.0-4.3:1 against the
+   footer's dark background (WCAG AA needs 4.5:1) — axe-core flagged this
+   on every page. --hk-ink-soft isn't right here: it was just tuned for
+   *light* backgrounds (see --hk-gray-500 above) and would read even worse
+   against a dark one (3.15:1) — this needs its own lighter value, confirmed
+   via the WCAG relative-luminance formula: #9CA3AF reaches 7.45:1 against
+   the footer's dark background. Scoped to the footer only; everywhere else
+   .text-secondary is against a light background and already passes. */
+footer .text-secondary {
+    color: #9CA3AF !important;
+}
+
 html[data-theme="dark"] .bg-white {
     background-color: var(--hk-surface) !important;
 }

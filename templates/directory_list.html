@@ -40,7 +40,7 @@
             </div>
             {% if subcategory_choices %}
             <div class="col-8 col-md-3">
-                <select name="type" class="form-select">
+                <select name="type" class="form-select" aria-label="{% trans 'Filter by type' %}">
                     <option value="">{% trans "All Types" %}</option>
                     {% for value, label in subcategory_choices %}
                     <option value="{{ value }}" {% if selected_subcategory == value %}selected{% endif %}>{{ label }}</option>
