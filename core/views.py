@@ -141,6 +141,7 @@ from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import validate_email
+from django.core.cache import cache
 from django.db import DatabaseError
 from django.db.models import Count, F, Prefetch, ProtectedError, Q
 from django.db.models.functions import TruncDate
@@ -153,9 +154,10 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
+from .account_deletion import AccountDeletionError, delete_user_account
 from .decorators import (
-    city_admin_or_super_required, content_providers_required, content_review_required, excel_upload_allowed,
-    onboarding_required, posts_dashboard_required, super_admin_required,
+    city_admin_or_super_required, client_ip, content_providers_required, content_review_required,
+    excel_upload_allowed, onboarding_required, posts_dashboard_required, super_admin_required,
 )
 from .excel_utils import UPLOAD_CONFIGS, ExcelValidationError, build_sample_workbook, process_excel_upload
 from .export_utils import build_posts_pdf, build_posts_workbook, build_users_pdf, build_users_workbook
@@ -1678,27 +1680,35 @@ def admin_login(request):
         return redirect('core:home')
 
     if request.method == 'POST':
-        form = AdminLoginForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            messages.success(request, f'Welcome back, {user.username}!')
-            LoginHistory.objects.create(
-                user=user, event_type='login',
-                ip_address=_client_ip(request),
-                user_agent=request.META.get('HTTP_USER_AGENT', '')[:300],
-            )
-
-            next_url = request.POST.get('next') or request.GET.get('next')
-            if next_url:
-                return redirect(next_url)
-
-            profile = Profile.objects.filter(user=user).first()
-            if profile and profile.role in (UserRole.SUPER_ADMIN, UserRole.ADMIN):
-                return redirect('core:dashboard')
-            return redirect('/admin/')
+        submitted_username = request.POST.get('username', '')
+        ip = client_ip(request)
+        if _is_login_locked(submitted_username, ip):
+            messages.error(request, 'Too many failed login attempts. Please try again in a few minutes.')
+            form = AdminLoginForm(request)
         else:
-            messages.error(request, 'Invalid username or password, or this account does not have admin access.')
+            form = AdminLoginForm(request, data=request.POST)
+            if form.is_valid():
+                user = form.get_user()
+                _clear_login_lockout(submitted_username)
+                login(request, user)
+                messages.success(request, f'Welcome back, {user.username}!')
+                LoginHistory.objects.create(
+                    user=user, event_type='login',
+                    ip_address=_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')[:300],
+                )
+
+                next_url = request.POST.get('next') or request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
+
+                profile = Profile.objects.filter(user=user).first()
+                if profile and profile.role in (UserRole.SUPER_ADMIN, UserRole.ADMIN):
+                    return redirect('core:dashboard')
+                return redirect('/admin/')
+            else:
+                _record_failed_login(request, submitted_username, ip)
+                messages.error(request, 'Invalid username or password, or this account does not have admin access.')
     else:
         form = AdminLoginForm(request)
 
@@ -1820,6 +1830,129 @@ def _client_ip(request):
     return request.META.get('REMOTE_ADDR')
 
 
+# ---------------------------------------------------------------------------
+# Privileged login lockout (admin_login / password_login)
+#
+# Owner-approved policy (2026-09-10, Phase A security remediation): 5 failed
+# attempts within a 15-minute rolling window locks the target for 15 minutes,
+# scoped to BOTH the submitted username and the client IP independently —
+# either one reaching the threshold locks that dimension. Per-account alone
+# would let an attacker lock out a legitimate admin just by repeatedly
+# guessing their username (a denial-of-service); per-IP alone would let an
+# attacker distributed across IPs keep guessing one account. Combined closes
+# both gaps.
+#
+# Storage: Django's cache framework (the same one core.decorators.rate_limit
+# already uses) — LocMemCache per gunicorn worker process by default, or
+# Redis if REDIS_URL is set. IMPORTANT CAVEAT, not swept under the rug: with
+# the LocMemCache default, this counter is NOT shared across worker
+# processes — an attacker whose requests land on different workers could get
+# up to (worker_count x 5) attempts before every worker independently locks.
+# Setting REDIS_URL (already optional/supported elsewhere in this project)
+# closes that gap by sharing the counter across all workers. Deliberately
+# NOT introducing Redis as a new requirement here — see the Phase A report's
+# "STOP rather than silently introducing infrastructure" instruction; this
+# degrades safely (available, just not perfectly precise under LocMemCache)
+# rather than failing to start without Redis.
+#
+# IP source: uses core.decorators.client_ip (the LAST X-Forwarded-For hop —
+# the one the reverse proxy itself appends, not attacker-controlled), not
+# this file's own _client_ip above (which takes the FIRST hop and is
+# trivially spoofable by sending a fake header — fine for the non-security-
+# critical LoginHistory record it's used for elsewhere, but wrong for an
+# actual security control).
+LOGIN_LOCKOUT_MAX_ATTEMPTS = 5
+LOGIN_LOCKOUT_WINDOW_SECONDS = 15 * 60
+LOGIN_LOCKOUT_DURATION_SECONDS = 15 * 60
+
+
+def _login_lockout_cache_keys(username):
+    normalized = (username or '').strip().lower()
+    return {
+        'attempts': f'loginlock:attempts:account:{normalized}',
+        'locked': f'loginlock:locked:account:{normalized}',
+    }
+
+
+def _is_login_locked(username, ip):
+    """
+    True if either the submitted username or the client IP is currently
+    locked out. Checked BEFORE any password verification is attempted, so a
+    locked-out request never reaches Django's authenticate() (no wasted
+    password-hashing work, and no way for further guesses to matter at all
+    while locked).
+    """
+    account_keys = _login_lockout_cache_keys(username)
+    if cache.get(account_keys['locked']):
+        return True
+    if cache.get(f'loginlock:locked:ip:{ip}'):
+        return True
+    return False
+
+
+def _bump_lockout_counter(key):
+    """
+    Fixed-window counter increment — same cache.add()-then-incr() pattern as
+    core.decorators.rate_limit, for consistency with this codebase's existing
+    idiom. cache.add() only sets the initial value (and starts the window)
+    if the key doesn't exist yet, so incr() on an existing key never resets
+    its TTL — the window is anchored to the *first* attempt in it, not
+    extended by each subsequent one.
+    """
+    cache.add(key, 0, LOGIN_LOCKOUT_WINDOW_SECONDS)
+    try:
+        return cache.incr(key)
+    except ValueError:
+        # Narrow race: the key expired between add() and incr(). Safe to
+        # treat as the first attempt of a fresh window.
+        cache.set(key, 1, LOGIN_LOCKOUT_WINDOW_SECONDS)
+        return 1
+
+
+def _record_failed_login(request, username, ip):
+    """
+    Called after a failed (already-not-locked) login attempt. Bumps both
+    counters independently; locks whichever one(s) just crossed the
+    threshold. Logs only the submitted username and IP — never the
+    password, never any token.
+    """
+    account_keys = _login_lockout_cache_keys(username)
+    try:
+        account_count = _bump_lockout_counter(account_keys['attempts'])
+        ip_count = _bump_lockout_counter(f'loginlock:attempts:ip:{ip}')
+    except Exception:
+        # A cache-backend hiccup degrades to "not locked" for this attempt
+        # rather than breaking login entirely — same fail-open philosophy as
+        # core.decorators.rate_limit, documented there for the same reason.
+        return
+
+    if account_count >= LOGIN_LOCKOUT_MAX_ATTEMPTS:
+        cache.set(account_keys['locked'], True, LOGIN_LOCKOUT_DURATION_SECONDS)
+        log_audit(
+            request, 'auth.account_login_locked',
+            f'Login for "{username}" locked for {LOGIN_LOCKOUT_DURATION_SECONDS // 60} min '
+            f'after {account_count} failed attempts (from {ip}).',
+        )
+    if ip_count >= LOGIN_LOCKOUT_MAX_ATTEMPTS:
+        cache.set(f'loginlock:locked:ip:{ip}', True, LOGIN_LOCKOUT_DURATION_SECONDS)
+        log_audit(
+            request, 'auth.ip_login_locked',
+            f'IP {ip} locked for {LOGIN_LOCKOUT_DURATION_SECONDS // 60} min after {ip_count} '
+            f'failed login attempts (most recent username tried: "{username}").',
+        )
+
+
+def _clear_login_lockout(username):
+    """Called on a successful login so a user who mistyped once or twice
+    isn't left one attempt away from a lockout later. The per-IP counter is
+    deliberately NOT cleared here — a shared IP (office, campus, café) could
+    have other, unrelated failed attempts in flight that this one unrelated
+    success shouldn't erase."""
+    account_keys = _login_lockout_cache_keys(username)
+    cache.delete(account_keys['attempts'])
+    cache.delete(account_keys['locked'])
+
+
 def _unique_username(base_text):
     base = re.sub(r'[^\w.@+-]', '', (base_text or 'user').split('@')[0])[:30] or 'user'
     username = base
@@ -1922,20 +2055,29 @@ def google_login(request):
 @require_POST
 def password_login(request):
     """Handles the username/password form on the 'Sign In' tab."""
-    form = PasswordLoginForm(request, data=request.POST)
-    if form.is_valid():
-        user = form.get_user()
-        login(request, user)
-        LoginHistory.objects.create(
-            user=user, event_type='login',
-            ip_address=_client_ip(request),
-            user_agent=request.META.get('HTTP_USER_AGENT', '')[:300],
-        )
-        profile, _ = Profile.objects.get_or_create(user=user)
-        messages.success(request, f'Welcome back, {profile.full_name or user.get_username()}!')
-        return redirect(_post_login_redirect(profile))
+    submitted_username = request.POST.get('username', '')
+    ip = client_ip(request)
+    if _is_login_locked(submitted_username, ip):
+        messages.error(request, 'Too many failed login attempts. Please try again in a few minutes.')
+        form = PasswordLoginForm(request)
+    else:
+        form = PasswordLoginForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            _clear_login_lockout(submitted_username)
+            login(request, user)
+            LoginHistory.objects.create(
+                user=user, event_type='login',
+                ip_address=_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')[:300],
+            )
+            profile, _ = Profile.objects.get_or_create(user=user)
+            messages.success(request, f'Welcome back, {profile.full_name or user.get_username()}!')
+            return redirect(_post_login_redirect(profile))
 
-    messages.error(request, 'Invalid username or password.')
+        _record_failed_login(request, submitted_username, ip)
+        messages.error(request, 'Invalid username or password.')
+
     context = {
         'page_title': 'Sign In - OneTownCity',
         'login_form': form,

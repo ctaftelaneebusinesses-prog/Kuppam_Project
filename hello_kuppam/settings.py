@@ -2,9 +2,11 @@
 Django settings for hello_kuppam project.
 """
 
+import logging
 import os
 import sys
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,9 +16,29 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ------------------------------------------------------------------
 # SECURITY
 # ------------------------------------------------------------------
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-in-production')
+# Phase 6 hardening: DEBUG used to default to 'True' and SECRET_KEY to a
+# well-known insecure literal — meaning a production deploy that simply
+# forgot to set either env var would silently run in DEBUG mode with a
+# guessable key, rather than failing to start. DEBUG now defaults to the
+# safe value (False); a *local* dev environment still works exactly as
+# before since .env already sets DEBUG=True and a real SECRET_KEY
+# explicitly (see .env.example) — this only changes behavior when both are
+# left unset, which today means "quietly insecure" and now means "refuses
+# to start with a clear error" instead.
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+SECRET_KEY = os.getenv('SECRET_KEY', '')
+if not SECRET_KEY:
+    if DEBUG:
+        # Local-only fallback so a fresh clone with DEBUG=True but no
+        # SECRET_KEY yet can still run manage.py runserver — unmistakably
+        # not a value that could pass for a real production key.
+        SECRET_KEY = 'django-insecure-local-dev-only-DO-NOT-USE-IN-PRODUCTION'
+    else:
+        raise ImproperlyConfigured(
+            'SECRET_KEY environment variable is required when DEBUG is not "True". '
+            'Set it in the environment before starting the server — see .env.example.'
+        )
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
