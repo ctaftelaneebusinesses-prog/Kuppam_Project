@@ -90,13 +90,13 @@
                 {% endif %}
             </div>
 
-            <a href="tel:{{ business.phone_number }}" class="btn btn-primary btn-lg hk-cta-btn">
+            <a href="tel:{{ business.phone_number }}" class="btn btn-primary btn-lg w-100 mb-2 hk-cta-btn">
                 <i class="bi bi-telephone"></i> {% trans "Call Now" %}
             </a>
-            <a href="{% if business.maps_link %}{{ business.maps_link }}{% else %}{{ business.address|maps_search_url }}{% endif %}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-lg">
+            <a href="{% if business.maps_link %}{{ business.maps_link }}{% else %}{{ business.address|maps_search_url }}{% endif %}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-lg w-100 mb-2">
                 <i class="bi bi-geo-alt"></i> {% trans "Open in Google Maps" %}
             </a>
-            <a href="{% url 'core:business_list' %}" class="btn btn-outline-secondary btn-lg">
+            <a href="{% url 'core:business_list' %}" class="btn btn-outline-secondary btn-lg w-100">
                 <i class="bi bi-arrow-left"></i> {% trans "Back to Listings" %}
             </a>
         </div>

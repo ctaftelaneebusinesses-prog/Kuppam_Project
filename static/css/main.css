@@ -4397,34 +4397,11 @@ html[data-theme="dark"] .hk-weather-widget {
     box-shadow: inset 3px 0 0 0 var(--bs-primary);
 }
 
-/* The main workspace is intentionally NOT theme-reactive: it re-pins every
-   semantic token the light palette defines at :root, so every var()-driven
-   component nested inside (stat cards, tables, buttons, badges) renders the
-   same low-contrast neutral look no matter what html[data-theme] the
-   navbar/sidebar are currently in. Only .navbar and .hk-dashboard-sidebar
-   read the live theme tokens. */
+/* The main workspace follows the shared token system like every other page
+   — .navbar and .hk-dashboard-sidebar read the same live theme tokens, so
+   toggling data-theme now repaints the whole dashboard (chrome + canvas)
+   as one atomic switch instead of just the surrounding chrome. */
 .hk-dashboard-main {
-    --bs-primary: var(--hk-blue-600);
-    --bs-primary-rgb: 15, 76, 129;
-    --bs-primary-bg-subtle: var(--hk-blue-50);
-    --bs-primary-border-subtle: var(--hk-blue-200);
-    --bs-warning-bg-subtle: #FDF1DD;
-    --bs-warning-border-subtle: #F8DBA3;
-    --bs-body-bg: #F8FAFC;
-    --bs-body-color: var(--hk-gray-700);
-    --hk-ink: var(--hk-gray-950);
-    --hk-ink-soft: var(--hk-gray-500);
-    --hk-border-soft: var(--hk-gray-200);
-    --hk-surface: var(--hk-gray-0);
-    --hk-violet-bg: #EFEBFC;
-    --hk-emerald-bg: #E4F7EF;
-    --hk-sky-bg: #E4F6FD;
-    --hk-gold-bg: #FDF1DD;
-    --hk-red-bg: #FCE9EC;
-    --hk-shadow-sm: 0 2px 8px rgba(11, 13, 30, .06), 0 1px 3px rgba(11, 13, 30, .04);
-    --hk-shadow-md: 0 8px 24px rgba(11, 13, 30, .09), 0 2px 6px rgba(11, 13, 30, .05);
-    --hk-shadow-hover: 0 16px 40px rgba(11, 13, 30, .12), 0 4px 12px rgba(11, 13, 30, .06);
-    --hk-glow-ring-color: rgba(15, 76, 129, .35);
     background: var(--bs-body-bg);
     color: var(--bs-body-color);
     /* .hk-dashboard-main is a flex item of .hk-dashboard (display: flex) and
@@ -4580,6 +4557,10 @@ html[data-theme="dark"] .hk-weather-widget {
     border-bottom: none;
 }
 
+html[data-theme="dark"] .hk-analytics-table thead.table-light th {
+    background-color: rgba(255, 255, 255, .03);
+}
+
 .hk-analytics-row {
     cursor: pointer;
 }
@@ -4706,6 +4687,10 @@ html[data-theme="dark"] .hk-weather-widget {
     border-bottom: none;
 }
 
+html[data-theme="dark"] .hk-dashboard-main .table thead.table-light th {
+    background-color: rgba(255, 255, 255, .03);
+}
+
 .hk-chart-card {
     background: var(--hk-surface);
     border-radius: var(--hk-radius-card);
@@ -4716,11 +4701,10 @@ html[data-theme="dark"] .hk-weather-widget {
 
 /* --- Dashboard dark mode --------------------------------------------------------------
    Toggled by adding data-theme="dark" to <html>, persisted in localStorage (see
-   dashboard/base_dashboard.html). Only .hk-dashboard-sidebar (and the shared .navbar
-   rules above) read this attribute — .hk-dashboard-main pins its own tokens (above) and
-   is deliberately excluded, so the workspace canvas never repaints on theme switch. The
-   sidebar itself is a single opaque slate panel, not a glass/blur treatment, so it reads
-   as one solid column rather than a floating card over the page. ------------------------ */
+   dashboard/base_dashboard.html). .hk-dashboard-sidebar gets its own opaque-panel
+   treatment below (a single solid slate column, not a glass/blur card), while
+   .hk-dashboard-main now follows the same shared tokens as the rest of the site —
+   see the .hk-dashboard-main rule above. ------------------------------------------ */
 html[data-theme="dark"] .hk-dashboard-sidebar {
     background: #0F172A;
     border-right-color: rgba(255, 255, 255, .06);
@@ -5040,6 +5024,35 @@ html[data-theme="dark"] .hk-dash-profile-name {
     transition: background-color .2s ease;
 }
 
+html[data-theme="dark"] .hk-data-card {
+    background: var(--hk-surface);
+    border-color: var(--hk-border-soft);
+    box-shadow: var(--hk-shadow-sm);
+}
+
+html[data-theme="dark"] .hk-data-card .table {
+    --bs-table-border-color: var(--hk-border-soft);
+}
+
+html[data-theme="dark"] .hk-data-card .table thead th {
+    color: var(--hk-ink-soft);
+    background: rgba(255, 255, 255, .03);
+    border-bottom-color: var(--hk-border-soft);
+}
+
+html[data-theme="dark"] .hk-data-card .table tbody tr:hover {
+    background-color: rgba(255, 255, 255, .035);
+}
+
+html[data-theme="dark"] .hk-table-toolbar {
+    border-bottom-color: var(--hk-border-soft);
+}
+
+html[data-theme="dark"] .hk-table-toolbar .hk-bulkbar-apply-btn:disabled {
+    background: #1D2032;
+    color: var(--hk-ink-soft);
+}
+
 .hk-status-active {
     background: var(--hk-emerald-bg);
     color: var(--hk-emerald-600);
@@ -5048,22 +5061,6 @@ html[data-theme="dark"] .hk-dash-profile-name {
 .hk-row-action-btn.hk-row-action-warning:hover {
     background: var(--bs-warning-bg-subtle);
     color: #B8790A;
-}
-
-/* The sitewide dark-mode form-control/form-select rule borrows a primitive
-   (--hk-gray-800) rather than an alias, so it isn't caught by the token
-   pinning on .hk-dashboard-main above — restore it explicitly here. */
-html[data-theme="dark"] .hk-dashboard-main .form-control,
-html[data-theme="dark"] .hk-dashboard-main .form-select,
-html[data-theme="dark"] .hk-dashboard-main .form-floating > .form-control,
-html[data-theme="dark"] .hk-dashboard-main .form-floating > .form-select {
-    background-color: var(--hk-surface);
-    border-color: var(--hk-border-soft);
-    color: var(--hk-ink);
-}
-
-html[data-theme="dark"] .hk-dashboard-main .form-select {
-    --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23495057' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
 }
 
 /* .hk-dash-link is the sidebar's own nav item, so it stays theme-reactive
@@ -5087,16 +5084,6 @@ html[data-theme="dark"] .hk-theme-toggle {
     background: rgba(255, 255, 255, .04);
     border-color: rgba(255, 255, 255, .08);
     color: #E4E6F1;
-}
-
-/* The mobile "open sidebar" trigger reuses .hk-theme-toggle's circular
-   styling but lives inside the frozen .hk-dashboard-main — restore its
-   pinned light look over the generic dark-mode treatment above (higher
-   specificity via the .hk-dashboard-main ancestor wins regardless of order). */
-html[data-theme="dark"] .hk-dashboard-main .hk-theme-toggle {
-    background: var(--hk-surface);
-    border-color: var(--hk-border-soft);
-    color: var(--hk-ink-soft);
 }
 
 .hk-status-active { background: var(--hk-emerald-bg); color: var(--hk-emerald); }
@@ -6191,16 +6178,6 @@ html[data-theme="dark"] .pagination .page-link:hover {
     background-color: rgba(var(--bs-primary-rgb), .18);
 }
 
-/* Pagination also appears inside the frozen .hk-dashboard-main (posts,
-   messages) — restore its pinned light color there. */
-html[data-theme="dark"] .hk-dashboard-main .pagination .page-link {
-    color: var(--hk-ink-soft);
-}
-
-html[data-theme="dark"] .hk-dashboard-main .pagination .page-link:hover {
-    background-color: var(--bs-primary-bg-subtle);
-}
-
 /* --- Sitewide dark theme: remaining components that use a literal color
    instead of a token (everything else already flips via the tokens redefined
    at the top of this file under html[data-theme="dark"]) ------------------- */
@@ -6209,14 +6186,10 @@ html[data-theme="dark"] .hk-meta-item,
 html[data-theme="dark"] .hk-description-box,
 html[data-theme="dark"] .hk-engage-stat,
 html[data-theme="dark"] .hk-comment-item,
-html[data-theme="dark"] .hk-review-item {
+html[data-theme="dark"] .hk-review-item,
+html[data-theme="dark"] .hk-tray,
+html[data-theme="dark"] .hk-review-form {
     background-color: #1D2032;
-}
-
-/* .hk-meta-item also appears inside the frozen .hk-dashboard-main (admin
-   request detail) — restore its pinned light background there. */
-html[data-theme="dark"] .hk-dashboard-main .hk-meta-item {
-    background-color: #F8F9FD;
 }
 
 html[data-theme="dark"] .hk-meta-item:hover {
@@ -6295,6 +6268,15 @@ html[data-theme="dark"] .border-end {
 html[data-theme="dark"] .card {
     background-color: var(--hk-surface);
     color: var(--hk-ink);
+}
+
+/* Bootstrap's .btn-close renders a dark icon meant for light backgrounds —
+   it disappears against the dark drawer/sidebar surfaces used in dark
+   theme, so it needs the same light variant Bootstrap ships as
+   .btn-close-white. */
+html[data-theme="dark"] .hk-nav-drawer .btn-close,
+html[data-theme="dark"] .hk-dashboard-sidebar .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
 }
 
 html[data-theme="dark"] hr {
