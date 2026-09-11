@@ -659,7 +659,8 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
     line-height: 1;
 }
 
-.navbar .dropdown-menu {
+.navbar .dropdown-menu,
+.hk-nav-drawer .dropdown-menu {
     border: 1px solid var(--hk-border-soft);
     border-radius: var(--hk-radius-lg);
     box-shadow: var(--hk-elevation-4);
@@ -676,6 +677,13 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
     max-height: 70vh;
     overflow-y: auto;
     min-width: 260px;
+}
+
+.hk-nav-drawer .hk-nav-cat-menu {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .hk-nav-cat-menu .dropdown-item i {
@@ -740,6 +748,7 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
 }
 
 .hk-nav-drawer .offcanvas-body {
+    overflow-x: hidden;
     padding: 1.1rem 1rem 1.6rem;
     display: flex;
     flex-direction: column;

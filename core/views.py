@@ -3132,7 +3132,7 @@ def account_delete_confirm(request):
 
     return render(request, 'dashboard/account_delete_confirm.html', {
         'page_title': 'Delete My Account - OneTownCity',
-        'active_nav': 'profile',
+        'active_nav': 'account_delete',
     })
 
 

@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Reuses navDrawerEl from the close-on-desktop-resize block above —
     // re-declaring it here is a SyntaxError that kills the whole file.
     if (navDrawerEl && window.bootstrap) {
-        navDrawerEl.querySelectorAll('.nav-link, a.btn').forEach(function (link) {
+        navDrawerEl.querySelectorAll('.nav-link:not(.dropdown-toggle), a.btn').forEach(function (link) {
             link.addEventListener('click', function () {
                 const instance = bootstrap.Offcanvas.getInstance(navDrawerEl);
                 if (instance) instance.hide();
