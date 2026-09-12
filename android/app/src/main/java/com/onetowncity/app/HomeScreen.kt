@@ -32,6 +32,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,8 +48,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.onetowncity.app.cache.NetworkMonitor
 import com.onetowncity.app.designsystem.OneTownCityButton
 import com.onetowncity.app.designsystem.OneTownCityButtonVariant
+import com.onetowncity.app.designsystem.OneTownCityCacheStatusBanner
 import com.onetowncity.app.designsystem.OneTownCityCircularLoading
 import com.onetowncity.app.designsystem.OneTownCityEmptyState
 import com.onetowncity.app.designsystem.OneTownCityErrorState
@@ -120,16 +123,21 @@ internal fun HomeScreen(navController: NavController, city: CitySelection?) {
     var data by remember { mutableStateOf<HomeData?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+    var isOfflineNoCache by remember { mutableStateOf(false) }
+    val isOnline by NetworkMonitor.isOnline.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     fun load() {
         coroutineScope.launch {
             isLoading = true
             error = null
+            isOfflineNoCache = false
             try {
                 data = loadHomeData(city?.slug.orEmpty())
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: OfflineNoCacheException) {
+                isOfflineNoCache = true
             } catch (e: Exception) {
                 error = e.message ?: "Unable to load your home feed right now."
             } finally {
@@ -140,11 +148,31 @@ internal fun HomeScreen(navController: NavController, city: CitySelection?) {
 
     LaunchedEffect(city?.slug) { load() }
 
+    // "The UI must recover when connectivity returns" — once we're back
+    // online, silently retry whatever previously failed for lack of a
+    // connection (an offline-empty-state or a network error), no user
+    // action required.
+    LaunchedEffect(isOnline) {
+        if (isOnline && (isOfflineNoCache || (error != null && data == null))) {
+            load()
+        }
+    }
+
     when {
         isLoading && data == null -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 OneTownCityCircularLoading(label = "Loading OneTownCity")
             }
+        }
+        isOfflineNoCache -> {
+            OneTownCityEmptyState(
+                title = "You're offline",
+                message = "Home hasn't been loaded yet on this device. Connect to the internet once to load it — after that it'll be available offline too.",
+                icon = Icons.Outlined.Home,
+                action = {
+                    OneTownCityButton(text = "Retry", onClick = { load() }, variant = OneTownCityButtonVariant.Outlined)
+                },
+            )
         }
         error != null && data == null -> {
             OneTownCityErrorState(
@@ -167,7 +195,18 @@ internal fun HomeScreen(navController: NavController, city: CitySelection?) {
                     },
                 )
             } else {
-                HomeContent(navController = navController, city = city, data = current)
+                Column(modifier = Modifier.fillMaxSize()) {
+                    if (!isOnline) {
+                        OneTownCityCacheStatusBanner(
+                            message = "You're offline — showing saved results",
+                            isOffline = true,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                        )
+                    }
+                    Box(modifier = Modifier.weight(1f)) {
+                        HomeContent(navController = navController, city = city, data = current)
+                    }
+                }
             }
         }
     }

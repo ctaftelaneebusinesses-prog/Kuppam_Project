@@ -252,6 +252,38 @@ private object TokenStore {
 }
 
 /**
+ * Encrypted at-rest storage for the PKCE code_verifier while the user is in
+ * the OAuth Custom Tab. SessionManager also keeps this in memory
+ * (pendingCodeVerifier) as the fast path, but the in-memory copy alone is
+ * lost if the OS reclaims the app's process while the Custom Tab is in the
+ * foreground (routine on low-RAM devices) — without this, that otherwise
+ * ordinary case would surface as "Sign-in session expired" even though the
+ * user did everything right.
+ */
+private object PendingAuthStore {
+    private const val PREFS_NAME = "one_town_city_pending_auth"
+    private const val KEY_CODE_VERIFIER = "code_verifier"
+
+    private fun prefs(context: Context) = EncryptedSharedPreferences.create(
+        context,
+        PREFS_NAME,
+        MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+    )
+
+    fun save(context: Context, verifier: String) {
+        prefs(context).edit { putString(KEY_CODE_VERIFIER, verifier) }
+    }
+
+    fun load(context: Context): String? = prefs(context).getString(KEY_CODE_VERIFIER, null)
+
+    fun clear(context: Context) {
+        prefs(context).edit { remove(KEY_CODE_VERIFIER) }
+    }
+}
+
+/**
  * Single app-wide session source of truth. `httpJson` in MainActivity.kt
  * calls [ensureFreshAccessToken] for every `requiresAuth = true` request, so
  * every existing and new authenticated call (favorites, notifications,
@@ -284,17 +316,24 @@ internal object SessionManager {
     fun beginSignIn(): Uri {
         val verifier = generateCodeVerifier()
         pendingCodeVerifier = verifier
+        if (::appContext.isInitialized) {
+            runCatching { PendingAuthStore.save(appContext, verifier) }
+        }
         return SupabaseAuthApi.buildAuthorizeUri(codeChallengeFor(verifier))
     }
 
     /** Call once the Custom Tab redirects back to onetowncity://auth-callback?code=... */
     suspend fun completeSignIn(code: String): Result<Unit> {
         val verifier = pendingCodeVerifier
+            ?: (if (::appContext.isInitialized) runCatching { PendingAuthStore.load(appContext) }.getOrNull() else null)
             ?: return Result.failure(SupabaseAuthException("Sign-in session expired. Please try again."))
         return try {
             val newSession = SupabaseAuthApi.exchangeCodeForSession(code, verifier)
             adopt(newSession)
             pendingCodeVerifier = null
+            if (::appContext.isInitialized) {
+                runCatching { PendingAuthStore.clear(appContext) }
+            }
             Result.success(Unit)
         } catch (e: CancellationException) {
             throw e

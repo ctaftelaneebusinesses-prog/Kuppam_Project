@@ -31,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,10 +43,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.onetowncity.app.designsystem.OneTownCityButton
 import com.onetowncity.app.designsystem.OneTownCityButtonVariant
+import com.onetowncity.app.designsystem.OneTownCityCacheStatusBanner
 import com.onetowncity.app.designsystem.OneTownCityChipGroup
 import com.onetowncity.app.designsystem.OneTownCityCircularLoading
 import com.onetowncity.app.designsystem.OneTownCityEmptyState
@@ -54,7 +59,6 @@ import com.onetowncity.app.designsystem.OneTownCityTextField
 import com.onetowncity.app.designsystem.OneTownCityTopAppBar
 import java.net.URLEncoder
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -111,7 +115,7 @@ private fun parseProperty(json: JSONObject): PropertyItem {
         description = json.optString("description", "").ifBlank { "No description provided." },
         mapsLink = json.optString("maps_link", ""),
         displayImage = json.optString("display_image", ""),
-        cityName = json.cityName("Kuppam"),
+        cityName = json.cityName(""),
         avgRating = json.optDouble("avg_rating", 0.0).let { if (it.isNaN()) 0.0 else it },
         reviewCount = json.optInt("review_count", 0),
         commentCount = json.optInt("comment_count", 0),
@@ -120,18 +124,19 @@ private fun parseProperty(json: JSONObject): PropertyItem {
     return item
 }
 
-internal suspend fun fetchProperties(query: String, categoryKey: String, citySlug: String, page: Int): ApiListPage<PropertyItem> {
-    val url = buildString {
-        append(API_BASE_URL)
-        append("/api/v1/listings/property/?page=")
-        append(page)
-        append("&page_size=10")
-        if (query.isNotBlank()) append("&q=").append(URLEncoder.encode(query, "UTF-8"))
-        if (categoryKey.isNotBlank()) append("&category=").append(URLEncoder.encode(categoryKey, "UTF-8"))
-        if (citySlug.isNotBlank()) append("&city=").append(URLEncoder.encode(citySlug, "UTF-8"))
-    }
-    return fetchListPage(url, page) { parseProperty(it) }
+/** Exposed separately so ListingsViewModel's stale-while-revalidate can peek the offline cache for the exact same URL before deciding whether a network refresh is needed. */
+internal fun buildPropertyListUrl(query: String, categoryKey: String, citySlug: String, page: Int): String = buildString {
+    append(API_BASE_URL)
+    append("/api/v1/listings/property/?page=")
+    append(page)
+    append("&page_size=10")
+    if (query.isNotBlank()) append("&q=").append(URLEncoder.encode(query, "UTF-8"))
+    if (categoryKey.isNotBlank()) append("&category=").append(URLEncoder.encode(categoryKey, "UTF-8"))
+    if (citySlug.isNotBlank()) append("&city=").append(URLEncoder.encode(citySlug, "UTF-8"))
 }
+
+internal suspend fun fetchProperties(query: String, categoryKey: String, citySlug: String, page: Int): ApiListPage<PropertyItem> =
+    fetchListPage(buildPropertyListUrl(query, categoryKey, citySlug, page), page) { parseProperty(it) }
 
 internal suspend fun fetchPropertyDetail(id: Int): PropertyItem =
     parseProperty(httpJson("$API_BASE_URL/api/v1/listings/property/$id/"))
@@ -139,20 +144,12 @@ internal suspend fun fetchPropertyDetail(id: Int): PropertyItem =
 @Composable
 internal fun PropertyBrowseScreen(navController: NavController, initialCategoryKey: String? = null) {
     var query by rememberSaveable { mutableStateOf("") }
-    var cityQuery by rememberSaveable { mutableStateOf("") }
-    var selectedCity by remember { mutableStateOf<CitySuggestion?>(null) }
+    var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
+    var selectedCity by remember { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
     var categories by remember { mutableStateOf<List<CategoryOption>>(emptyList()) }
     var selectedCategoryKey by rememberSaveable { mutableStateOf(initialCategoryKey.orEmpty()) }
-    var items by remember { mutableStateOf<List<PropertyItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         categories = try {
@@ -164,44 +161,18 @@ internal fun PropertyBrowseScreen(navController: NavController, initialCategoryK
         }
     }
 
-    fun loadPage(reset: Boolean) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
-            }
-            try {
-                val target = if (reset) 1 else page
-                val result = fetchProperties(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), target)
-                items = if (reset) result.items else items + result.items
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: target
-                error = null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load properties right now."
-                } else {
-                    error = e.message ?: "Unable to load more properties."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
-        }
-    }
+    // UI -> ViewModel -> Repository (fetchProperties/OfflineCache) instead of
+    // this composable managing the network call itself.
+    val viewModel: ListingsViewModel<PropertyItem> = viewModel(
+        factory = viewModelFactory {
+            initializer { ListingsViewModel(::buildPropertyListUrl, ::fetchProperties, ::parseProperty) }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
 
     LaunchedEffect(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -211,8 +182,8 @@ internal fun PropertyBrowseScreen(navController: NavController, initialCategoryK
 
     LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
         val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
+            viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -263,21 +234,42 @@ internal fun PropertyBrowseScreen(navController: NavController, initialCategoryK
             )
         }
 
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
+        }
+
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                     OneTownCityCircularLoading(label = "Loading properties")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load properties",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Properties haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Filled.Home,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load properties",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            uiState.items.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No properties found",
                     message = "No listings match your current search, category, and city filter.",
@@ -298,10 +290,10 @@ internal fun PropertyBrowseScreen(navController: NavController, initialCategoryK
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(uiState.items, key = { _, item -> item.id }) { _, item ->
                         PropertyCard(item = item, onClick = { navController.navigate("property/${item.id}") })
                     }
-                    if (isLoadingMore) {
+                    if (uiState.isLoadingMore) {
                         item {
                             Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                                 OneTownCityCircularLoading(label = "Loading more")

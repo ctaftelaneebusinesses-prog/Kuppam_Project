@@ -53,6 +53,8 @@ import com.onetowncity.app.designsystem.OneTownCityButtonVariant
 import com.onetowncity.app.designsystem.OneTownCityCard
 import com.onetowncity.app.designsystem.OneTownCityCircularLoading
 import com.onetowncity.app.designsystem.OneTownCityErrorState
+import com.onetowncity.app.designsystem.OneTownCityIcons
+import com.onetowncity.app.designsystem.OneTownCitySpacing
 import com.onetowncity.app.designsystem.OneTownCityTopAppBar
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -63,15 +65,25 @@ import org.json.JSONObject
  * templates/signin.html uses via supabase.auth.signInWithOAuth) in a Custom
  * Tab. Android never implements the Google OAuth dance itself.
  */
-private fun launchGoogleSignIn(context: Context) {
+/**
+ * Returns false only when there is no browser/Custom-Tab-capable app on the
+ * device at all — previously both fallback attempts failed silently, so
+ * tapping "Continue with Google" on such a device did visibly nothing with
+ * no feedback at all (a real, if rare, "sign-in doesn't work" symptom).
+ */
+private fun launchGoogleSignIn(context: Context): Boolean {
     val uri = SessionManager.beginSignIn()
     val customTabsIntent = CustomTabsIntent.Builder().build()
-    try {
+    return try {
         customTabsIntent.launchUrl(context, uri)
+        true
     } catch (_: ActivityNotFoundException) {
         try {
             context.startActivity(Intent(Intent.ACTION_VIEW, uri))
-        } catch (_: ActivityNotFoundException) { }
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        }
     }
 }
 
@@ -109,33 +121,125 @@ private suspend fun deleteMyAccount() {
     )
 }
 
+/**
+ * The mandatory launch/standing auth gate (see MainActivity's "login"
+ * route) — no back button, since there's nothing behind it to return to.
+ */
+@Composable
+internal fun LoginScreen(navController: NavController) {
+    AuthContent(navController = navController, showBackButton = false)
+}
+
+/**
+ * The secondary, back-navigable sign-in prompt pushed from a specific
+ * in-app action (e.g. Favorites' "Sign in to see your favorites").
+ */
 @Composable
 internal fun SignInScreen(navController: NavController) {
+    AuthContent(navController = navController, showBackButton = true)
+}
+
+/**
+ * OneTownCity's only supported authentication method is the same
+ * Supabase-hosted Google OAuth the web app uses (see auth/SessionManager.kt)
+ * — there is no Django username/password endpoint for Android to call, so
+ * there are deliberately no email/password fields, no password-visibility
+ * toggle, and no separate account-creation flow here: Google sign-in creates
+ * the OneTownCity account automatically on first use, and "forgot password"
+ * doesn't apply to a Google-only flow (that lives entirely on Google's own
+ * hosted page inside the Custom Tab, outside this app's control).
+ */
+@Composable
+private fun AuthContent(navController: NavController, showBackButton: Boolean) {
     val context = LocalContext.current
+    var isLaunching by remember { mutableStateOf(false) }
+    var launchError by remember { mutableStateOf<String?>(null) }
+
+    fun attemptSignIn() {
+        launchError = null
+        isLaunching = true
+        val started = launchGoogleSignIn(context)
+        isLaunching = false
+        if (!started) {
+            launchError = "No app is available to complete sign-in on this device. Please install a browser and try again."
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        OneTownCityTopAppBar(
-            title = "Sign in",
-            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-            onNavigationClick = { navController.popBackStack() },
-        )
+        if (showBackButton) {
+            OneTownCityTopAppBar(
+                title = "Sign in",
+                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+                onNavigationClick = { navController.popBackStack() },
+            )
+        }
         Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = OneTownCitySpacing.xl, vertical = OneTownCitySpacing.xl),
+            verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.xxl),
         ) {
-            Text(
-                text = "Sign in to OneTownCity",
-                style = MaterialTheme.typography.headlineSmall,
-            )
-            Text(
-                text = "Use the same Google account you'd use on the OneTownCity website to save favorites, write reviews, and post comments.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            OneTownCityButton(
-                text = "Continue with Google",
-                onClick = { launchGoogleSignIn(context) },
-                variant = OneTownCityButtonVariant.Primary,
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.md),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(72.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = OneTownCityIcons.location,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(36.dp),
+                        )
+                    }
+                }
+                Text(
+                    text = "OneTownCity",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm)) {
+                Text(text = "Welcome", style = MaterialTheme.typography.headlineSmall)
+                Text(
+                    text = "Sign in with the same Google account you'd use on the OneTownCity website to save favorites, write reviews, and post comments.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            if (launchError != null) {
+                OneTownCityErrorState(
+                    title = "Couldn't start sign-in",
+                    message = launchError.orEmpty(),
+                    actionText = "Try again",
+                    onRetry = { attemptSignIn() },
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm)) {
+                OneTownCityButton(
+                    text = if (isLaunching) "Opening Google Sign-In…" else "Continue with Google",
+                    onClick = { attemptSignIn() },
+                    enabled = !isLaunching,
+                    variant = OneTownCityButtonVariant.Primary,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(
+                    text = "New to OneTownCity? Signing in with Google creates your account automatically — no separate sign-up needed.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            LegalLinksSection(context = context)
         }
     }
 }
@@ -144,6 +248,37 @@ private sealed class AuthCallbackUiState {
     object Loading : AuthCallbackUiState()
     object Success : AuthCallbackUiState()
     data class Error(val message: String) : AuthCallbackUiState()
+}
+
+/**
+ * What the onetowncity://auth-callback redirect actually told us, pulled out
+ * as a pure function of its already-extracted query values (not `Uri`
+ * itself, which needs Robolectric/instrumentation to construct) so it's
+ * unit-testable in this project's plain-JVM test setup.
+ */
+internal sealed class AuthCallbackOutcome {
+    object MissingRedirect : AuthCallbackOutcome()
+    data class ProviderError(val message: String) : AuthCallbackOutcome()
+    data class HasCode(val code: String) : AuthCallbackOutcome()
+    object Malformed : AuthCallbackOutcome()
+}
+
+internal fun classifyAuthCallback(
+    hasRedirectUri: Boolean,
+    errorDescription: String?,
+    code: String?,
+): AuthCallbackOutcome = when {
+    !hasRedirectUri -> AuthCallbackOutcome.MissingRedirect
+    !errorDescription.isNullOrBlank() -> AuthCallbackOutcome.ProviderError(errorDescription)
+    !code.isNullOrBlank() -> AuthCallbackOutcome.HasCode(code)
+    else -> AuthCallbackOutcome.Malformed
+}
+
+/** A raw IOException (no connection, DNS, timeout) has no server-provided message worth showing to a user; everything else here is SupabaseAuthException, whose message is already the clean text Supabase itself returned. */
+internal fun authCallbackErrorMessage(throwable: Throwable): String = if (throwable is java.io.IOException) {
+    "Couldn't reach OneTownCity. Check your connection and try again."
+} else {
+    throwable.message?.takeIf { it.isNotBlank() } ?: "Sign-in failed. Please try again."
 }
 
 /**
@@ -163,18 +298,21 @@ internal fun AuthCallbackScreen(navController: NavController) {
 
     LaunchedEffect(redirectUri) {
         val uri = redirectUri
-        val errorDescription = uri?.getQueryParameter("error_description") ?: uri?.getQueryParameter("error")
-        val code = uri?.getQueryParameter("code")
-        state = when {
-            uri == null -> AuthCallbackUiState.Error("We couldn't complete sign-in. Please try again.")
-            errorDescription != null -> AuthCallbackUiState.Error(errorDescription)
-            code != null -> {
-                SessionManager.completeSignIn(code).fold(
+        val outcome = classifyAuthCallback(
+            hasRedirectUri = uri != null,
+            errorDescription = uri?.getQueryParameter("error_description") ?: uri?.getQueryParameter("error"),
+            code = uri?.getQueryParameter("code"),
+        )
+        state = when (outcome) {
+            is AuthCallbackOutcome.MissingRedirect, is AuthCallbackOutcome.Malformed ->
+                AuthCallbackUiState.Error("We couldn't complete sign-in. Please try again.")
+            is AuthCallbackOutcome.ProviderError -> AuthCallbackUiState.Error(outcome.message)
+            is AuthCallbackOutcome.HasCode -> {
+                SessionManager.completeSignIn(outcome.code).fold(
                     onSuccess = { AuthCallbackUiState.Success },
-                    onFailure = { AuthCallbackUiState.Error(it.message ?: "Sign-in failed. Please try again.") },
+                    onFailure = { throwable -> AuthCallbackUiState.Error(authCallbackErrorMessage(throwable)) },
                 )
             }
-            else -> AuthCallbackUiState.Error("We couldn't complete sign-in. Please try again.")
         }
         if (state is AuthCallbackUiState.Success) {
             // Return to whatever screen prompted sign-in: pop everything up
