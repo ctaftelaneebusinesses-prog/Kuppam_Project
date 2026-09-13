@@ -15,11 +15,6 @@ import kotlinx.coroutines.launch
  * often: one page per content type, once per city per app process (not on
  * every recomposition), matching "do not download the entire backend
  * database" and "avoid ... duplicate requests."
- *
- * Deliberately excludes Marketplace: core/models.py has no backend model
- * for it yet (see marketplaceCache's own comment in MainActivity.kt) —
- * there is nothing real to preload, and caching an always-empty response
- * would itself be exactly the "fake offline mode" this phase rules out.
  */
 internal object CityPreloader {
     private val preloadedCities = mutableSetOf<String>()
@@ -40,6 +35,7 @@ internal object CityPreloader {
             { fetchPlacesToVisit(query = "", citySlug = citySlug, page = 1) },
             { fetchStudentServices(query = "", citySlug = citySlug, page = 1) },
             { fetchTuitionCenters(query = "", citySlug = citySlug, page = 1) },
+            { fetchBusinesses(query = "", categoryKey = "marketplace", citySlug = citySlug, page = 1) },
         )
 
         coroutineScope {

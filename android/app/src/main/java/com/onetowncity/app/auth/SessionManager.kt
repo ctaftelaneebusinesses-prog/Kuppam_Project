@@ -3,6 +3,7 @@ package com.onetowncity.app.auth
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.onetowncity.app.BuildConfig
@@ -106,7 +107,7 @@ internal object SupabaseAuthApi {
     const val REDIRECT_URI = "onetowncity://auth-callback"
 
     fun buildAuthorizeUri(codeChallenge: String): Uri =
-        Uri.parse("$baseUrl/auth/v1/authorize").buildUpon()
+        "$baseUrl/auth/v1/authorize".toUri().buildUpon()
             .appendQueryParameter("provider", "google")
             .appendQueryParameter("redirect_to", REDIRECT_URI)
             .appendQueryParameter("code_challenge", codeChallenge)

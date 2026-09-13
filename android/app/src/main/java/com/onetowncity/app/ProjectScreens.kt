@@ -3,7 +3,6 @@ package com.onetowncity.app
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.onetowncity.app.designsystem.OneTownCityButton
 import com.onetowncity.app.designsystem.OneTownCityButtonVariant
@@ -129,7 +130,8 @@ internal suspend fun fetchProjectDetail(id: Int): ProjectItem =
 internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKey: String? = null) {
     var query by rememberSaveable { mutableStateOf("") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
-    var selectedCity by remember { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
     var categories by remember { mutableStateOf<List<CategoryOption>>(emptyList()) }
     var selectedCategoryKey by rememberSaveable { mutableStateOf(initialCategoryKey.orEmpty()) }
@@ -154,6 +156,14 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
     )
     val uiState by viewModel.state.collectAsState()
 
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
+        }
+    }
+
     LaunchedEffect(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
         viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true)
@@ -164,8 +174,8 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
         if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
             viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
@@ -191,7 +201,7 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
 
         OneTownCityTextField(
             value = cityQuery,
-            onValueChange = { cityQuery = it; selectedCity = null },
+            onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
             placeholder = "City or area (optional)",
             leadingIcon = Icons.Filled.LocationOn,
         )
@@ -200,7 +210,7 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
                 citySuggestions.take(3).forEach { suggestion ->
                     OneTownCityButton(
                         text = suggestion.name,
-                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList() },
+                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList(); hasManualCityOverride = true },
                         variant = OneTownCityButtonVariant.Outlined,
                     )
                 }
@@ -316,11 +326,11 @@ private fun ProjectCard(item: ProjectItem, onClick: () -> Unit) {
                 }
             }
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(text = item.statusLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 Text(text = item.title, style = MaterialTheme.typography.titleMedium)
                 if (item.location.isNotBlank()) {
                     Text(text = item.location, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
                 }
+                Text(text = item.statusLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
@@ -420,7 +430,7 @@ private fun ProjectDetailContent(navController: NavController, item: ProjectItem
             }
             item {
                 val mapsUri = safeWebUri(item.mapsLink)
-                    ?: Uri.parse("https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.title, "UTF-8")}")
+                    ?: "https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.title, "UTF-8")}".toUri()
                 OneTownCityButton(
                     text = "Get directions",
                     onClick = {

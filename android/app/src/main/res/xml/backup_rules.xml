@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Pre-Android-12 counterpart of data_extraction_rules.xml (minSdkVersion
+    23 predates dataExtractionRules, which only applies on API 31+) — same
+    exclusions, so classic Auto Backup can't leak the encrypted auth tokens
+    or offline cache either, on any supported API level. android:allowBackup
+    is already "false" app-wide, which makes both files a formality for as
+    long as that stays true, but lint (and any future flip of allowBackup)
+    expects the coverage to be symmetric.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" />
+    <exclude domain="database" />
+</full-backup-content>

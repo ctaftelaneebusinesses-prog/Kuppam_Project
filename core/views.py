@@ -706,13 +706,16 @@ def assetlinks_json(request):
 
     The SHA-256 certificate fingerprint of the actual release signing
     keystore is never hardcoded or invented here — only a real production
-    keystore can produce it, and none exists in this project yet (Phase 6
-    signing review: only android/keystores/TEST-ONLY-DO-NOT-USE-FOR-RELEASE.jks
-    is present, explicitly not a production cert). Until
-    ANDROID_RELEASE_CERT_SHA256 is set to a real fingerprint, this serves an
-    empty fingerprint list, so App Links verification fails cleanly/safely
-    (Android just won't auto-open links in-app) rather than 404ing or
-    shipping a fingerprint that doesn't match anything.
+    keystore can produce it. One now exists (~/.android/keystores/
+    onetowncity-release.jks, referenced by android/app/build.gradle's release
+    signingConfig); ANDROID_RELEASE_CERT_SHA256 must be set to that keystore's
+    real fingerprint in whichever environment actually serves production
+    traffic for App Links verification to pass there (a local .env value only
+    affects a Django instance run with that file). Until it's set in a given
+    environment, this serves an empty fingerprint list there, so App Links
+    verification fails cleanly/safely in that environment (Android just won't
+    auto-open links in-app) rather than 404ing or shipping a fingerprint that
+    doesn't match anything.
     """
     fingerprint = settings.ANDROID_RELEASE_CERT_SHA256
     return JsonResponse([

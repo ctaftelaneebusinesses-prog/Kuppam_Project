@@ -1,31 +1,28 @@
 package com.onetowncity.app
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Business
-import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -44,18 +41,26 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import coil.compose.AsyncImage
 import com.onetowncity.app.cache.NetworkMonitor
 import com.onetowncity.app.designsystem.OneTownCityButton
 import com.onetowncity.app.designsystem.OneTownCityButtonVariant
 import com.onetowncity.app.designsystem.OneTownCityCacheStatusBanner
+import com.onetowncity.app.designsystem.OneTownCityCategoryIcons
 import com.onetowncity.app.designsystem.OneTownCityCircularLoading
+import com.onetowncity.app.designsystem.OneTownCityCornerRadii
+import com.onetowncity.app.designsystem.OneTownCityElevation
 import com.onetowncity.app.designsystem.OneTownCityEmptyState
 import com.onetowncity.app.designsystem.OneTownCityErrorState
+import com.onetowncity.app.designsystem.OneTownCityIcons
+import com.onetowncity.app.designsystem.OneTownCityListingCard
 import com.onetowncity.app.designsystem.OneTownCitySectionHeader
+import com.onetowncity.app.designsystem.OneTownCitySpacing
+import com.onetowncity.app.designsystem.OneTownCityTouchTarget
 import java.net.URLEncoder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
@@ -63,15 +68,16 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * Real Home tab (Phase 4 §2), replacing PlaceholderShellScreen. Composed
- * entirely from existing endpoints — there is no /home or /feed API (confirmed
- * absent from core/api/urls.py) — mirroring the sections templates/home.html
- * actually renders: a category grid (GET /api/v1/categories/), "Today in
- * Your Town" (events + village-happenings news), Places to Visit (business
- * category=tourism), and a Projects preview. The web home() view also
- * computes featured_businesses/properties/jobs/news, but grep confirms none
- * of those four are referenced in home.html, and there's no visitor-count API
- * either — so neither is reproduced here rather than inventing numbers.
+ * Real Home tab (Phase 4 §2, redesigned Phase 6), replacing PlaceholderShellScreen.
+ * Composed entirely from existing endpoints — there is no /home or /feed API
+ * (confirmed absent from core/api/urls.py) — mirroring the sections
+ * templates/home.html actually renders: a category grid (GET
+ * /api/v1/categories/), "Today in Your Town" (events + village-happenings
+ * news), Places to Visit (business category=tourism), and a Projects
+ * preview. The web home() view also computes featured_businesses/
+ * properties/jobs/news, but grep confirms none of those four are
+ * referenced in home.html, and there's no visitor-count API either — so
+ * neither is reproduced here rather than inventing numbers.
  */
 
 private data class HomeData(
@@ -200,7 +206,7 @@ internal fun HomeScreen(navController: NavController, city: CitySelection?) {
                         OneTownCityCacheStatusBanner(
                             message = "You're offline — showing saved results",
                             isOffline = true,
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                            modifier = Modifier.padding(horizontal = OneTownCitySpacing.xl, vertical = OneTownCitySpacing.sm),
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {
@@ -209,6 +215,15 @@ internal fun HomeScreen(navController: NavController, city: CitySelection?) {
                 }
             }
         }
+    }
+}
+
+/** Mirrors the bottom nav's own tab-switch semantics (single top, save/restore state) so tapping into Search or Students from Home behaves exactly like tapping the tab itself. */
+private fun NavController.navigateToTabRoute(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }
 
@@ -224,43 +239,43 @@ private fun HomeContent(navController: NavController, city: CitySelection?, data
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.xxl),
+        contentPadding = PaddingValues(horizontal = OneTownCitySpacing.xl, vertical = OneTownCitySpacing.lg),
     ) {
+        // Search is a first-class capability, not buried in a tab — Home
+        // leads with a tappable entry point straight into the real Search
+        // experience rather than duplicating a second text field here.
+        item {
+            HomeSearchEntry(onClick = { navController.navigateToTabRoute("search") })
+        }
+
         if (routableCategories.isNotEmpty()) {
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.md)) {
                     OneTownCitySectionHeader(title = "Browse")
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 100.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.fillMaxWidth().height((((routableCategories.size + 2) / 3) * 96).dp),
-                    ) {
-                        items(routableCategories, key = { it.key }) { category ->
-                            HomeCategoryTile(category = category, onClick = { navigateForCategory(navController, category) })
-                        }
-                    }
+                    HomeCategoryGrid(
+                        categories = routableCategories,
+                        onCategoryClick = { navigateForCategory(navController, it) },
+                    )
                 }
             }
         }
 
         if (data.today.isNotEmpty()) {
             item {
-                HomePreviewRow(
+                HomeListingRow(
                     title = if (city != null) "Today in ${city.name}" else "Today in Your Town",
                     items = data.today,
-                    icon = Icons.Outlined.Event,
+                    cardWidth = 240.dp,
                 )
             }
         }
 
         if (data.placesToVisit.isNotEmpty()) {
             item {
-                HomePreviewRow(
+                HomeListingRow(
                     title = "Places to Visit",
                     items = data.placesToVisit,
-                    icon = Icons.Outlined.Search,
                     onSeeAll = { navController.navigate("businesses?category=tourism") },
                 )
             }
@@ -268,13 +283,22 @@ private fun HomeContent(navController: NavController, city: CitySelection?, data
 
         if (data.projects.isNotEmpty()) {
             item {
-                HomePreviewRow(
+                HomeListingRow(
                     title = "Local Projects",
                     items = data.projects,
-                    icon = Icons.Outlined.Business,
                     onSeeAll = { navController.navigate("projects") },
                 )
             }
+        }
+
+        // Student resources are secondary to the core discovery content
+        // above but real and always navigable (pure shortcuts, no network
+        // call of their own) — "student resources where appropriate."
+        item {
+            HomeStudentResourcesSection(
+                onCategoryClick = { key -> navController.navigate("students/$key") },
+                onSeeAll = { navController.navigateToTabRoute("students") },
+            )
         }
     }
 }
@@ -290,96 +314,206 @@ private fun navigateForCategory(navController: NavController, category: Category
     }
 }
 
+/** A tappable, non-editable affordance styled like the real search field — tapping it opens the actual Search tab rather than duplicating a second live text input on Home. */
 @Composable
-private fun HomeCategoryTile(category: CategoryOption, onClick: () -> Unit) {
+private fun HomeSearchEntry(onClick: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(OneTownCityCornerRadii.xl),
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        modifier = Modifier.clickable(onClick = onClick),
+        tonalElevation = OneTownCityElevation.low,
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = OneTownCityTouchTarget.minSize)
+                .padding(horizontal = OneTownCitySpacing.lg, vertical = OneTownCitySpacing.md),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm),
         ) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f), modifier = Modifier.size(40.dp)) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(imageVector = Icons.Outlined.Home, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+            Icon(imageVector = OneTownCityIcons.search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                text = "Search businesses, properties, events…",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+/** Chunked manual grid instead of LazyVerticalGrid-with-a-guessed-height nested in a LazyColumn — sizes itself to real (possibly multi-line, unellipsized) label content instead of assuming a fixed row height. Category counts here are always small (routable listing models only), so this never needs to be lazy itself. */
+@Composable
+private fun HomeCategoryGrid(categories: List<CategoryOption>, onCategoryClick: (CategoryOption) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm)) {
+        categories.chunked(3).forEach { row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm),
+            ) {
+                row.forEach { category ->
+                    HomeCategoryTile(
+                        category = category,
+                        onClick = { onCategoryClick(category) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                repeat(3 - row.size) {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun HomeCategoryTile(category: CategoryOption, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(OneTownCityCornerRadii.md),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = OneTownCityElevation.low,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(OneTownCitySpacing.md),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm),
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f),
+                modifier = Modifier.size(44.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = OneTownCityCategoryIcons.forModelKey(category.listingModel),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+            // No maxLines/ellipsis — a category name wraps in full rather
+            // than being truncated ("no ellipsis for important category
+            // names when wrapping is possible").
             Text(
                 text = category.label,
                 style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
             )
         }
     }
 }
 
 @Composable
-private fun HomePreviewRow(
+private fun HomeListingRow(
     title: String,
     items: List<ListingSummary>,
-    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    cardWidth: Dp = 200.dp,
     onSeeAll: (() -> Unit)? = null,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.md)) {
         OneTownCitySectionHeader(
             title = title,
             trailing = if (onSeeAll != null) {
                 { OneTownCityButton(text = "See all", onClick = onSeeAll, variant = OneTownCityButtonVariant.Text) }
             } else null,
         )
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(OneTownCitySpacing.md)) {
             items(items, key = { "${it.modelKey}-${it.id}" }) { listing ->
-                HomePreviewCard(item = listing, icon = icon)
+                HomeListingCard(item = listing, width = cardWidth)
             }
         }
     }
 }
 
 @Composable
-private fun HomePreviewCard(item: ListingSummary, icon: ImageVector) {
+private fun HomeListingCard(item: ListingSummary, width: Dp) {
     val context = LocalContext.current
-    val activity = context as? android.app.Activity
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        modifier = Modifier.width(200.dp).clickable {
-            safeWebUri(API_BASE_URL + item.url)?.let { uri ->
-                try {
-                    activity?.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, uri))
-                } catch (_: android.content.ActivityNotFoundException) { }
-            }
-        },
-    ) {
-        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (item.imageUrl.isNotBlank()) {
+    val activity = context as? Activity
+    OneTownCityListingCard(
+        title = item.title,
+        subtitle = item.subtitle.takeIf { it.isNotBlank() },
+        icon = OneTownCityCategoryIcons.forModelKey(item.modelKey),
+        imageContent = if (item.imageUrl.isNotBlank()) {
+            {
                 AsyncImage(
                     model = rememberOptimizedImageRequest(item.imageUrl),
                     contentDescription = item.title,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                 )
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
+            }
+        } else {
+            null
+        },
+        onClick = {
+            safeWebUri(API_BASE_URL + item.url)?.let { uri ->
+                try {
+                    activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                } catch (_: ActivityNotFoundException) { }
+            }
+        },
+        modifier = Modifier.width(width),
+    )
+}
+
+@Composable
+private fun HomeStudentResourcesSection(onCategoryClick: (String) -> Unit, onSeeAll: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.md)) {
+        OneTownCitySectionHeader(
+            title = "Student Resources",
+            trailing = { OneTownCityButton(text = "See all", onClick = onSeeAll, variant = OneTownCityButtonVariant.Text) },
+        )
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm)) {
+            items(studentsCategories, key = { it.key }) { category ->
+                HomeQuickLinkCard(
+                    title = category.title,
+                    icon = category.icon,
+                    onClick = { onCategoryClick(category.key) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeQuickLinkCard(title: String, icon: ImageVector, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.width(112.dp),
+        shape = RoundedCornerShape(OneTownCityCornerRadii.md),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = OneTownCityElevation.low,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(OneTownCitySpacing.md),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm),
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.size(40.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
             }
-            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = item.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                if (item.subtitle.isNotBlank()) {
-                    Text(text = item.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelMedium,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }

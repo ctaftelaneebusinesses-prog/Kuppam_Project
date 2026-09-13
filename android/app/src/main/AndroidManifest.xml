@@ -15,6 +15,8 @@
 
     <application
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -24,8 +26,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTask"
-            android:screenOrientation="unspecified">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -46,13 +47,14 @@
                  this app's release signing certificate fingerprint. That
                  endpoint is served by core.views.assetlinks_json (added in
                  Phase 6 — a prior version of this comment claimed it already
-                 existed; it didn't). It currently serves an EMPTY
-                 sha256_cert_fingerprints list (ANDROID_RELEASE_CERT_SHA256
-                 unset) because no real production signing keystore exists
-                 yet — see the Phase 6 signing review. App Links
-                 verification is BLOCKED, not placeholder-signed, until a
-                 real keystore is available and that env var is set to its
-                 actual fingerprint. No path restriction: Compose
+                 existed; it didn't). A real production keystore now exists
+                 (~/.android/keystores/onetowncity-release.jks, wired into
+                 this module's release signingConfig) and its fingerprint is
+                 set in the local .env's ANDROID_RELEASE_CERT_SHA256 — but
+                 App Links verification only actually passes once whichever
+                 environment serves production traffic for onetowncity.com
+                 has that same value set in ITS OWN environment config, which
+                 is outside this repository. No path restriction: Compose
                  Navigation's per-destination navDeepLink() patterns decide
                  which screen a given path opens once the OS has routed the
                  Intent here. -->
@@ -60,8 +62,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="onetowncity.com" />
-                <data android:scheme="https" android:host="www.onetowncity.com" />
+                <data android:scheme="https" />
+                <data android:host="onetowncity.com" />
+                <data android:host="www.onetowncity.com" />
             </intent-filter>
         </activity>
     </application>

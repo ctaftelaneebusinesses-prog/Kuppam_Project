@@ -22,6 +22,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -40,6 +41,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -48,6 +50,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
@@ -56,7 +59,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Notifications
@@ -79,10 +81,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -97,6 +101,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -125,12 +132,19 @@ import com.onetowncity.app.designsystem.OneTownCityBottomNavigation
 import com.onetowncity.app.designsystem.OneTownCityBottomSheet
 import com.onetowncity.app.designsystem.OneTownCityButton
 import com.onetowncity.app.designsystem.OneTownCityButtonVariant
+import com.onetowncity.app.designsystem.OneTownCityCacheStatusBanner
+import com.onetowncity.app.designsystem.OneTownCityCategoryIcons
+import com.onetowncity.app.designsystem.OneTownCityChipGroup
 import com.onetowncity.app.designsystem.OneTownCityCircularLoading
 import com.onetowncity.app.designsystem.OneTownCityCityBar
+import com.onetowncity.app.designsystem.OneTownCityCornerRadii
+import com.onetowncity.app.designsystem.OneTownCityElevation
 import com.onetowncity.app.designsystem.OneTownCityEmptyState
 import com.onetowncity.app.designsystem.OneTownCityErrorState
+import com.onetowncity.app.designsystem.OneTownCityFilterBar
 import com.onetowncity.app.designsystem.OneTownCityIcons
 import com.onetowncity.app.designsystem.OneTownCityListItem
+import com.onetowncity.app.designsystem.OneTownCityListingCard
 import com.onetowncity.app.designsystem.OneTownCitySearchBar
 import com.onetowncity.app.designsystem.OneTownCitySpacing
 import com.onetowncity.app.designsystem.OneTownCityTextField
@@ -192,7 +206,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class AppTab(
+internal enum class AppTab(
     val route: String,
     val label: String,
     val selectedIcon: ImageVector,
@@ -689,8 +703,8 @@ private fun OneTownCityAppShell(pendingIntent: Intent?) {
                     Box {
                         Box(
                             modifier = Modifier
-                                .clickable { navController.navigate("notifications") }
-                                .padding(6.dp),
+                                .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+                                .clickable { navController.navigate("notifications") },
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(
@@ -764,13 +778,17 @@ private fun OneTownCityAppShell(pendingIntent: Intent?) {
                         AppTab.SEARCH -> SearchScreen(navController = navController)
                         AppTab.STUDENTS -> StudentsHubScreen(navController)
                         AppTab.SAVED -> FavoritesScreen(navController)
-                        AppTab.PROFILE -> ProfileScreen()
+                        AppTab.PROFILE -> ProfileScreen(navController)
                     }
                 }
             }
 
             composable(route = "notifications") {
                 NotificationsScreen(navController)
+            }
+
+            composable(route = "my-listings") {
+                MyListingsScreen(navController)
             }
 
             composable(
@@ -880,30 +898,6 @@ private fun OneTownCityAppShell(pendingIntent: Intent?) {
                     )
                 } else {
                     PlaceDetailScreen(navController = navController, item = item)
-                }
-            }
-
-            composable(
-                route = "marketplace/{itemId}",
-                arguments = listOf(navArgument("itemId") { type = NavType.IntType }),
-            ) { backStackEntry ->
-                val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
-                val item = marketplaceCache[itemId]
-                if (item == null) {
-                    OneTownCityEmptyState(
-                        title = "Listing not found",
-                        message = "This marketplace listing is no longer available.",
-                        icon = Icons.Outlined.ShoppingCart,
-                        action = {
-                            OneTownCityButton(
-                                text = "Back",
-                                onClick = { navController.popBackStack() },
-                                variant = OneTownCityButtonVariant.Outlined,
-                            )
-                        },
-                    )
-                } else {
-                    MarketplaceDetailScreen(navController = navController, item = item)
                 }
             }
 
@@ -1225,12 +1219,16 @@ private fun LocationActionRow(
 private fun SearchScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
-    var selectedCity by rememberSaveable { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
     var sections by remember { mutableStateOf<List<SearchSection>>(emptyList()) }
+    var selectedModelKey by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var isOfflineNoCache by remember { mutableStateOf(false) }
     var hasSearched by remember { mutableStateOf(false) }
+    val isOnline by NetworkMonitor.isOnline.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     var activeRequest by remember { mutableStateOf<Job?>(null) }
     val context = LocalContext.current
@@ -1241,26 +1239,45 @@ private fun SearchScreen(navController: NavController) {
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
             sections = emptyList()
+            selectedModelKey = null
             isLoading = false
             error = null
+            isOfflineNoCache = false
             hasSearched = false
             return
         }
         activeRequest = coroutineScope.launch {
             isLoading = true
             error = null
+            isOfflineNoCache = false
             hasSearched = true
             try {
                 sections = fetchSearchResults(trimmedQuery, selectedCity?.slug ?: cityQuery.trim())
+                selectedModelKey = null
                 error = null
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: OfflineNoCacheException) {
+                // A network failure while offline must never look like "we
+                // searched and found nothing" — this is a distinct state
+                // ("Search must not return misleading empty results when
+                // the network failed").
+                sections = emptyList()
+                isOfflineNoCache = true
             } catch (e: Exception) {
                 sections = emptyList()
                 error = e.message ?: "Unable to search right now."
             } finally {
                 isLoading = false
             }
+        }
+    }
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
@@ -1274,10 +1291,21 @@ private fun SearchScreen(navController: NavController) {
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
+    LaunchedEffect(isOnline) {
+        if (isOnline && (isOfflineNoCache || (error != null && sections.isEmpty()))) {
+            runSearch()
+        }
+    }
+
+    val modelKeyByLabel = remember(sections) { sections.associate { searchSectionLabel(it.modelKey) to it.modelKey } }
+    val visibleSections = remember(sections, selectedModelKey) {
+        if (selectedModelKey == null) sections else sections.filter { it.modelKey == selectedModelKey }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(horizontal = OneTownCitySpacing.xl, vertical = OneTownCitySpacing.lg),
+        verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.lg),
     ) {
         OneTownCitySearchBar(
             query = query,
@@ -1287,14 +1315,14 @@ private fun SearchScreen(navController: NavController) {
         )
 
         Surface(
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(OneTownCityCornerRadii.xl),
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 1.dp,
+            tonalElevation = OneTownCityElevation.low,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(OneTownCitySpacing.lg),
+                verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.md),
             ) {
                 Text(
                     text = "Location",
@@ -1303,14 +1331,14 @@ private fun SearchScreen(navController: NavController) {
                 )
                 OneTownCityTextField(
                     value = cityQuery,
-                    onValueChange = { cityQuery = it; selectedCity = null },
+                    onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
                     placeholder = "City or area (optional)",
                     leadingIcon = Icons.Filled.LocationOn,
                 )
                 if (citySuggestions.isNotEmpty()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm),
                     ) {
                         citySuggestions.take(3).forEach { suggestion ->
                             OneTownCityButton(
@@ -1319,6 +1347,7 @@ private fun SearchScreen(navController: NavController) {
                                     selectedCity = suggestion
                                     cityQuery = suggestion.name
                                     citySuggestions = emptyList()
+                                    hasManualCityOverride = true
                                 },
                                 variant = OneTownCityButtonVariant.Outlined,
                             )
@@ -1326,6 +1355,22 @@ private fun SearchScreen(navController: NavController) {
                     }
                 }
             }
+        }
+
+        if (sections.size > 1) {
+            OneTownCityFilterBar(
+                options = modelKeyByLabel.keys.toList(),
+                selectedOption = selectedModelKey?.let { searchSectionLabel(it) },
+                onOptionSelected = { label -> selectedModelKey = label?.let { modelKeyByLabel[it] } },
+                allLabel = "All (${sections.sumOf { it.items.size }})",
+            )
+        }
+
+        if (!isOnline && sections.isNotEmpty()) {
+            OneTownCityCacheStatusBanner(
+                message = "You're offline — showing saved results",
+                isOffline = true,
+            )
         }
 
         when {
@@ -1343,6 +1388,13 @@ private fun SearchScreen(navController: NavController) {
                 ) {
                     OneTownCityCircularLoading(label = "Searching")
                 }
+            }
+            isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "This search hasn't been run yet on this device, so nothing's saved for it. Connect to the internet once to search.",
+                    icon = Icons.Outlined.Search,
+                )
             }
             error != null -> {
                 OneTownCityErrorState(
@@ -1369,16 +1421,20 @@ private fun SearchScreen(navController: NavController) {
             else -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(OneTownCitySpacing.lg),
+                    contentPadding = PaddingValues(bottom = OneTownCitySpacing.xxl),
                 ) {
-                    sections.forEach { section ->
+                    visibleSections.forEach { section ->
                         item(key = "header-${section.modelKey}") {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(OneTownCitySpacing.sm),
                             ) {
-                                Icon(imageVector = section.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                Icon(
+                                    imageVector = OneTownCityCategoryIcons.forModelKey(section.modelKey),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
                                 Text(
                                     text = "${section.label} (${section.items.size})",
                                     style = MaterialTheme.typography.titleMedium,
@@ -1420,48 +1476,29 @@ private fun SearchResultCard(
     item: ListingSummary,
     onClick: () -> Unit,
 ) {
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (item.imageUrl.isNotBlank()) {
+    OneTownCityListingCard(
+        title = item.title,
+        subtitle = listOfNotNull(item.subtitle.takeIf { it.isNotBlank() }, item.cityName.takeIf { it.isNotBlank() })
+            .joinToString(" · ")
+            .takeIf { it.isNotBlank() },
+        icon = OneTownCityCategoryIcons.forModelKey(item.modelKey),
+        imageContent = if (item.imageUrl.isNotBlank()) {
+            {
                 AsyncImage(
                     model = rememberOptimizedImageRequest(item.imageUrl),
                     contentDescription = item.title,
-                    modifier = Modifier.size(64.dp),
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                 )
             }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(text = item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                if (item.subtitle.isNotBlank()) {
-                    Text(
-                        text = item.subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                if (item.cityName.isNotBlank()) {
-                    Text(text = item.cityName, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        }
-    }
+        } else {
+            null
+        },
+        onClick = onClick,
+    )
 }
 
-private enum class StudentsCategory(
+internal enum class StudentsCategory(
     val key: String,
     val title: String,
     val description: String,
@@ -1476,7 +1513,7 @@ private enum class StudentsCategory(
     PLACES_TO_VISIT("places-to-visit", "Places to Visit", "Discover nearby student-friendly destinations.", Icons.Outlined.LocationOn),
 }
 
-private val studentsCategories = listOf(
+internal val studentsCategories = listOf(
     StudentsCategory.TUITION_CENTERS,
     StudentsCategory.EVENTS,
     StudentsCategory.BUY_SELL_EXCHANGE,
@@ -1486,11 +1523,40 @@ private val studentsCategories = listOf(
     StudentsCategory.PLACES_TO_VISIT,
 )
 
+/**
+ * Groups the 7 real student categories under a short, meaningful heading
+ * each — "appropriate grouping and hierarchy" instead of one flat grid.
+ * Every StudentsCategory appears in exactly one group; groupsFor() below
+ * asserts that at test time so a newly added category can't silently be
+ * left out of the directory.
+ */
+internal data class StudentsCategoryGroup(val title: String, val categories: List<StudentsCategory>)
+
+internal val studentsCategoryGroups = listOf(
+    StudentsCategoryGroup(
+        title = "Academics & Funding",
+        categories = listOf(StudentsCategory.TUITION_CENTERS, StudentsCategory.SCHOLARSHIPS),
+    ),
+    StudentsCategoryGroup(
+        title = "Campus Life",
+        categories = listOf(StudentsCategory.EVENTS, StudentsCategory.LOST_FOUND),
+    ),
+    StudentsCategoryGroup(
+        title = "Marketplace & Services",
+        categories = listOf(StudentsCategory.BUY_SELL_EXCHANGE, StudentsCategory.STUDENT_SERVICES),
+    ),
+    StudentsCategoryGroup(
+        title = "Explore",
+        categories = listOf(StudentsCategory.PLACES_TO_VISIT),
+    ),
+)
+
 @Composable
 private fun StudentsHubScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
-    val filteredCategories = remember(query) {
-        if (query.isBlank()) studentsCategories else studentsCategories.filter {
+    val isSearching = query.isNotBlank()
+    val searchResults = remember(query) {
+        if (!isSearching) emptyList() else studentsCategories.filter {
             it.title.contains(query, ignoreCase = true) || it.description.contains(query, ignoreCase = true)
         }
     }
@@ -1507,29 +1573,31 @@ private fun StudentsHubScreen(navController: NavController) {
             onClear = { query = "" },
         )
 
-        Surface(
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 1.dp,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+        if (!isSearching) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 1.dp,
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(
-                    text = "Students",
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-                Text(
-                    text = "Browse student resources and discovery categories.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = "Students",
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                    Text(
+                        text = "Browse student resources and discovery categories.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
 
-        if (filteredCategories.isEmpty()) {
+        if (isSearching && searchResults.isEmpty()) {
             OneTownCityEmptyState(
                 title = "No matching categories",
                 message = "Try a different keyword to discover student services and opportunities.",
@@ -1543,25 +1611,47 @@ private fun StudentsHubScreen(navController: NavController) {
                 },
             )
         } else {
-            androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
-                columns = androidx.compose.foundation.lazy.grid.GridCells.Adaptive(minSize = 180.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+            LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 24.dp),
             ) {
-                items(filteredCategories.size) { index ->
-                    val category = filteredCategories[index]
-                    StudentsCategoryCard(
-                        category = category,
-                        onClick = { navController.navigate("students/${category.key}") },
-                    )
+                if (isSearching) {
+                    items(searchResults, key = { it.key }) { category ->
+                        StudentsCategoryCard(
+                            category = category,
+                            onClick = { navController.navigate("students/${category.key}") },
+                        )
+                    }
+                } else {
+                    studentsCategoryGroups.forEach { group ->
+                        item(key = "header-${group.title}") {
+                            Text(
+                                text = group.title,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+                            )
+                        }
+                        items(group.categories, key = { it.key }) { category ->
+                            StudentsCategoryCard(
+                                category = category,
+                                onClick = { navController.navigate("students/${category.key}") },
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
 
+/**
+ * Full-width row card, not a fixed-size grid tile: title/description wrap
+ * with no maxLines/ellipsis, so long names like "Scholarships & Government
+ * Schemes" are always fully readable and the row's height simply grows at
+ * larger font scales (verified conceptually up to 2.0x) instead of clipping.
+ */
 @Composable
 private fun StudentsCategoryCard(
     category: StudentsCategory,
@@ -1573,32 +1663,44 @@ private fun StudentsCategoryCard(
         tonalElevation = 1.dp,
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 18.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Surface(
                 color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f),
                 shape = CircleShape,
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(52.dp),
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = category.icon,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(26.dp),
                     )
                 }
             }
-            Text(
-                text = category.title,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Text(
-                text = category.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = category.title,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = category.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp),
             )
         }
     }
@@ -1646,6 +1748,9 @@ internal data class StudentServiceItem(
     val imageUrl: String,
     val cityName: String,
     val citySlug: String,
+    val avgRating: Double = 0.0,
+    val reviewCount: Int = 0,
+    val commentCount: Int = 0,
 )
 
 internal fun filterStudentServices(
@@ -1675,6 +1780,12 @@ internal data class ScholarshipItem(
     val officialUrl: String = "",
     val sourceLabel: String = "OneTownCity",
     val sourceType: String = "local",
+    val cityName: String = "",
+    val provider: String = "",
+    val contactNumber: String = "",
+    val avgRating: Double = 0.0,
+    val reviewCount: Int = 0,
+    val commentCount: Int = 0,
 )
 
 internal fun filterScholarships(
@@ -1705,6 +1816,9 @@ internal data class LostFoundItem(
     val reportUrl: String = "",
     val cityName: String = "",
     val ownerInfo: String = "",
+    val avgRating: Double = 0.0,
+    val reviewCount: Int = 0,
+    val commentCount: Int = 0,
 )
 
 internal fun filterLostFound(
@@ -1735,30 +1849,37 @@ private fun parseScholarship(json: JSONObject): ScholarshipItem {
         deadline = json.optString("application_deadline", ""),
         eligibility = json.optString("eligibility", ""),
         officialUrl = json.optString("official_url", ""),
+        cityName = json.cityName(""),
+        provider = json.optString("provider", ""),
+        contactNumber = json.optString("contact_number", ""),
+        avgRating = json.optDouble("avg_rating", 0.0).let { if (it.isNaN()) 0.0 else it },
+        reviewCount = json.optInt("review_count", 0),
+        commentCount = json.optInt("comment_count", 0),
     )
     scholarshipCache[item.id] = item
     return item
 }
 
-/** Wires to the real /api/v1/listings/scholarship/ endpoint (core.models.Scholarship) — a standalone listing type, not a Business category. */
-internal suspend fun fetchScholarships(query: String, citySlug: String, page: Int): ApiListPage<ScholarshipItem> {
+/** Exposed separately so ListingsViewModel's stale-while-revalidate can peek the offline cache for the exact same URL before deciding whether a network refresh is needed. */
+internal fun buildScholarshipsUrl(query: String, citySlug: String, page: Int): String = buildString {
     val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
-    val urlString = buildString {
-        append(API_BASE_URL)
-        append("/api/v1/listings/scholarship/?page=")
-        append(page)
-        append("&page_size=10")
-        if (query.isNotBlank()) {
-            append("&q=")
-            append(URLEncoder.encode(query, "UTF-8"))
-        }
-        if (!encodedCity.isNullOrEmpty()) {
-            append("&city=")
-            append(encodedCity)
-        }
+    append(API_BASE_URL)
+    append("/api/v1/listings/scholarship/?page=")
+    append(page)
+    append("&page_size=10")
+    if (query.isNotBlank()) {
+        append("&q=")
+        append(URLEncoder.encode(query, "UTF-8"))
     }
-    return fetchListPage(urlString, page) { parseScholarship(it) }
+    if (!encodedCity.isNullOrEmpty()) {
+        append("&city=")
+        append(encodedCity)
+    }
 }
+
+/** Wires to the real /api/v1/listings/scholarship/ endpoint (core.models.Scholarship) — a standalone listing type, not a Business category. */
+internal suspend fun fetchScholarships(query: String, citySlug: String, page: Int): ApiListPage<ScholarshipItem> =
+    fetchListPage(buildScholarshipsUrl(query, citySlug, page), page) { parseScholarship(it) }
 
 private val lostFoundCache = BoundedItemCache<Int, LostFoundItem>(200)
 
@@ -1775,30 +1896,34 @@ private fun parseLostFound(json: JSONObject, citySlugFallback: String): LostFoun
         contact = json.optString("contact_number", ""),
         reportUrl = json.optString("url", ""),
         cityName = city?.optString("name") ?: citySlugFallback,
+        avgRating = json.optDouble("avg_rating", 0.0).let { if (it.isNaN()) 0.0 else it },
+        reviewCount = json.optInt("review_count", 0),
+        commentCount = json.optInt("comment_count", 0),
     )
     lostFoundCache[item.id] = item
     return item
 }
 
-/** Wires to the real /api/v1/listings/lostfound/ endpoint (core.models.LostFound). The generic listing API has no report_type query param, so Lost/Found is refined client-side via filterLostFound, same as every other client-side chip filter in this file. */
-internal suspend fun fetchLostFound(query: String, citySlug: String, page: Int): ApiListPage<LostFoundItem> {
+/** Exposed separately so ListingsViewModel's stale-while-revalidate can peek the offline cache for the exact same URL before deciding whether a network refresh is needed. */
+internal fun buildLostFoundUrl(query: String, citySlug: String, page: Int): String = buildString {
     val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
-    val urlString = buildString {
-        append(API_BASE_URL)
-        append("/api/v1/listings/lostfound/?page=")
-        append(page)
-        append("&page_size=10")
-        if (query.isNotBlank()) {
-            append("&q=")
-            append(URLEncoder.encode(query, "UTF-8"))
-        }
-        if (!encodedCity.isNullOrEmpty()) {
-            append("&city=")
-            append(encodedCity)
-        }
+    append(API_BASE_URL)
+    append("/api/v1/listings/lostfound/?page=")
+    append(page)
+    append("&page_size=10")
+    if (query.isNotBlank()) {
+        append("&q=")
+        append(URLEncoder.encode(query, "UTF-8"))
     }
-    return fetchListPage(urlString, page) { parseLostFound(it, citySlug) }
+    if (!encodedCity.isNullOrEmpty()) {
+        append("&city=")
+        append(encodedCity)
+    }
 }
+
+/** Wires to the real /api/v1/listings/lostfound/ endpoint (core.models.LostFound). The generic listing API has no report_type query param, so Lost/Found is refined client-side via filterLostFound, same as every other client-side chip filter in this file. */
+internal suspend fun fetchLostFound(query: String, citySlug: String, page: Int): ApiListPage<LostFoundItem> =
+    fetchListPage(buildLostFoundUrl(query, citySlug, page), page) { parseLostFound(it, citySlug) }
 
 internal data class PlaceItem(
     val id: Int,
@@ -1810,6 +1935,9 @@ internal data class PlaceItem(
     val imageUrl: String = "",
     val mapsLink: String = "",
     val distanceLabel: String = "",
+    val avgRating: Double = 0.0,
+    val reviewCount: Int = 0,
+    val commentCount: Int = 0,
 )
 
 internal fun filterPlacesToVisit(
@@ -1845,6 +1973,9 @@ private fun parsePlace(result: JSONObject, citySlugFallback: String): PlaceItem 
         address = result.optString("address", ""),
         imageUrl = result.optString("display_image", ""),
         mapsLink = result.optString("maps_link", ""),
+        avgRating = result.optDouble("avg_rating", 0.0).let { if (it.isNaN()) 0.0 else it },
+        reviewCount = result.optInt("review_count", 0),
+        commentCount = result.optInt("comment_count", 0),
     )
     placeCache[item.id] = item
     return item
@@ -1854,75 +1985,15 @@ private fun parsePlace(result: JSONObject, citySlugFallback: String): PlaceItem 
 internal suspend fun fetchPlacesToVisit(query: String, citySlug: String, page: Int): ApiListPage<PlaceItem> =
     fetchListPage(buildBusinessCategoryUrl("tourism", query, citySlug, page), page) { parsePlace(it, citySlug) }
 
-internal data class MarketplaceItem(
-    val id: Int,
-    val title: String,
-    val description: String,
-    val price: String,
-    val transactionType: String,
-    val category: String,
-    val location: String,
-    val imageUrl: String,
-    val contactNumber: String,
-    val ownerName: String,
-    val ownerId: Int? = null,
-    val url: String = "",
-    val condition: String = "",
-)
-
-internal data class MarketplacePage(
-    val items: List<MarketplaceItem>,
-    val nextPage: Int?,
-    val count: Int,
-)
-
-internal enum class MarketplaceTypeFilter(val label: String, val apiValue: String?) {
-    ALL("All", null),
-    FOR_SALE("For sale", "sale"),
-    FOR_RENT("For rent", "rent"),
-    EXCHANGE("Exchange", null),
-}
-
-private val marketplaceCategories = listOf(
-    "All",
-    "Books",
-    "Electronics",
-    "Furniture",
-    "Bikes",
-    "Stationery",
-    "Other",
-)
-
-internal fun filterMarketplaceItems(
-    items: List<MarketplaceItem>,
-    query: String,
-    selectedCategory: String,
-    typeFilter: MarketplaceTypeFilter,
-): List<MarketplaceItem> {
-    val normalizedQuery = query.trim()
-    return items.filter { item ->
-        val matchesQuery = normalizedQuery.isBlank() ||
-            item.title.contains(normalizedQuery, ignoreCase = true) ||
-            item.description.contains(normalizedQuery, ignoreCase = true) ||
-            item.location.contains(normalizedQuery, ignoreCase = true)
-
-        val matchesCategory = selectedCategory == "All" ||
-            item.category.equals(selectedCategory, ignoreCase = true) ||
-            item.title.contains(selectedCategory, ignoreCase = true) ||
-            item.description.contains(selectedCategory, ignoreCase = true)
-
-        val matchesType = when (typeFilter) {
-            MarketplaceTypeFilter.ALL -> true
-            MarketplaceTypeFilter.FOR_SALE -> item.transactionType.equals("sale", ignoreCase = true)
-            MarketplaceTypeFilter.FOR_RENT -> item.transactionType.equals("rent", ignoreCase = true)
-            MarketplaceTypeFilter.EXCHANGE -> item.transactionType.equals("exchange", ignoreCase = true) ||
-                item.title.contains("exchange", ignoreCase = true) ||
-                item.description.contains("exchange", ignoreCase = true)
-        }
-
-        matchesQuery && matchesCategory && matchesType
-    }
-}
+// Buy / Sell / Exchange is not a separate backend model — core/models.py's
+// Business.CATEGORY_CHOICES has a real 'marketplace' entry ("Buy / Sell /
+// Exchange"), served by the exact same GET /api/v1/listings/business/
+// ?category=<key> endpoint as Places to Visit ('tourism'), Tuition Centers
+// ('tuition_center'), and Student Services ('student_services'). It reuses
+// BusinessItem/fetchBusinesses/parseBusiness directly — see
+// MarketplaceFeatureScreen — rather than a parallel, never-populated shape
+// for fields (price/condition/transactionType) that don't exist on any real
+// listing model.
 
 internal const val API_BASE_URL = "https://onetowncity.com"
 
@@ -2150,6 +2221,8 @@ internal fun parseListingSummary(json: JSONObject): ListingSummary {
         "event" -> json.optString("location", "")
         "news" -> json.optString("source", "")
         "project" -> json.optString("location", "")
+        "scholarship" -> json.optString("provider", "")
+        "lostfound" -> json.optString("location", "")
         else -> ""
     }
     val city = json.optJSONObject("city")
@@ -2233,6 +2306,15 @@ private suspend fun fetchFavorites(page: Int): ApiListPage<ListingSummary> =
 private suspend fun toggleFavorite(modelKey: String, id: Int): Boolean =
     httpJson("$API_BASE_URL/api/v1/listings/$modelKey/$id/favorite/", method = "POST", requiresAuth = true)
         .optBoolean("favorited", false)
+
+/**
+ * `GET /api/v1/my/listings/` (core.api.views.my_listings_view) — every
+ * listing the signed-in user owns, across all 8 listing models, merged and
+ * sorted server-side (core/api/views.py:344). Same self-describing shape as
+ * favorites/search, so it reuses ListingSummary/parseListingSummary too.
+ */
+internal suspend fun fetchMyListings(page: Int): ApiListPage<ListingSummary> =
+    fetchListPage("$API_BASE_URL/api/v1/my/listings/?page=$page", page, requiresAuth = true) { parseListingSummary(it) }
 
 internal data class NotificationItem(
     val id: Int,
@@ -2329,22 +2411,7 @@ internal class BoundedItemCache<K, V>(private val maximumSize: Int) {
     }
 }
 
-private val marketplaceCache = BoundedItemCache<Int, MarketplaceItem>(200)
 private val studentServicesCache = BoundedItemCache<Int, StudentServiceItem>(200)
-
-// Marketplace ("Buy / Sell / Exchange") intentionally has NO network fetch.
-//
-// The backend (core/models.py Business.category='marketplace') has no fields
-// for price, condition, or transaction type, and core/api/serializers.py's
-// MODEL_SPECIFIC_FIELDS['business'] does not expose any such fields either —
-// there is no real peer-to-peer classified-listing data to show. This screen
-// previously queried /api/v1/listings/property/ (real-estate listings) and
-// re-labeled them as marketplace goods via keyword guessing on the title/
-// description, which misrepresented Property data as something it isn't.
-//
-// Until a real marketplace data model exists on the backend, this resolves
-// to a verified empty state (see MarketplaceFeatureScreen) rather than
-// showing mismatched or invented data.
 
 private fun parseStudentService(result: JSONObject, citySlugFallback: String): StudentServiceItem {
     val city = result.optJSONObject("city")
@@ -2363,6 +2430,9 @@ private fun parseStudentService(result: JSONObject, citySlugFallback: String): S
         imageUrl = result.optString("display_image", ""),
         cityName = cityName,
         citySlug = citySlugValue,
+        avgRating = result.optDouble("avg_rating", 0.0).let { if (it.isNaN()) 0.0 else it },
+        reviewCount = result.optInt("review_count", 0),
+        commentCount = result.optInt("comment_count", 0),
     )
     studentServicesCache[item.id] = item
     return item
@@ -2382,55 +2452,34 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
     var selectedCity by rememberSaveable { mutableStateOf(AppCityState.current.value?.slug) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
-    var items by remember { mutableStateOf<List<StudentServiceItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    val coroutineScope = rememberCoroutineScope()
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyListState()
 
-    fun loadPage(reset: Boolean = false) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
+    val viewModel: ListingsViewModel<StudentServiceItem> = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                ListingsViewModel(
+                    buildUrl = { q, _, citySlug, page -> buildBusinessCategoryUrl("student_services", q, citySlug, page) },
+                    fetchPage = { q, _, citySlug, page -> fetchStudentServices(q, citySlug, page) },
+                    parseItem = { parseStudentService(it, "") },
+                )
             }
-            try {
-                val pageToLoad = if (reset) 1 else page
-                val result = fetchStudentServices(query, selectedCity ?: cityQuery.trim(), pageToLoad)
-                items = if (reset) result.items else items + result.items
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: (pageToLoad + 1)
-                error = null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load student services right now."
-                } else {
-                    error = e.message ?: "Unable to load more student services."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.slug
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
     LaunchedEffect(query, selectedCity ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, "", selectedCity ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -2438,10 +2487,10 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
+            viewModel.load(query, "", selectedCity ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -2480,7 +2529,7 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
                 )
                 OneTownCityTextField(
                     value = cityQuery,
-                    onValueChange = { cityQuery = it; selectedCity = null },
+                    onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
                     placeholder = "City or area",
                     leadingIcon = Icons.Filled.LocationOn,
                 )
@@ -2496,6 +2545,7 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
                                     selectedCity = suggestion.slug
                                     cityQuery = suggestion.name
                                     citySuggestions = emptyList()
+                                    hasManualCityOverride = true
                                 },
                                 variant = OneTownCityButtonVariant.Outlined,
                             )
@@ -2505,8 +2555,15 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
             }
         }
 
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
+        }
+
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     contentAlignment = Alignment.Center,
@@ -2514,15 +2571,29 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
                     OneTownCityCircularLoading(label = "Loading services")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load student services",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Student services haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Outlined.Build,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, "", selectedCity ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load student services",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, "", selectedCity ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            uiState.items.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No student services found",
                     message = "Try a different keyword or city to find nearby support and care options.",
@@ -2548,13 +2619,13 @@ private fun StudentServicesFeatureScreen(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(uiState.items, key = { _, item -> item.id }) { _, item ->
                         StudentServiceCard(
                             item = item,
                             onClick = { navController.navigate("student-service/${item.id}") },
                         )
                     }
-                    if (isLoadingMore) {
+                    if (uiState.isLoadingMore) {
                         item {
                             Box(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
@@ -2611,6 +2682,33 @@ private fun StudentServiceCard(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = item.address,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -2640,39 +2738,12 @@ private fun StudentServiceCard(
                 }
 
                 Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Text(
                     text = item.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.LocationOn,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(
-                        text = item.address,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
 
                 if (item.phoneNumber.isNotBlank()) {
                     Row(
@@ -2681,7 +2752,7 @@ private fun StudentServiceCard(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Phone,
+                            imageVector = Icons.Filled.Call,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp),
@@ -2807,7 +2878,7 @@ private fun StudentServiceDetailScreen(
                         OneTownCityButton(
                             text = "Call",
                             onClick = {
-                                val uri = Uri.parse("tel:${item.phoneNumber}")
+                                val uri = "tel:${item.phoneNumber}".toUri()
                                 val intent = Intent(Intent.ACTION_DIAL, uri)
                                 activity?.startActivity(intent)
                             },
@@ -2835,9 +2906,8 @@ private fun StudentServiceDetailScreen(
             }
 
             item {
-                val mapsUri = safeWebUri(item.mapsLink) ?: Uri.parse(
-                    "https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.address.ifBlank { item.name }, "UTF-8")}" 
-                )
+                val mapsUri = safeWebUri(item.mapsLink)
+                    ?: "https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.address.ifBlank { item.name }, "UTF-8")}".toUri()
                 OneTownCityButton(
                     text = "Get directions",
                     onClick = {
@@ -2848,6 +2918,24 @@ private fun StudentServiceDetailScreen(
                     },
                     leadingIcon = Icons.Filled.LocationOn,
                     variant = OneTownCityButtonVariant.Outlined,
+                )
+            }
+
+            item {
+                ReviewsSection(
+                    modelKey = "business",
+                    listingId = item.id,
+                    avgRating = item.avgRating,
+                    reviewCount = item.reviewCount,
+                    navController = navController,
+                )
+            }
+            item {
+                CommentsSection(
+                    modelKey = "business",
+                    listingId = item.id,
+                    commentCount = item.commentCount,
+                    navController = navController,
                 )
             }
         }
@@ -2874,57 +2962,43 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("All") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
-    var selectedCity by rememberSaveable { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
-    var items by remember { mutableStateOf<List<ScholarshipItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    val coroutineScope = rememberCoroutineScope()
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyListState()
 
-    fun loadPage(reset: Boolean = false) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
+    // scholarship_type has no server-side filter param (core/api/views.py's
+    // _list_listings only supports category=<Business choice> or
+    // listing_category__key, neither of which apply to Scholarship) — the
+    // real scholarship_type value is always fetched, then refined client-
+    // side via filterScholarships, same as before this ViewModel migration.
+    val viewModel: ListingsViewModel<ScholarshipItem> = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                ListingsViewModel(
+                    buildUrl = { q, _, citySlug, page -> buildScholarshipsUrl(q, citySlug, page) },
+                    fetchPage = { q, _, citySlug, page -> fetchScholarships(q, citySlug, page) },
+                    parseItem = { parseScholarship(it) },
+                )
             }
-            try {
-                val pageToLoad = if (reset) 1 else page
-                val result = fetchScholarships(query, selectedCity?.slug ?: cityQuery.trim(), pageToLoad)
-                val fetched = if (reset) result.items else items + result.items
-                items = filterScholarships(fetched, "", selectedCategory)
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: (pageToLoad + 1)
-                error = null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load scholarship data right now."
-                } else {
-                    error = e.message ?: "Unable to load more scholarships."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+    val displayItems = remember(uiState.items, selectedCategory) {
+        filterScholarships(uiState.items, "", selectedCategory)
+    }
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
-    LaunchedEffect(query, selectedCategory, selectedCity?.slug ?: cityQuery) {
+    LaunchedEffect(query, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -2932,10 +3006,10 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= displayItems.size - 3) {
+            viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -2974,7 +3048,7 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
                 )
                 OneTownCityTextField(
                     value = cityQuery,
-                    onValueChange = { cityQuery = it; selectedCity = null },
+                    onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
                     placeholder = "City or area",
                     leadingIcon = Icons.Filled.LocationOn,
                 )
@@ -2990,6 +3064,7 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
                                     selectedCity = suggestion
                                     cityQuery = suggestion.name
                                     citySuggestions = emptyList()
+                                    hasManualCityOverride = true
                                 },
                                 variant = OneTownCityButtonVariant.Outlined,
                             )
@@ -2999,23 +3074,25 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            scholarshipTypeFilters.forEach { category ->
-                val selected = category == selectedCategory
-                OneTownCityButton(
-                    text = scholarshipTypeLabel(category),
-                    onClick = { selectedCategory = category },
-                    variant = if (selected) OneTownCityButtonVariant.Secondary else OneTownCityButtonVariant.Outlined,
-                    modifier = Modifier.weight(1f),
-                )
-            }
+        run {
+            val labelByKey = scholarshipTypeFilters.associateWith { scholarshipTypeLabel(it) }
+            val keyByLabel = labelByKey.entries.associate { (key, label) -> label to key }
+            OneTownCityChipGroup(
+                items = scholarshipTypeFilters.map { labelByKey.getValue(it) },
+                selected = setOf(labelByKey.getValue(selectedCategory)),
+                onSelected = { label -> selectedCategory = keyByLabel[label] ?: "All" },
+            )
+        }
+
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
         }
 
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     contentAlignment = Alignment.Center,
@@ -3023,15 +3100,29 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
                     OneTownCityCircularLoading(label = "Loading scholarship data")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load scholarship data",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Scholarships haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Outlined.EmojiEvents,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load scholarship data",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            displayItems.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No scholarships found",
                     message = "No scholarships or schemes match your current search, city, or type filter.",
@@ -3058,10 +3149,10 @@ private fun ScholarshipsFeatureScreen(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(displayItems, key = { _, item -> item.id }) { _, item ->
                         ScholarshipCard(item = item, onClick = { navController.navigate("scholarship/${item.id}") })
                     }
-                    if (isLoadingMore) {
+                    if (uiState.isLoadingMore) {
                         item {
                             Box(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
@@ -3092,6 +3183,35 @@ private fun ScholarshipCard(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            if (item.cityName.isNotBlank()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = item.cityName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -3119,20 +3239,15 @@ private fun ScholarshipCard(
                 }
             }
 
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            Text(
-                text = item.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (item.provider.isNotBlank()) {
+                Text(
+                    text = item.provider,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
 
             if (item.deadline.isNotBlank()) {
                 Text(
@@ -3143,6 +3258,14 @@ private fun ScholarshipCard(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+
+            Text(
+                text = item.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis,
+            )
 
             if (item.eligibility.isNotBlank()) {
                 Text(
@@ -3231,14 +3354,23 @@ private fun ScholarshipDetailScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
+                        if (item.cityName.isNotBlank()) {
+                            DetailRow(icon = Icons.Filled.LocationOn, title = item.cityName)
+                        }
                         if (item.category.isNotBlank()) {
                             DetailRow(icon = Icons.Outlined.EmojiEvents, title = item.category)
+                        }
+                        if (item.provider.isNotBlank()) {
+                            DetailRow(icon = Icons.Filled.Info, title = item.provider)
                         }
                         if (item.deadline.isNotBlank()) {
                             DetailRow(icon = Icons.Filled.Info, title = "Deadline: ${item.deadline}")
                         }
                         if (item.eligibility.isNotBlank()) {
                             DetailRow(icon = Icons.Filled.Check, title = "Eligibility: ${item.eligibility}")
+                        }
+                        if (item.contactNumber.isNotBlank()) {
+                            DetailRow(icon = Icons.Filled.Call, title = item.contactNumber)
                         }
                         if (item.sourceLabel.isNotBlank()) {
                             DetailRow(icon = Icons.Filled.Language, title = item.sourceLabel)
@@ -3247,21 +3379,51 @@ private fun ScholarshipDetailScreen(
                 }
             }
 
-            if (item.officialUrl.isNotBlank()) {
-                item {
-                    OneTownCityButton(
-                        text = "Open official source",
-                        onClick = {
-                            safeWebUri(item.officialUrl)?.let { uri ->
-                                try {
-                                    activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                                } catch (_: ActivityNotFoundException) { }
-                            }
-                        },
-                        leadingIcon = Icons.Filled.Language,
-                        variant = OneTownCityButtonVariant.Primary,
-                    )
+            item {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (item.contactNumber.isNotBlank()) {
+                        OneTownCityButton(
+                            text = "Call",
+                            onClick = { activity?.startActivity(Intent(Intent.ACTION_DIAL, "tel:${item.contactNumber}".toUri())) },
+                            leadingIcon = Icons.Filled.Call,
+                            variant = OneTownCityButtonVariant.Primary,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    if (item.officialUrl.isNotBlank()) {
+                        OneTownCityButton(
+                            text = "Open official source",
+                            onClick = {
+                                safeWebUri(item.officialUrl)?.let { uri ->
+                                    try {
+                                        activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                                    } catch (_: ActivityNotFoundException) { }
+                                }
+                            },
+                            leadingIcon = Icons.Filled.Language,
+                            variant = OneTownCityButtonVariant.Secondary,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
                 }
+            }
+
+            item {
+                ReviewsSection(
+                    modelKey = "scholarship",
+                    listingId = item.id,
+                    avgRating = item.avgRating,
+                    reviewCount = item.reviewCount,
+                    navController = navController,
+                )
+            }
+            item {
+                CommentsSection(
+                    modelKey = "scholarship",
+                    listingId = item.id,
+                    commentCount = item.commentCount,
+                    navController = navController,
+                )
             }
         }
     }
@@ -3272,58 +3434,42 @@ private fun LostFoundFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("All") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
-    var selectedCity by rememberSaveable { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
-    var items by remember { mutableStateOf<List<LostFoundItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    val coroutineScope = rememberCoroutineScope()
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyListState()
     val categories = listOf("All", "Lost", "Found")
 
-    fun loadPage(reset: Boolean = false) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
+    // The generic listing API has no report_type query param (see
+    // fetchLostFound's doc comment) — Lost/Found is always refined
+    // client-side via filterLostFound, same as before this migration.
+    val viewModel: ListingsViewModel<LostFoundItem> = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                ListingsViewModel(
+                    buildUrl = { q, _, citySlug, page -> buildLostFoundUrl(q, citySlug, page) },
+                    fetchPage = { q, _, citySlug, page -> fetchLostFound(q, citySlug, page) },
+                    parseItem = { parseLostFound(it, "") },
+                )
             }
-            try {
-                val pageToLoad = if (reset) 1 else page
-                val result = fetchLostFound(query, selectedCity?.slug ?: cityQuery.trim(), pageToLoad)
-                val fetched = if (reset) result.items else items + result.items
-                items = filterLostFound(fetched, "", selectedCategory)
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: (pageToLoad + 1)
-                error = null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load Lost & Found right now."
-                } else {
-                    error = e.message ?: "Unable to load more reports."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+    val displayItems = remember(uiState.items, selectedCategory) {
+        filterLostFound(uiState.items, "", selectedCategory)
+    }
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
-    LaunchedEffect(query, selectedCategory, selectedCity?.slug ?: cityQuery) {
+    LaunchedEffect(query, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -3331,10 +3477,10 @@ private fun LostFoundFeatureScreen(navController: NavController) {
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= displayItems.size - 3) {
+            viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -3373,7 +3519,7 @@ private fun LostFoundFeatureScreen(navController: NavController) {
                 )
                 OneTownCityTextField(
                     value = cityQuery,
-                    onValueChange = { cityQuery = it; selectedCity = null },
+                    onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
                     placeholder = "City or area",
                     leadingIcon = Icons.Filled.LocationOn,
                 )
@@ -3389,6 +3535,7 @@ private fun LostFoundFeatureScreen(navController: NavController) {
                                     selectedCity = suggestion
                                     cityQuery = suggestion.name
                                     citySuggestions = emptyList()
+                                    hasManualCityOverride = true
                                 },
                                 variant = OneTownCityButtonVariant.Outlined,
                             )
@@ -3398,23 +3545,21 @@ private fun LostFoundFeatureScreen(navController: NavController) {
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            categories.forEach { category ->
-                val selected = category == selectedCategory
-                OneTownCityButton(
-                    text = category,
-                    onClick = { selectedCategory = category },
-                    variant = if (selected) OneTownCityButtonVariant.Secondary else OneTownCityButtonVariant.Outlined,
-                    modifier = Modifier.weight(1f),
-                )
-            }
+        OneTownCityChipGroup(
+            items = categories,
+            selected = setOf(selectedCategory),
+            onSelected = { selectedCategory = it },
+        )
+
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
         }
 
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     contentAlignment = Alignment.Center,
@@ -3422,15 +3567,29 @@ private fun LostFoundFeatureScreen(navController: NavController) {
                     OneTownCityCircularLoading(label = "Loading lost & found reports")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load Lost & Found",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Lost & Found reports haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Outlined.Search,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load Lost & Found",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            displayItems.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No reports found",
                     message = "No lost or found reports match your current search, city, or type filter.",
@@ -3457,10 +3616,10 @@ private fun LostFoundFeatureScreen(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(displayItems, key = { _, item -> item.id }) { _, item ->
                         LostFoundCard(item = item, onClick = { navController.navigate("lost-found/${item.id}") })
                     }
-                    if (isLoadingMore) {
+                    if (uiState.isLoadingMore) {
                         item {
                             Box(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
@@ -3500,6 +3659,17 @@ private fun LostFoundCard(
                 )
             }
 
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            if (item.location.isNotBlank()) {
+                DetailRow(icon = Icons.Filled.LocationOn, title = item.location)
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -3522,23 +3692,12 @@ private fun LostFoundCard(
             }
 
             Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            Text(
                 text = item.description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
-
-            if (item.location.isNotBlank()) {
-                DetailRow(icon = Icons.Filled.LocationOn, title = item.location)
-            }
         }
     }
 }
@@ -3622,11 +3781,11 @@ private fun LostFoundDetailScreen(
                         OneTownCityButton(
                             text = "Contact",
                             onClick = {
-                                val uri = Uri.parse("tel:${item.contact}")
+                                val uri = "tel:${item.contact}".toUri()
                                 val intent = Intent(Intent.ACTION_DIAL, uri)
                                 activity?.startActivity(intent)
                             },
-                            leadingIcon = Icons.Filled.Phone,
+                            leadingIcon = Icons.Filled.Call,
                             variant = OneTownCityButtonVariant.Primary,
                             modifier = Modifier.weight(1f),
                         )
@@ -3648,6 +3807,24 @@ private fun LostFoundDetailScreen(
                     }
                 }
             }
+
+            item {
+                ReviewsSection(
+                    modelKey = "lostfound",
+                    listingId = item.id,
+                    avgRating = item.avgRating,
+                    reviewCount = item.reviewCount,
+                    navController = navController,
+                )
+            }
+            item {
+                CommentsSection(
+                    modelKey = "lostfound",
+                    listingId = item.id,
+                    commentCount = item.commentCount,
+                    navController = navController,
+                )
+            }
         }
     }
 }
@@ -3656,58 +3833,37 @@ private fun LostFoundDetailScreen(
 private fun PlacesToVisitFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
-    var selectedCity by rememberSaveable { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
     val localContext = LocalContext.current
     var permissionState by remember { mutableStateOf(resolveLocationPermissionState(localContext)) }
-    var items by remember { mutableStateOf<List<PlaceItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    val coroutineScope = rememberCoroutineScope()
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyListState()
 
-    fun loadPage(reset: Boolean = false) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
+    val viewModel: ListingsViewModel<PlaceItem> = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                ListingsViewModel(
+                    buildUrl = { q, _, citySlug, page -> buildBusinessCategoryUrl("tourism", q, citySlug, page) },
+                    fetchPage = { q, _, citySlug, page -> fetchPlacesToVisit(q, citySlug, page) },
+                    parseItem = { parsePlace(it, "") },
+                )
             }
-            try {
-                val pageToLoad = if (reset) 1 else page
-                val result = fetchPlacesToVisit(query, selectedCity?.slug ?: cityQuery.trim(), pageToLoad)
-                items = if (reset) result.items else items + result.items
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: (pageToLoad + 1)
-                error = null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load places right now."
-                } else {
-                    error = e.message ?: "Unable to load more places."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
     LaunchedEffect(query, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -3715,10 +3871,10 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
+            viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -3757,7 +3913,7 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
                 )
                 OneTownCityTextField(
                     value = cityQuery,
-                    onValueChange = { cityQuery = it; selectedCity = null },
+                    onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
                     placeholder = "City or area",
                     leadingIcon = Icons.Filled.LocationOn,
                 )
@@ -3773,6 +3929,7 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
                                     selectedCity = suggestion
                                     cityQuery = suggestion.name
                                     citySuggestions = emptyList()
+                                    hasManualCityOverride = true
                                 },
                                 variant = OneTownCityButtonVariant.Outlined,
                             )
@@ -3793,8 +3950,15 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
             }
         }
 
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
+        }
+
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     contentAlignment = Alignment.Center,
@@ -3802,15 +3966,29 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
                     OneTownCityCircularLoading(label = "Loading places")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load places",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Places to visit haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Outlined.LocationOn,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load places",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            uiState.items.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No places found",
                     message = "No nearby attractions match your current search and city filter.",
@@ -3836,10 +4014,10 @@ private fun PlacesToVisitFeatureScreen(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(uiState.items, key = { _, item -> item.id }) { _, item ->
                         PlaceCard(item = item, onClick = { navController.navigate("place/${item.id}") })
                     }
-                    if (isLoadingMore) {
+                    if (uiState.isLoadingMore) {
                         item {
                             Box(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
@@ -3879,15 +4057,18 @@ private fun PlaceCard(
                 )
             }
             Text(
-                text = item.category,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Text(
                 text = item.title,
                 style = MaterialTheme.typography.titleLarge,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
+            )
+            if (item.address.isNotBlank()) {
+                DetailRow(icon = Icons.Filled.LocationOn, title = item.address)
+            }
+            Text(
+                text = item.category,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
             )
             if (item.distanceLabel.isNotBlank()) {
                 Text(
@@ -3895,9 +4076,6 @@ private fun PlaceCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            }
-            if (item.address.isNotBlank()) {
-                DetailRow(icon = Icons.Filled.LocationOn, title = item.address)
             }
         }
     }
@@ -3988,425 +4166,23 @@ private fun PlaceDetailScreen(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun MarketplaceFeatureScreen(navController: NavController) {
-    var query by rememberSaveable { mutableStateOf("") }
-    var selectedCategory by rememberSaveable { mutableStateOf("All") }
-    var selectedType by rememberSaveable { mutableStateOf(MarketplaceTypeFilter.ALL) }
-    // No backend marketplace model exists yet (see the comment above
-    // marketplaceCache) — this list is never populated from the network so
-    // we never show Property listings mislabeled as marketplace goods.
-    val items = remember { emptyList<MarketplaceItem>() }
-    var isLoading by remember { mutableStateOf(false) }
-    val error: String? = null
-    val listState = rememberLazyListState()
-
-    LaunchedEffect(query, selectedCategory, selectedType) {
-        isLoading = false
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        OneTownCityTopAppBar(
-            title = "Buy / Sell / Exchange",
-            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-            onNavigationClick = { navController.popBackStack() },
-        )
-
-        OneTownCityTextField(
-            value = query,
-            onValueChange = { query = it },
-            placeholder = "Search student marketplace",
-            leadingIcon = Icons.Default.Search,
-        )
-
-        Surface(
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 1.dp,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Text(
-                    text = "Filters",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    MarketplaceTypeFilter.entries.forEach { filter ->
-                        val selected = filter == selectedType
-                        OneTownCityButton(
-                            text = filter.label,
-                            onClick = { selectedType = filter },
-                            variant = if (selected) OneTownCityButtonVariant.Primary else OneTownCityButtonVariant.Outlined,
-                        )
-                    }
-                }
-            }
-        }
-
-        if (marketplaceCategories.isNotEmpty()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                marketplaceCategories.forEach { category ->
-                    val selected = category == selectedCategory
-                    OneTownCityButton(
-                        text = category,
-                        onClick = { selectedCategory = category },
-                        variant = if (selected) OneTownCityButtonVariant.Secondary else OneTownCityButtonVariant.Outlined,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-            }
-        }
-
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    OneTownCityCircularLoading(label = "Loading listings")
-                }
-            }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load marketplace",
-                    message = error,
-                    actionText = "Retry",
-                    onRetry = { },
-                )
-            }
-            items.isEmpty() -> {
-                OneTownCityEmptyState(
-                    title = "No verified marketplace listings available",
-                    message = "This backend does not currently expose a student buy/sell/exchange model. We do not show property listings or guessed items in their place.",
-                    icon = Icons.Outlined.ShoppingCart,
-                    action = {
-                        OneTownCityButton(
-                            text = "Reset filters",
-                            onClick = {
-                                query = ""
-                                selectedCategory = "All"
-                                selectedType = MarketplaceTypeFilter.ALL
-                            },
-                            variant = OneTownCityButtonVariant.Outlined,
-                        )
-                    },
-                )
-            }
-            else -> {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(bottom = 24.dp),
-                ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
-                        MarketplaceCard(
-                            item = item,
-                            onClick = { navController.navigate("marketplace/${item.id}") },
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MarketplaceCard(
-    item: MarketplaceItem,
-    onClick: () -> Unit,
-) {
-    Surface(
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            if (item.imageUrl.isNotBlank()) {
-                AsyncImage(
-                    model = rememberOptimizedImageRequest(item.imageUrl),
-                    contentDescription = item.title,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
-                    contentScale = ContentScale.Crop,
-                )
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ShoppingCart,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(30.dp),
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = item.category,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Surface(
-                        shape = RoundedCornerShape(999.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                    ) {
-                        Text(
-                            text = if (item.transactionType.equals("rent", true)) "For rent" else if (item.transactionType.equals("sale", true)) "For sale" else "Exchange",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            maxLines = 1,
-                        )
-                    }
-                }
-
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Text(
-                    text = item.price,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Text(
-                    text = item.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.LocationOn,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(
-                        text = item.location,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-
-                if (item.contactNumber.isNotBlank()) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Phone,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Text(
-                            text = item.contactNumber,
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MarketplaceDetailScreen(
-    navController: NavController,
-    item: MarketplaceItem,
-) {
-    val context = LocalContext.current
-    val activity = context as? Activity
-
-    Column(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-    ) {
-        OneTownCityTopAppBar(
-            title = item.title,
-            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-            onNavigationClick = { navController.popBackStack() },
-        )
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-        ) {
-            item {
-                if (item.imageUrl.isNotBlank()) {
-                    AsyncImage(
-                        model = rememberOptimizedImageRequest(item.imageUrl),
-                        contentDescription = item.title,
-                        modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
-                        contentScale = ContentScale.Crop,
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
-                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.ShoppingCart,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(36.dp),
-                        )
-                    }
-                }
-            }
 
             item {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 1.dp,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Text(
-                            text = item.title,
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
-                        Text(
-                            text = item.price,
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            text = item.category,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            text = item.description,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+                ReviewsSection(
+                    modelKey = "business",
+                    listingId = item.id,
+                    avgRating = item.avgRating,
+                    reviewCount = item.reviewCount,
+                    navController = navController,
+                )
             }
-
             item {
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 1.dp,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Text(
-                            text = "Seller information",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        if (item.ownerName.isNotBlank()) {
-                            DetailRow(icon = Icons.Filled.Person, title = item.ownerName)
-                        }
-                        if (item.location.isNotBlank()) {
-                            DetailRow(icon = Icons.Filled.LocationOn, title = item.location)
-                        }
-                        if (item.contactNumber.isNotBlank()) {
-                            DetailRow(icon = Icons.Filled.Phone, title = item.contactNumber)
-                        }
-                    }
-                }
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    if (item.contactNumber.isNotBlank()) {
-                        OneTownCityButton(
-                            text = "Call seller",
-                            onClick = {
-                                val uri = Uri.parse("tel:${item.contactNumber}")
-                                val intent = Intent(Intent.ACTION_DIAL, uri)
-                                activity?.startActivity(intent)
-                            },
-                            leadingIcon = Icons.Filled.Call,
-                            variant = OneTownCityButtonVariant.Primary,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                    if (item.url.isNotBlank()) {
-                        OneTownCityButton(
-                            text = "View listing",
-                            onClick = {
-                                safeWebUri(item.url)?.let { uri ->
-                                    try {
-                                        activity?.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                                    } catch (_: ActivityNotFoundException) { }
-                                }
-                            },
-                            leadingIcon = Icons.Filled.Language,
-                            variant = OneTownCityButtonVariant.Secondary,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
+                CommentsSection(
+                    modelKey = "business",
+                    listingId = item.id,
+                    commentCount = item.commentCount,
+                    navController = navController,
+                )
             }
         }
     }
@@ -4425,20 +4201,25 @@ internal data class EventItem(
     val detailUrl: String,
 )
 
-internal data class EventsPage(
-    val items: List<EventItem>,
-    val nextPage: Int?,
-    val count: Int,
-)
 
 private const val EVENTS_API_BASE_URL = "https://onetowncity.com"
 private val eventCache = BoundedItemCache<Int, EventItem>(200)
 
-private var eventsFetcher: suspend (String, String, Int) -> EventsPage = { query, citySlug, page ->
-    fetchEvents(query, citySlug, page)
+private var eventsFetcher: suspend (String, String, Int, Boolean) -> ApiListPage<EventItem> = { query, citySlug, page, restrictToUpcoming ->
+    fetchEvents(query, citySlug, page, restrictToUpcoming)
 }
 
-private fun buildEventsUrl(query: String, citySlug: String, page: Int, pageSize: Int): String {
+/**
+ * `upcoming=true` (core/api/views.py: `qs.filter(event_date__gte=timezone.
+ * localdate())`) is only appropriate when the caller actually wants
+ * future-only events. It used to be appended unconditionally, which meant
+ * selecting the "All" date filter in EventsFeatureScreen still silently
+ * asked the server for upcoming-only events — past events could never be
+ * shown no matter what the UI filter said. [restrictToUpcoming] defaults to
+ * true so every other existing caller (preloading, the This week/This
+ * month/Upcoming filters) keeps its prior behavior unchanged.
+ */
+internal fun buildEventsUrl(query: String, citySlug: String, page: Int, pageSize: Int, restrictToUpcoming: Boolean = true): String {
     val encodedQuery = URLEncoder.encode(if (query.isBlank()) "" else query, "UTF-8")
     val encodedCity = citySlug.takeIf { it.isNotBlank() }?.let { URLEncoder.encode(it, "UTF-8") }
     return buildString {
@@ -4453,7 +4234,7 @@ private fun buildEventsUrl(query: String, citySlug: String, page: Int, pageSize:
         append(page)
         append("&page_size=")
         append(pageSize)
-        append("&upcoming=true")
+        if (restrictToUpcoming) append("&upcoming=true")
         if (!encodedCity.isNullOrEmpty()) {
             append("&city=")
             append(encodedCity)
@@ -4461,48 +4242,34 @@ private fun buildEventsUrl(query: String, citySlug: String, page: Int, pageSize:
     }
 }
 
+private fun parseEvent(result: JSONObject, citySlugFallback: String): EventItem {
+    val city = result.optJSONObject("city")
+    val cityName = city?.optString("name") ?: citySlugFallback
+    val citySlugValue = city?.optString("slug") ?: citySlugFallback
+    val location = result.optString("location", "")
+    val item = EventItem(
+        id = result.optInt("id"),
+        title = result.optString("title", "Event"),
+        description = result.optString("description", "").ifBlank { "Local event details coming soon." },
+        location = location.ifBlank { cityName },
+        contactNumber = result.optString("contact_number", ""),
+        eventDate = result.optString("event_date", ""),
+        imageUrl = result.optString("display_image", ""),
+        cityName = cityName,
+        citySlug = citySlugValue,
+        detailUrl = result.optString("url", ""),
+    )
+    eventCache[item.id] = item
+    return item
+}
+
 internal suspend fun fetchEvents(
     query: String,
     citySlug: String,
     page: Int,
-): EventsPage {
-    val json = httpJson(buildEventsUrl(query, citySlug, page, 10))
-    val results = json.optJSONArray("results") ?: JSONArray()
-    val nextLink = json.optString("next", "")
-    val nextPage = if (nextLink.isBlank()) null else page + 1
-    val items = mutableListOf<EventItem>()
-
-    for (i in 0 until results.length()) {
-        val result = results.getJSONObject(i)
-        val city = result.optJSONObject("city")
-        val cityName = city?.optString("name") ?: citySlug
-        val citySlugValue = city?.optString("slug") ?: citySlug
-        val title = result.optString("title", "Event")
-        val description = result.optString("description", "")
-        val location = result.optString("location", "")
-        val contactNumber = result.optString("contact_number", "")
-        val eventDate = result.optString("event_date", "")
-        val imageUrl = result.optString("display_image", "")
-        val detailUrl = result.optString("url", "")
-
-        val item = EventItem(
-            id = result.optInt("id"),
-            title = title,
-            description = description.ifBlank { "Local event details coming soon." },
-            location = location.ifBlank { cityName },
-            contactNumber = contactNumber,
-            eventDate = eventDate,
-            imageUrl = imageUrl,
-            cityName = cityName,
-            citySlug = citySlugValue,
-            detailUrl = detailUrl,
-        )
-        items += item
-        eventCache[item.id] = item
-    }
-
-    return EventsPage(items = items, nextPage = nextPage, count = json.optInt("count", items.size))
-}
+    restrictToUpcoming: Boolean = true,
+): ApiListPage<EventItem> =
+    fetchListPage(buildEventsUrl(query, citySlug, page, 10, restrictToUpcoming), page) { parseEvent(it, citySlug) }
 
 private enum class EventDateFilter(val label: String) {
     ALL("All"),
@@ -4586,60 +4353,48 @@ private fun EventsFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
     var selectedCity by rememberSaveable { mutableStateOf(AppCityState.current.value?.slug) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var dateFilter by rememberSaveable { mutableStateOf(EventDateFilter.UPCOMING) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
-    var items by remember { mutableStateOf<List<EventItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    val coroutineScope = rememberCoroutineScope()
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyGridState()
 
-    fun loadPage(reset: Boolean = false) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
-            }
+    // dateFilter's finer THIS_WEEK/THIS_MONTH/UPCOMING distinctions are
+    // refined client-side via matchesDateFilter (the server only knows
+    // upcoming vs. not) — but ALL vs. not-ALL changes the actual network
+    // query: only ALL asks the server for past events too, so it's threaded
+    // through ListingsViewModel's categoryKey slot ("all"/"upcoming") to
+    // vary the fetch (and its offline cache key) rather than being purely
+    // a client-side re-filter like the rest of dateFilter.
+    val isAllDates = dateFilter == EventDateFilter.ALL
+    val dateMode = if (isAllDates) "all" else "upcoming"
 
-            try {
-                val citySlug = selectedCity ?: cityQuery.trim()
-                val pageToLoad = if (reset) 1 else page
-                val result = eventsFetcher(query, citySlug, pageToLoad)
-                if (reset) {
-                    items = result.items.filter { matchesDateFilter(it.eventDate, dateFilter) }
-                } else {
-                    items = (items + result.items).distinctBy { it.id }.filter { matchesDateFilter(it.eventDate, dateFilter) }
-                }
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: (pageToLoad + 1)
-                error = null
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load events right now."
-                } else {
-                    error = e.message ?: "Unable to load more events."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
+    val viewModel: ListingsViewModel<EventItem> = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                ListingsViewModel(
+                    buildUrl = { q, mode, citySlug, page -> buildEventsUrl(q, citySlug, page, 10, restrictToUpcoming = mode != "all") },
+                    fetchPage = { q, mode, citySlug, page -> eventsFetcher(q, citySlug, page, mode != "all") },
+                    parseItem = { parseEvent(it, "") },
+                )
             }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+    val displayItems = remember(uiState.items, dateFilter) {
+        uiState.items.distinctBy { it.id }.filter { matchesDateFilter(it.eventDate, dateFilter) }
+    }
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.slug
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
-    LaunchedEffect(query, selectedCity ?: cityQuery, dateFilter) {
+    LaunchedEffect(query, selectedCity ?: cityQuery, isAllDates) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, dateMode, selectedCity ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -4651,10 +4406,10 @@ private fun EventsFeatureScreen(navController: NavController) {
         }
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= displayItems.size - 3) {
+            viewModel.load(query, dateMode, selectedCity ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -4693,7 +4448,7 @@ private fun EventsFeatureScreen(navController: NavController) {
                 )
                 OneTownCityTextField(
                     value = cityQuery,
-                    onValueChange = { cityQuery = it; selectedCity = null },
+                    onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
                     placeholder = "City or area",
                     leadingIcon = Icons.Filled.LocationOn,
                 )
@@ -4709,30 +4464,30 @@ private fun EventsFeatureScreen(navController: NavController) {
                                     selectedCity = suggestion.slug
                                     cityQuery = suggestion.name
                                     citySuggestions = emptyList()
+                                    hasManualCityOverride = true
                                 },
                                 variant = OneTownCityButtonVariant.Outlined,
                             )
                         }
                     }
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    EventDateFilter.entries.forEach { filter ->
-                        val selected = filter == dateFilter
-                        OneTownCityButton(
-                            text = filter.label,
-                            onClick = { dateFilter = filter },
-                            variant = if (selected) OneTownCityButtonVariant.Primary else OneTownCityButtonVariant.Outlined,
-                        )
-                    }
-                }
+                OneTownCityChipGroup(
+                    items = EventDateFilter.entries.map { it.label },
+                    selected = setOf(dateFilter.label),
+                    onSelected = { label -> dateFilter = EventDateFilter.entries.first { it.label == label } },
+                )
             }
         }
 
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
+        }
+
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     contentAlignment = Alignment.Center,
@@ -4740,15 +4495,29 @@ private fun EventsFeatureScreen(navController: NavController) {
                     OneTownCityCircularLoading(label = "Loading events")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load events",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Events haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Outlined.Event,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, dateMode, selectedCity ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load events",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, dateMode, selectedCity ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            displayItems.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No events found",
                     message = "Try a different city, keyword, or date filter to discover upcoming opportunities in your area.",
@@ -4784,13 +4553,13 @@ private fun EventsFeatureScreen(navController: NavController) {
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(bottom = 24.dp),
                     ) {
-                        itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                        itemsIndexed(displayItems, key = { _, item -> item.id }) { _, item ->
                             EventCard(
                                 item = item,
                                 onClick = { navController.navigate("event/${item.id}") },
                             )
                         }
-                        if (isLoadingMore) {
+                        if (uiState.isLoadingMore) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 Box(
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
@@ -4889,7 +4658,7 @@ private fun EventCard(
                 }
 
                 Surface(
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f),
                     modifier = Modifier.widthIn(min = 90.dp)
                 ) {
@@ -5074,7 +4843,7 @@ private fun EventDetailScreen(
                         OneTownCityButton(
                             text = "Call organizer",
                             onClick = {
-                                val uri = Uri.parse("tel:${item.contactNumber}")
+                                val uri = "tel:${item.contactNumber}".toUri()
                                 val intent = Intent(Intent.ACTION_DIAL, uri)
                                 activity?.startActivity(intent)
                             },
@@ -5116,11 +4885,31 @@ internal data class TuitionCenterItem(
     val imageUrl: String,
     val cityName: String,
     val citySlug: String,
+    val avgRating: Double = 0.0,
+    val reviewCount: Int = 0,
+    val commentCount: Int = 0,
 )
 
 internal data class CitySuggestion(
     val slug: String,
     val name: String,
+)
+
+/**
+ * Without this, every `var selectedCity by remember { mutableStateOf(...) }`
+ * across the browse screens loses its value on rotation/process death —
+ * `remember` (not rememberSaveable) never survives either — while the
+ * screen's own `cityQuery` text (a plain String, natively saveable) does.
+ * The resulting fetch then falls back to `cityQuery.trim()` as the `city=`
+ * query param instead of the real slug, and core/api/views.py's
+ * _resolve_city does an exact `filter(slug=slug)` match: a display name
+ * essentially never equals its own slug (casing/spacing differ), so the
+ * filter silently matches nothing and the backend returns every city's
+ * results unfiltered, with no error surfaced anywhere.
+ */
+internal val CitySuggestionSaver = listSaver<CitySuggestion?, String>(
+    save = { suggestion -> suggestion?.let { listOf(it.slug, it.name) } ?: emptyList() },
+    restore = { saved -> if (saved.size == 2) CitySuggestion(slug = saved[0], name = saved[1]) else null },
 )
 
 private val tuitionCenterCache = BoundedItemCache<Int, TuitionCenterItem>(200)
@@ -5150,6 +4939,9 @@ private fun parseTuitionCenter(result: JSONObject, citySlugFallback: String): Tu
         imageUrl = result.optString("display_image", ""),
         cityName = cityName,
         citySlug = citySlugValue,
+        avgRating = result.optDouble("avg_rating", 0.0).let { if (it.isNaN()) 0.0 else it },
+        reviewCount = result.optInt("review_count", 0),
+        commentCount = result.optInt("comment_count", 0),
     )
     tuitionCenterCache[item.id] = item
     return item
@@ -5213,58 +5005,35 @@ internal suspend fun fetchCitySuggestionsSafely(cityQuery: String): List<CitySug
 internal fun TuitionCentersFeatureScreen(navController: NavController) {
     var query by rememberSaveable { mutableStateOf("") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
-    var selectedCity by rememberSaveable { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
-    var items by remember { mutableStateOf<List<TuitionCenterItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    val coroutineScope = rememberCoroutineScope()
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyListState()
 
-    fun loadPage(reset: Boolean = false) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
+    val viewModel: ListingsViewModel<TuitionCenterItem> = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                ListingsViewModel(
+                    buildUrl = { q, _, citySlug, page -> buildBusinessCategoryUrl("tuition_center", q, citySlug, page) },
+                    fetchPage = { q, _, citySlug, page -> tuitionCentersFetcher(q, citySlug, page) },
+                    parseItem = { parseTuitionCenter(it, "") },
+                )
             }
-            try {
-                val pageToLoad = if (reset) 1 else page
-                val result = tuitionCentersFetcher(query, selectedCity?.slug ?: cityQuery.trim(), pageToLoad)
-                if (reset) {
-                    items = result.items
-                } else {
-                    items = items + result.items
-                }
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: (pageToLoad + 1)
-                error = null
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load tuition centers right now."
-                } else {
-                    error = e.message ?: "Unable to load more tuition centers."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
     LaunchedEffect(query, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -5272,10 +5041,10 @@ internal fun TuitionCentersFeatureScreen(navController: NavController) {
         citySuggestions = citySuggestionsFetcher(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
+            viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -5314,7 +5083,7 @@ internal fun TuitionCentersFeatureScreen(navController: NavController) {
                 )
                 OneTownCityTextField(
                     value = cityQuery,
-                    onValueChange = { cityQuery = it; selectedCity = null },
+                    onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
                     placeholder = "City or area",
                     leadingIcon = Icons.Filled.LocationOn,
                 )
@@ -5330,6 +5099,7 @@ internal fun TuitionCentersFeatureScreen(navController: NavController) {
                                     selectedCity = suggestion
                                     cityQuery = suggestion.name
                                     citySuggestions = emptyList()
+                                    hasManualCityOverride = true
                                 },
                                 variant = OneTownCityButtonVariant.Outlined,
                             )
@@ -5346,8 +5116,15 @@ internal fun TuitionCentersFeatureScreen(navController: NavController) {
             }
         }
 
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
+        }
+
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     contentAlignment = Alignment.Center,
@@ -5355,15 +5132,29 @@ internal fun TuitionCentersFeatureScreen(navController: NavController) {
                     OneTownCityCircularLoading(label = "Loading tuition centers")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load tuition centers",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Tuition centers haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Outlined.School,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load tuition centers",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, "", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            uiState.items.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No tuition centers found",
                     message = "No nearby coaching or academic support listings match your current search and city filter.",
@@ -5389,13 +5180,13 @@ internal fun TuitionCentersFeatureScreen(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(uiState.items, key = { _, item -> item.id }) { _, item ->
                         TuitionCenterCard(
                             item = item,
                             onClick = { navController.navigate("tuition-center/${item.id}") },
                         )
                     }
-                    if (isLoadingMore) {
+                    if (uiState.isLoadingMore) {
                         item {
                             Box(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
@@ -5452,6 +5243,33 @@ private fun TuitionCenterCard(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = item.subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -5480,39 +5298,12 @@ private fun TuitionCenterCard(
                 }
 
                 Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                Text(
                     text = item.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.LocationOn,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(
-                        text = item.subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
 
                 if (item.phoneNumber.isNotBlank()) {
                     Row(
@@ -5521,7 +5312,7 @@ private fun TuitionCenterCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Phone,
+                            imageVector = Icons.Filled.Call,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp),
@@ -5647,7 +5438,7 @@ private fun TuitionCenterDetailScreen(
                         OneTownCityButton(
                             text = "Call",
                             onClick = {
-                                val uri = Uri.parse("tel:${item.phoneNumber}")
+                                val uri = "tel:${item.phoneNumber}".toUri()
                                 val intent = Intent(Intent.ACTION_DIAL, uri)
                                 activity?.startActivity(intent)
                             },
@@ -5675,9 +5466,8 @@ private fun TuitionCenterDetailScreen(
             }
 
             item {
-                val mapsUri = safeWebUri(item.mapsLink) ?: Uri.parse(
-                    "https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.name, "UTF-8")}" 
-                )
+                val mapsUri = safeWebUri(item.mapsLink)
+                    ?: "https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.name, "UTF-8")}".toUri()
                 OneTownCityButton(
                     text = "Get directions",
                     onClick = {
@@ -5688,6 +5478,24 @@ private fun TuitionCenterDetailScreen(
                     },
                     leadingIcon = Icons.Filled.LocationOn,
                     variant = OneTownCityButtonVariant.Outlined,
+                )
+            }
+
+            item {
+                ReviewsSection(
+                    modelKey = "business",
+                    listingId = item.id,
+                    avgRating = item.avgRating,
+                    reviewCount = item.reviewCount,
+                    navController = navController,
+                )
+            }
+            item {
+                CommentsSection(
+                    modelKey = "business",
+                    listingId = item.id,
+                    commentCount = item.commentCount,
+                    navController = navController,
                 )
             }
         }
@@ -5789,8 +5597,8 @@ private fun FavoritesScreen(navController: NavController) {
 
     LaunchedEffect(Unit) { loadPage(reset = true) }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
         if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
             loadPage(reset = false)
         }
@@ -5923,7 +5731,7 @@ private fun FavoriteCard(
                 }
             }
             Box(
-                modifier = Modifier.clickable(onClick = onRemove).padding(8.dp),
+                modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).clickable(onClick = onRemove),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(imageVector = Icons.Filled.Star, contentDescription = "Remove from favorites", tint = MaterialTheme.colorScheme.primary)
@@ -5988,8 +5796,8 @@ private fun NotificationsScreen(navController: NavController) {
 
     LaunchedEffect(Unit) { loadPage(reset = true) }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
         if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
             loadPage(reset = false)
         }
@@ -6118,7 +5926,7 @@ private fun NotificationCard(
     }
 }
 
-private fun NavController.navigateToTab(tab: AppTab) {
+internal fun NavController.navigateToTab(tab: AppTab) {
     navigate(tab.route) {
         val current = graph.findStartDestination().id
         popUpTo(current) { saveState = true }

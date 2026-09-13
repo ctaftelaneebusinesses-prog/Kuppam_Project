@@ -3,7 +3,6 @@ package com.onetowncity.app
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.onetowncity.app.designsystem.OneTownCityButton
 import com.onetowncity.app.designsystem.OneTownCityButtonVariant
@@ -65,9 +66,9 @@ import org.json.JSONObject
 /**
  * Real Property browse/detail (Phase 4 §4) — a distinct listing type from
  * Marketplace (core/models.py's Property vs. Business category="marketplace"
- * used by the Buy/Sell/Exchange student feature); this file never touches
- * MarketplaceItem/fetchMarketplace*. Unlike Business, Property's `category`
- * query param matches the generic Category.key (core/api/views.py's
+ * used by the Buy/Sell/Exchange student feature, see BusinessScreens.kt's
+ * MarketplaceFeatureScreen). Unlike Business, Property's `category` query
+ * param matches the generic Category.key (core/api/views.py's
  * _list_listings: `qs.filter(listing_category__key=category_param)` for any
  * non-business model_key), so category options come from fetchCategories,
  * not a hardcoded list.
@@ -145,7 +146,8 @@ internal suspend fun fetchPropertyDetail(id: Int): PropertyItem =
 internal fun PropertyBrowseScreen(navController: NavController, initialCategoryKey: String? = null) {
     var query by rememberSaveable { mutableStateOf("") }
     var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
-    var selectedCity by remember { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
     var categories by remember { mutableStateOf<List<CategoryOption>>(emptyList()) }
     var selectedCategoryKey by rememberSaveable { mutableStateOf(initialCategoryKey.orEmpty()) }
@@ -170,6 +172,14 @@ internal fun PropertyBrowseScreen(navController: NavController, initialCategoryK
     )
     val uiState by viewModel.state.collectAsState()
 
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
+        }
+    }
+
     LaunchedEffect(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
         viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true)
@@ -180,8 +190,8 @@ internal fun PropertyBrowseScreen(navController: NavController, initialCategoryK
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
         if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
             viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
@@ -207,7 +217,7 @@ internal fun PropertyBrowseScreen(navController: NavController, initialCategoryK
 
         OneTownCityTextField(
             value = cityQuery,
-            onValueChange = { cityQuery = it; selectedCity = null },
+            onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
             placeholder = "City or area (optional)",
             leadingIcon = Icons.Filled.LocationOn,
         )
@@ -216,7 +226,7 @@ internal fun PropertyBrowseScreen(navController: NavController, initialCategoryK
                 citySuggestions.take(3).forEach { suggestion ->
                     OneTownCityButton(
                         text = suggestion.name,
-                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList() },
+                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList(); hasManualCityOverride = true },
                         variant = OneTownCityButtonVariant.Outlined,
                     )
                 }
@@ -332,12 +342,12 @@ private fun PropertyCard(item: PropertyItem, onClick: () -> Unit) {
                 }
             }
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(text = item.propertyTypeLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 Text(text = item.title, style = MaterialTheme.typography.titleMedium)
-                Text(text = formatRupees(item.price), style = MaterialTheme.typography.titleSmall)
                 if (item.location.isNotBlank()) {
                     Text(text = item.location, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
                 }
+                Text(text = item.propertyTypeLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                Text(text = formatRupees(item.price), style = MaterialTheme.typography.titleSmall)
             }
         }
     }
@@ -440,14 +450,14 @@ private fun PropertyDetailContent(navController: NavController, item: PropertyIt
                     if (item.contactNumber.isNotBlank()) {
                         OneTownCityButton(
                             text = "Call",
-                            onClick = { activity?.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${item.contactNumber}"))) },
+                            onClick = { activity?.startActivity(Intent(Intent.ACTION_DIAL, "tel:${item.contactNumber}".toUri())) },
                             leadingIcon = Icons.Filled.Call,
                             variant = OneTownCityButtonVariant.Primary,
                             modifier = Modifier.weight(1f),
                         )
                     }
                     val mapsUri = safeWebUri(item.mapsLink)
-                        ?: Uri.parse("https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.title, "UTF-8")}")
+                        ?: "https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.title, "UTF-8")}".toUri()
                     OneTownCityButton(
                         text = "Get directions",
                         onClick = {

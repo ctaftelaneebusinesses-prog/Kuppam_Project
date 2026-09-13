@@ -56,6 +56,7 @@ fun OneTownCityListItem(
     trailing: (@Composable () -> Unit)? = null,
     leading: (@Composable () -> Unit)? = null,
     onClick: (() -> Unit)? = null,
+    titleMaxLines: Int = 1,
 ) {
     val clickModifier = if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier
     Surface(
@@ -74,7 +75,7 @@ fun OneTownCityListItem(
                 leading()
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(title, style = MaterialTheme.typography.titleMedium, maxLines = titleMaxLines, overflow = TextOverflow.Ellipsis)
                 if (subtitle != null) {
                     Spacer(modifier = Modifier.height(OneTownCitySpacing.xs))
                     Text(

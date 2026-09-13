@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    android:allowBackup="false" (AndroidManifest.xml) already disables cloud
+    backup app-wide, but on Android 12+ that attribute no longer governs
+    device-to-device transfer (a new user setting up a phone from an old
+    one) — that needs this file. Excludes the same data allowBackup was
+    protecting: EncryptedSharedPreferences-backed auth tokens (TokenStore,
+    PendingAuthStore) and the OfflineCache SQLite database, so neither
+    leaves the device via either path.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" />
+        <exclude domain="database" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" />
+        <exclude domain="database" />
+    </device-transfer>
+</data-extraction-rules>

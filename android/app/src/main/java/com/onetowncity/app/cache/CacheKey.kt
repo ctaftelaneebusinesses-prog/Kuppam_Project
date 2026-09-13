@@ -7,7 +7,7 @@ internal enum class DataFreshness { LIVE, CACHED_FRESH, CACHED_STALE }
 
 internal data class CacheTarget(val entityType: String, val citySlug: String?)
 
-private val CACHEABLE_PREFIXES = listOf("/api/v1/listings/", "/api/v1/categories/")
+private val CACHEABLE_PREFIXES = listOf("/api/v1/listings/", "/api/v1/categories/", "/api/v1/search/")
 
 /**
  * Decides whether a GET response for this URL is worth caching at all, and
@@ -23,10 +23,10 @@ internal fun cacheTargetFor(urlString: String): CacheTarget? {
     val url = runCatching { URL(urlString) }.getOrNull() ?: return null
     val path = url.path
     if (CACHEABLE_PREFIXES.none { path.startsWith(it) }) return null
-    val entityType = if (path.startsWith("/api/v1/categories/")) {
-        "category"
-    } else {
-        path.removePrefix("/api/v1/listings/").trim('/').substringBefore('/').ifBlank { "listing" }
+    val entityType = when {
+        path.startsWith("/api/v1/categories/") -> "category"
+        path.startsWith("/api/v1/search/") -> "search"
+        else -> path.removePrefix("/api/v1/listings/").trim('/').substringBefore('/').ifBlank { "listing" }
     }
     val citySlug = url.query
         ?.split("&")

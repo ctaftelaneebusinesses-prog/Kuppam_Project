@@ -41,6 +41,12 @@ class CacheKeyTest {
     }
 
     @Test
+    fun `search results are cacheable with their city slug`() {
+        val target = cacheTargetFor("https://onetowncity.com/api/v1/search/?q=coffee&city=kuppam")
+        assertEquals(CacheTarget(entityType = "search", citySlug = "kuppam"), target)
+    }
+
+    @Test
     fun `a malformed url is not cacheable rather than throwing`() {
         assertNull(cacheTargetFor("not a url"))
     }
