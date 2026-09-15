@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="128dp" android:height="128dp" android:viewportWidth="512" android:viewportHeight="512">
+    <!--
+        Single-color counterpart of ic_splash.xml for Android 13+ themed
+        icons (MonochromeLauncherIcon lint) — same ring + skyline-bars
+        silhouette, but the ring is one compound evenOdd path instead of
+        two solid circles color-matched to the background, since a
+        monochrome layer has no fixed background to match against (the
+        system tints/masks this layer to a single color itself).
+    -->
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M256,118a138,138 0,1 0,0 276a138,138 0,1 0,0 -276M256,170a46,46 0,1 0,0 92a46,46 0,1 0,0 -92" />
+    <path android:strokeColor="#FF000000" android:strokeWidth="24" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M134,388h244" />
+    <path android:strokeColor="#FF000000" android:strokeWidth="18" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M188,388v-42M256,388v-76M324,388v-52" />
+</vector>

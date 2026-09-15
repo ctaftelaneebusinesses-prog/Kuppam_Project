@@ -3,7 +3,6 @@ package com.onetowncity.app
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +30,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,10 +43,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.onetowncity.app.designsystem.OneTownCityButton
 import com.onetowncity.app.designsystem.OneTownCityButtonVariant
+import com.onetowncity.app.designsystem.OneTownCityCacheStatusBanner
 import com.onetowncity.app.designsystem.OneTownCityChipGroup
 import com.onetowncity.app.designsystem.OneTownCityCircularLoading
 import com.onetowncity.app.designsystem.OneTownCityEmptyState
@@ -54,7 +60,6 @@ import com.onetowncity.app.designsystem.OneTownCityTextField
 import com.onetowncity.app.designsystem.OneTownCityTopAppBar
 import java.net.URLEncoder
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -95,7 +100,7 @@ private fun parseProject(json: JSONObject): ProjectItem {
         description = json.optString("description", "").ifBlank { "No description provided." },
         mapsLink = json.optString("maps_link", ""),
         displayImage = json.optString("display_image", ""),
-        cityName = json.cityName("Kuppam"),
+        cityName = json.cityName(""),
         avgRating = json.optDouble("avg_rating", 0.0).let { if (it.isNaN()) 0.0 else it },
         reviewCount = json.optInt("review_count", 0),
         commentCount = json.optInt("comment_count", 0),
@@ -104,18 +109,19 @@ private fun parseProject(json: JSONObject): ProjectItem {
     return item
 }
 
-internal suspend fun fetchProjects(query: String, categoryKey: String, citySlug: String, page: Int): ApiListPage<ProjectItem> {
-    val url = buildString {
-        append(API_BASE_URL)
-        append("/api/v1/listings/project/?page=")
-        append(page)
-        append("&page_size=10")
-        if (query.isNotBlank()) append("&q=").append(URLEncoder.encode(query, "UTF-8"))
-        if (categoryKey.isNotBlank()) append("&category=").append(URLEncoder.encode(categoryKey, "UTF-8"))
-        if (citySlug.isNotBlank()) append("&city=").append(URLEncoder.encode(citySlug, "UTF-8"))
-    }
-    return fetchListPage(url, page) { parseProject(it) }
+/** Exposed separately so ListingsViewModel's stale-while-revalidate can peek the offline cache for the exact same URL before deciding whether a network refresh is needed. */
+internal fun buildProjectListUrl(query: String, categoryKey: String, citySlug: String, page: Int): String = buildString {
+    append(API_BASE_URL)
+    append("/api/v1/listings/project/?page=")
+    append(page)
+    append("&page_size=10")
+    if (query.isNotBlank()) append("&q=").append(URLEncoder.encode(query, "UTF-8"))
+    if (categoryKey.isNotBlank()) append("&category=").append(URLEncoder.encode(categoryKey, "UTF-8"))
+    if (citySlug.isNotBlank()) append("&city=").append(URLEncoder.encode(citySlug, "UTF-8"))
 }
+
+internal suspend fun fetchProjects(query: String, categoryKey: String, citySlug: String, page: Int): ApiListPage<ProjectItem> =
+    fetchListPage(buildProjectListUrl(query, categoryKey, citySlug, page), page) { parseProject(it) }
 
 internal suspend fun fetchProjectDetail(id: Int): ProjectItem =
     parseProject(httpJson("$API_BASE_URL/api/v1/listings/project/$id/"))
@@ -123,20 +129,13 @@ internal suspend fun fetchProjectDetail(id: Int): ProjectItem =
 @Composable
 internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKey: String? = null) {
     var query by rememberSaveable { mutableStateOf("") }
-    var cityQuery by rememberSaveable { mutableStateOf("") }
-    var selectedCity by remember { mutableStateOf<CitySuggestion?>(null) }
+    var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
     var categories by remember { mutableStateOf<List<CategoryOption>>(emptyList()) }
     var selectedCategoryKey by rememberSaveable { mutableStateOf(initialCategoryKey.orEmpty()) }
-    var items by remember { mutableStateOf<List<ProjectItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         categories = try {
@@ -148,44 +147,26 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
         }
     }
 
-    fun loadPage(reset: Boolean) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
-            }
-            try {
-                val target = if (reset) 1 else page
-                val result = fetchProjects(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), target)
-                items = if (reset) result.items else items + result.items
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: target
-                error = null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load projects right now."
-                } else {
-                    error = e.message ?: "Unable to load more projects."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
+    // UI -> ViewModel -> Repository (fetchProjects/OfflineCache) instead of
+    // this composable managing the network call itself.
+    val viewModel: ListingsViewModel<ProjectItem> = viewModel(
+        factory = viewModelFactory {
+            initializer { ListingsViewModel(::buildProjectListUrl, ::fetchProjects, ::parseProject) }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
     LaunchedEffect(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -193,10 +174,10 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
+            viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -220,7 +201,7 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
 
         OneTownCityTextField(
             value = cityQuery,
-            onValueChange = { cityQuery = it; selectedCity = null },
+            onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
             placeholder = "City or area (optional)",
             leadingIcon = Icons.Filled.LocationOn,
         )
@@ -229,7 +210,7 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
                 citySuggestions.take(3).forEach { suggestion ->
                     OneTownCityButton(
                         text = suggestion.name,
-                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList() },
+                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList(); hasManualCityOverride = true },
                         variant = OneTownCityButtonVariant.Outlined,
                     )
                 }
@@ -247,21 +228,42 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
             )
         }
 
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
+        }
+
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                     OneTownCityCircularLoading(label = "Loading projects")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load projects",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Projects haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Outlined.Build,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load projects",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            uiState.items.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No projects found",
                     message = "No civic or infrastructure projects match your current search, category, and city filter.",
@@ -282,10 +284,10 @@ internal fun ProjectBrowseScreen(navController: NavController, initialCategoryKe
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(uiState.items, key = { _, item -> item.id }) { _, item ->
                         ProjectCard(item = item, onClick = { navController.navigate("project/${item.id}") })
                     }
-                    if (isLoadingMore) {
+                    if (uiState.isLoadingMore) {
                         item {
                             Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                                 OneTownCityCircularLoading(label = "Loading more")
@@ -324,11 +326,11 @@ private fun ProjectCard(item: ProjectItem, onClick: () -> Unit) {
                 }
             }
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(text = item.statusLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 Text(text = item.title, style = MaterialTheme.typography.titleMedium)
                 if (item.location.isNotBlank()) {
                     Text(text = item.location, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
                 }
+                Text(text = item.statusLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
@@ -428,7 +430,7 @@ private fun ProjectDetailContent(navController: NavController, item: ProjectItem
             }
             item {
                 val mapsUri = safeWebUri(item.mapsLink)
-                    ?: Uri.parse("https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.title, "UTF-8")}")
+                    ?: "https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.title, "UTF-8")}".toUri()
                 OneTownCityButton(
                     text = "Get directions",
                     onClick = {

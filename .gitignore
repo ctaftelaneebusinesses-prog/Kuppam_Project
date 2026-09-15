@@ -37,3 +37,6 @@ e2e/.cache/
 e2e/screens/
 e2e/*_results.json
 perf-baseline-results.json
+
+# scripts/*.sh runtime state (PID/port files, recreated each run)
+scripts/.state/

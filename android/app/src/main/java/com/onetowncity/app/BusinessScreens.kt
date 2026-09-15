@@ -3,7 +3,6 @@ package com.onetowncity.app
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +31,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,10 +44,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.onetowncity.app.designsystem.OneTownCityButton
 import com.onetowncity.app.designsystem.OneTownCityButtonVariant
+import com.onetowncity.app.designsystem.OneTownCityCacheStatusBanner
 import com.onetowncity.app.designsystem.OneTownCityChipGroup
 import com.onetowncity.app.designsystem.OneTownCityCircularLoading
 import com.onetowncity.app.designsystem.OneTownCityEmptyState
@@ -55,7 +61,6 @@ import com.onetowncity.app.designsystem.OneTownCityTextField
 import com.onetowncity.app.designsystem.OneTownCityTopAppBar
 import java.net.URLEncoder
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -125,7 +130,7 @@ private fun parseBusiness(json: JSONObject): BusinessItem {
         website = json.optString("website", ""),
         mapsLink = json.optString("maps_link", ""),
         displayImage = json.optString("display_image", ""),
-        cityName = json.cityName("Kuppam"),
+        cityName = json.cityName(""),
         avgRating = json.optDouble("avg_rating", 0.0).let { if (it.isNaN()) 0.0 else it },
         reviewCount = json.optInt("review_count", 0),
         commentCount = json.optInt("comment_count", 0),
@@ -134,18 +139,19 @@ private fun parseBusiness(json: JSONObject): BusinessItem {
     return item
 }
 
-internal suspend fun fetchBusinesses(query: String, categoryKey: String, citySlug: String, page: Int): ApiListPage<BusinessItem> {
-    val url = buildString {
-        append(API_BASE_URL)
-        append("/api/v1/listings/business/?page=")
-        append(page)
-        append("&page_size=10")
-        if (query.isNotBlank()) append("&q=").append(URLEncoder.encode(query, "UTF-8"))
-        if (categoryKey.isNotBlank()) append("&category=").append(URLEncoder.encode(categoryKey, "UTF-8"))
-        if (citySlug.isNotBlank()) append("&city=").append(URLEncoder.encode(citySlug, "UTF-8"))
-    }
-    return fetchListPage(url, page) { parseBusiness(it) }
+/** Exposed separately (not just inlined in fetchBusinesses) so ListingsViewModel's stale-while-revalidate can peek the offline cache for the exact same URL before deciding whether a network refresh is needed. */
+internal fun buildBusinessListUrl(query: String, categoryKey: String, citySlug: String, page: Int): String = buildString {
+    append(API_BASE_URL)
+    append("/api/v1/listings/business/?page=")
+    append(page)
+    append("&page_size=10")
+    if (query.isNotBlank()) append("&q=").append(URLEncoder.encode(query, "UTF-8"))
+    if (categoryKey.isNotBlank()) append("&category=").append(URLEncoder.encode(categoryKey, "UTF-8"))
+    if (citySlug.isNotBlank()) append("&city=").append(URLEncoder.encode(citySlug, "UTF-8"))
 }
+
+internal suspend fun fetchBusinesses(query: String, categoryKey: String, citySlug: String, page: Int): ApiListPage<BusinessItem> =
+    fetchListPage(buildBusinessListUrl(query, categoryKey, citySlug, page), page) { parseBusiness(it) }
 
 /** GET /api/v1/listings/business/<id>/ — public for approved+active listings; used as a deep-link-safe fallback when businessCache misses. */
 internal suspend fun fetchBusinessDetail(id: Int): BusinessItem =
@@ -154,58 +160,38 @@ internal suspend fun fetchBusinessDetail(id: Int): BusinessItem =
 @Composable
 internal fun BusinessBrowseScreen(navController: NavController, initialCategoryKey: String? = null) {
     var query by rememberSaveable { mutableStateOf("") }
-    var cityQuery by rememberSaveable { mutableStateOf("") }
-    var selectedCity by remember { mutableStateOf<CitySuggestion?>(null) }
+    var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
     var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
     var selectedCategoryKey by rememberSaveable { mutableStateOf(initialCategoryKey.orEmpty()) }
-    var items by remember { mutableStateOf<List<BusinessItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMore by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    var page by remember { mutableStateOf(1) }
-    var activeRequest by remember { mutableStateOf<Job?>(null) }
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
-    fun loadPage(reset: Boolean) {
-        activeRequest?.cancel()
-        activeRequest = coroutineScope.launch {
-            if (reset) {
-                isLoading = true
-                isLoadingMore = false
-                page = 1
-                error = null
-            } else {
-                if (!hasMore || isLoadingMore) return@launch
-                isLoadingMore = true
-            }
-            try {
-                val target = if (reset) 1 else page
-                val result = fetchBusinesses(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), target)
-                items = if (reset) result.items else items + result.items
-                hasMore = result.nextPage != null
-                page = result.nextPage ?: target
-                error = null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                if (reset) {
-                    items = emptyList()
-                    error = e.message ?: "Unable to load businesses right now."
-                } else {
-                    error = e.message ?: "Unable to load more businesses."
-                }
-            } finally {
-                isLoading = false
-                isLoadingMore = false
-            }
+    // UI -> ViewModel -> Repository (fetchBusinesses/OfflineCache) instead of
+    // this composable managing the network call itself — see
+    // ListingsViewModel's doc comment for the stale-while-revalidate design.
+    val viewModel: ListingsViewModel<BusinessItem> = viewModel(
+        factory = viewModelFactory {
+            initializer { ListingsViewModel(::buildBusinessListUrl, ::fetchBusinesses, ::parseBusiness) }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+
+    // Keeps this screen's city filter following the app-wide city if the
+    // user hasn't overridden it locally — previously this only seeded once
+    // at launch, so switching cities from the global city bar while already
+    // browsing here silently kept showing the old city's results.
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
         }
     }
 
     LaunchedEffect(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery) {
         kotlinx.coroutines.delay(300)
-        loadPage(reset = true)
+        viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true)
     }
 
     LaunchedEffect(cityQuery) {
@@ -213,10 +199,10 @@ internal fun BusinessBrowseScreen(navController: NavController, initialCategoryK
         citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
     }
 
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index) {
-        val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-        if (!isLoading && !isLoadingMore && hasMore && lastVisibleIndex >= items.size - 3) {
-            loadPage(reset = false)
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
+            viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = false)
         }
     }
 
@@ -240,7 +226,7 @@ internal fun BusinessBrowseScreen(navController: NavController, initialCategoryK
 
         OneTownCityTextField(
             value = cityQuery,
-            onValueChange = { cityQuery = it; selectedCity = null },
+            onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
             placeholder = "City or area (optional)",
             leadingIcon = Icons.Filled.LocationOn,
         )
@@ -249,7 +235,7 @@ internal fun BusinessBrowseScreen(navController: NavController, initialCategoryK
                 citySuggestions.take(3).forEach { suggestion ->
                     OneTownCityButton(
                         text = suggestion.name,
-                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList() },
+                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList(); hasManualCityOverride = true },
                         variant = OneTownCityButtonVariant.Outlined,
                     )
                 }
@@ -263,21 +249,42 @@ internal fun BusinessBrowseScreen(navController: NavController, initialCategoryK
             onSelected = { label -> selectedCategoryKey = if (label == "All") "" else businessCategoryKeyByLabel[label].orEmpty() },
         )
 
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
+        }
+
         when {
-            isLoading -> {
+            uiState.isLoading -> {
                 Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                     OneTownCityCircularLoading(label = "Loading businesses")
                 }
             }
-            error != null -> {
-                OneTownCityErrorState(
-                    title = "Unable to load businesses",
-                    message = error ?: "Please try again later.",
-                    actionText = "Retry",
-                    onRetry = { loadPage(reset = true) },
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Businesses haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Filled.Store,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
                 )
             }
-            items.isEmpty() -> {
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load businesses",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, selectedCategoryKey, selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            uiState.items.isEmpty() -> {
                 OneTownCityEmptyState(
                     title = "No businesses found",
                     message = "No listings match your current search, category, and city filter.",
@@ -298,10 +305,10 @@ internal fun BusinessBrowseScreen(navController: NavController, initialCategoryK
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(uiState.items, key = { _, item -> item.id }) { _, item ->
                         BusinessCard(item = item, onClick = { navController.navigate("business/${item.id}") })
                     }
-                    if (isLoadingMore) {
+                    if (uiState.isLoadingMore) {
                         item {
                             Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                                 OneTownCityCircularLoading(label = "Loading more")
@@ -340,11 +347,11 @@ private fun BusinessCard(item: BusinessItem, onClick: () -> Unit) {
                 }
             }
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(text = item.categoryLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 Text(text = item.name, style = MaterialTheme.typography.titleMedium)
                 if (item.address.isNotBlank()) {
                     Text(text = item.address, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
                 }
+                Text(text = item.categoryLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 if (item.reviewCount > 0) {
                     Text(
                         text = "%.1f ★ (%d reviews)".format(item.avgRating, item.reviewCount),
@@ -454,7 +461,7 @@ private fun BusinessDetailContent(navController: NavController, item: BusinessIt
                     if (item.phoneNumber.isNotBlank()) {
                         OneTownCityButton(
                             text = "Call",
-                            onClick = { activity?.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${item.phoneNumber}"))) },
+                            onClick = { activity?.startActivity(Intent(Intent.ACTION_DIAL, "tel:${item.phoneNumber}".toUri())) },
                             leadingIcon = Icons.Filled.Call,
                             variant = OneTownCityButtonVariant.Primary,
                             modifier = Modifier.weight(1f),
@@ -479,7 +486,7 @@ private fun BusinessDetailContent(navController: NavController, item: BusinessIt
             }
             item {
                 val mapsUri = safeWebUri(item.mapsLink)
-                    ?: Uri.parse("https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.name, "UTF-8")}")
+                    ?: "https://www.google.com/maps/search/?api=1&query=${URLEncoder.encode(item.name, "UTF-8")}".toUri()
                 OneTownCityButton(
                     text = "Get directions",
                     onClick = {
@@ -507,6 +514,170 @@ private fun BusinessDetailContent(navController: NavController, item: BusinessIt
                     commentCount = item.commentCount,
                     navController = navController,
                 )
+            }
+        }
+    }
+}
+
+/**
+ * Buy / Sell / Exchange — filters the real `category=marketplace` Business
+ * choice (core/models.py's Business.CATEGORY_CHOICES) via the same
+ * fetchBusinesses/parseBusiness/BusinessItem pipeline BusinessBrowseScreen
+ * uses above, wired through ListingsViewModel for stale-while-revalidate +
+ * offline cache support. Detail taps reuse the existing "business/{itemId}"
+ * route and BusinessDetailScreen rather than a separate marketplace detail
+ * screen/cache/model.
+ */
+@Composable
+internal fun MarketplaceFeatureScreen(navController: NavController) {
+    var query by rememberSaveable { mutableStateOf("") }
+    var cityQuery by rememberSaveable { mutableStateOf(AppCityState.current.value?.name.orEmpty()) }
+    var selectedCity by rememberSaveable(stateSaver = CitySuggestionSaver) { mutableStateOf(AppCityState.current.value?.let { CitySuggestion(it.slug, it.name) }) }
+    var hasManualCityOverride by rememberSaveable { mutableStateOf(false) }
+    var citySuggestions by remember { mutableStateOf<List<CitySuggestion>>(emptyList()) }
+    val listState = rememberLazyListState()
+
+    val viewModel: ListingsViewModel<BusinessItem> = viewModel(
+        factory = viewModelFactory {
+            initializer {
+                ListingsViewModel(
+                    buildUrl = { q, categoryKey, citySlug, page -> buildBusinessListUrl(q, categoryKey, citySlug, page) },
+                    fetchPage = { q, categoryKey, citySlug, page -> fetchBusinesses(q, categoryKey, citySlug, page) },
+                    parseItem = { parseBusiness(it) },
+                )
+            }
+        },
+    )
+    val uiState by viewModel.state.collectAsState()
+
+    val globalCity by AppCityState.current.collectAsState()
+    LaunchedEffect(globalCity) {
+        if (!hasManualCityOverride) {
+            selectedCity = globalCity?.let { CitySuggestion(it.slug, it.name) }
+            cityQuery = globalCity?.name.orEmpty()
+        }
+    }
+
+    LaunchedEffect(query, selectedCity?.slug ?: cityQuery) {
+        kotlinx.coroutines.delay(300)
+        viewModel.load(query, "marketplace", selectedCity?.slug ?: cityQuery.trim(), reset = true)
+    }
+
+    LaunchedEffect(cityQuery) {
+        kotlinx.coroutines.delay(300)
+        citySuggestions = if (cityQuery.isBlank()) emptyList() else fetchCitySuggestionsSafely(cityQuery)
+    }
+
+    val lastVisibleIndex by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 } }
+    LaunchedEffect(lastVisibleIndex) {
+        if (!uiState.isLoading && !uiState.isLoadingMore && uiState.hasMore && lastVisibleIndex >= uiState.items.size - 3) {
+            viewModel.load(query, "marketplace", selectedCity?.slug ?: cityQuery.trim(), reset = false)
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        OneTownCityTopAppBar(
+            title = "Buy / Sell / Exchange",
+            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+            onNavigationClick = { navController.popBackStack() },
+        )
+
+        OneTownCityTextField(
+            value = query,
+            onValueChange = { query = it },
+            placeholder = "Search student marketplace",
+            leadingIcon = Icons.Filled.Store,
+        )
+
+        OneTownCityTextField(
+            value = cityQuery,
+            onValueChange = { cityQuery = it; selectedCity = null; hasManualCityOverride = true },
+            placeholder = "City or area (optional)",
+            leadingIcon = Icons.Filled.LocationOn,
+        )
+        if (citySuggestions.isNotEmpty()) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                citySuggestions.take(3).forEach { suggestion ->
+                    OneTownCityButton(
+                        text = suggestion.name,
+                        onClick = { selectedCity = suggestion; cityQuery = suggestion.name; citySuggestions = emptyList(); hasManualCityOverride = true },
+                        variant = OneTownCityButtonVariant.Outlined,
+                    )
+                }
+            }
+        }
+
+        if (uiState.isShowingCachedData) {
+            OneTownCityCacheStatusBanner(
+                message = if (uiState.isRefreshing) "Showing saved results — refreshing…" else "You're offline — showing saved results",
+                isOffline = !uiState.isRefreshing,
+            )
+        }
+
+        when {
+            uiState.isLoading -> {
+                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                    OneTownCityCircularLoading(label = "Loading listings")
+                }
+            }
+            uiState.isOfflineNoCache -> {
+                OneTownCityEmptyState(
+                    title = "You're offline",
+                    message = "Marketplace listings haven't been loaded yet on this device. Connect to the internet once to load them.",
+                    icon = Icons.Filled.Store,
+                    action = {
+                        OneTownCityButton(
+                            text = "Retry",
+                            onClick = { viewModel.load(query, "marketplace", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
+                )
+            }
+            uiState.error != null -> {
+                OneTownCityErrorState(
+                    title = "Unable to load marketplace",
+                    message = uiState.error ?: "Please try again later.",
+                    actionText = "Retry",
+                    onRetry = { viewModel.load(query, "marketplace", selectedCity?.slug ?: cityQuery.trim(), reset = true) },
+                )
+            }
+            uiState.items.isEmpty() -> {
+                OneTownCityEmptyState(
+                    title = "No marketplace listings yet",
+                    message = "No approved buy/sell/exchange listings match your current search and city filter.",
+                    icon = Icons.Filled.Store,
+                    action = {
+                        OneTownCityButton(
+                            text = "Reset filters",
+                            onClick = { query = ""; selectedCity = null; cityQuery = ""; citySuggestions = emptyList() },
+                            variant = OneTownCityButtonVariant.Outlined,
+                        )
+                    },
+                )
+            }
+            else -> {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp),
+                ) {
+                    itemsIndexed(uiState.items, key = { _, item -> item.id }) { _, item ->
+                        BusinessCard(item = item, onClick = { navController.navigate("business/${item.id}") })
+                    }
+                    if (uiState.isLoadingMore) {
+                        item {
+                            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                                OneTownCityCircularLoading(label = "Loading more")
+                            }
+                        }
+                    }
+                }
             }
         }
     }

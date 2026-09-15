@@ -222,7 +222,7 @@ internal fun ReviewsSection(
         when {
             requiresSignIn -> SignInRequiredState(message = "Sign in to write a review.", navController = navController)
             else -> {
-                Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
+                Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text("Write a review", style = MaterialTheme.typography.titleSmall)
                         StarRatingInput(rating = draftRating, onRatingChange = { draftRating = it })
