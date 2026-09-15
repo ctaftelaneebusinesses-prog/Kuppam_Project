@@ -117,6 +117,23 @@ document.addEventListener('DOMContentLoaded', function () {
         heroElite.addEventListener('mouseleave', function () {
             glows.forEach(function (glow) { glow.style.transform = ''; });
         });
+
+        // Homepage hero globe: same cursor-driven cue, applied as a gentle
+        // 3D tilt (its parent, .hk-hero-col-globe, sets the perspective) so
+        // the globe reads as reacting to the pointer, not literally
+        // following it.
+        const globeStage = document.getElementById('hkGlobeStage');
+        if (globeStage) {
+            heroElite.addEventListener('mousemove', function (e) {
+                const rect = heroElite.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                globeStage.style.transform = 'rotateY(' + (x * 10) + 'deg) rotateX(' + (y * -10) + 'deg)';
+            });
+            heroElite.addEventListener('mouseleave', function () {
+                globeStage.style.transform = '';
+            });
+        }
     }
 
     // Animated counters for the homepage stats strip — counts up once visible

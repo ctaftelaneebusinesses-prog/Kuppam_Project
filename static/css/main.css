@@ -963,7 +963,18 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
 }
 
 .hk-hero-fullscreen {
-    min-height: 80vh;
+    /* Was 80vh, sized to fit content rather than the screen — fine while
+       the hero's content (eyebrow + headline + search + quick pills + stat
+       tiles) happened to be tall enough to reach the fold anyway. Once the
+       quick-pill row was removed the content fell short of 80vh and the
+       next section's light background peeked into view under the fold,
+       breaking the "first screen is one dark canvas" design. Pinning this
+       to the full viewport height (100svh where supported, so mobile
+       browser chrome collapsing/expanding doesn't jump the layout; 100vh
+       as the fallback) keeps the hero always filling the first screen
+       regardless of how much content it holds. */
+    min-height: 100vh;
+    min-height: 100svh;
     display: flex;
     align-items: center;
     box-sizing: border-box;
@@ -1474,6 +1485,15 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     line-height: 1.05;
 }
 
+/* Homepage two-column hero only: the heading no longer has the full
+   viewport width to work with (it shares the row with the globe), so it
+   caps smaller here than the general .hk-hero-heading clamp above —
+   otherwise it wraps to 3-4 heavy lines and the left column reads as
+   overloaded next to the single clean globe graphic on the right. */
+.hk-hero-heading-compact {
+    font-size: clamp(1.8rem, 1rem + 2.6vw, 2.85rem);
+}
+
 .hk-hero-heading .hk-gold-word {
     background: linear-gradient(90deg, var(--hk-gold-400) 0%, #F2841D 50%, var(--hk-gold-400) 100%);
     -webkit-background-clip: text;
@@ -1498,22 +1518,22 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
-    margin-top: 24px;
-    margin-bottom: 32px;
+    gap: 8px;
+    margin-top: 14px;
+    margin-bottom: 20px;
 }
 
 .hk-quick-pill {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 9px 18px;
+    gap: 7px;
+    padding: 7px 14px;
     border-radius: var(--hk-radius-md);
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.06);
     color: rgba(216, 218, 234, .85);
     font-weight: 600;
-    font-size: .8rem;
+    font-size: .75rem;
     text-decoration: none;
     box-shadow: var(--hk-elevation-1);
     transition: transform .2s var(--hk-ease-out), background-color .2s ease, border-color .2s ease, color .2s ease;
@@ -1850,9 +1870,9 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, .1);
-    padding: 7px 16px;
+    padding: 6px 14px;
     border-radius: var(--hk-radius-pill);
-    margin-bottom: 22px;
+    margin-bottom: 14px;
 }
 
 .hk-hero-eyebrow .hk-hero-eyebrow-dot {
@@ -1897,10 +1917,13 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     position: relative;
     z-index: 2;
     max-width: 900px;
-    margin: 0 auto;
+    /* Was margin: 0 auto (no top gap) — fine while the quick-pill row sat
+       between this and the search bar and supplied its own margin-top; now
+       that row is gone, the stats sat flush against the search shell. */
+    margin: 28px auto 0;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+    gap: 10px;
 }
 
 .hk-hero-stat-tile {
@@ -1909,7 +1932,7 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, .06);
     border-radius: var(--hk-radius-xl);
-    padding: 22px 10px;
+    padding: 14px 8px;
     text-align: center;
     box-shadow: var(--hk-elevation-3);
     transition: border-color .3s ease, background-color .3s ease, transform .3s var(--hk-ease-out);
@@ -1923,8 +1946,8 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
 
 .hk-hero-stat-icon {
     color: var(--hk-gold);
-    font-size: 1.05rem;
-    margin-bottom: 10px;
+    font-size: .95rem;
+    margin-bottom: 6px;
 }
 
 .hk-hero-stat-tile .hk-stat-number {
@@ -1933,21 +1956,144 @@ html[data-theme="dark"] .hk-hero:not(.hk-hero-elite)::after {
     color: #fff;
     font-weight: 800;
     letter-spacing: -0.02em;
-    font-size: clamp(1.4rem, 1vw + 1.15rem, 2rem);
+    font-size: clamp(1.2rem, .8vw + 1.05rem, 1.65rem);
 }
 
 .hk-hero-stat-tile .hk-stat-label {
     color: var(--hk-gray-500);
-    font-size: .64rem;
+    font-size: .6rem;
     font-weight: 700;
-    letter-spacing: .12em;
+    letter-spacing: .1em;
     text-transform: uppercase;
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 @media (max-width: 767.98px) {
     .hk-hero-stats {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* --- Hero two-column layout + animated globe (homepage only) -------------
+   .hk-hero-columns splits the elite hero into text (left) + globe (right)
+   on large screens; below lg it collapses to one column with the globe
+   stacked after the text (DOM order already puts it second, so no `order`
+   trick is needed). The text column keeps every existing element/class —
+   only the outer alignment context changes from Bootstrap's .text-center
+   to .text-lg-start, so the lg+ overrides below undo the auto-centering
+   that .hk-search-shell/.hk-hero-stats/.hk-quick-pill-row otherwise apply
+   regardless of text-align. ------------------------------------------------ */
+.hk-hero-columns {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    gap: 44px;
+}
+
+@media (min-width: 992px) {
+    .hk-hero-columns {
+        grid-template-columns: 1.05fr .95fr;
+        gap: 24px;
+    }
+
+    .hk-hero-col-text .hk-hero-subhead,
+    .hk-hero-col-text .hk-search-shell,
+    .hk-hero-col-text .hk-hero-stats {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .hk-hero-col-text .hk-quick-pill-row {
+        justify-content: flex-start;
+    }
+}
+
+.hk-hero-col-globe {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1200px;
+}
+
+/* --- Animated globe --------------------------------------------------------
+   A real video (static/images/globe-hero.mp4 — client-supplied footage of
+   an actually-rendered rotating data globe, cropped tight to the sphere and
+   muted/re-encoded for the web) rather than any hand-built CSS/SVG/WebGL
+   approximation. Every prior attempt here — a CSS gradient sphere, a photo
+   spun with a 3D flip-card transform, a from-scratch three.js dot globe —
+   still read as an approximation next to real rendered footage. This is
+   just a circularly-clipped <video>, autoplaying/looping/muted, with a
+   glow behind it and (only when a city is selected) a small caption chip
+   below it — no attempt to pin a marker to a literal point on the video,
+   since we don't have 3D coordinates for pre-rendered footage. ------------ */
+.hk-globe-stage {
+    position: relative;
+    width: min(320px, 74vw);
+    aspect-ratio: 1 / 1;
+}
+
+@media (min-width: 992px) {
+    .hk-globe-stage {
+        width: min(460px, 34vw);
+    }
+}
+
+.hk-globe-stage::before {
+    content: "";
+    position: absolute;
+    inset: -18%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, .38) 0%, rgba(56, 189, 248, .14) 45%, transparent 72%);
+    filter: blur(8px);
+    animation: hk-globe-halo-pulse 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes hk-globe-halo-pulse {
+    0%, 100% { opacity: .7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.06); }
+}
+
+.hk-globe-video {
+    position: absolute;
+    inset: 4%;
+    width: 92%;
+    height: 92%;
+    border-radius: 50%;
+    overflow: hidden;
+    object-fit: cover;
+    box-shadow:
+        0 0 60px rgba(56, 189, 248, .5),
+        0 0 130px rgba(56, 189, 248, .25);
+}
+
+.hk-globe-location-badge {
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    transform: translate(-50%, 100%);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    background: rgba(18, 19, 27, .72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, .12);
+    color: #FFE7B8;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    padding: 7px 16px;
+    border-radius: var(--hk-radius-pill);
+    box-shadow: var(--hk-elevation-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hk-globe-stage::before {
+        animation: none;
     }
 }
 

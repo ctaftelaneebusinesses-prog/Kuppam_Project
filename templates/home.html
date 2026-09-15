@@ -17,12 +17,14 @@
     <div class="hk-hero-glow hk-hero-glow-c"></div>
     <div class="hk-hero-grid-overlay"></div>
 
-    <div class="container text-center hk-hero-content">
+    <div class="container hk-hero-content">
+        <div class="hk-hero-columns">
+        <div class="hk-hero-col-text text-center text-lg-start">
         <div class="hk-hero-eyebrow" data-aos="fade-up">
             <span class="hk-hero-eyebrow-dot"></span> {% trans "The One-Stop City Engine" %}
         </div>
-        <h1 class="hk-hero-heading hk-hero-heading-gradient mb-3" data-aos="fade-up" data-aos-delay="50">{% trans "Explore, track, and connect with your community on OneTownCity." %}</h1>
-        <p class="hk-hero-subhead mb-4" data-aos="fade-up" data-aos-delay="100">
+        <h1 class="hk-hero-heading hk-hero-heading-gradient hk-hero-heading-compact mb-2" data-aos="fade-up" data-aos-delay="50">{% trans "Explore, track, and connect with your community on OneTownCity." %}</h1>
+        <p class="hk-hero-subhead mb-3" data-aos="fade-up" data-aos-delay="100">
             {% blocktrans %}One clean interface for local listings, real estate, and upcoming projects. Tap to view image galleries, access Google links instantly, and share real community feedback.{% endblocktrans %}
         </p>
 
@@ -69,14 +71,6 @@
             </div>
         </form>
 
-        <div class="hk-quick-pill-row" data-aos="fade-up" data-aos-delay="300">
-            <a href="{% url 'core:business_list' %}" class="hk-quick-pill"><i class="bi bi-shop"></i> {% trans "Nearby Shops" %}</a>
-            <a href="{% url 'core:property_list' %}" class="hk-quick-pill"><i class="bi bi-house-door"></i> {% trans "Property Listing" %}</a>
-            <a href="{% url 'core:job_list' %}" class="hk-quick-pill"><i class="bi bi-briefcase"></i> {% trans "Jobs" %}</a>
-            <a href="{% url 'core:restaurant_list' %}" class="hk-quick-pill"><i class="bi bi-cup-hot"></i> {% trans "Restaurants" %}</a>
-            <a href="{% url 'core:event_list' %}" class="hk-quick-pill"><i class="bi bi-calendar-event"></i> {% trans "Events" %}</a>
-        </div>
-
         <div class="hk-hero-stats hk-hero-stats-bento" data-aos="fade-up" data-aos-delay="350">
             <div class="hk-hero-stat-tile">
                 <div class="hk-hero-stat-icon"><i class="bi bi-shop"></i></div>
@@ -98,6 +92,25 @@
                 <div class="hk-stat-number" data-count="{{ stats.users }}">{{ stats.users }}</div>
                 <div class="hk-stat-label">{% trans "Community Members" %}</div>
             </div>
+        </div>
+        </div>
+
+        <div class="hk-hero-col-globe" aria-hidden="true">
+            <div class="hk-globe-stage" id="hkGlobeStage">
+                <video
+                    class="hk-globe-video"
+                    autoplay muted loop playsinline preload="auto"
+                    poster="{% static 'images/globe-hero-poster.jpg' %}"
+                >
+                    <source src="{% static 'images/globe-hero.mp4' %}" type="video/mp4">
+                </video>
+                {% if current_location %}
+                <div class="hk-globe-location-badge">
+                    <i class="bi bi-geo-alt-fill"></i> {{ current_location.name|truncatechars:20 }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
         </div>
     </div>
 
@@ -265,6 +278,13 @@
         <summary>Photo credits</summary>
         <ul class="small">
             <li>Call Center & BPO Services section photo — Yan Krukau / Pexels, free-to-use Pexels License.</li>
+            <li>Repair Services category photo — Bulat843 / Pexels, free-to-use Pexels License.</li>
+            <li>Places to Visit category photo — Santhosh KKR / Pexels, free-to-use Pexels License.</li>
+            <li>Tuition & Coaching Centers category photo — Ayşe / Pexels, free-to-use Pexels License.</li>
+            <li>Student Services category photo — cottonbro studio / Pexels, free-to-use Pexels License.</li>
+            <li>Scholarships & Government Schemes category photo — Feyza Tuğba / Pexels, free-to-use Pexels License.</li>
+            <li>Lost & Found category photo — Aleks Pondikati / Pexels, free-to-use Pexels License.</li>
+            <li>What's Happening in Your Village category photo — Basit Manzoor / Pexels, free-to-use Pexels License.</li>
         </ul>
     </details>
 </div>
