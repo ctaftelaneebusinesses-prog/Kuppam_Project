@@ -696,6 +696,10 @@ CATEGORIES = [
     },
 ]
 
+#: CATEGORIES indexed by slug — used to attach a hero_image/hero_tagline to
+#: every listing page's context without re-typing image paths and copy.
+CATEGORIES_BY_SLUG = {c['slug']: c for c in CATEGORIES}
+
 
 def assetlinks_json(request):
     """
@@ -1010,6 +1014,8 @@ def business_list(request):
         'selected_category_label': dict(GENERAL_BUSINESS_CATEGORY_CHOICES).get(category, ''),
         'category_choices': GENERAL_BUSINESS_CATEGORY_CHOICES,
         'total_results': businesses.count(),
+        'hero_image': CATEGORIES_BY_SLUG['shops']['image'],
+        'hero_tagline': CATEGORIES_BY_SLUG['shops']['description'],
     }
     return render(request, 'business_list.html', context)
 
@@ -1099,6 +1105,8 @@ def directory_list(request, category):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    hero = CATEGORIES_BY_SLUG.get(category)
+
     context = {
         'page_title': f"{config['label']} - OneTownCity",
         'page_obj': page_obj,
@@ -1109,6 +1117,8 @@ def directory_list(request, category):
         'directory_key': category,
         'subcategory_choices': subcategory_choices,
         'selected_subcategory': subcategory,
+        'hero_image': hero['image'] if hero else '',
+        'hero_tagline': hero['description'] if hero else '',
     }
     return render(request, 'directory_list.html', context)
 
@@ -1142,6 +1152,8 @@ def property_list(request):
         'selected_type': property_type,
         'type_choices': Property.PROPERTY_TYPE_CHOICES,
         'total_results': properties.count(),
+        'hero_image': CATEGORIES_BY_SLUG['real-estate']['image'],
+        'hero_tagline': CATEGORIES_BY_SLUG['real-estate']['description'],
     }
     return render(request, 'property_list.html', context)
 
@@ -1240,6 +1252,8 @@ def job_list(request):
         'selected_date': date_str,
         'selected_time': time_str,
         'total_results': jobs.count(),
+        'hero_image': CATEGORIES_BY_SLUG['jobs']['image'],
+        'hero_tagline': CATEGORIES_BY_SLUG['jobs']['description'],
     }
     return render(request, 'job_list.html', context)
 
@@ -1306,6 +1320,8 @@ def event_list(request):
         'page_obj': page_obj,
         'query': query,
         'total_results': events.count(),
+        'hero_image': CATEGORIES_BY_SLUG['events']['image'],
+        'hero_tagline': CATEGORIES_BY_SLUG['events']['description'],
     }
     return render(request, 'event_list.html', context)
 
@@ -1385,6 +1401,8 @@ def news_list(request):
         'news_categories': news_categories,
         'selected_category_key': category_key,
         'selected_category': selected_category,
+        'hero_image': CATEGORIES_BY_SLUG['news']['image'],
+        'hero_tagline': CATEGORIES_BY_SLUG['news']['description'],
     }
     return render(request, 'news_list.html', context)
 
@@ -1450,6 +1468,8 @@ def project_list(request):
         'page_obj': page_obj,
         'query': query,
         'total_results': projects.count(),
+        'hero_image': CATEGORIES_BY_SLUG['projects']['image'],
+        'hero_tagline': CATEGORIES_BY_SLUG['projects']['description'],
     }
     return render(request, 'project_list.html', context)
 
@@ -1503,6 +1523,8 @@ def scholarship_list(request):
         'selected_type': scholarship_type,
         'type_choices': Scholarship.TYPE_CHOICES,
         'total_results': scholarships.count(),
+        'hero_image': CATEGORIES_BY_SLUG['scholarships']['image'],
+        'hero_tagline': CATEGORIES_BY_SLUG['scholarships']['description'],
     }
     return render(request, 'scholarship_list.html', context)
 
@@ -1565,6 +1587,8 @@ def lost_found_list(request):
         'selected_category': item_category,
         'category_choices': LostFound.CATEGORY_CHOICES,
         'total_results': items.count(),
+        'hero_image': CATEGORIES_BY_SLUG['lost-found']['image'],
+        'hero_tagline': CATEGORIES_BY_SLUG['lost-found']['description'],
     }
     return render(request, 'lost_found_list.html', context)
 

@@ -7,13 +7,8 @@
 {% block content %}
 <section class="container py-5">
 
-    <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
-        <div class="hk-section-icon"><i class="bi bi-shop"></i></div>
-        <div>
-            <h2 class="fw-bold mb-0">{% trans "Nearby Shops" %}</h2>
-            <p class="text-muted mb-0">{% trans "Browse general local businesses and services in your city" %}</p>
-        </div>
-    </div>
+    {% trans "Nearby Shops" as hero_title_t %}
+    {% include 'partials/page_hero.html' with hero_image=hero_image hero_title=hero_title_t hero_subtitle=hero_tagline hero_icon='bi-shop' %}
 
     <!-- Search & Filter -->
     <div class="hk-search-bar mb-4">

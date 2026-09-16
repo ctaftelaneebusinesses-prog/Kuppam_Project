@@ -5,13 +5,7 @@
 {% block content %}
 <section class="container py-5">
 
-    <div class="d-flex align-items-center gap-3 mb-4" data-aos="fade-up">
-        <div class="hk-section-icon"><i class="bi bi-briefcase-fill"></i></div>
-        <div>
-            <h2 class="fw-bold mb-0">Jobs</h2>
-            <p class="text-muted mb-0">Browse job openings from local companies in your city</p>
-        </div>
-    </div>
+    {% include 'partials/page_hero.html' with hero_image=hero_image hero_title='Jobs' hero_subtitle=hero_tagline hero_icon='bi-briefcase-fill' %}
 
     <!-- Search -->
     <div class="hk-search-bar mb-4">

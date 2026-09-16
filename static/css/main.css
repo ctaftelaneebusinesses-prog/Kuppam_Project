@@ -962,6 +962,68 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
     background: var(--hk-gradient);
 }
 
+/* --- Page photo hero ------------------------------------------------------
+   Photo-backed banner for listing/category pages (Education, Hospitals,
+   Properties, Jobs, etc.) — distinct from .hk-hero/.hk-hero-elite above,
+   which are deliberately photo-free. The overlay gradient is a fixed dark
+   value (not theme-driven) so the white title/tagline stays readable over
+   any photo regardless of the site's own light/dark toggle, same reasoning
+   as .hk-hero's fixed white text on its own fixed gradient above. -------- */
+.hk-page-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    min-height: 260px;
+    margin-bottom: var(--hk-space-5);
+    border-radius: var(--hk-radius-lg);
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+}
+
+.hk-page-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(2, 6, 23, .85) 0%, rgba(2, 6, 23, .6) 50%, rgba(2, 6, 23, .3) 100%);
+}
+
+.hk-page-hero-content {
+    position: relative;
+    z-index: 1;
+    padding: var(--hk-space-5) 0;
+}
+
+.hk-page-hero-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--hk-space-3);
+    border-radius: var(--hk-radius-md);
+    background: rgba(255, 255, 255, .15);
+    backdrop-filter: blur(4px);
+    font-size: 1.5rem;
+}
+
+.hk-page-hero-title {
+    font-weight: 700;
+    margin-bottom: .25rem;
+}
+
+.hk-page-hero-subtitle {
+    max-width: 560px;
+    margin-bottom: 0;
+    color: rgba(255, 255, 255, .85);
+}
+
+@media (max-width: 576px) {
+    .hk-page-hero {
+        min-height: 200px;
+    }
+}
+
 .hk-hero-fullscreen {
     /* Was 80vh, sized to fit content rather than the screen — fine while
        the hero's content (eyebrow + headline + search + quick pills + stat
