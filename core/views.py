@@ -998,7 +998,7 @@ def business_list(request):
     else:
         category = ''
 
-    paginator = Paginator(businesses, 9)
+    paginator = Paginator(businesses, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1095,7 +1095,7 @@ def directory_list(request, category):
             Q(name__icontains=query) | Q(address__icontains=query)
         )
 
-    paginator = Paginator(businesses, 9)
+    paginator = Paginator(businesses, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1131,7 +1131,7 @@ def property_list(request):
     if property_type:
         properties = properties.filter(property_type=property_type)
 
-    paginator = Paginator(properties, 9)
+    paginator = Paginator(properties, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1227,7 +1227,7 @@ def job_list(request):
     if shift_date and shift_time:
         jobs = jobs.filter(shift_start_time__lte=shift_time, shift_end_time__gte=shift_time)
 
-    paginator = Paginator(jobs, 9)
+    paginator = Paginator(jobs, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1297,7 +1297,7 @@ def event_list(request):
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    paginator = Paginator(events, 9)
+    paginator = Paginator(events, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1373,7 +1373,7 @@ def news_list(request):
             Q(title__icontains=query) | Q(content__icontains=query)
         )
 
-    paginator = Paginator(articles, 9)
+    paginator = Paginator(articles, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1441,7 +1441,7 @@ def project_list(request):
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    paginator = Paginator(projects, 9)
+    paginator = Paginator(projects, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1492,7 +1492,7 @@ def scholarship_list(request):
     else:
         scholarship_type = ''
 
-    paginator = Paginator(scholarships, 9)
+    paginator = Paginator(scholarships, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1552,7 +1552,7 @@ def lost_found_list(request):
     else:
         item_category = ''
 
-    paginator = Paginator(items, 9)
+    paginator = Paginator(items, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
