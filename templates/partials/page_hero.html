@@ -1,13 +1,27 @@
 {% comment %}
 Photo banner for listing/category pages. Include with:
 {% include 'partials/page_hero.html' with hero_image=hero_image hero_title=... hero_subtitle=hero_tagline hero_icon=... %}
+
+A handful of the stock photos under static/images/services/ (hospitals,
+education, restaurants, upcoming-projects, news, events) already have a
+full title/tagline baked into the photo itself. Drawing our own
+icon/title/subtitle overlay on top of those doubled up two competing
+designs on the same banner, which is exactly the illegible mess reported.
+Until those 6 images are swapped for plain, text-free photos, skip our
+visual overlay on them and just show the photo as-is — the h1 stays in
+the DOM (visually-hidden) so SEO/accessibility heading structure is
+unaffected.
 {% endcomment %}
 {% load static %}
 <section class="hk-page-hero" style="background-image:url('{% static hero_image %}')">
-    <div class="hk-page-hero-overlay"></div>
-    <div class="container hk-page-hero-content">
-        <div class="hk-page-hero-icon"><i class="bi {{ hero_icon }}"></i></div>
-        <h1 class="hk-page-hero-title">{{ hero_title }}</h1>
-        {% if hero_subtitle %}<p class="hk-page-hero-subtitle">{{ hero_subtitle }}</p>{% endif %}
-    </div>
+    {% if hero_image in "images/services/hospitals.jpg images/services/education.jpg images/services/restaurants.jpg images/services/upcoming-projects.jpg images/services/news.jpg images/services/events.jpg" %}
+        <h1 class="visually-hidden">{{ hero_title }}</h1>
+    {% else %}
+        <div class="hk-page-hero-overlay"></div>
+        <div class="container hk-page-hero-content">
+            <div class="hk-page-hero-icon"><i class="bi {{ hero_icon }}"></i></div>
+            <h1 class="hk-page-hero-title">{{ hero_title }}</h1>
+            {% if hero_subtitle %}<p class="hk-page-hero-subtitle">{{ hero_subtitle }}</p>{% endif %}
+        </div>
+    {% endif %}
 </section>

@@ -104,6 +104,15 @@ internal object SupabaseAuthApi {
     private val baseUrl = BuildConfig.SUPABASE_URL.trimEnd('/')
     private val anonKey = BuildConfig.SUPABASE_ANON_KEY
 
+    /**
+     * False when this build was compiled without SUPABASE_URL/SUPABASE_ANON_KEY
+     * (see app/build.gradle's warning) — lets callers show an honest "sign-in
+     * isn't configured" message instead of [buildAuthorizeUri] silently
+     * producing a schemeless URI that Custom Tabs can't open, which used to
+     * surface as a misleading "no browser available" error.
+     */
+    val isConfigured: Boolean = baseUrl.isNotBlank() && anonKey.isNotBlank()
+
     const val REDIRECT_URI = "onetowncity://auth-callback"
 
     fun buildAuthorizeUri(codeChallenge: String): Uri =
@@ -312,6 +321,9 @@ internal object SessionManager {
         session = runCatching { TokenStore.load(appContext) }.getOrNull()
         _authState.value = session?.toAuthState() ?: AuthState.SignedOut
     }
+
+    /** False when this build has no SUPABASE_URL/SUPABASE_ANON_KEY — see [SupabaseAuthApi.isConfigured]. */
+    val isConfigured: Boolean get() = SupabaseAuthApi.isConfigured
 
     /** Opens the Supabase-hosted Google sign-in page; returns the URL to launch in a Custom Tab. */
     fun beginSignIn(): Uri {

@@ -19,6 +19,19 @@ if (localPropertiesFile.exists()) {
 def supabaseUrl = System.getenv('ONETOWNCITY_SUPABASE_URL') ?: localProperties.getProperty('SUPABASE_URL') ?: ''
 def supabaseAnonKey = System.getenv('ONETOWNCITY_SUPABASE_ANON_KEY') ?: localProperties.getProperty('SUPABASE_ANON_KEY') ?: ''
 
+// Missing config used to compile silently into a blank BuildConfig field,
+// so Google Sign-In (and every other Supabase-backed feature) failed at
+// runtime with no clue why — see README.md's Android App section for setup.
+if (supabaseUrl.isBlank() || supabaseAnonKey.isBlank()) {
+    logger.warn(
+        "\n[onetowncity] WARNING: SUPABASE_URL and/or SUPABASE_ANON_KEY are not set.\n" +
+        "  Google Sign-In will NOT work in this build.\n" +
+        "  Set them in android/local.properties (SUPABASE_URL=..., SUPABASE_ANON_KEY=...)\n" +
+        "  or via the ONETOWNCITY_SUPABASE_URL / ONETOWNCITY_SUPABASE_ANON_KEY env vars.\n" +
+        "  See README.md's Android App section.\n"
+    )
+}
+
 android {
     namespace 'com.onetowncity.app'
     compileSdk = 36

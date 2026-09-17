@@ -168,6 +168,10 @@ private fun AuthContent(navController: NavController, showBackButton: Boolean) {
 
     fun attemptSignIn() {
         launchError = null
+        if (!SessionManager.isConfigured) {
+            launchError = "Sign-in isn't configured for this build. Please contact the developer."
+            return
+        }
         isLaunching = true
         val started = launchGoogleSignIn(context)
         isLaunching = false

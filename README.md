@@ -264,6 +264,15 @@ cd android
 
 Open the `android/` folder directly in **Android Studio** for the full IDE experience (emulator, layout preview, etc.). The app talks to the same backend as the website via the REST API described above.
 
+Google Sign-In (the app's only login method) needs the same `SUPABASE_URL` / `SUPABASE_ANON_KEY` values as the Django `.env` above, supplied to Gradle via `android/local.properties` (gitignored — create it yourself, it isn't checked in):
+
+```properties
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+```
+
+(Or set the `ONETOWNCITY_SUPABASE_URL` / `ONETOWNCITY_SUPABASE_ANON_KEY` environment variables instead — useful for CI.) Skipping this compiles fine but silently breaks sign-in at runtime; the build prints a warning if either is missing.
+
 > **Note:** a release build requires signing credentials supplied via environment variables (`ONETOWNCITY_STORE_FILE`, `ONETOWNCITY_STORE_PASSWORD`, `ONETOWNCITY_KEY_ALIAS`, `ONETOWNCITY_KEY_PASSWORD`) — these are never committed to the repository.
 
 ## Running Tests
