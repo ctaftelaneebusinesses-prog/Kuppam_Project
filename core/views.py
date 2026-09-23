@@ -298,8 +298,22 @@ def _can_manage_city_post(profile, obj):
 
 
 def _can_manage_post(profile, obj):
-    """Whether this profile may edit/delete this specific listing and its gallery."""
-    return _can_moderate_posts(profile) or _can_manage_city_post(profile, obj) or obj.owner_id == profile.user_id
+    """
+    Whether this profile may edit/delete this specific listing and its gallery.
+
+    Suspension blocks listing-management writes for everyone except Super
+    Admin — the same precedence as Profile.can_manage_category (see its
+    is_super_admin/is_suspended ordering). A suspended owner, City Admin, or
+    Sub Admin keeps their account but loses these actions on every listing,
+    including their own; Super Admin is never affected by suspension. See
+    core.api.permissions.IsActiveAccount's docstring, which already assumed
+    this function enforced is_suspended.
+    """
+    if _can_moderate_posts(profile):
+        return True
+    if profile.is_suspended:
+        return False
+    return _can_manage_city_post(profile, obj) or obj.owner_id == profile.user_id
 
 
 def _sub_admin_can_view_content(profile, model_key=None):
@@ -2910,7 +2924,11 @@ def listing_edit(request, model_key, pk):
         raise Http404('Unknown listing type')
     profile = request.profile
     obj = get_object_or_404(model_cls, pk=pk)
-    if not profile.is_super_admin and obj.owner_id != request.user.id:
+    # Owner-or-Super-Admin only (this view never grants city/sub-admin edit
+    # rights — see dashboard_listing_review for that flow), and — same rule
+    # as _can_manage_post — a suspended owner loses this even for their own
+    # listing; Super Admin is exempt from suspension.
+    if not profile.is_super_admin and (obj.owner_id != request.user.id or profile.is_suspended):
         messages.error(request, 'You can only edit your own listings.')
         return redirect('core:my_listings')
 

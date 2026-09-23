@@ -1,21 +1,33 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-from .models import Business, Event, Job, ListingStatus, News, Project, Property
+from .models import Business, Event, Job, ListingStatus, LostFound, News, Project, Property, Scholarship
 
 
 class StaticViewSitemap(Sitemap):
-    """Fixed pages that never change URL — home, about, directory categories."""
+    """
+    Fixed pages that never change URL — home, about, directory categories.
+
+    core:city_home (the per-city '/c/<slug>/' variant of home) is
+    intentionally NOT listed here: with only one active city today, it
+    renders the same content as 'core:home', and indexing both would be
+    duplicate content under two canonical URLs — see the sitemap coverage
+    audit's note on city/category URL duplication.
+    """
     priority = 0.6
     changefreq = 'weekly'
 
     def items(self):
         return [
             'core:home', 'core:about', 'core:contact',
+            'core:privacy_policy', 'core:terms_of_service',
             'core:business_list', 'core:restaurant_list', 'core:hospital_list',
-            'core:education_list', 'core:transport_list',
+            'core:education_list', 'core:transport_list', 'core:repair_list',
+            'core:places_to_visit_list', 'core:tuition_center_list',
+            'core:student_services_list', 'core:marketplace_list',
             'core:property_list', 'core:job_list', 'core:event_list',
             'core:news_list', 'core:project_list',
+            'core:scholarship_list', 'core:lost_found_list',
         ]
 
     def location(self, item):
@@ -67,6 +79,17 @@ class ProjectSitemap(_ListingSitemap):
     priority = 0.6
 
 
+class ScholarshipSitemap(_ListingSitemap):
+    model = Scholarship
+    priority = 0.6
+
+
+class LostFoundSitemap(_ListingSitemap):
+    model = LostFound
+    changefreq = 'daily'
+    priority = 0.5
+
+
 sitemaps = {
     'static': StaticViewSitemap,
     'businesses': BusinessSitemap,
@@ -75,4 +98,6 @@ sitemaps = {
     'events': EventSitemap,
     'news': NewsSitemap,
     'projects': ProjectSitemap,
+    'scholarships': ScholarshipSitemap,
+    'lostfound': LostFoundSitemap,
 }
