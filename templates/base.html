@@ -63,7 +63,12 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Loaded without blocking first paint: a render-blocking stylesheet on
+         a third-party origin held the whole page blank until Google's CSS
+         arrived (an extra DNS + TLS handshake — noticeable on mobile). The
+         system font shows instantly and Inter swaps in when ready. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
 
     <!-- Self-hosted (was cdn.jsdelivr.net) so every page render doesn't
          depend on a third-party CDN being fast/reachable — see static/vendor/. -->

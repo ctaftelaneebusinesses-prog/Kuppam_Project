@@ -177,6 +177,7 @@ from .models import (
 )
 from .location_service import active_location, reverse_geocode, save_location, search_cities, serialize_location
 from .push import notify, notify_bulk
+from .signals import HOME_SECTIONS_VERSION_KEY
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
 User = get_user_model()
@@ -575,6 +576,22 @@ _DIRECTORY_BUSINESS_CATEGORIES = {
     cat for config in DIRECTORY_CATEGORIES.values() for cat in config['categories']
 }
 
+#: Maps a Business.category value to the data-category-bg key its ambient
+#: background wash (main.css) and world-scene actors (world-scene.js) are
+#: keyed on — only restaurants/hospitals/education/transport have a scene
+#: of their own (see directory_list's own data-category-bg logic); every
+#: other Business category (repair, tourism, general shops, etc.) falls
+#: back to the same generic 'business' wash business_list.html uses.
+_BUSINESS_CATEGORY_BG = {
+    'restaurant': 'restaurant', 'bakery': 'restaurant',
+    'hospital': 'health', 'pharmacy': 'health',
+    'school': 'education', 'college': 'education',
+    'transport': 'transport',
+}
+
+def _business_category_bg(category):
+    return _BUSINESS_CATEGORY_BG.get(category, 'business')
+
 #: Category choices for the general Businesses page's filter dropdown —
 #: every Business sub-category NOT already covered by a dedicated directory
 #: page (car garages, textile/clothing shops, stationery shops, grocery
@@ -767,25 +784,30 @@ def robots_txt(request):
     return HttpResponse('\n'.join(lines), content_type='text/plain')
 
 
-def home(request):
+HOME_SECTIONS_CACHE_TTL = 60
+
+
+def _home_sections(request, current, today):
     """
-    Homepage: hero section, search box, category grid, featured businesses.
+    Every listing section + stat on the homepage. These are identical for
+    every visitor in the same city, yet used to cost ~20 sequential queries
+    per page view against the remote database (each a full network round
+    trip) — cached per city/day, and dropped immediately whenever a listing
+    is saved or deleted (see signals.bump_home_sections_cache).
     """
-    # Fall back to the latest listings whenever nothing has been marked
-    # "Featured" yet, so these sections never render as blank gaps on the
-    # homepage while admins are still curating featured picks.
-    featured_businesses = _public_qs(Business, request).filter(is_featured=True)[:6] \
-        or _public_qs(Business, request).order_by('-created_at')[:6]
-    featured_properties = _public_qs(Property, request).filter(is_featured=True)[:6] \
-        or _public_qs(Property, request).order_by('-created_at')[:6]
-    featured_jobs = _public_qs(Job, request).filter(is_featured=True)[:6] \
-        or _public_qs(Job, request).order_by('-created_at')[:6]
-    featured_events = _public_qs(Event, request).filter(is_featured=True, event_date__gte=timezone.localdate())[:6] \
-        or _public_qs(Event, request).filter(event_date__gte=timezone.localdate()).order_by('event_date')[:6]
-    featured_news = _public_qs(News, request).filter(is_featured=True)[:6] \
-        or _public_qs(News, request).order_by('-created_at')[:6]
-    featured_projects = _public_qs(Project, request).filter(is_featured=True)[:6] \
-        or _public_qs(Project, request).order_by('-created_at')[:6]
+    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    cache_key = f'core:home_sections:{version}:{current.pk if current else "all"}:{today.isoformat()}'
+    sections = cache.get(cache_key)
+    if sections is not None:
+        return sections
+
+    # Fall back to the latest projects whenever nothing has been marked
+    # "Featured" yet, so this section never renders as a blank gap on the
+    # homepage while admins are still curating featured picks. (Featured
+    # businesses/properties/jobs/events/news used to be queried here too, but
+    # home.html never rendered them — up to 10 wasted round trips per view.)
+    featured_projects = list(_public_qs(Project, request).filter(is_featured=True)[:6]) \
+        or list(_public_qs(Project, request).order_by('-created_at')[:6])
 
     # "Today in Your Town": events actually happening today + "What's
     # Happening in Your Village" posts actually published today (see the
@@ -798,14 +820,13 @@ def home(request):
     # September). When nothing is dated today, recent_news_fallback backs a
     # separately-labeled "Latest Updates" block instead (see home.html) —
     # computed only then, so a live day never pays for the extra query.
-    today = timezone.localdate()
-    events_today = _public_qs(Event, request).filter(event_date=today).order_by('event_time')[:6]
+    events_today = list(_public_qs(Event, request).filter(event_date=today).order_by('event_time')[:6])
     village_news_qs = _public_qs(News, request).filter(listing_category__key='village-happenings')
-    news_today = village_news_qs.filter(published_date=today).order_by('-created_at')[:6]
+    news_today = list(village_news_qs.filter(published_date=today).order_by('-created_at')[:6])
     recent_news_fallback = [] if (events_today or news_today) \
         else list(village_news_qs.order_by('-published_date')[:3])
-    places_to_visit = _public_qs(Business, request).filter(category='tourism').order_by('-is_featured', 'name')[:6]
-    repair_shops_initial = _public_qs(Business, request).filter(category='repair').order_by('-is_featured', 'name')[:6]
+    places_to_visit = list(_public_qs(Business, request).filter(category='tourism').order_by('-is_featured', 'name')[:6])
+    repair_shops_initial = list(_public_qs(Business, request).filter(category='repair').order_by('-is_featured', 'name')[:6])
 
     stats = {
         'businesses': _public_qs(Business, request).count(),
@@ -814,12 +835,32 @@ def home(request):
         'users': get_user_model().objects.count(),
     }
 
+    sections = {
+        'featured_projects': featured_projects,
+        'events_today': events_today,
+        'news_today': news_today,
+        'recent_news_fallback': recent_news_fallback,
+        'places_to_visit': places_to_visit,
+        'repair_shops_initial': repair_shops_initial,
+        'stats': stats,
+    }
+    cache.set(cache_key, sections, HOME_SECTIONS_CACHE_TTL)
+    return sections
+
+
+def home(request):
+    """
+    Homepage: hero section, search box, category grid, featured businesses.
+    """
+    today = timezone.localdate()
+    current = active_location(request)
+    sections = _home_sections(request, current, today)
+
     # Reuses the same cached lookup the navbar's category_tree context
     # processor already computes (see core/context_processors.py) instead of
     # re-querying Category here — home.html never reads .children on these,
     # so the separate prefetch this used to run was pure waste on top of it.
     from .context_processors import category_tree
-    current = active_location(request)
 
     # Service-card counts must match what each category's page will actually
     # show THIS visitor (see Category.public_listing_count) rather than a
@@ -830,26 +871,16 @@ def home(request):
     # categories lead instead of whatever admin-set `order` they'd otherwise
     # follow.
     categories = list(category_tree(request)['nav_category_tree'])
+    display_counts = Category.public_listing_counts(categories, current)
     for cat in categories:
-        cat.display_count = cat.public_listing_count(current)
+        cat.display_count = display_counts[cat.pk]
     categories = sorted((c for c in categories if c.display_count > 0), key=lambda c: c.display_count, reverse=True)
 
     context = {
         'page_title': f'OneTownCity {current.name}' if current else 'OneTownCity — Visual Local Engine & Discovery Portal',
         'categories': categories,
-        'featured_businesses': featured_businesses,
-        'featured_properties': featured_properties,
-        'featured_jobs': featured_jobs,
-        'featured_events': featured_events,
-        'featured_news': featured_news,
-        'featured_projects': featured_projects,
-        'events_today': events_today,
-        'news_today': news_today,
-        'recent_news_fallback': recent_news_fallback,
-        'places_to_visit': places_to_visit,
-        'repair_shops_initial': repair_shops_initial,
+        **sections,
         'today_date': today,
-        'stats': stats,
     }
     return render(request, 'home.html', context)
 
@@ -926,11 +957,12 @@ def search(request):
     total_results = 0
 
     if query:
-        def _section(key, label, icon, qs, list_url_name, card_partial, item_key):
+        def _section(key, label, icon, qs, list_url_name, card_partial, item_key, count=None):
             qs = qs.filter(
                 _SEARCH_FILTERS[key](query)
             )
-            count = qs.count()
+            if count is None:
+                count = qs.count()
             return {
                 'label': label,
                 'icon': icon,
@@ -941,11 +973,21 @@ def search(request):
                 'view_all_url': reverse(list_url_name) + '?' + urlencode({'q': query}),
             }
 
+        # Every Business section's count in ONE conditional-aggregate query,
+        # instead of a separate COUNT round trip per directory (10 of them).
+        business_counts = _public_qs(Business, request).filter(_SEARCH_FILTERS['business'](query)).aggregate(
+            general=Count('pk', filter=~Q(category__in=_DIRECTORY_BUSINESS_CATEGORIES)),
+            **{
+                directory_key: Count('pk', filter=Q(category__in=config['categories']))
+                for directory_key, config in DIRECTORY_CATEGORIES.items()
+            },
+        )
         sections = [
             _section(
                 'business', 'Nearby Shops', 'bi-shop',
                 _public_qs(Business, request).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES),
                 'core:business_list', 'partials/business_card.html', 'business',
+                count=business_counts['general'],
             ),
         ]
         for directory_key, config in DIRECTORY_CATEGORIES.items():
@@ -953,6 +995,7 @@ def search(request):
                 'business', config['label'], config['icon'],
                 _public_qs(Business, request).filter(category__in=config['categories']),
                 SEARCH_CATEGORY_REDIRECT[directory_key], 'partials/business_card.html', 'business',
+                count=business_counts[directory_key],
             ))
         sections += [
             _section('property', 'Properties', 'bi-house-door', _public_qs(Property, request), 'core:property_list', 'partials/property_card.html', 'property'),
@@ -1059,6 +1102,7 @@ def business_detail(request, slug):
         'page_title': f'{business.name} - OneTownCity',
         'business': business,
         'related_businesses': related_businesses,
+        'category_bg': _business_category_bg(business.category),
         'schema_json': _ld_json(schema),
         **_community_context(request, business),
     }
@@ -1104,12 +1148,16 @@ def directory_list(request, category):
     paginator = Paginator(businesses, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    # Elided so a large result set collapses to e.g. "1 2 3 … 8" instead of
+    # one <li> per page (Django 2.2+; see Paginator.get_elided_page_range).
+    page_range = paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1)
 
     hero = CATEGORIES_BY_SLUG.get(category)
 
     context = {
         'page_title': f"{config['label']} - OneTownCity",
         'page_obj': page_obj,
+        'page_range': page_range,
         'query': query,
         'total_results': businesses.count(),
         'directory_label': config['label'],

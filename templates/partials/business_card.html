@@ -14,7 +14,7 @@ Reusable business card. Include with: {% include 'partials/business_card.html' w
     <div class="hk-card-placeholder"><i class="bi {{ business.placeholder_icon }}"></i></div>
     {% endif %}
     <div class="card-body d-flex flex-column">
-        <span class="badge bg-primary-subtle text-primary mb-2 align-self-start">
+        <span class="badge hk-card-category-badge mb-2 align-self-start" data-subcat="{{ business.category }}">
             {{ business.get_category_display }}
         </span>
         <h5 class="card-title">{{ business.name }}</h5>
@@ -31,7 +31,7 @@ Reusable business card. Include with: {% include 'partials/business_card.html' w
         <p class="card-text text-muted small mb-3">
             <i class="bi bi-telephone text-primary"></i> {{ business.phone_number }}
         </p>
-        <a href="{% url 'core:business_detail' business.slug %}" class="btn btn-outline-primary mt-auto">
+        <a href="{% url 'core:business_detail' business.slug %}" class="btn hk-card-cta mt-auto">
             {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
         </a>
         <div class="hk-card-actions">

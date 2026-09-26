@@ -974,8 +974,9 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
     overflow: hidden;
     display: flex;
     align-items: center;
-    min-height: 260px;
+    min-height: 280px;
     margin-bottom: var(--hk-space-5);
+    box-shadow: 0 18px 40px -18px rgba(2, 6, 23, .45);
     border-radius: var(--hk-radius-lg);
     background-size: cover;
     background-position: center;
@@ -985,13 +986,18 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
 .hk-page-hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(2, 6, 23, .85) 0%, rgba(2, 6, 23, .6) 50%, rgba(2, 6, 23, .3) 100%);
+    background:
+        linear-gradient(90deg, rgba(2, 6, 23, .88) 0%, rgba(2, 6, 23, .62) 45%, rgba(2, 6, 23, .18) 100%),
+        linear-gradient(0deg, rgba(2, 6, 23, .35) 0%, transparent 45%);
 }
 
+/* The content box is nested inside the page's own .container, so its
+   Bootstrap gutters collapse to the banner edge — the subtitle was sitting
+   flush against the rounded corner. Explicit inset instead. */
 .hk-page-hero-content {
     position: relative;
     z-index: 1;
-    padding: var(--hk-space-5) 0;
+    padding: var(--hk-space-5) clamp(1.25rem, 4vw, 3rem);
 }
 
 .hk-page-hero-icon {
@@ -1007,15 +1013,29 @@ html[data-theme="dark"] .hk-navbar-avatar-btn {
     font-size: 1.5rem;
 }
 
+/* Explicit #fff: the global `h1 { color: var(--hk-ink) }` rule beats the
+   white inherited from .hk-page-hero, which is why category titles
+   (Transport, Jobs, Shops…) rendered near-black on the dark photo. */
 .hk-page-hero-title {
-    font-weight: 700;
-    margin-bottom: .25rem;
+    color: #fff;
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: .5rem;
+    text-shadow: 0 2px 18px rgba(2, 6, 23, .55);
 }
 
 .hk-page-hero-subtitle {
     max-width: 560px;
     margin-bottom: 0;
-    color: rgba(255, 255, 255, .85);
+    font-size: 1.0625rem;
+    color: rgba(255, 255, 255, .9);
+    text-shadow: 0 1px 10px rgba(2, 6, 23, .5);
+}
+
+html[data-theme="dark"] .hk-page-hero-title {
+    color: #fff;
 }
 
 @media (max-width: 576px) {
@@ -1173,8 +1193,16 @@ body[data-category-bg="realestate"] {
     background-attachment: fixed;
 }
 
+/* Healthcare gets the same richer, layered wash as Education — several
+   soft overlapping blobs instead of one flat blob, a "clean white/light
+   blue" backdrop for the large illustration pieces (world-scene.js) to
+   sit in front of. */
 body[data-category-bg="health"] {
-    background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-health-rgb), .08), transparent 60%);
+    background-image:
+        radial-gradient(900px circle at 88% -5%, rgba(var(--hk-cat-health-rgb), .10), transparent 55%),
+        radial-gradient(700px circle at 0% 30%, rgba(var(--hk-cat-health-rgb), .07), transparent 55%),
+        radial-gradient(800px circle at 92% 55%, rgba(var(--hk-cat-health-rgb), .08), transparent 55%),
+        radial-gradient(900px circle at 5% 95%, rgba(var(--hk-cat-health-rgb), .09), transparent 55%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
@@ -1191,8 +1219,16 @@ body[data-category-bg="events"] {
     background-attachment: fixed;
 }
 
+/* Education gets a richer, layered wash (several soft overlapping blobs)
+   instead of the single flat blob the other 8 categories use — a "premium
+   light blue/white" backdrop with visible depth for the large illustration
+   pieces (world-scene.js) to sit in front of. */
 body[data-category-bg="education"] {
-    background-image: radial-gradient(900px circle at 50% -10%, rgba(var(--hk-cat-education-rgb), .07), transparent 60%);
+    background-image:
+        radial-gradient(900px circle at 85% -5%, rgba(var(--hk-cat-education-rgb), .10), transparent 55%),
+        radial-gradient(700px circle at 0% 25%, rgba(var(--hk-cat-education-rgb), .08), transparent 55%),
+        radial-gradient(800px circle at 90% 70%, rgba(var(--hk-cat-education-rgb), .07), transparent 55%),
+        radial-gradient(900px circle at 15% 100%, rgba(var(--hk-cat-education-rgb), .09), transparent 55%);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
@@ -1208,6 +1244,74 @@ body[data-category-bg="news"] {
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
+
+/* Every other category gets the same layered 4-blob wash Education and
+   Healthcare use above, so all listing pages share one look — only the
+   tint (--wash-rgb, from each page's own --hk-cat-* token) differs. */
+body[data-category-bg="business"] { --wash-rgb: var(--hk-cat-business-rgb); }
+body[data-category-bg="restaurant"] { --wash-rgb: var(--hk-cat-restaurant-rgb); }
+body[data-category-bg="realestate"] { --wash-rgb: var(--hk-cat-realestate-rgb); }
+body[data-category-bg="projects"] { --wash-rgb: var(--hk-cat-projects-rgb); }
+body[data-category-bg="events"] { --wash-rgb: var(--hk-cat-events-rgb); }
+body[data-category-bg="transport"] { --wash-rgb: var(--hk-cat-transport-rgb); }
+body[data-category-bg="news"] { --wash-rgb: var(--hk-cat-news-rgb); }
+body[data-category-bg="jobs"] { --wash-rgb: var(--hk-cat-jobs-rgb); }
+body[data-category-bg="repair"] { --wash-rgb: var(--hk-cat-repair-rgb); }
+body[data-category-bg="tourism"] { --wash-rgb: var(--hk-cat-tourism-rgb); }
+body[data-category-bg="village"] { --wash-rgb: var(--hk-cat-village-rgb); }
+body[data-category-bg="marketplace"] { --wash-rgb: var(--hk-cat-marketplace-rgb); }
+body[data-category-bg="students"] { --wash-rgb: var(--hk-cat-students-rgb); }
+body[data-category-bg="tuition"] { --wash-rgb: var(--hk-cat-tuition-rgb); }
+body[data-category-bg="business"],
+body[data-category-bg="restaurant"],
+body[data-category-bg="realestate"],
+body[data-category-bg="projects"],
+body[data-category-bg="events"],
+body[data-category-bg="transport"],
+body[data-category-bg="news"],
+body[data-category-bg="jobs"],
+body[data-category-bg="repair"],
+body[data-category-bg="tourism"],
+body[data-category-bg="village"],
+body[data-category-bg="marketplace"],
+body[data-category-bg="students"],
+body[data-category-bg="tuition"] {
+    background-image:
+        radial-gradient(900px circle at 86% -5%, rgba(var(--wash-rgb), .10), transparent 55%),
+        radial-gradient(700px circle at 0% 28%, rgba(var(--wash-rgb), .07), transparent 55%),
+        radial-gradient(800px circle at 92% 62%, rgba(var(--wash-rgb), .07), transparent 55%),
+        radial-gradient(900px circle at 10% 98%, rgba(var(--wash-rgb), .09), transparent 55%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+body[data-category-bg="repair"] .hk-card-category-badge,
+body[data-category-bg="tourism"] .hk-card-category-badge,
+body[data-category-bg="village"] .hk-card-category-badge,
+body[data-category-bg="marketplace"] .hk-card-category-badge,
+body[data-category-bg="students"] .hk-card-category-badge,
+body[data-category-bg="tuition"] .hk-card-category-badge { background: rgba(var(--wash-rgb), .12); color: rgb(var(--wash-rgb)); }
+body[data-category-bg="jobs"] .hk-card-category-badge { background: rgba(var(--hk-cat-jobs-rgb), .12); color: rgb(var(--hk-cat-jobs-rgb)); }
+
+/* Card category-badge color, tinted to match each page's own ambient wash
+   above — reuses the same --hk-cat-*-rgb tokens so a page's badges, glow
+   and world-scene actors all read as one coherent palette. */
+body[data-category-bg="business"] .hk-card-category-badge { background: rgba(var(--hk-cat-business-rgb), .12); color: rgb(var(--hk-cat-business-rgb)); }
+body[data-category-bg="restaurant"] .hk-card-category-badge { background: rgba(var(--hk-cat-restaurant-rgb), .12); color: rgb(var(--hk-cat-restaurant-rgb)); }
+body[data-category-bg="realestate"] .hk-card-category-badge { background: rgba(var(--hk-cat-realestate-rgb), .12); color: rgb(var(--hk-cat-realestate-rgb)); }
+body[data-category-bg="health"] .hk-card-category-badge { background: rgba(var(--hk-cat-health-rgb), .12); color: rgb(var(--hk-cat-health-rgb)); }
+body[data-category-bg="projects"] .hk-card-category-badge { background: rgba(var(--hk-cat-projects-rgb), .12); color: rgb(var(--hk-cat-projects-rgb)); }
+/* Events' category color (--hk-cat-events-rgb) is a bright yellow — fine as
+   a low-opacity background wash, but unreadable as full-strength text, so
+   its badge text uses a hand-darkened amber instead of the raw token. */
+body[data-category-bg="events"] .hk-card-category-badge { background: rgba(var(--hk-cat-events-rgb), .16); color: rgb(158, 118, 0); }
+body[data-category-bg="education"] .hk-card-category-badge { background: rgba(var(--hk-cat-education-rgb), .12); color: rgb(var(--hk-cat-education-rgb)); }
+/* School vs College get their own distinct colors (not just one shared
+   per-page color) — School reuses education's blue, College is violet
+   (--hk-violet-500's raw RGB, the same purple used in --hk-gradient). */
+body[data-category-bg="education"] .hk-card-category-badge[data-subcat="school"] { background: rgba(var(--hk-cat-education-rgb), .12); color: rgb(var(--hk-cat-education-rgb)); }
+body[data-category-bg="education"] .hk-card-category-badge[data-subcat="college"] { background: rgba(91, 61, 224, .12); color: rgb(91, 61, 224); }
+body[data-category-bg="transport"] .hk-card-category-badge { background: rgba(var(--hk-cat-transport-rgb), .12); color: rgb(var(--hk-cat-transport-rgb)); }
+body[data-category-bg="news"] .hk-card-category-badge { background: rgba(var(--hk-cat-news-rgb), .12); color: rgb(var(--hk-cat-news-rgb)); }
 
 /* --- World-scene background storyline system ------------------------------
    Supersedes the earlier icon-watermark and shop-visit-choreography
@@ -2558,6 +2662,12 @@ html[data-theme="dark"] .hk-service-card:hover {
     border-radius: var(--hk-radius-lg);
 }
 
+/* <picture> only exists to offer a WebP source — keep it out of layout so
+   the img still sizes against .hk-service-card-media-inner as before. */
+.hk-service-card-media-inner picture {
+    display: contents;
+}
+
 .hk-service-card-media-inner img {
     width: 100%;
     height: 100%;
@@ -2896,6 +3006,41 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
     font-weight: 500;
 }
 
+/* Category pill — colored per the page's own category (see the
+   body[data-category-bg] overrides below); falls back to plain primary
+   on pages with no category context (search results, dashboards). */
+.hk-card-category-badge {
+    background: rgba(var(--bs-primary-rgb), .12);
+    color: rgb(var(--bs-primary-rgb));
+}
+
+/* Solid CTA — replaces the plain outline button for a more confident
+   "View Details". --hk-blue-500 (not the darker --bs-primary/--hk-blue-600
+   used for the navbar search button, nor the blue-violet --hk-gradient) —
+   per feedback the button should read as a lighter blue; --hk-blue-500 is
+   the lightest step in the scale that still keeps white text legible
+   (--hk-blue-400 and above measure under 3:1 contrast with white). */
+/* Bootstrap's .btn base class ships --bs-btn-bg: transparent, and its own
+   :hover/:active rules read background-color from --bs-btn-hover-bg /
+   --bs-btn-active-bg — vars a variant class like .btn-primary would define,
+   but we're not using one. Left undefined, hover/active (so: the moment you
+   click) turned the background transparent, revealing the white card behind
+   it — the button appearing to "disappear" on click. Defining Bootstrap's
+   own vars (rather than just overriding `background`) fixes every state
+   Bootstrap itself manages, not just the resting one. */
+.hk-card-cta {
+    --bs-btn-bg: var(--hk-blue-500);
+    --bs-btn-border-color: var(--hk-blue-500);
+    --bs-btn-color: #fff;
+    --bs-btn-hover-bg: var(--hk-blue-600);
+    --bs-btn-hover-border-color: var(--hk-blue-600);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: var(--hk-blue-700);
+    --bs-btn-active-border-color: var(--hk-blue-700);
+    --bs-btn-active-color: #fff;
+    border-radius: var(--bs-border-radius-pill);
+}
+
 .hk-card-img {
     height: 200px;
     object-fit: cover;
@@ -3135,30 +3280,33 @@ html[data-theme="dark"] .hk-section-kicker--accent::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--hk-gradient-soft);
-    background-color: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary);
+    background: linear-gradient(135deg, var(--hk-blue-100) 0%, var(--hk-blue-200) 100%);
+    color: var(--hk-blue-600);
 }
 
 .hk-card-placeholder i {
     font-size: 2.75rem;
-    opacity: .55;
+    opacity: .7;
 }
 
+/* A business with no uploaded photo used to fall back to
+   --bs-primary-bg-subtle (--hk-blue-50, #EFF5FB) — close enough to pure
+   white that a 420px block of it at the top of the detail page reads as
+   "the page went blank/white" rather than an intentional placeholder.
+   Visibly blue instead, same reasoning as the CTA button above. */
 .hk-detail-placeholder {
     height: 420px;
     border-radius: var(--hk-radius-card);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--hk-gradient-soft);
-    background-color: var(--bs-primary-bg-subtle);
-    color: var(--bs-primary);
+    background: linear-gradient(135deg, var(--hk-blue-100) 0%, var(--hk-blue-200) 100%);
+    color: var(--hk-blue-600);
 }
 
 .hk-detail-placeholder i {
     font-size: 4.5rem;
-    opacity: .55;
+    opacity: .7;
 }
 
 /* --- Skeleton loaders ------------------------------------------------------ */
@@ -3581,6 +3729,10 @@ html[data-theme="dark"] .hk-bento-card--emerald:hover {
 .hk-solutions-media-frame:hover {
     transform: translateY(-4px) scale(1.01);
     box-shadow: var(--hk-shadow-hover);
+}
+
+.hk-solutions-media-frame picture {
+    display: contents;
 }
 
 .hk-solutions-media-frame img {
@@ -6384,6 +6536,18 @@ html[data-theme="dark"] .pagination .page-link {
 
 html[data-theme="dark"] .pagination .page-link:hover {
     background-color: rgba(var(--bs-primary-rgb), .18);
+}
+
+/* Numbered variant (directory_list.html) — round page-number pills instead
+   of the default padded .page-link, active page reads as a solid filled
+   circle (inherits the .pagination .page-item.active gradient above). */
+.hk-pagination-numbered .page-link {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* --- Sitewide dark theme: remaining components that use a literal color

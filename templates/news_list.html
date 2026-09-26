@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ page_title }}{% endblock %}
-{% block body_attrs %}data-category-bg="news"{% endblock %}
+{% block body_attrs %}data-category-bg="{% if selected_category_key == 'village-happenings' %}village{% else %}news{% endif %}"{% endblock %}
 
 {% block content %}
 <section class="container py-5">

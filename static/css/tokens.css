@@ -243,12 +243,19 @@
     --hk-cat-business-rgb: 41, 128, 185;
     --hk-cat-restaurant-rgb: 230, 126, 34;
     --hk-cat-realestate-rgb: 39, 174, 96;
-    --hk-cat-health-rgb: 26, 188, 156;
+    --hk-cat-health-rgb: 41, 128, 225;
     --hk-cat-projects-rgb: 155, 89, 182;
     --hk-cat-events-rgb: 241, 196, 15;
-    --hk-cat-education-rgb: 52, 73, 94;
+    --hk-cat-education-rgb: 24, 88, 196;
     --hk-cat-transport-rgb: 53, 152, 219;
     --hk-cat-news-rgb: 192, 41, 43;
+    --hk-cat-jobs-rgb: 37, 99, 235;
+    --hk-cat-repair-rgb: 30, 64, 175;
+    --hk-cat-tourism-rgb: 13, 148, 136;
+    --hk-cat-village-rgb: 22, 163, 74;
+    --hk-cat-marketplace-rgb: 234, 88, 12;
+    --hk-cat-students-rgb: 79, 70, 229;
+    --hk-cat-tuition-rgb: 2, 132, 199;
 }
 
 /* --- Dark theme --------------------------------------------------------------

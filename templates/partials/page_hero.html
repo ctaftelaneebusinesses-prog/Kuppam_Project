@@ -12,8 +12,10 @@ visual overlay on them and just show the photo as-is — the h1 stays in
 the DOM (visually-hidden) so SEO/accessibility heading structure is
 unaffected.
 {% endcomment %}
-{% load static %}
-<section class="hk-page-hero" style="background-image:url('{% static hero_image %}')">
+{% load static hk_extras %}
+{% with hero_webp=hero_image|webp_sibling %}
+{# image-set() lets WebP-capable browsers fetch the much smaller .webp; the plain url() before it is the fallback for any that don't understand image-set type(). #}
+<section class="hk-page-hero" style="background-image:url('{% static hero_image %}'){% if hero_webp %};background-image:image-set(url('{% static hero_webp %}') type('image/webp'), url('{% static hero_image %}') type('image/jpeg')){% endif %}">
     {% if hero_image in "images/services/hospitals.jpg images/services/education.jpg images/services/restaurants.jpg images/services/upcoming-projects.jpg images/services/news.jpg images/services/events.jpg" %}
         <h1 class="visually-hidden">{{ hero_title }}</h1>
     {% else %}
@@ -25,3 +27,4 @@ unaffected.
         </div>
     {% endif %}
 </section>
+{% endwith %}

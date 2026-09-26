@@ -35,10 +35,38 @@ def active_location(request):
     if not isinstance(saved, dict) or not saved.get('cityId'):
         request._onetowncity_active_location = None
         return None
-    request._onetowncity_active_location = Location.objects.filter(
-        pk=saved['cityId'], kind=Location.Kind.CITY, is_active=True,
-    ).select_related('parent', 'parent__parent').first()
+    request._onetowncity_active_location = cached_active_city(saved['cityId'])
     return request._onetowncity_active_location
+
+
+def location_cache_key(pk):
+    return f'onetowncity:active_city:{pk}'
+
+
+#: Sentinel cached for an unknown/inactive city id, so a stale session value
+#: doesn't re-query on every page either.
+_NO_CITY = 'none'
+
+
+def cached_active_city(pk):
+    """
+    The active city row for a session's saved cityId. Read on literally every
+    page view (context processor + every listing queryset) but almost never
+    changes, so it's cached instead of costing a database round trip per
+    request; signals.py drops the entry whenever a Location is saved/deleted.
+    """
+    try:
+        pk = int(pk)
+    except (TypeError, ValueError):
+        return None
+    key = location_cache_key(pk)
+    city = cache.get(key)
+    if city is None:
+        city = Location.objects.filter(
+            pk=pk, kind=Location.Kind.CITY, is_active=True,
+        ).select_related('parent', 'parent__parent').first() or _NO_CITY
+        cache.set(key, city, 300)
+    return None if city == _NO_CITY else city
 
 
 def save_location(request, location, source='manual_selection'):

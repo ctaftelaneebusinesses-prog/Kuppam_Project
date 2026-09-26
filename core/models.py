@@ -430,6 +430,67 @@ class Category(models.Model):
             cache.set(cache_key, count, 120)
         return count
 
+    @classmethod
+    def public_listing_counts(cls, categories, location):
+        """
+        public_listing_count() for many categories at once — same numbers,
+        same cache keys, but the uncached ones are computed with one query
+        for the subcategory claims plus ONE conditional-aggregate query per
+        listing model, instead of ~3 sequential queries per category (the
+        homepage renders ~15 cards, so a cold cache used to cost ~45 round
+        trips to the remote database — the 10s+ homepage spikes). Returns
+        {category.pk: count}.
+        """
+        suffix = location.pk if location else 'all'
+        keys = {cat.pk: f'core:category_public_count:{cat.pk}:{suffix}' for cat in categories}
+        cached = cache.get_many(list(keys.values()))
+        counts = {pk: cached[key] for pk, key in keys.items() if key in cached}
+        missing = [cat for cat in categories if cat.pk not in counts]
+        if not missing:
+            return counts
+
+        # Every active category that claims a subcategory value, in one
+        # query — covers both "own values" (self + active children) and
+        # "claimed by a sibling" in _compute_listing_count().
+        claims = list(
+            cls.objects.filter(is_active=True).exclude(business_subcategory='')
+            .values_list('pk', 'parent_id', 'listing_model', 'business_subcategory')
+        )
+        by_model = {}
+        for cat in missing:
+            model_name, field_name = cls._LISTING_COUNT_MAP.get(cat.listing_model, (None, None))
+            if not model_name:
+                counts[cat.pk] = 0
+                continue
+            if not field_name:
+                condition = models.Q()
+            else:
+                own_values = [cat.business_subcategory] if cat.business_subcategory else []
+                own_values += [value for _pk, parent_id, _lm, value in claims if parent_id == cat.pk]
+                if own_values:
+                    condition = models.Q(**{f'{field_name}__in': own_values})
+                else:
+                    claimed = {
+                        value for pk, parent_id, listing_model, value in claims
+                        if listing_model == cat.listing_model and pk != cat.pk and parent_id != cat.pk
+                    }
+                    condition = ~models.Q(**{f'{field_name}__in': claimed}) if claimed else models.Q()
+            by_model.setdefault(model_name, []).append((cat, condition))
+
+        for model_name, entries in by_model.items():
+            qs = globals()[model_name].objects.filter(is_active=True, status=ListingStatus.APPROVED)
+            if location is not None:
+                qs = qs.filter(city=location)
+            result = qs.aggregate(**{
+                f'c{cat.pk}': models.Count('pk', filter=condition) if condition else models.Count('pk')
+                for cat, condition in entries
+            })
+            for cat, _condition in entries:
+                counts[cat.pk] = result[f'c{cat.pk}']
+
+        cache.set_many({keys[cat.pk]: counts[cat.pk] for cat in missing}, 120)
+        return counts
+
     def _compute_listing_count(self, location=None):
         model_name, field_name = self._LISTING_COUNT_MAP.get(self.listing_model, (None, None))
         if not model_name:

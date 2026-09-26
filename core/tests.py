@@ -197,3 +197,48 @@ class LostFoundPagesTests(TestCase):
 
     def test_category_list_url_points_at_the_dedicated_directory(self):
         self.assertEqual(Category.objects.get(key='lost-found').list_url, reverse('core:lost_found_list'))
+
+
+class CategoryPageHeroTests(TestCase):
+    """Listing-page banners: text overlay on plain photos, scene hook per page."""
+
+    def test_transport_hero_draws_visible_title_overlay(self):
+        # transport.jpg has no baked-in title, so the overlay h1 must render
+        # (styled white via .hk-page-hero-title, not the global dark h1).
+        response = self.client.get(reverse('core:transport_list'))
+        self.assertContains(response, 'class="hk-page-hero-title"')
+        self.assertContains(response, 'data-category-bg="transport"')
+
+    def test_hospitals_hero_keeps_text_baked_photo_without_overlay(self):
+        response = self.client.get(reverse('core:hospital_list'))
+        self.assertNotContains(response, 'class="hk-page-hero-title"')
+        self.assertContains(response, 'data-category-bg="health"')
+
+    def test_jobs_page_opts_into_its_illustration_scene(self):
+        response = self.client.get(reverse('core:job_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-category-bg="jobs"')
+        self.assertContains(response, 'class="hk-page-hero-title"')
+
+    def test_business_page_opts_into_shops_scene(self):
+        response = self.client.get(reverse('core:business_list'))
+        self.assertContains(response, 'data-category-bg="business"')
+
+    def test_restaurants_page_opts_into_its_illustration_scene(self):
+        response = self.client.get(reverse('core:restaurant_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-category-bg="restaurant"')
+
+    def test_repair_and_places_pages_opt_into_their_scenes(self):
+        self.assertContains(self.client.get(reverse('core:repair_list')), 'data-category-bg="repair"')
+        self.assertContains(self.client.get(reverse('core:places_to_visit_list')), 'data-category-bg="tourism"')
+
+    def test_news_uses_village_scene_only_for_village_happenings_filter(self):
+        self.assertContains(self.client.get(reverse('core:news_list')), 'data-category-bg="news"')
+        response = self.client.get(reverse('core:news_list'), {'category': 'village-happenings'})
+        self.assertContains(response, 'data-category-bg="village"')
+
+    def test_tuition_students_marketplace_pages_opt_into_their_scenes(self):
+        self.assertContains(self.client.get(reverse('core:tuition_center_list')), 'data-category-bg="tuition"')
+        self.assertContains(self.client.get(reverse('core:student_services_list')), 'data-category-bg="students"')
+        self.assertContains(self.client.get(reverse('core:marketplace_list')), 'data-category-bg="marketplace"')

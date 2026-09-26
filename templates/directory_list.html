@@ -2,7 +2,7 @@
 {% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
-{% block body_attrs %}data-category-bg="{% if directory_key == 'restaurants' %}restaurant{% elif directory_key == 'hospitals' %}health{% elif directory_key == 'education' %}education{% elif directory_key == 'transport' %}transport{% endif %}" data-subcategory="{{ selected_subcategory }}"{% endblock %}
+{% block body_attrs %}data-category-bg="{% if directory_key == 'restaurants' %}restaurant{% elif directory_key == 'hospitals' %}health{% elif directory_key == 'education' %}education{% elif directory_key == 'transport' %}transport{% elif directory_key == 'repair' %}repair{% elif directory_key == 'tourism' %}tourism{% elif directory_key == 'tuition_center' %}tuition{% elif directory_key == 'student_services' %}students{% elif directory_key == 'marketplace' %}marketplace{% endif %}" data-subcategory="{{ selected_subcategory }}"{% endblock %}
 
 {% block content %}
 {% with directory_label_t=directory_label|dyntrans %}
@@ -75,13 +75,8 @@
     <!-- Pagination -->
     {% if page_obj.paginator.num_pages > 1 %}
     <nav class="mt-5" aria-label="{% trans 'Listing pagination' %}">
-        <ul class="pagination justify-content-center">
+        <ul class="pagination hk-pagination-numbered justify-content-center">
             {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="{% trans 'First page' %}">
-                        <i class="bi bi-chevron-double-left"></i>
-                    </a>
-                </li>
                 <li class="page-item">
                     <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="{% trans 'Previous page' %}">
                         <i class="bi bi-chevron-left"></i>
@@ -89,19 +84,22 @@
                 </li>
             {% endif %}
 
-            <li class="page-item active">
-                <span class="page-link">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</span>
-            </li>
+            {% for number in page_range %}
+                {% if number == page_obj.paginator.ELLIPSIS %}
+                    <li class="page-item disabled"><span class="page-link">{{ number }}</span></li>
+                {% elif number == page_obj.number %}
+                    <li class="page-item active"><span class="page-link">{{ number }}</span></li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}">{{ number }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
 
             {% if page_obj.has_next %}
                 <li class="page-item">
                     <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="{% trans 'Next page' %}">
                         <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_subcategory %}&type={{ selected_subcategory }}{% endif %}" aria-label="{% trans 'Last page' %}">
-                        <i class="bi bi-chevron-double-right"></i>
                     </a>
                 </li>
             {% endif %}

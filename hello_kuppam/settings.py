@@ -136,19 +136,25 @@ DATABASES = {
         # 200 max client (app-to-pooler) connections through Supavisor.
         # Single Railway instance running 3 gunicorn workers x 6 threads
         # (18 concurrent request slots) is far below both ceilings.
-        # conn_max_age=0 is kept for a different, still-solid reason under
-        # transaction mode specifically: pgbouncer only assigns a real
-        # Postgres server connection to a client for the duration of one
-        # transaction, then returns it to the pool — a Django-side
-        # "persistent" connection held across requests doesn't map onto that
-        # model at all, and would just occupy a transaction-pooler client
-        # slot indefinitely without actually reusing a server-side
-        # connection the way conn_max_age>0 assumes. Closing the connection
-        # after each request is the architecturally correct choice for a
-        # transaction pooler, not merely a conservative one.
-        conn_max_age=0,
+        # Persistent connections (2026-09-26 performance fix): with
+        # conn_max_age=0 every single page view paid a fresh TCP + TLS +
+        # SCRAM-auth handshake to the Tokyo pooler — measured at ~1.1s from
+        # India, before the first query even ran. Holding the app-to-pooler
+        # connection open is how a transaction pooler is meant to be used:
+        # the pooler still hands out a real Postgres server connection only
+        # per transaction, so the 15-backend limit is unaffected, and 18
+        # held client connections (3 workers x 6 threads) sit far below the
+        # 200 client-connection ceiling above. Django documents this setup as
+        # supported provided server-side cursors are disabled (below), since
+        # a cursor can't survive the pooler reassigning the server connection
+        # between transactions. CONN_HEALTH_CHECKS transparently replaces a
+        # connection the pooler dropped while idle. Set DB_CONN_MAX_AGE=0 to
+        # revert to one-connection-per-request.
+        conn_max_age=int(os.getenv('DB_CONN_MAX_AGE', '60')),
+        conn_health_checks=True,
     )
 }
+DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
 # `manage.py test` needs CREATE DATABASE rights on whatever DATABASE_URL
 # points at to spin up its throwaway test DB — the Supabase pooler
 # connection this project otherwise uses doesn't grant that. Running
@@ -182,6 +188,12 @@ if REDIS_URL:
             'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient'},
         }
     }
+    # Serve session reads from Redis instead of a database round trip on
+    # every logged-in request (writes still go to the DB too). Only safe with
+    # a cache shared by every worker — with the per-process LocMemCache
+    # below, a logout in one worker would leave the session alive in the
+    # others' caches — so it's deliberately not enabled in that branch.
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 else:
     CACHES = {
         'default': {
