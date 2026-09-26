@@ -40,3 +40,6 @@ perf-baseline-results.json
 
 # scripts/*.sh runtime state (PID/port files, recreated each run)
 scripts/.state/
+
+# graphify knowledge-graph tool output (local cache/report, regenerated on demand)
+graphify-out/

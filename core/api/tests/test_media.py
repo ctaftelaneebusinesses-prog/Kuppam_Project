@@ -89,3 +89,38 @@ class ListingMediaDeleteTests(APITestCase):
         self.client.force_authenticate(self.owner)
         response = self.client.delete(reverse('api:media_image_delete', args=[999999]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class SuspendedOwnerMediaTests(APITestCase):
+    """Regression test for the same _can_manage_post fix as SuspendedOwnerListingTests
+    (core/api/tests/test_listings.py), covering the gallery endpoints."""
+
+    def setUp(self):
+        self.owner, self.owner_profile = f.make_user(suspended=False)
+        self.listing = f.make_business(owner=self.owner, status=ListingStatus.APPROVED)
+        # Upload while still active, so the delete test has something to try to delete.
+        self.client.force_authenticate(self.owner)
+        upload = self.client.post(
+            reverse('api:listing_media', args=['business', self.listing.pk]), {'images': [_image()]}, format='multipart'
+        )
+        self.image_id = upload.data['images'][0]['id']
+        self.client.force_authenticate(None)
+        self.owner_profile.is_suspended = True
+        self.owner_profile.save(update_fields=['is_suspended'])
+
+    def test_suspended_owner_cannot_upload(self):
+        self.client.force_authenticate(self.owner)
+        response = self.client.post(
+            reverse('api:listing_media', args=['business', self.listing.pk]), {'images': [_image()]}, format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_suspended_owner_cannot_delete_media(self):
+        # media_image_delete_view uses _get_owned_media (not _require_can_manage):
+        # an unauthorized caller gets a 404, same as ListingMediaDeleteTests'
+        # test_non_owner_cannot_delete above, not a 403.
+        self.client.force_authenticate(self.owner)
+        response = self.client.delete(reverse('api:media_image_delete', args=[self.image_id]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertTrue(PostImage.objects.filter(pk=self.image_id).exists())
+        self.assertTrue(PostImage.objects.filter(pk=self.image_id).exists())

@@ -306,6 +306,66 @@ class ListingUpdateDeleteTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
+class SuspendedOwnerListingTests(APITestCase):
+    """
+    Regression test for the P1 fixed in _can_manage_post (core/views.py):
+    is_suspended was checked for *new* submissions (Profile.can_manage_category)
+    but not for managing an already-existing listing, so a suspended
+    Admin/Content Provider could still PATCH/DELETE their own live listings.
+    core.api.permissions.IsActiveAccount's docstring already assumed
+    _can_manage_post enforced this — it didn't, until now.
+    """
+
+    def setUp(self):
+        self.city = f.make_city('Kuppam')
+        self.owner, self.owner_profile = f.make_user(role=UserRole.ADMIN, suspended=True)
+        self.unsuspended_owner, _ = f.make_user(role=UserRole.ADMIN, suspended=False)
+        self.suspended_super_admin, _ = f.make_user(super_admin=True, suspended=True)
+        self.listing = f.make_business(owner=self.owner, city=self.city, status=ListingStatus.APPROVED, name='Suspended Owner Biz')
+        self.unsuspended_listing = f.make_business(
+            owner=self.unsuspended_owner, city=self.city, status=ListingStatus.APPROVED, name='Active Owner Biz'
+        )
+
+    def detail_url(self, obj):
+        return reverse('api:listing_detail', args=['business', obj.pk])
+
+    def edit_payload(self):
+        return {
+            'name': 'Updated Name', 'category': 'retail', 'city': self.city.pk,
+            'address': '1 Market Rd', 'phone_number': '9876543210',
+            'maps_link': 'https://www.google.com/maps?q=13.1631,78.2288',
+        }
+
+    def test_suspended_owner_cannot_edit(self):
+        self.client.force_authenticate(self.owner)
+        response = self.client.patch(self.detail_url(self.listing), self.edit_payload())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.listing.refresh_from_db()
+        self.assertEqual(self.listing.name, 'Suspended Owner Biz')
+
+    def test_suspended_owner_cannot_delete(self):
+        self.client.force_authenticate(self.owner)
+        response = self.client.delete(self.detail_url(self.listing))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(type(self.listing).objects.filter(pk=self.listing.pk).exists())
+
+    def test_unsuspended_owner_can_still_edit(self):
+        self.client.force_authenticate(self.unsuspended_owner)
+        response = self.client.patch(self.detail_url(self.unsuspended_listing), self.edit_payload())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unsuspended_owner_can_still_delete(self):
+        self.client.force_authenticate(self.unsuspended_owner)
+        response = self.client.delete(self.detail_url(self.unsuspended_listing))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_suspended_super_admin_is_still_exempt(self):
+        """Super Admin's own is_suspended flag (however it got set) never blocks moderation rights."""
+        self.client.force_authenticate(self.suspended_super_admin)
+        response = self.client.patch(self.detail_url(self.listing), self.edit_payload())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
 class AllListingTypesSmokeTests(APITestCase):
     """A light generic-dispatch check across every listing type, not just Business."""
 
