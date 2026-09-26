@@ -427,7 +427,7 @@ class Category(models.Model):
         count = cache.get(cache_key)
         if count is None:
             count = self._compute_listing_count(location=location)
-            cache.set(cache_key, count, 120)
+            cache.set(cache_key, count, 300)
         return count
 
     @classmethod
@@ -488,7 +488,7 @@ class Category(models.Model):
             for cat, _condition in entries:
                 counts[cat.pk] = result[f'c{cat.pk}']
 
-        cache.set_many({keys[cat.pk]: counts[cat.pk] for cat in missing}, 120)
+        cache.set_many({keys[cat.pk]: counts[cat.pk] for cat in missing}, 300)
         return counts
 
     def _compute_listing_count(self, location=None):

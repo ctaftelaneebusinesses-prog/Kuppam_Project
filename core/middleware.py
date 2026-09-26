@@ -8,7 +8,7 @@ EXEMPT_PATH_PREFIXES = ('/admin/', '/static/', '/media/', '/signin/', '/login/',
 #: Cleared by signals.py whenever PlatformSettings is saved; the TTL only
 #: bounds how long other gunicorn workers' local caches can lag behind.
 MAINTENANCE_CACHE_KEY = 'core:maintenance_state'
-MAINTENANCE_CACHE_TTL = 60
+MAINTENANCE_CACHE_TTL = 120
 
 
 def maintenance_state():

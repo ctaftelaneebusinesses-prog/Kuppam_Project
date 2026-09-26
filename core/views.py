@@ -798,7 +798,7 @@ def robots_txt(request):
     return HttpResponse('\n'.join(lines), content_type='text/plain')
 
 
-HOME_SECTIONS_CACHE_TTL = 60
+HOME_SECTIONS_CACHE_TTL = 300
 
 
 def _home_sections(request, current, today):
