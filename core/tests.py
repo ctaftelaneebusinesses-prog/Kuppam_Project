@@ -204,21 +204,24 @@ class CategoryPageHeroTests(TestCase):
 
     def test_transport_hero_draws_visible_title_overlay(self):
         # transport.jpg has no baked-in title, so the overlay h1 must render
-        # (styled white via .hk-page-hero-title, not the global dark h1).
+        # (styled white via .hk-lp-hero-title, not the global dark h1).
         response = self.client.get(reverse('core:transport_list'))
-        self.assertContains(response, 'class="hk-page-hero-title"')
+        self.assertContains(response, 'class="hk-lp-hero-title"')
         self.assertContains(response, 'data-category-bg="transport"')
 
-    def test_hospitals_hero_keeps_text_baked_photo_without_overlay(self):
+    def test_hospitals_hero_draws_title_over_darkened_text_baked_photo(self):
+        # hospitals.jpg has a title printed in it: our overlay still renders
+        # (same hero as every page), over a heavier scrim.
         response = self.client.get(reverse('core:hospital_list'))
-        self.assertNotContains(response, 'class="hk-page-hero-title"')
+        self.assertContains(response, 'class="hk-lp-hero-title"')
+        self.assertContains(response, 'hk-lp-hero--baked')
         self.assertContains(response, 'data-category-bg="health"')
 
     def test_jobs_page_opts_into_its_illustration_scene(self):
         response = self.client.get(reverse('core:job_list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'data-category-bg="jobs"')
-        self.assertContains(response, 'class="hk-page-hero-title"')
+        self.assertContains(response, 'class="hk-lp-hero-title"')
 
     def test_business_page_opts_into_shops_scene(self):
         response = self.client.get(reverse('core:business_list'))

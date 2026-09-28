@@ -178,6 +178,7 @@ from .models import (
 from .location_service import active_location, reverse_geocode, save_location, search_cities, serialize_location
 from .push import notify, notify_bulk
 from .signals import HOME_SECTIONS_VERSION_KEY
+from .templatetags.hk_extras import TINT_COUNT, tint_index
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
 User = get_user_model()
@@ -1044,7 +1045,8 @@ def business_list(request):
     context) — so a listing only ever appears on the one page that matches
     its category. Supports search (by name or category) and pagination.
     """
-    businesses = _public_qs(Business, request).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES)
+    base = _public_qs(Business, request).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES)
+    businesses = base
 
     query = request.GET.get('q', '').strip()
     category = request.GET.get('category', '').strip()
@@ -1059,20 +1061,26 @@ def business_list(request):
     else:
         category = ''
 
-    paginator = Paginator(businesses, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = Paginator(businesses, 12).get_page(request.GET.get('page'))
+
+    counts = _choice_counts(request, base, 'category', 'business:general')
+    type_tiles = _type_tiles(
+        request, 'category', category, GENERAL_BUSINESS_CATEGORY_CHOICES, counts,
+        icon_for=lambda value: Business.PLACEHOLDER_ICONS.get(value, 'bi-shop-window'),
+        tint_for=lambda value: tint_index(Business, 'category', value),
+    )
 
     context = {
         'page_title': 'Businesses - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_category': category,
         'selected_category_label': dict(GENERAL_BUSINESS_CATEGORY_CHOICES).get(category, ''),
         'category_choices': GENERAL_BUSINESS_CATEGORY_CHOICES,
-        'total_results': businesses.count(),
-        'hero_image': CATEGORIES_BY_SLUG['shops']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['shops']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['shops'],
+            filters_active=bool(query or category),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'business_list.html', context)
 
@@ -1139,7 +1147,8 @@ def directory_list(request, category):
     if config is None:
         raise Http404('Unknown directory category')
 
-    businesses = _public_qs(Business, request).filter(category__in=config['categories'])
+    base = _public_qs(Business, request).filter(category__in=config['categories'])
+    businesses = base
 
     subcategory_choices = [
         (key, label) for key, label in Business.CATEGORY_CHOICES
@@ -1159,30 +1168,132 @@ def directory_list(request, category):
             Q(name__icontains=query) | Q(address__icontains=query)
         )
 
-    paginator = Paginator(businesses, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    # Elided so a large result set collapses to e.g. "1 2 3 … 8" instead of
-    # one <li> per page (Django 2.2+; see Paginator.get_elided_page_range).
-    page_range = paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1)
+    page_obj = Paginator(businesses, 12).get_page(request.GET.get('page'))
 
-    hero = CATEGORIES_BY_SLUG.get(category)
+    # Single-category directories (Transport, Repair, ...) have nothing to
+    # split by, so they get no tile row — just the total.
+    counts = _choice_counts(request, base, 'category', f'business:directory:{category}')
+    type_tiles = _type_tiles(
+        request, 'type', subcategory, subcategory_choices, counts,
+        icon_for=lambda value: Business.PLACEHOLDER_ICONS.get(value, config['icon']),
+        tint_for=lambda value: tint_index(Business, 'category', value),
+    ) if subcategory_choices else []
 
     context = {
         'page_title': f"{config['label']} - OneTownCity",
-        'page_obj': page_obj,
-        'page_range': page_range,
         'query': query,
-        'total_results': businesses.count(),
         'directory_label': config['label'],
         'directory_icon': config['icon'],
         'directory_key': category,
         'subcategory_choices': subcategory_choices,
         'selected_subcategory': subcategory,
-        'hero_image': hero['image'] if hero else '',
-        'hero_tagline': hero['description'] if hero else '',
+        'selected_subcategory_label': dict(subcategory_choices).get(subcategory, ''),
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG.get(category),
+            filters_active=bool(query or subcategory),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'directory_list.html', context)
+
+
+#: Icons for the type tiles on the category listing pages. Business and
+#: Lost & Found reuse their models' PLACEHOLDER_ICONS; News uses each
+#: Category row's own icon.
+PROPERTY_TYPE_TILE_ICONS = {
+    'sale': 'bi-house-check', 'rent': 'bi-key', 'apartment': 'bi-buildings',
+    'villa': 'bi-house-heart', 'plot': 'bi-map', 'commercial': 'bi-shop-window',
+    'pg': 'bi-door-open', 'other': 'bi-house',
+}
+JOB_TYPE_TILE_ICONS = {'regular': 'bi-briefcase', 'hourly': 'bi-clock-history'}
+PROJECT_STATUS_TILE_ICONS = {'planned': 'bi-pencil-square', 'ongoing': 'bi-cone-striped', 'completed': 'bi-check-circle'}
+SCHOLARSHIP_TYPE_TILE_ICONS = {
+    'government': 'bi-bank', 'merit': 'bi-trophy', 'need_based': 'bi-heart',
+    'minority': 'bi-people', 'sports': 'bi-dribbble', 'research': 'bi-journal-richtext',
+    'other': 'bi-mortarboard',
+}
+
+#: Stock hero photos that already have a title/tagline printed on them —
+#: listing_page_base.html shows these without its own copy overlay.
+HERO_IMAGES_WITH_TEXT = frozenset({
+    'images/services/hospitals.jpg', 'images/services/education.jpg',
+    'images/services/restaurants.jpg', 'images/services/upcoming-projects.jpg',
+    'images/services/news.jpg', 'images/services/events.jpg',
+})
+
+#: Where to anchor a hero photo in the banner when its printed title would
+#: otherwise sit behind our own copy (default: centered).
+HERO_IMAGE_FOCUS = {
+    # "UPCOMING PROJECTS / BUILDING TODAY..." fills the top-left half.
+    'images/services/upcoming-projects.jpg': 'center bottom',
+}
+
+#: A page with at most this many types shows a tile for every type (empty
+#: ones dimmed); with more, only the types that actually have listings.
+TYPE_TILE_LIMIT = 8
+
+
+def _choice_counts(request, qs, field, cache_scope):
+    """
+    {value of `field`: public listing count} for this visitor's city, in one
+    grouped query. `field=None` gives {None: total}. Cached briefly, keyed on
+    the version counter the listing signals bump on every save/delete, so a
+    new/removed listing is reflected on the next view.
+    """
+    current = active_location(request)
+    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    cache_key = f'core:choice_counts:{cache_scope}:{version}:{current.pk if current else "all"}'
+    counts = cache.get(cache_key)
+    if counts is None:
+        if field is None:
+            counts = {None: qs.count()}
+        else:
+            counts = dict(qs.order_by().values_list(field).annotate(n=Count('pk')).values_list(field, 'n'))
+        cache.set(cache_key, counts, 300)
+    return counts
+
+
+def _type_tiles(request, param, selected, choices, counts, icon_for, tint_for):
+    """
+    Filter tiles for a listing page: one per (value, label) choice, each
+    linking to the page filtered by ?<param>=<value> (or back to unfiltered
+    when it's the active one), keeping the visitor's other filters.
+    """
+    show_all = len(choices) <= TYPE_TILE_LIMIT
+    tiles = []
+    for value, label in choices:
+        count = counts.get(value, 0)
+        if not (count or value == selected or (show_all and value != 'other')):
+            continue
+        params = request.GET.copy()
+        params.pop('page', None)
+        if value == selected:
+            params.pop(param, None)
+        else:
+            params[param] = value
+        tiles.append({
+            'value': value, 'label': label, 'count': count,
+            'icon': icon_for(value), 'tint': tint_for(value),
+            'url': f'?{params.urlencode()}' if params else request.path,
+            'is_active': value == selected,
+        })
+    return tiles
+
+
+def _listing_page_context(request, page_obj, hero, filters_active, total_listed, type_tiles=()):
+    """Context listing_page_base.html needs on top of each page's own."""
+    return {
+        'page_obj': page_obj,
+        'total_results': page_obj.paginator.count,
+        'total_listed': total_listed,
+        'type_tiles': list(type_tiles),
+        'filters_active': filters_active,
+        'clear_url': request.path,
+        'hero_image': hero['image'] if hero else '',
+        'hero_tagline': hero['description'] if hero else '',
+        'hero_image_has_text': bool(hero) and hero['image'] in HERO_IMAGES_WITH_TEXT,
+        'hero_focus': HERO_IMAGE_FOCUS.get(hero['image'], '') if hero else '',
+    }
 
 
 def property_list(request):
@@ -1190,7 +1301,8 @@ def property_list(request):
     Properties listing page with search (by title or location), filter
     by type, and pagination.
     """
-    properties = _public_qs(Property, request)
+    base = _public_qs(Property, request)
+    properties = base
 
     query = request.GET.get('q', '').strip()
     property_type = request.GET.get('type', '').strip()
@@ -1200,22 +1312,31 @@ def property_list(request):
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    if property_type:
+    if property_type in dict(Property.PROPERTY_TYPE_CHOICES):
         properties = properties.filter(property_type=property_type)
+    else:
+        property_type = ''
 
-    paginator = Paginator(properties, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = Paginator(properties, 12).get_page(request.GET.get('page'))
+
+    type_counts = _choice_counts(request, base, 'property_type', 'property')
+    type_tiles = _type_tiles(
+        request, 'type', property_type, Property.PROPERTY_TYPE_CHOICES, type_counts,
+        icon_for=lambda value: PROPERTY_TYPE_TILE_ICONS.get(value, 'bi-house'),
+        tint_for=lambda value: tint_index(Property, 'property_type', value),
+    )
 
     context = {
         'page_title': 'Properties - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_type': property_type,
+        'selected_type_label': dict(Property.PROPERTY_TYPE_CHOICES).get(property_type, ''),
         'type_choices': Property.PROPERTY_TYPE_CHOICES,
-        'total_results': properties.count(),
-        'hero_image': CATEGORIES_BY_SLUG['real-estate']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['real-estate']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['real-estate'],
+            filters_active=bool(query or property_type),
+            total_listed=sum(type_counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'property_list.html', context)
 
@@ -1264,7 +1385,8 @@ def job_list(request):
     a plain date match, refined by time only when both a date and a time are
     given (a bare time with no date isn't a meaningful filter on its own).
     """
-    jobs = _public_qs(Job, request)
+    base = _public_qs(Job, request)
+    jobs = base
 
     query = request.GET.get('q', '').strip()
     job_type = request.GET.get('type', '').strip()
@@ -1301,21 +1423,28 @@ def job_list(request):
     if shift_date and shift_time:
         jobs = jobs.filter(shift_start_time__lte=shift_time, shift_end_time__gte=shift_time)
 
-    paginator = Paginator(jobs, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = Paginator(jobs, 12).get_page(request.GET.get('page'))
+
+    counts = _choice_counts(request, base, 'job_type', 'job')
+    type_tiles = _type_tiles(
+        request, 'type', job_type, Job.JOB_TYPE_CHOICES, counts,
+        icon_for=lambda value: JOB_TYPE_TILE_ICONS.get(value, 'bi-briefcase'),
+        tint_for=lambda value: tint_index(Job, 'job_type', value),
+    )
 
     context = {
         'page_title': 'Jobs - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_job_type': job_type,
+        'selected_job_type_label': dict(Job.JOB_TYPE_CHOICES).get(job_type, ''),
         'job_type_choices': Job.JOB_TYPE_CHOICES,
         'selected_date': date_str,
         'selected_time': time_str,
-        'total_results': jobs.count(),
-        'hero_image': CATEGORIES_BY_SLUG['jobs']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['jobs']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['jobs'],
+            filters_active=bool(query or job_type or date_str),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'job_list.html', context)
 
@@ -1364,7 +1493,8 @@ def event_list(request):
     Events listing page with search (by title or location) and pagination.
     Upcoming events are shown first (model default ordering).
     """
-    events = _public_qs(Event, request)
+    base = _public_qs(Event, request)
+    events = base
 
     query = request.GET.get('q', '').strip()
 
@@ -1373,17 +1503,16 @@ def event_list(request):
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    paginator = Paginator(events, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = Paginator(events, 12).get_page(request.GET.get('page'))
 
     context = {
         'page_title': 'Events - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
-        'total_results': events.count(),
-        'hero_image': CATEGORIES_BY_SLUG['events']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['events']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['events'],
+            filters_active=bool(query),
+            total_listed=_choice_counts(request, base, None, 'event')[None],
+        ),
     }
     return render(request, 'event_list.html', context)
 
@@ -1434,7 +1563,8 @@ def news_list(request):
     Happening in Your Village" — mirrors directory_list's ?type= pattern),
     and pagination. Most recently published articles are shown first.
     """
-    articles = _public_qs(News, request)
+    base = _public_qs(News, request)
+    articles = base
 
     query = request.GET.get('q', '').strip()
     category_key = request.GET.get('category', '').strip()
@@ -1451,20 +1581,32 @@ def news_list(request):
             Q(title__icontains=query) | Q(content__icontains=query)
         )
 
-    paginator = Paginator(articles, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = Paginator(articles, 12).get_page(request.GET.get('page'))
+
+    news_categories = list(news_categories)
+    category_icons = {cat.key: cat.icon or 'bi-newspaper' for cat in news_categories}
+    category_tints = {cat.key: i % TINT_COUNT for i, cat in enumerate(news_categories)}
+    counts = _choice_counts(request, base, 'listing_category__key', 'news')
+    type_tiles = _type_tiles(
+        request, 'category', category_key, [(cat.key, cat.label) for cat in news_categories], counts,
+        icon_for=category_icons.get, tint_for=category_tints.get,
+    )
+
+    hero = dict(CATEGORIES_BY_SLUG['news'])
+    if selected_category and selected_category.description:
+        hero['description'] = selected_category.description
 
     context = {
         'page_title': selected_category.label if selected_category else 'OneTownCity News',
-        'page_obj': page_obj,
         'query': query,
-        'total_results': articles.count(),
         'news_categories': news_categories,
         'selected_category_key': category_key,
         'selected_category': selected_category,
-        'hero_image': CATEGORIES_BY_SLUG['news']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['news']['description'],
+        **_listing_page_context(
+            request, page_obj, hero,
+            filters_active=bool(query or category_key),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'news_list.html', context)
 
@@ -1512,26 +1654,42 @@ def project_list(request):
     pagination. Featured/newest projects are shown first (model default
     ordering).
     """
-    projects = _public_qs(Project, request)
+    base = _public_qs(Project, request)
+    projects = base
 
     query = request.GET.get('q', '').strip()
+    project_status = request.GET.get('status', '').strip()
 
     if query:
         projects = projects.filter(
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    paginator = Paginator(projects, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    if project_status in dict(Project.STATUS_CHOICES):
+        projects = projects.filter(project_status=project_status)
+    else:
+        project_status = ''
+
+    page_obj = Paginator(projects, 12).get_page(request.GET.get('page'))
+
+    counts = _choice_counts(request, base, 'project_status', 'project')
+    type_tiles = _type_tiles(
+        request, 'status', project_status, Project.STATUS_CHOICES, counts,
+        icon_for=lambda value: PROJECT_STATUS_TILE_ICONS.get(value, 'bi-cone-striped'),
+        tint_for=lambda value: tint_index(Project, 'project_status', value),
+    )
 
     context = {
         'page_title': 'Upcoming Projects - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
-        'total_results': projects.count(),
-        'hero_image': CATEGORIES_BY_SLUG['projects']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['projects']['description'],
+        'selected_status': project_status,
+        'selected_status_label': dict(Project.STATUS_CHOICES).get(project_status, ''),
+        'status_choices': Project.STATUS_CHOICES,
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['projects'],
+            filters_active=bool(query or project_status),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'project_list.html', context)
 
@@ -1559,7 +1717,8 @@ def scholarship_list(request):
     provider or description), a type filter, and pagination. Open-ended
     schemes and the soonest deadlines are surfaced first (model ordering).
     """
-    scholarships = _public_qs(Scholarship, request)
+    base = _public_qs(Scholarship, request)
+    scholarships = base
 
     query = request.GET.get('q', '').strip()
     scholarship_type = request.GET.get('type', '').strip()
@@ -1574,19 +1733,26 @@ def scholarship_list(request):
     else:
         scholarship_type = ''
 
-    paginator = Paginator(scholarships, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = Paginator(scholarships, 12).get_page(request.GET.get('page'))
+
+    counts = _choice_counts(request, base, 'scholarship_type', 'scholarship')
+    type_tiles = _type_tiles(
+        request, 'type', scholarship_type, Scholarship.TYPE_CHOICES, counts,
+        icon_for=lambda value: SCHOLARSHIP_TYPE_TILE_ICONS.get(value, 'bi-mortarboard'),
+        tint_for=lambda value: tint_index(Scholarship, 'scholarship_type', value),
+    )
 
     context = {
         'page_title': 'Scholarships & Government Schemes - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_type': scholarship_type,
+        'selected_type_label': dict(Scholarship.TYPE_CHOICES).get(scholarship_type, ''),
         'type_choices': Scholarship.TYPE_CHOICES,
-        'total_results': scholarships.count(),
-        'hero_image': CATEGORIES_BY_SLUG['scholarships']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['scholarships']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['scholarships'],
+            filters_active=bool(query or scholarship_type),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'scholarship_list.html', context)
 
@@ -1615,7 +1781,8 @@ def lost_found_list(request):
     Lost & Found listing page with search (by title, description or
     location), Lost/Found and item-category filters, and pagination.
     """
-    items = _public_qs(LostFound, request)
+    base = _public_qs(LostFound, request)
+    items = base
 
     query = request.GET.get('q', '').strip()
     report_type = request.GET.get('type', '').strip()
@@ -1636,21 +1803,28 @@ def lost_found_list(request):
     else:
         item_category = ''
 
-    paginator = Paginator(items, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = Paginator(items, 12).get_page(request.GET.get('page'))
+
+    counts = _choice_counts(request, base, 'report_type', 'lostfound')
+    type_tiles = _type_tiles(
+        request, 'type', report_type, LostFoundType.choices, counts,
+        icon_for=lambda value: LostFound.PLACEHOLDER_ICONS.get(value, 'bi-search'),
+        tint_for=lambda value: tint_index(LostFound, 'report_type', value),
+    )
 
     context = {
         'page_title': 'Lost & Found - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_type': report_type,
+        'selected_type_label': dict(LostFoundType.choices).get(report_type, ''),
         'type_choices': LostFoundType.choices,
         'selected_category': item_category,
         'category_choices': LostFound.CATEGORY_CHOICES,
-        'total_results': items.count(),
-        'hero_image': CATEGORIES_BY_SLUG['lost-found']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['lost-found']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['lost-found'],
+            filters_active=bool(query or report_type or item_category),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'lost_found_list.html', context)
 

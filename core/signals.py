@@ -7,8 +7,8 @@ from .context_processors import CATEGORY_TREE_CACHE_KEY
 from .location_service import location_cache_key
 from .middleware import MAINTENANCE_CACHE_KEY
 from .models import (
-    Business, Category, Comment, Event, Favorite, Job, Like, Location, News, PlatformSettings, Project, Property,
-    Review, Share,
+    Business, Category, Comment, Event, Favorite, Job, Like, Location, LostFound, News, PlatformSettings, Project,
+    Property, Review, Scholarship, Share,
 )
 from .push import notify
 
@@ -78,8 +78,9 @@ def on_platform_settings_changed(sender, instance, **kwargs):
     cache.delete(MAINTENANCE_CACHE_KEY)
 
 
-#: Bumped on every homepage-listing save/delete so views._home_sections()
-#: stops serving its cached rows immediately (the old version's keys just
+#: Bumped on every listing save/delete so views._home_sections() and the
+#: listing pages' type counts (views._choice_counts) stop serving cached rows
+#: immediately (the old version's keys just
 #: expire on their own TTL) — an approval, edit or deletion shows up on the
 #: homepage on the very next view instead of after the cache TTL.
 HOME_SECTIONS_VERSION_KEY = 'core:home_sections_version'
@@ -96,7 +97,7 @@ def on_home_listing_changed(sender, instance, **kwargs):
     bump_home_sections_cache()
 
 
-for _listing_model in (Business, Property, Job, Event, News, Project):
+for _listing_model in (Business, Property, Job, Event, News, Project, Scholarship, LostFound):
     post_save.connect(on_home_listing_changed, sender=_listing_model, dispatch_uid=f'home_sections_{_listing_model.__name__}_save')
     post_delete.connect(on_home_listing_changed, sender=_listing_model, dispatch_uid=f'home_sections_{_listing_model.__name__}_delete')
 

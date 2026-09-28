@@ -70,3 +70,41 @@ def has_permission(profile, key):
     {% if request.profile|has_permission:"view_content_providers" %}.
     """
     return bool(profile) and profile.has_permission(key)
+
+
+@register.filter
+def inr_short(amount):
+    """
+    A rupee amount in the compact Indian style buyers actually read listings
+    in: 12500000 -> '1.25 Cr', 1500000 -> '15 Lakh', 18000 -> '18,000'.
+    Trailing zeros are dropped (1.50 Cr -> 1.5 Cr, 15.00 Lakh -> 15 Lakh).
+    """
+    try:
+        value = float(amount)
+    except (TypeError, ValueError):
+        return ''
+    for unit_value, unit in ((10_000_000, 'Cr'), (100_000, 'Lakh')):
+        if value >= unit_value:
+            number = f'{value / unit_value:.2f}'.rstrip('0').rstrip('.')
+            return f'{number} {unit}'
+    return f'{value:,.0f}'
+
+
+#: Size of the .hk-tint-N palette in main.css.
+TINT_COUNT = 8
+
+
+def tint_index(model, field_name, value):
+    """
+    Palette slot (0..TINT_COUNT-1) for one value of a model's choice field:
+    its position in the field's choices, so a type keeps the same color on
+    its filter tile and on every card, on every page. Unknown values get 0.
+    """
+    keys = [key for key, _ in model._meta.get_field(field_name).flatchoices]
+    return (keys.index(value) if value in keys else 0) % TINT_COUNT
+
+
+@register.filter
+def choice_tint(obj, field_name):
+    """{{ property|choice_tint:'property_type' }} -> 3 (see tint_index)."""
+    return tint_index(type(obj), field_name, getattr(obj, field_name, None))

@@ -1,0 +1,87 @@
+{% comment %}
+Town-skyline silhouette the footer rises into (base.html): houses, a temple
+gopuram, a water tank, a clock tower, a domed hall, apartment blocks and
+trees, filled with the footer's own color so the page "ends in a town".
+A few windows glow (and some softly flicker, see .hk-skyline-window--flicker
+in main.css). Decorative only.
+{% endcomment %}
+<svg class="hk-footer-skyline" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <g class="hk-skyline-town">
+        <!-- low house -->
+        <rect x="0" y="92" width="60" height="28"/>
+        <polygon points="-4,92 30,74 64,92"/>
+        <!-- tree -->
+        <circle cx="90" cy="86" r="17"/>
+        <rect x="87" y="96" width="6" height="24"/>
+        <!-- two-storey block -->
+        <rect x="120" y="68" width="80" height="52"/>
+        <!-- pitched-roof house -->
+        <rect x="212" y="90" width="48" height="30"/>
+        <polygon points="206,90 236,70 266,90"/>
+        <!-- temple gopuram -->
+        <polygon points="280,120 285,101 355,101 360,120"/>
+        <polygon points="288,101 293,86 347,86 352,101"/>
+        <polygon points="296,86 300,71 340,71 344,86"/>
+        <polygon points="303,71 307,57 333,57 337,71"/>
+        <polygon points="310,57 320,44 330,57"/>
+        <circle cx="320" cy="41" r="3.5"/>
+        <!-- tree -->
+        <circle cx="385" cy="90" r="15"/>
+        <rect x="382" y="98" width="6" height="22"/>
+        <!-- water tank -->
+        <rect x="422" y="56" width="46" height="26" rx="7"/>
+        <rect x="428" y="82" width="5" height="38"/>
+        <rect x="457" y="82" width="5" height="38"/>
+        <rect x="432" y="98" width="26" height="3"/>
+        <!-- office blocks -->
+        <rect x="484" y="54" width="50" height="66"/>
+        <rect x="534" y="76" width="40" height="44"/>
+        <!-- clock tower -->
+        <rect x="598" y="40" width="28" height="80"/>
+        <polygon points="593,40 612,24 631,40"/>
+        <!-- row houses -->
+        <rect x="652" y="94" width="72" height="26"/>
+        <polygon points="648,94 670,79 692,94"/>
+        <polygon points="688,94 708,81 728,94"/>
+        <!-- tree -->
+        <circle cx="748" cy="88" r="16"/>
+        <rect x="745" y="97" width="6" height="23"/>
+        <!-- domed hall with minaret -->
+        <rect x="772" y="62" width="8" height="58"/>
+        <polygon points="770,62 776,52 782,62"/>
+        <rect x="784" y="84" width="72" height="36"/>
+        <path d="M797 84 A23 23 0 0 1 843 84 Z"/>
+        <!-- apartment block -->
+        <rect x="872" y="48" width="82" height="72"/>
+        <!-- tree -->
+        <circle cx="978" cy="90" r="15"/>
+        <rect x="975" y="98" width="6" height="22"/>
+        <!-- shop row with awning -->
+        <rect x="1008" y="96" width="76" height="24"/>
+        <polygon points="1002,96 1090,96 1084,88 1008,88"/>
+        <!-- tall + low blocks -->
+        <rect x="1100" y="60" width="44" height="60"/>
+        <rect x="1144" y="80" width="40" height="40"/>
+        <!-- pitched-roof house -->
+        <rect x="1198" y="92" width="50" height="28"/>
+        <polygon points="1192,92 1223,72 1254,92"/>
+        <!-- tree -->
+        <circle cx="1276" cy="88" r="16"/>
+        <rect x="1273" y="97" width="6" height="23"/>
+        <!-- block -->
+        <rect x="1302" y="70" width="80" height="50"/>
+        <!-- house -->
+        <rect x="1394" y="94" width="50" height="26"/>
+        <polygon points="1390,94 1418,78 1446,94"/>
+    </g>
+    <g class="hk-skyline-windows">
+        <rect x="130" y="78" width="7" height="7"/><rect x="148" y="78" width="7" height="7" class="hk-skyline-window--flicker"/><rect x="166" y="78" width="7" height="7"/><rect x="184" y="78" width="7" height="7"/>
+        <rect x="130" y="96" width="7" height="7"/><rect x="166" y="96" width="7" height="7"/>
+        <rect x="494" y="64" width="7" height="7"/><rect x="512" y="64" width="7" height="7"/><rect x="494" y="82" width="7" height="7" class="hk-skyline-window--flicker"/><rect x="512" y="98" width="7" height="7"/>
+        <circle cx="612" cy="54" r="6"/>
+        <rect x="882" y="58" width="7" height="7"/><rect x="900" y="58" width="7" height="7"/><rect x="918" y="58" width="7" height="7" class="hk-skyline-window--flicker"/><rect x="936" y="58" width="7" height="7"/>
+        <rect x="882" y="76" width="7" height="7"/><rect x="918" y="76" width="7" height="7"/><rect x="936" y="94" width="7" height="7"/>
+        <rect x="1110" y="70" width="7" height="7"/><rect x="1126" y="70" width="7" height="7"/><rect x="1110" y="88" width="7" height="7" class="hk-skyline-window--flicker"/>
+        <rect x="1312" y="80" width="7" height="7"/><rect x="1330" y="80" width="7" height="7"/><rect x="1348" y="80" width="7" height="7"/><rect x="1366" y="98" width="7" height="7" class="hk-skyline-window--flicker"/>
+    </g>
+</svg>

@@ -81,6 +81,11 @@
     function addActor(layer, opts) {
         var el = document.createElement('div');
         el.className = 'world-actor';
+        // Remembered so placeBelowHero() can re-stack the pieces under a
+        // page hero: which margin the piece sits in, and whether it was
+        // authored as an upper (top-anchored) or lower corner piece.
+        el.dataset.side = opts.left.indexOf('100vw') !== -1 ? 'right' : 'left';
+        el.dataset.slot = opts.top != null ? 'upper' : 'lower';
         el.style.left = opts.left;
         if (opts.bottom != null) el.style.bottom = opts.bottom;
         if (opts.top != null) el.style.top = opts.top;
@@ -264,7 +269,69 @@
         root.style.setProperty('--world-duration', config.duration);
         var color = 'rgba(var(--hk-cat-' + categoryKey + '-rgb), .34)';
         config.build(actorLayer, color);
+        placeBelowHero();
         root.classList.add('is-active');
+    }
+
+    // ------------------------------------------------------------------
+    // Keep the illustrations off the page hero banner.
+    //
+    // The viewport-fixed corners above put the upper pieces right beside
+    // (and peeking out around) a listing page's photo banner, which reads
+    // as clutter. When the page has a hero, the layer instead scrolls with
+    // the document and each margin's pieces stack straight down from just
+    // below the banner: the lower piece first, the upper piece under it.
+    // Pages without a hero keep the fixed four-corner layout.
+    // ------------------------------------------------------------------
+    var HERO_SELECTOR = '.hk-lp-hero';
+
+    function placeBelowHero() {
+        if (!root || !activeCategory) return;
+        var hero = document.querySelector(HERO_SELECTOR);
+        if (!hero) {
+            root.classList.remove('is-below-hero');
+            root.style.height = '';
+            return;
+        }
+        root.classList.add('is-below-hero');
+
+        var gap = 24; // clears the hover float (10px lift + tilt)
+        var heroBottom = hero.getBoundingClientRect().bottom + window.scrollY;
+        var actors = actorLayer.querySelectorAll('.world-actor');
+
+        ['left', 'right'].forEach(function (side) {
+            var y = heroBottom + gap;
+            ['lower', 'upper'].forEach(function (slot) {
+                Array.prototype.forEach.call(actors, function (el) {
+                    if (el.dataset.side !== side || el.dataset.slot !== slot) return;
+                    el.style.bottom = '';
+                    el.style.top = y + 'px';
+                    y += el.offsetHeight + gap;
+                });
+            });
+        });
+
+        // Span the whole document (so the pieces scroll with it) without
+        // ever making it taller: measure with the layer collapsed, and let
+        // overflow:hidden clip anything past the end of a short page.
+        root.style.height = '0px';
+        root.style.height = document.documentElement.scrollHeight + 'px';
+    }
+
+    var relayoutFrame = null;
+    function scheduleRelayout() {
+        if (relayoutFrame) return;
+        relayoutFrame = requestAnimationFrame(function () {
+            relayoutFrame = null;
+            placeBelowHero();
+        });
+    }
+    window.addEventListener('resize', scheduleRelayout);
+    window.addEventListener('load', scheduleRelayout);
+    if ('ResizeObserver' in window) {
+        // Catches late layout shifts (web fonts, lazy images, filters) that
+        // move the hero or change the page's length after first paint.
+        new ResizeObserver(scheduleRelayout).observe(document.body);
     }
 
     window.changeWorldScene = changeWorldScene;

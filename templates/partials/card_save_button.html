@@ -1,0 +1,13 @@
+{% comment %}
+Save-to-favorites button on a listing card's photo. Include with:
+{% include 'partials/card_save_button.html' with model_key='business' pk=business.pk %}
+{% endcomment %}
+{% load i18n %}
+{% if user.is_authenticated %}
+<form method="post" action="{% url 'core:toggle_favorite' model_key pk %}" class="hk-lp-save">
+    {% csrf_token %}
+    <button type="submit" class="hk-lp-save-btn" title="{% trans 'Save to favorites' %}" aria-label="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
+</form>
+{% else %}
+<a href="{% url 'core:google_login' %}" class="hk-lp-save hk-lp-save-btn" title="{% trans 'Sign in to save' %}" aria-label="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
+{% endif %}

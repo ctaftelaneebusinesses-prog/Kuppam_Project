@@ -1,50 +1,50 @@
 {% comment %}
 Reusable event card. Include with: {% include 'partials/event_card.html' with event=<event_instance> %}
+Same photo-first layout as property_card.html: date pill + save button over
+the photo (plus a "Past Event" chip once it's over), then title, venue and
+start time.
 {% endcomment %}
 {% load i18n hk_extras %}
-<div class="card h-100 hk-card">
-    {% if event.is_featured %}
-    <span class="hk-badge-featured">
-        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
-    </span>
-    {% endif %}
-    {% if event.has_image %}
-    <img src="{{ event.display_image }}" class="card-img-top hk-card-img" alt="{{ event.title }}" loading="lazy" data-fallback-icon="{{ event.placeholder_icon }}">
-    {% else %}
-    <div class="hk-card-placeholder"><i class="bi {{ event.placeholder_icon }}"></i></div>
-    {% endif %}
-    <div class="card-body d-flex flex-column">
-        <span class="hk-badge-date mb-2 align-self-start">
-            <i class="bi bi-calendar3"></i> {{ event.event_date|date:"d M Y" }}{% if event.event_time %} <i class="bi bi-clock ms-1"></i> {{ event.event_time|date:"g:i A" }}{% endif %}
+<article class="hk-lp-card h-100">
+    <div class="hk-lp-card-media">
+        <a href="{% url 'core:event_detail' event.slug %}" class="hk-lp-card-media-link" tabindex="-1" aria-hidden="true">
+            {% if event.has_image %}
+            <img src="{{ event.display_image }}" class="hk-card-img" alt="" loading="lazy" decoding="async" data-fallback-icon="{{ event.placeholder_icon }}">
+            {% else %}
+            <div class="hk-card-placeholder"><i class="bi {{ event.placeholder_icon }}"></i></div>
+            {% endif %}
+        </a>
+        <span class="hk-lp-pill hk-tint-{% if event.is_upcoming %}0{% else %}7{% endif %}">
+            <i class="bi bi-calendar3"></i> {{ event.event_date|date:"d M Y" }}
         </span>
-        {% if not event.is_upcoming %}
-        <span class="badge bg-secondary mb-2 align-self-start">{% trans "Past Event" %}</span>
+        {% if event.is_featured %}
+        <span class="hk-lp-featured" title="{% trans 'Featured' %}"><i class="bi bi-star-fill"></i><span class="visually-hidden">{% trans "Featured" %}</span></span>
         {% endif %}
-        <h5 class="card-title">{{ event.title }}</h5>
-        <div class="hk-card-meta-row">
-            <span class="hk-rating">
+        {% if not event.is_upcoming %}
+        <span class="hk-lp-status">{% trans "Past Event" %}</span>
+        {% endif %}
+        {% include 'partials/card_save_button.html' with model_key='event' pk=event.pk %}
+    </div>
+
+    <div class="hk-lp-card-body">
+        <h3 class="hk-lp-card-title">
+            <a href="{% url 'core:event_detail' event.slug %}">{{ event.title }}</a>
+        </h3>
+        <p class="hk-lp-card-loc"><i class="bi bi-geo-alt-fill"></i> {{ event.location|truncatechars:50 }}</p>
+        <p class="hk-lp-card-key">
+            <i class="bi bi-calendar-event"></i> {{ event.event_date|date:"l, d M" }}{% if event.event_time %} &middot; {{ event.event_time|date:"g:i A" }}{% endif %}
+        </p>
+        <div class="hk-lp-card-foot">
+            <span class="hk-lp-card-stat" title="{% trans 'Rating' %}">
                 <i class="bi bi-star-fill"></i>
                 {% if event.review_count %}{{ event.avg_rating }} ({{ event.review_count }}){% else %}{% trans "New" %}{% endif %}
             </span>
-            <span><i class="bi bi-eye"></i> {{ event.view_count }}</span>
-        </div>
-        <p class="card-text text-muted small mb-3">
-            <i class="bi bi-geo-alt text-primary"></i> {{ event.location|truncatechars:50 }}
-        </p>
-        <a href="{% url 'core:event_detail' event.slug %}" class="btn btn-outline-primary mt-auto">
-            {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
-        </a>
-        <div class="hk-card-actions">
-            {% if user.is_authenticated %}
-            <form method="post" action="{% url 'core:toggle_favorite' 'event' event.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
-            </form>
-            {% else %}
-            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
-            {% endif %}
-            <a href="{{ event.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="{% trans 'Open in Google Maps' %}"><i class="bi bi-geo"></i></a>
-            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:event_detail' event.slug %}" data-title="{{ event.title }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
+            <span class="hk-lp-card-stat" title="{% trans 'Views' %}"><i class="bi bi-eye"></i> {{ event.view_count }}</span>
+            <span class="hk-lp-card-actions">
+                <a href="{{ event.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-lp-icon-btn" title="{% trans 'Open in Google Maps' %}" aria-label="{% trans 'Open in Google Maps' %}"><i class="bi bi-map"></i></a>
+                <button type="button" class="hk-lp-icon-btn hk-card-share-btn" data-url="{% url 'core:event_detail' event.slug %}" data-title="{{ event.title }}" title="{% trans 'Share' %}" aria-label="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
+                <a href="{% url 'core:event_detail' event.slug %}" class="hk-lp-icon-btn hk-lp-icon-btn--go" title="{% trans 'View Details' %}" aria-label="{% trans 'View Details' %}: {{ event.title }}"><i class="bi bi-arrow-right"></i></a>
+            </span>
         </div>
     </div>
-</div>
+</article>

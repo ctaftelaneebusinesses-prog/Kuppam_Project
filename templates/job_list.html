@@ -1,139 +1,49 @@
-{% extends 'base.html' %}
+{% extends 'listing_page_base.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block body_attrs %}data-category-bg="jobs"{% endblock %}
 
-{% block content %}
-<section class="container py-5">
+{% block hero_eyebrow %}<i class="bi bi-briefcase-fill"></i> {% trans "Opportunities Near You" %}{% endblock %}
+{% block hero_title %}{% trans "Find Your Next" %} <span class="hk-lp-hero-accent">{% trans "Job" %}</span>{% endblock %}
+{% block hero_stat_icon %}bi-briefcase{% endblock %}
+{% block hero_stat_label %}{% blocktrans count counter=total_listed %}{{ counter }} open job{% plural %}{{ counter }} open jobs{% endblocktrans %}{% endblock %}
 
-    {% include 'partials/page_hero.html' with hero_image=hero_image hero_title='Jobs' hero_subtitle=hero_tagline hero_icon='bi-briefcase-fill' %}
-
-    <!-- Search -->
-    <div class="hk-search-bar mb-4">
-        <form method="get" class="row g-2 align-items-end">
-            <div class="col-12">
-                <label class="form-label" for="job-search-input">
-                    <i class="bi bi-funnel"></i> Search &amp; Filter Jobs
-                </label>
-            </div>
-            <div class="col-12 col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-search text-primary"></i></span>
-                    <input
-                        type="text"
-                        id="job-search-input"
-                        name="q"
-                        class="form-control"
-                        placeholder="Search by job title, company or location..."
-                        value="{{ query }}"
-                    >
-                </div>
-            </div>
-            <div class="col-6 col-md-2">
-                <select name="type" class="form-select" aria-label="Filter by job type">
-                    <option value="">All Job Types</option>
-                    {% for value, label in job_type_choices %}
-                    <option value="{{ value }}" {% if selected_job_type == value %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-6 col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Search
-                </button>
-            </div>
-            <div class="col-12 col-md-6 mt-2">
-                <label class="form-label small text-muted mb-1" for="job-available-date">
-                    <i class="bi bi-clock-history"></i> Available on this date/time (Hourly Basis jobs)
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
-                    <input type="date" name="date" id="job-available-date" class="form-control" value="{{ selected_date }}">
-                    <span class="input-group-text"><i class="bi bi-clock"></i></span>
-                    <input type="time" name="time" class="form-control" value="{{ selected_time }}" title="Optional — narrows to jobs whose shift covers this time of day">
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- Results count -->
-    <div class="hk-results-bar mb-4">
-        <i class="bi bi-list-check"></i>
-        {% if query or selected_job_type or selected_date %}
-            Showing {{ total_results }} result{{ total_results|pluralize }}
-            {% if query %} for "<strong>{{ query }}</strong>"{% endif %}
-            {% if selected_date %} available on <strong>{{ selected_date }}</strong>{% if selected_time %} around <strong>{{ selected_time }}</strong>{% endif %}{% endif %}
-            &mdash; <a href="{% url 'core:job_list' %}">Clear filters <i class="bi bi-x-circle"></i></a>
-        {% else %}
-            Showing {{ total_results }} open job{{ total_results|pluralize }}
-        {% endif %}
-    </div>
-
-    <!-- Job Grid -->
-    {% if page_obj %}
-    <div class="hk-grid-auto">
-        {% for job in page_obj %}
-        <div data-aos="fade-up">
-            {% include 'partials/job_card.html' with job=job %}
-        </div>
+{% block search_label %}{% trans 'Search jobs' %}{% endblock %}
+{% block search_fields %}
+<label class="hk-lp-field hk-lp-field--grow">
+    <i class="bi bi-search" aria-hidden="true"></i>
+    <span class="visually-hidden">{% trans "Search by job title, company or location" %}</span>
+    <input type="text" id="job-search-input" name="q" value="{{ query }}" placeholder="{% trans 'Job title, company or location...' %}">
+</label>
+<label class="hk-lp-field">
+    <i class="bi bi-grid" aria-hidden="true"></i>
+    <span class="visually-hidden">{% trans "Filter by job type" %}</span>
+    <select name="type" aria-label="{% trans 'Filter by job type' %}">
+        <option value="">{% trans "All Job Types" %}</option>
+        {% for value, label in job_type_choices %}
+        <option value="{{ value }}" {% if selected_job_type == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="mt-5" aria-label="Job listing pagination">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_job_type %}&type={{ selected_job_type }}{% endif %}{% if selected_date %}&date={{ selected_date }}{% endif %}{% if selected_time %}&time={{ selected_time }}{% endif %}" aria-label="First page">
-                        <i class="bi bi-chevron-double-left"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_job_type %}&type={{ selected_job_type }}{% endif %}{% if selected_date %}&date={{ selected_date }}{% endif %}{% if selected_time %}&time={{ selected_time }}{% endif %}" aria-label="Previous page">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                </li>
-            {% endif %}
-
-            <li class="page-item active">
-                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-            </li>
-
-            {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_job_type %}&type={{ selected_job_type }}{% endif %}{% if selected_date %}&date={{ selected_date }}{% endif %}{% if selected_time %}&time={{ selected_time }}{% endif %}" aria-label="Next page">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_job_type %}&type={{ selected_job_type }}{% endif %}{% if selected_date %}&date={{ selected_date }}{% endif %}{% if selected_time %}&time={{ selected_time }}{% endif %}" aria-label="Last page">
-                        <i class="bi bi-chevron-double-right"></i>
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-
-    {% else %}
-    <div class="alert alert-info text-center py-5 hk-empty-state">
-        <i class="bi bi-briefcase display-4 d-block mb-3"></i>
-        <p class="fw-bold mb-1">No jobs found</p>
-        <p class="text-muted mb-3">
-            {% if query or selected_job_type or selected_date %}
-                No jobs match your search/filters. Try adjusting them.
-            {% else %}
-                There are no job listings right now. Please check back soon.
-            {% endif %}
-        </p>
-        {% if query or selected_job_type or selected_date %}
-        <a href="{% url 'core:job_list' %}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
-        </a>
-        {% endif %}
-    </div>
-    {% endif %}
-
-</section>
+    </select>
+</label>
+<label class="hk-lp-field" title="{% trans 'Hourly Basis jobs available on this date' %}">
+    <i class="bi bi-calendar3" aria-hidden="true"></i>
+    <span class="visually-hidden">{% trans "Available on this date (Hourly Basis jobs)" %}</span>
+    <input type="date" name="date" id="job-available-date" value="{{ selected_date }}">
+</label>
+<label class="hk-lp-field" title="{% trans 'Optional — narrows to jobs whose shift covers this time of day' %}">
+    <i class="bi bi-clock" aria-hidden="true"></i>
+    <span class="visually-hidden">{% trans "Available at this time (optional)" %}</span>
+    <input type="time" name="time" value="{{ selected_time }}">
+</label>
 {% endblock %}
+{% block search_button %}{% trans "Search Jobs" %}{% endblock %}
+
+{% block tiles_label %}{% trans 'Browse by job type' %}{% endblock %}
+{% block results_title %}{% if selected_job_type_label %}{{ selected_job_type_label }}{% elif query or selected_date %}{% trans "Search Results" %}{% else %}{% trans "Explore Jobs" %}{% endif %}{% endblock %}
+{% block results_count %}{% blocktrans count counter=total_results %}{{ counter }} job{% plural %}{{ counter }} jobs{% endblocktrans %}{% if selected_date %} {% blocktrans %}available on <strong>{{ selected_date }}</strong>{% endblocktrans %}{% if selected_time %} {% blocktrans %}around <strong>{{ selected_time }}</strong>{% endblocktrans %}{% endif %}{% endif %}{% endblock %}
+
+{% block card %}{% include 'partials/job_card.html' with job=obj %}{% endblock %}
+
+{% block empty_icon %}bi-briefcase{% endblock %}
+{% block empty_title %}{% trans "No jobs found" %}{% endblock %}
