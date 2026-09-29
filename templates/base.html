@@ -35,9 +35,6 @@
 
     <link rel="canonical" href="{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
 
-    <!-- Same navy/amber/white mark already shipped as the Android launcher
-         icon (android/app/src/main/res/drawable/ic_splash.xml) — kept in
-         sync rather than a separate web-only design. -->
     <link rel="icon" href="{% static 'images/favicon.ico' %}" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
@@ -377,7 +374,7 @@
                 </a>
                 <span class="text-secondary small text-center">
                     <a href="tel:+916301469575">+91 63014 69575</a>
-                    &middot; <a href="mailto:director@craftlanee.com">director@craftlanee.com</a>
+                    &middot; <a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a>
                     &middot; <a href="https://craftlanee.com/" target="_blank" rel="noopener">craftlanee.com</a>
                     &middot; CraftLanee, Rajiv Colony Circle, 2nd floor, Kuppam, AP - 517425
                 </span>
@@ -387,6 +384,9 @@
                 <span>&copy; {% now "Y" %} {% blocktrans %}OneTownCity. All rights reserved. Powered by CraftLanee.{% endblocktrans %}</span>
                 <a href="{% url 'core:privacy_policy' %}">{% trans "Privacy Policy" %}</a>
                 <a href="{% url 'core:terms_of_service' %}">{% trans "Terms of Service" %}</a>
+                <a href="{% url 'core:refund_policy' %}">{% trans "Refund Policy" %}</a>
+                <a href="{% url 'core:cookie_policy' %}">{% trans "Cookie Policy" %}</a>
+                <a href="{% url 'core:business_details' %}">{% trans "Business Details" %}</a>
             </div>
         </div>
     </footer>

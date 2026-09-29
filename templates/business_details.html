@@ -1,0 +1,38 @@
+{% extends 'legal_page.html' %}
+{% block legal_icon %}bi-building{% endblock %}
+{% block legal_heading %}Business Details{% endblock %}
+{% block legal_lead %}Who operates OneTownCity and how to reach us.{% endblock %}
+{% block legal_crumb %}Business Details{% endblock %}
+
+{% block legal_body %}
+<h2 class="h4 mt-4">Operator</h2>
+<p>OneTownCity is a product of CraftLanee, operated by Kamishetty Mallikarjuna. CraftLanee is an
+early-stage startup and is not yet registered as a company, firm, or LLP, so there is no registration
+number to show. We will update this page when that changes.</p>
+
+<h2 class="h4 mt-4">Address</h2>
+<p>CraftLanee, Rajiv Colony Circle, 2nd floor, Kuppam, Andhra Pradesh &ndash; 517425, India.</p>
+
+<h2 class="h4 mt-4">Contact</h2>
+<ul>
+    <li>Email: <a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a></li>
+    <li>Phone: <a href="tel:+916301469575">+91 63014 69575</a></li>
+    <li>Website: <a href="https://craftlanee.com/" target="_blank" rel="noopener">craftlanee.com</a></li>
+    <li>Or use the <a href="{% url 'core:contact' %}">Contact page</a>.</li>
+</ul>
+
+<h2 class="h4 mt-4">Grievance Officer</h2>
+<p>Name: Kamishetty Mallikarjuna<br>
+Email: <a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a><br>
+Address: as above.</p>
+<p>Privacy and data-protection grievances are handled as described in our
+<a href="{% url 'core:privacy_policy' %}">Privacy Policy</a>.</p>
+
+<h2 class="h4 mt-4">Related policies</h2>
+<ul>
+    <li><a href="{% url 'core:privacy_policy' %}">Privacy Policy</a></li>
+    <li><a href="{% url 'core:terms_of_service' %}">Terms of Service</a></li>
+    <li><a href="{% url 'core:refund_policy' %}">Refund Policy</a></li>
+    <li><a href="{% url 'core:cookie_policy' %}">Cookie Policy</a></li>
+</ul>
+{% endblock %}

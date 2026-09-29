@@ -11,7 +11,7 @@ Summary of what happens to a deleted user's data:
   meaning to anyone but the account owner):
     Profile (+ its profile_photo file, deleted explicitly below — Django
     doesn't delete FileField files on cascade), Like, Favorite,
-    PushSubscription, LoginHistory, Notification, AdminRequest,
+    PushSubscription, MobileDevice, LoginHistory, Notification, AdminRequest,
     AdminCategoryPermission, AdminCityPermission, UserPermission.
 
   Detached, not deleted (user set to NULL — see the 0048 migration):

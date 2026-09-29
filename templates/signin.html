@@ -90,7 +90,9 @@
                     <form method="post" action="{% url 'core:register' %}" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
                         {% for field in register_form %}
-                        {% if field.field.widget.input_type == 'file' %}
+                        {% if field.field.widget.input_type == 'checkbox' %}
+                        {% include 'partials/consent_field.html' %}
+                        {% elif field.field.widget.input_type == 'file' %}
                         <div class="mb-3">
                             <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                             {{ field }}

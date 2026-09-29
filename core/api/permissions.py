@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 
 from ..models import Profile
@@ -30,8 +31,22 @@ class IsActiveAccount(BasePermission):
     """
     message = 'This account has been blocked.'
 
+    # Endpoints a signed-in account must still reach before it has confirmed
+    # it is 18+ and accepted the Terms: reading its own state, confirming,
+    # and leaving (delete lives on `me`). Everything else needs the consent
+    # the web enforces in onboarding_required, so an API client can't skip it.
+    CONSENT_EXEMPT_URL_NAMES = {'me', 'age_confirmation'}
+
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return True
         profile = get_profile(request.user)
-        return not profile.is_blocked
+        if profile.is_blocked:
+            return False
+        match = getattr(request, 'resolver_match', None)
+        if not profile.consent_confirmed and getattr(match, 'url_name', None) not in self.CONSENT_EXEMPT_URL_NAMES:
+            raise PermissionDenied(
+                'Confirm you are 18 or older and accept the Terms of Service and Privacy Policy to continue.',
+                code='consent_required',
+            )
+        return True

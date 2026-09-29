@@ -18,6 +18,9 @@ urlpatterns = [
     path('newsletter/subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('terms-of-service/', views.terms_of_service, name='terms_of_service'),
+    path('refund-policy/', views.refund_policy, name='refund_policy'),
+    path('cookie-policy/', views.cookie_policy, name='cookie_policy'),
+    path('business-details/', views.business_details, name='business_details'),
 
     # Staff-only login for the existing Django admin backend (unchanged).
     path('login/', views.admin_login, name='admin_login'),
@@ -33,6 +36,7 @@ urlpatterns = [
 
     # Onboarding: profile completion -> "what brings you here?" -> admin request
     path('welcome/profile/', views.complete_profile, name='complete_profile'),
+    path('welcome/confirm/', views.confirm_age, name='confirm_age'),
     path('welcome/intent/', views.choose_intent, name='choose_intent'),
     path('welcome/upload-request/', views.admin_request_new, name='admin_request_new'),
     path('welcome/upload-request/status/', views.admin_request_pending, name='admin_request_pending'),

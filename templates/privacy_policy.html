@@ -29,7 +29,7 @@
                 <p class="text-muted small">Last updated: September 11, 2026</p>
 
                 <p>OneTownCity ("we", "us", "OneTownCity") operates this local discovery platform
-                (the "Service"), available on the web and as an Android app. This policy explains what
+                (the "Service"), available on the web. This policy explains what
                 information we collect, how we use it, and the choices you have — including how to
                 delete your account and data.</p>
 
@@ -38,15 +38,11 @@
                 name, email address, and profile photo. We create a OneTownCity profile linked to that
                 identity. If you choose to add a phone number, address, city, state, or pincode to your
                 profile, we store what you provide.</p>
-                <p><strong>Location information:</strong> the Android app requests location permission
-                (precise or approximate) to detect your city and show nearby listings. You can decline
-                this permission and select your city manually instead.</p>
                 <p><strong>Content you submit:</strong> listings (businesses, properties, jobs, events,
                 and other categories), photos and videos in listing galleries, your profile photo,
                 comments, reviews, favorites, and reports you file against content.</p>
                 <p><strong>Authentication data:</strong> a unique identifier from our authentication
-                provider (Supabase, see below) and a session/access token used to keep you signed in.
-                On Android, this token is stored using Android's encrypted storage APIs.</p>
+                provider (Supabase, see below) and a session/access token used to keep you signed in.</p>
                 <p><strong>Basic technical data:</strong> we record IP address and device/browser
                 information for sign-in events and security logs (for example, to detect repeated failed
                 sign-in attempts), and standard web server logs.</p>
@@ -87,13 +83,12 @@
                 private actions (favorites, notification settings) are visible only to you.</p>
 
                 <h2 class="h4 mt-4">What We Don't Do</h2>
-                <p>We don't sell your personal data to third parties. The OneTownCity Android app
+                <p>We don't sell your personal data to third parties. OneTownCity
                 contains no analytics, advertising, or crash-reporting SDKs.</p>
 
                 <h2 class="h4 mt-4">Account and Data Deletion</h2>
                 <p>You can permanently delete your account at any time — from
-                <a href="{% url 'core:dashboard_profile' %}">My Profile</a> (Danger Zone) on the web, or
-                from the Profile screen in the Android app. Deleting your account:</p>
+                <a href="{% url 'core:dashboard_profile' %}">My Profile</a> (Danger Zone) on the web. Deleting your account:</p>
                 <ul>
                     <li>Immediately deletes your profile, profile photo, favorites, likes, notifications,
                     saved devices, and sign-in history.</li>
@@ -115,14 +110,14 @@
                 continues to exist but is no longer linked to your identity.</p>
 
                 <h2 class="h4 mt-4">Security</h2>
-                <p>Connections to OneTownCity are encrypted (HTTPS). On Android, your sign-in session is
-                stored using the device's encrypted storage. We don't display passwords, tokens, or
+                <p>Connections to OneTownCity are encrypted (HTTPS). We don't display passwords, tokens, or
                 private keys anywhere in the app.</p>
 
                 <h2 class="h4 mt-4">Children's Privacy</h2>
-                <p>OneTownCity is intended for a general audience and is not directed at children under
-                13. If you believe a child has provided us with personal information, please contact us
-                using the details below so we can address it.</p>
+                <p>OneTownCity is for people aged 18 and over. We ask you to confirm your age when you create
+                an account and we do not knowingly collect personal information from anyone under 18. If you
+                believe a person under 18 has provided us with personal information, please contact us
+                using the details below so we can delete it.</p>
 
                 <h2 class="h4 mt-4">Changes to This Policy</h2>
                 <p>We may update this policy from time to time. We'll post any changes on this page and
@@ -130,8 +125,10 @@
 
                 <h2 class="h4 mt-4">Grievance Officer</h2>
                 <p>In accordance with applicable Indian law, including the Digital Personal Data
-                Protection Act, 2023, you may raise a privacy grievance by contacting us at
-                <a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a>. We
+                Protection Act, 2023, you may raise a privacy grievance with our Grievance Officer,
+                Kamishetty Mallikarjuna, at
+                <a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a>
+                (see <a href="{% url 'core:business_details' %}">Business Details</a>). We
                 will acknowledge and address grievances within the timelines required by law.</p>
 
                 <h2 class="h4 mt-4">Contact Us</h2>

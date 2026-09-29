@@ -54,7 +54,7 @@ class SitemapTests(TestCase):
 
     def test_privacy_and_terms_are_included(self):
         locs = self.locs(self.sitemap_xml())
-        for path in ['/privacy-policy/', '/terms-of-service/']:
+        for path in ['/privacy-policy/', '/terms-of-service/', '/refund-policy/', '/cookie-policy/', '/business-details/']:
             self.assertTrue(any(loc.endswith(path) for loc in locs), f'{path} is missing from the sitemap')
 
     def test_city_home_is_not_duplicated_with_home(self):

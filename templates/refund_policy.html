@@ -1,0 +1,28 @@
+{% extends 'legal_page.html' %}
+{% block legal_icon %}bi-receipt{% endblock %}
+{% block legal_heading %}Refund Policy{% endblock %}
+{% block legal_lead %}What you pay for OneTownCity, and what happens if that changes.{% endblock %}
+{% block legal_crumb %}Refund Policy{% endblock %}
+
+{% block legal_body %}
+<h2 class="h4 mt-4">OneTownCity is free to use</h2>
+<p>Browsing listings, creating an account, saving favorites, and posting comments, reviews, and
+reports on OneTownCity do not cost anything. We do not charge fees, subscriptions, or commissions, and
+we do not sell paid placements or take payments through the Service. Because nothing is charged, there
+is nothing to refund.</p>
+
+<h2 class="h4 mt-4">Transactions between users</h2>
+<p>OneTownCity lists local businesses, properties, jobs, and services. Any purchase, rental, or
+payment you make to a business or another person is between you and them. We are not a party to it and
+cannot refund it. Please read that business's own terms before you pay.</p>
+
+<h2 class="h4 mt-4">If we introduce paid features</h2>
+<p>If we ever add a paid feature, we will show the full price, taxes, and any other charges before you
+pay, and we will publish the refund terms here before it launches. Nothing will be charged to you
+unless you clearly agree to it first.</p>
+
+<h2 class="h4 mt-4">Questions</h2>
+<p>If you think you were charged in connection with OneTownCity, tell us at
+<a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a> or on our
+<a href="{% url 'core:business_details' %}">Business Details</a> page and we will look into it.</p>
+{% endblock %}

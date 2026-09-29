@@ -1,0 +1,11 @@
+{# One required consent checkbox (age / terms). `field` is a bound BooleanField from core.forms.consent_fields(). #}
+<div class="form-check mb-3 {% if field.errors %}hk-field-invalid{% endif %}">
+    {{ field }}
+    <label class="form-check-label" for="{{ field.id_for_label }}">
+        {% if field.name == 'accept_terms' %}I have read and agree to the
+        <a href="{% url 'core:terms_of_service' %}" target="_blank" rel="noopener">Terms of Service</a> and
+        <a href="{% url 'core:privacy_policy' %}" target="_blank" rel="noopener">Privacy Policy</a>.
+        {% else %}{{ field.label }}{% endif %}
+    </label>
+    {% if field.errors %}<div class="hk-field-error" role="alert">{{ field.errors|striptags }}</div>{% endif %}
+</div>

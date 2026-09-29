@@ -30,8 +30,8 @@ class SessionAuthentication(_DRFSessionAuthentication):
 class SupabaseTokenAuthentication(BaseAuthentication):
     """
     Authenticates a request carrying `Authorization: Bearer <supabase access
-    token>` — the path a client with no shared browser cookie jar (a future
-    native Android screen) uses, as opposed to the web's existing
+    token>` — the path a client with no shared browser cookie jar (e.g. a
+    future native client) uses, as opposed to the web's existing
     session-cookie flow. Reuses the exact same server-side token
     verification and identity resolution as the web OAuth callback
     (core.supabase_auth) so a token authenticates identically for either

@@ -255,12 +255,12 @@ MESSAGE_TAGS = {
 
 # ------------------------------------------------------------------
 # REST API (core.api — the shared contract for the web's own AJAX calls
-# and, eventually, the native Android app; see core/api/)
+# and, eventually, other API clients; see core/api/)
 # ------------------------------------------------------------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # For a client with no shared browser cookie jar (a future native
-        # Android screen): Authorization: Bearer <supabase access token>.
+        # client): Authorization: Bearer <supabase access token>.
         # Listed first deliberately: when every authenticator declines a
         # request, DRF's 401-vs-403 decision asks only the *first*
         # configured authenticator for a WWW-Authenticate header (see
@@ -384,11 +384,4 @@ VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', '')
 # gate the existing username/password staff login for Django's own
 # /admin/ backend and the Excel upload tools — that flow is untouched.
 GOOGLE_LOGIN_URL = 'core:google_login'
-
-# SHA-256 fingerprint of the Android release signing certificate, for
-# /.well-known/assetlinks.json (see core.views.assetlinks_json). Empty by
-# default — only a real production keystore can produce this; see Phase 6's
-# signing review. An empty value serves an empty fingerprint list, which
-# fails App Links verification cleanly rather than shipping a wrong/fake one.
-ANDROID_RELEASE_CERT_SHA256 = os.getenv('ANDROID_RELEASE_CERT_SHA256', '')
 

@@ -21,6 +21,7 @@ class StaticViewSitemap(Sitemap):
         return [
             'core:home', 'core:about', 'core:contact',
             'core:privacy_policy', 'core:terms_of_service',
+            'core:refund_policy', 'core:cookie_policy', 'core:business_details',
             'core:business_list', 'core:restaurant_list', 'core:hospital_list',
             'core:education_list', 'core:transport_list', 'core:repair_list',
             'core:places_to_visit_list', 'core:tuition_center_list',

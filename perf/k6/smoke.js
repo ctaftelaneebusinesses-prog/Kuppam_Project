@@ -70,7 +70,7 @@ export default function () {
 
   group('API listing endpoint (DRF)', () => {
     // core/api/urls.py: listing_collection — the same generic paginated
-    // endpoint the Android app's Business/Property/Project browse screens use.
+    // endpoint any API client browsing Business/Property/Project listings uses.
     const res = http.get(`${BASE_URL}/api/v1/listings/business/?page=1&page_size=10`);
     check(res, {
       'api listings 200': (r) => r.status === 200,

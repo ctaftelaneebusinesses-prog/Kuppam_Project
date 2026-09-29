@@ -19,6 +19,11 @@ _CODE_BY_STATUS = {
     503: 'service_unavailable',
 }
 
+#: Codes a view/permission may set deliberately (e.g. PermissionDenied(...,
+#: code='consent_required')) that a client must be able to tell apart from a
+#: generic denial. Anything else keeps the status-derived code above.
+_PASSTHROUGH_CODES = {'consent_required'}
+
 
 def exception_handler(exc, context):
     """
@@ -44,9 +49,12 @@ def exception_handler(exc, context):
     else:
         message = str(data)
 
+    exc_code = exc.get_codes() if hasattr(exc, 'get_codes') else None
+    code = exc_code if isinstance(exc_code, str) and exc_code in _PASSTHROUGH_CODES else _CODE_BY_STATUS.get(response.status_code, 'error')
+
     response.data = {
         'error': {
-            'code': _CODE_BY_STATUS.get(response.status_code, 'error'),
+            'code': code,
             'message': message,
             **({'details': details} if details else {}),
         }

@@ -6,7 +6,6 @@
 [![DRF](https://img.shields.io/badge/REST%20Framework-3.16-A30000?logo=django&logoColor=white)](https://www.django-rest-framework.org/)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
-[![Kotlin](https://img.shields.io/badge/Android-Kotlin%20%2B%20Compose-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![License](https://img.shields.io/badge/License-Proprietary-lightgrey.svg)](#license)
 
 ---
@@ -29,7 +28,6 @@
   - [7. Run the development server](#7-run-the-development-server)
 - [Environment Variables](#environment-variables)
 - [REST API](#rest-api)
-- [Android App](#android-app)
 - [Running Tests](#running-tests)
 - [Useful Management Commands](#useful-management-commands)
 - [Deployment](#deployment)
@@ -43,13 +41,12 @@
 
 OneTownCity connects a town's residents, businesses, and administrators on one platform. Content flows through a moderated pipeline — **Normal User → Content Provider → Category Admin → Super Admin** — so every business, property, job, event, or news post is reviewed before it goes live.
 
-The project ships as three coordinated pieces:
+The project ships as two coordinated pieces:
 
 | Surface | Description |
 |---|---|
 | **Website** | Server-rendered Django templates — the primary public-facing experience |
-| **REST API** (`/api/v1/`) | Django REST Framework endpoints backing the native Android client |
-| **Android App** | A Kotlin + Jetpack Compose client consuming the REST API |
+| **REST API** (`/api/v1/`) | Django REST Framework endpoints for API clients |
 
 ## Features
 
@@ -62,7 +59,6 @@ The project ships as three coordinated pieces:
 - 🔐 **Dual authentication** — Google Sign-In via Supabase Auth for the public app, classic Django auth for staff/admin tooling
 - 🌐 **Multi-language support** — Telugu, Hindi, Tamil, and Kannada translations
 - 📊 **Bulk data tools** — Excel import/export for administrators
-- 📱 **Native Android client** — browses listings, cities, and categories via the REST API
 - 🎨 **Light & dark themes**, responsive design, PWA-ready with an offline fallback
 
 ## Tech Stack
@@ -79,11 +75,6 @@ The project ships as three coordinated pieces:
 - **Bootstrap 5.3** (self-hosted) + a custom CSS design-token system
 - Vanilla JavaScript — no framework, no bundler
 
-**Android**
-- **Kotlin** + **Jetpack Compose** (Material 3)
-- **Navigation Compose** for in-app and deep-link routing
-- **Coil** for image loading
-
 **Infrastructure**
 - Deployed via `Procfile` (gunicorn + automatic migrations on release) to any buildpack-based PaaS
 - File storage and authentication delegated to **Supabase**
@@ -91,13 +82,13 @@ The project ships as three coordinated pieces:
 ## Architecture
 
 ```
-┌───────────────────┐        ┌───────────────────────┐
-│     Website         │        │     Android App        │
-│ (Django templates)  │        │ (Kotlin + Compose)     │
-└──────────┬──────────┘        └───────────┬────────────┘
-           │ Django sessions               │ Bearer token
-           │ (Google/Supabase OAuth)       │ (Supabase Auth)
-           ▼                               ▼
+┌───────────────────┐
+│     Website         │
+│ (Django templates)  │
+└──────────┬──────────┘
+           │ Django sessions
+           │ (Google/Supabase OAuth)
+           ▼
 ┌─────────────────────────────────────────────────────────┐
 │                   Django Application                      │
 │   core/views.py           core/api/  (DRF, /api/v1/)      │
@@ -113,7 +104,7 @@ The project ships as three coordinated pieces:
      └──────────────────┘          └──────────────────────┘
 ```
 
-The website and the Android app both terminate on the same Django backend and share the same submission/approval state machine, so listing rules can never drift between the two clients.
+Every client terminates on the same Django backend and shares the same submission/approval state machine, so listing rules can never drift between clients.
 
 ## Project Structure
 
@@ -142,8 +133,6 @@ Kuppam_Project/
 ├── templates/              # HTML templates (public site + admin dashboard)
 ├── static/                 # CSS, JavaScript, images
 ├── locale/                 # Translation files (te, hi, ta, kn)
-├── android/                # Native Android app (Kotlin + Jetpack Compose)
-│   └── app/src/main/java/com/onetowncity/app/
 ├── manage.py
 ├── requirements.txt
 ├── Procfile
@@ -157,7 +146,6 @@ Kuppam_Project/
 - **Python 3.11+**
 - **PostgreSQL** database (a free [Supabase](https://supabase.com/) project works out of the box)
 - **Git**
-- *(Optional, for Android)* **Android Studio** with a compatible JDK, or the Gradle wrapper + Android SDK command-line tools
 
 ### 1. Clone the repository
 
@@ -252,28 +240,6 @@ A full test suite lives in `core/api/tests/`. Run it with:
 python manage.py test core
 ```
 
-## Android App
-
-The native client lives in `android/`, built with Kotlin and Jetpack Compose.
-
-```bash
-cd android
-./gradlew assembleDebug     # build a debug APK
-./gradlew testDebugUnitTest # run unit tests
-```
-
-Open the `android/` folder directly in **Android Studio** for the full IDE experience (emulator, layout preview, etc.). The app talks to the same backend as the website via the REST API described above.
-
-Google Sign-In (the app's only login method) needs the same `SUPABASE_URL` / `SUPABASE_ANON_KEY` values as the Django `.env` above, supplied to Gradle via `android/local.properties` (gitignored — create it yourself, it isn't checked in):
-
-```properties
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-```
-
-(Or set the `ONETOWNCITY_SUPABASE_URL` / `ONETOWNCITY_SUPABASE_ANON_KEY` environment variables instead — useful for CI.) Skipping this compiles fine but silently breaks sign-in at runtime; the build prints a warning if either is missing.
-
-> **Note:** a release build requires signing credentials supplied via environment variables (`ONETOWNCITY_STORE_FILE`, `ONETOWNCITY_STORE_PASSWORD`, `ONETOWNCITY_KEY_ALIAS`, `ONETOWNCITY_KEY_PASSWORD`) — these are never committed to the repository.
 
 ## Running Tests
 

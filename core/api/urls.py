@@ -7,6 +7,7 @@ app_name = 'api'
 urlpatterns = [
     path('auth/me/', views.me, name='me'),
     path('auth/logout/', views.logout_view, name='logout'),
+    path('auth/age-confirmation/', views.age_confirmation, name='age_confirmation'),
 
     path('locations/cities/', views.cities, name='cities'),
     path('locations/cities/<int:pk>/', views.city_detail, name='city_detail'),
@@ -29,6 +30,8 @@ urlpatterns = [
 
     path('my/listings/', views.my_listings_view, name='my_listings'),
     path('my/favorites/', views.my_favorites, name='my_favorites'),
+
+    path('devices/', views.devices_view, name='devices'),
 
     path('notifications/', views.notifications_view, name='notifications'),
     path('notifications/<int:pk>/read/', views.notification_mark_read_view, name='notification_mark_read'),

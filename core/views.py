@@ -164,7 +164,7 @@ from .excel_utils import UPLOAD_CONFIGS, ExcelValidationError, build_sample_work
 from .export_utils import build_posts_pdf, build_posts_workbook, build_users_pdf, build_users_workbook
 from .forms import (
     AdminLoginForm, AdminRequestForm, AdminRequestReviewForm, CategoryForm, CityAdminForm, CommentForm,
-    ContactForm, ContentProviderForm, ExcelUploadForm, LISTING_SUBMIT_FORMS, PasswordLoginForm,
+    ConsentForm, ContactForm, ContentProviderForm, ExcelUploadForm, LISTING_SUBMIT_FORMS, PasswordLoginForm,
     PlatformSettingsForm, ProfileCompletionForm, RegisterForm, ReportForm, ReviewForm, SubAdminForm,
 )
 from .models import (
@@ -713,39 +713,6 @@ CATEGORIES = [
 #: CATEGORIES indexed by slug — used to attach a hero_image/hero_tagline to
 #: every listing page's context without re-typing image paths and copy.
 CATEGORIES_BY_SLUG = {c['slug']: c for c in CATEGORIES}
-
-
-def assetlinks_json(request):
-    """
-    Serves /.well-known/assetlinks.json for Android App Links verification
-    (see AndroidManifest.xml's autoVerify="true" intent-filter, which has
-    claimed since Phase 4 that this view already existed — it didn't; this
-    is the Phase 6 fix for that gap).
-
-    The SHA-256 certificate fingerprint of the actual release signing
-    keystore is never hardcoded or invented here — only a real production
-    keystore can produce it. One now exists (~/.android/keystores/
-    onetowncity-release.jks, referenced by android/app/build.gradle's release
-    signingConfig); ANDROID_RELEASE_CERT_SHA256 must be set to that keystore's
-    real fingerprint in whichever environment actually serves production
-    traffic for App Links verification to pass there (a local .env value only
-    affects a Django instance run with that file). Until it's set in a given
-    environment, this serves an empty fingerprint list there, so App Links
-    verification fails cleanly/safely in that environment (Android just won't
-    auto-open links in-app) rather than 404ing or shipping a fingerprint that
-    doesn't match anything.
-    """
-    fingerprint = settings.ANDROID_RELEASE_CERT_SHA256
-    return JsonResponse([
-        {
-            'relation': ['delegate_permission/common.handle_all_urls'],
-            'target': {
-                'namespace': 'android_app',
-                'package_name': 'com.onetowncity.app',
-                'sha256_cert_fingerprints': [fingerprint] if fingerprint else [],
-            },
-        },
-    ], safe=False)
 
 
 def service_worker(request):
@@ -1901,6 +1868,21 @@ def terms_of_service(request):
     return render(request, 'terms_of_service.html', {'page_title': 'Terms of Service - OneTownCity'})
 
 
+def refund_policy(request):
+    """Static refund policy page, linked from the footer."""
+    return render(request, 'refund_policy.html', {'page_title': 'Refund Policy - OneTownCity'})
+
+
+def cookie_policy(request):
+    """Static cookie policy page, linked from the footer."""
+    return render(request, 'cookie_policy.html', {'page_title': 'Cookie Policy - OneTownCity'})
+
+
+def business_details(request):
+    """Operator, address, contact and grievance officer details, linked from the footer."""
+    return render(request, 'business_details.html', {'page_title': 'Business Details - OneTownCity'})
+
+
 # ===========================================================================
 # Google Sign-In (Supabase) — bridges a verified Supabase identity into a
 # normal Django session so the rest of the app keeps working unchanged.
@@ -2110,6 +2092,8 @@ def _post_login_redirect(profile):
     """Where to send someone right after a successful sign-in, based on onboarding state + role."""
     if not profile.profile_completed:
         return reverse('core:complete_profile')
+    if not profile.consent_confirmed:
+        return reverse('core:confirm_age')
     if profile.role == UserRole.USER and not profile.intent:
         return reverse('core:choose_intent')
     if profile.role in (UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.CITY_ADMIN):
@@ -2193,6 +2177,7 @@ def register(request):
             pincode=form.cleaned_data['pincode'],
             profile_completed=True,
         )
+        profile.record_consent()
 
         user.backend = 'django.contrib.auth.backends.ModelBackend'
         login(request, user)
@@ -2275,6 +2260,8 @@ def auth_callback_api(request):
 
     if not profile.profile_completed:
         next_url = reverse('core:complete_profile')
+    elif not profile.consent_confirmed:
+        next_url = reverse('core:confirm_age')
     elif profile.role == UserRole.USER and not profile.intent:
         next_url = reverse('core:choose_intent')
     elif profile.role in (UserRole.SUPER_ADMIN, UserRole.ADMIN):
@@ -2293,6 +2280,8 @@ def auth_callback_api(request):
 def complete_profile(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
     if profile.profile_completed:
+        if not profile.consent_confirmed:
+            return redirect('core:confirm_age')
         if profile.role == UserRole.USER and not profile.intent:
             return redirect('core:choose_intent')
         return redirect('core:home')
@@ -2302,6 +2291,7 @@ def complete_profile(request):
         if form.is_valid():
             profile = form.save(commit=False)
             profile.profile_completed = True
+            profile.record_consent(save=False)
             profile.save()
             messages.success(request, 'Profile completed!')
             if profile.role == UserRole.USER:
@@ -2316,6 +2306,27 @@ def complete_profile(request):
         'email': request.user.email,
     }
     return render(request, 'complete_profile.html', context)
+
+
+@login_required(login_url=settings.GOOGLE_LOGIN_URL)
+def confirm_age(request):
+    """
+    One-time 18+ / Terms confirmation for accounts that predate consent
+    capture (new accounts give it in register / complete_profile). Nothing is
+    assumed on their behalf: until both boxes are ticked, onboarding_required
+    keeps sending them here.
+    """
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    if not profile.profile_completed:
+        return redirect('core:complete_profile')
+    if profile.consent_confirmed:
+        return redirect(_post_login_redirect(profile))
+
+    form = ConsentForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        profile.record_consent()
+        return redirect(_post_login_redirect(profile))
+    return render(request, 'confirm_age.html', {'page_title': 'Confirm to Continue - OneTownCity', 'form': form})
 
 
 @login_required(login_url=settings.GOOGLE_LOGIN_URL)
@@ -3151,7 +3162,7 @@ def account_delete_confirm(request):
     satisfies the "no deletion from a GET request" requirement by
     construction); POST performs the actual deletion via the same
     core.account_deletion.delete_user_account() the API's DELETE
-    /api/v1/auth/me/ endpoint calls, so web and Android/API delete an
+    /api/v1/auth/me/ endpoint calls, so web and API delete an
     account identically.
 
     Accounts here are Google/Supabase-authenticated and have no usable

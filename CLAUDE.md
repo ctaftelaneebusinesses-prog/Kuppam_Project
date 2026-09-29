@@ -7,11 +7,10 @@ OneTownCity is a local discovery platform.
 Django backend
 PostgreSQL/Supabase
 Responsive server-rendered web
-Native Android client
 Shared backend/business logic
 
 ## Core rule
-Web and Android are two clients of ONE product.
+All clients share ONE backend and ONE product.
 
 ## Backend
 Django owns:
@@ -26,10 +25,6 @@ Django owns:
 ## Web
 Server-rendered responsive UI.
 SEO is first-class.
-
-## Android
-Native Kotlin/Compose where applicable.
-Do not duplicate business rules from Django.
 
 ## Data
 Never create fake/test production data.
