@@ -194,5 +194,6 @@ class MeSerializer(serializers.Serializer):
     pincode = serializers.CharField()
     intent = serializers.CharField()
     profile_completed = serializers.BooleanField()
+    consent_confirmed = serializers.BooleanField()
     is_blocked = serializers.BooleanField()
     is_suspended = serializers.BooleanField()

@@ -46,7 +46,7 @@ Verified against `core/urls.py`, `core/api/urls.py`, and
   modal calls (not the DRF `/api/v1/locations/cities/`, which the web UI
   doesn't use)
 - `/api/v1/listings/business/` — the generic DRF listing endpoint
-  (`core/api/views.py`'s `listing_collection`), the same one the Android
-  Business/Property/Project browse screens use
+  (`core/api/views.py`'s `listing_collection`), the same one any API client
+  browsing Business/Property/Project listings uses
 - `/api/v1/auth/me/` — requires `Authorization: Bearer <supabase token>`
   (`SupabaseTokenAuthentication`)

@@ -97,7 +97,7 @@ def _admin_client():
     calls only (never the anon-key client `get_supabase_client()` uses for
     verifying end-user tokens). Same service-role-for-server-only-privileged-
     ops pattern as core.storage.SupabaseMediaStorage's upload/delete client
-    — this key must never reach a browser or the Android app.
+    — this key must never reach a browser or any client app.
     """
     global _admin_client_instance
     if _admin_client_instance is None:

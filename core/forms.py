@@ -146,6 +146,34 @@ class PasswordLoginForm(AuthenticationForm):
     )
 
 
+def consent_fields():
+    """
+    The two required consent checkboxes shared by every place an account is
+    created or confirmed (register, complete_profile, confirm_age, and the
+    API). Both must be ticked — unticked is a validation error, never a
+    silent default.
+    """
+    return {
+        'confirm_adult': forms.BooleanField(
+            label='I confirm that I am 18 years of age or older.',
+            error_messages={'required': 'You must be 18 or older to use OneTownCity.'},
+            widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        ),
+        'accept_terms': forms.BooleanField(
+            label='I agree to the Terms of Service and Privacy Policy.',
+            error_messages={'required': 'You must agree to the Terms of Service and Privacy Policy to continue.'},
+            widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        ),
+    }
+
+
+class ConsentForm(forms.Form):
+    """Just the consent checkboxes — for existing accounts confirming once (core.views.confirm_age)."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.update(consent_fields())
+
+
 class RegisterForm(forms.Form):
     """
     Self-service registration: collects the same profile details the
@@ -201,6 +229,10 @@ class RegisterForm(forms.Form):
             'class': 'form-control', 'placeholder': 'Pincode', 'inputmode': 'numeric', 'autocomplete': 'postal-code',
         }),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.update(consent_fields())
 
     def clean_email(self):
         email = self.cleaned_data['email']
@@ -296,6 +328,10 @@ class ProfileCompletionForm(forms.ModelForm):
             'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'State'}),
             'pincode': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pincode'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.update(consent_fields())
 
     def clean_phone_number(self):
         phone = self.cleaned_data['phone_number'].strip()

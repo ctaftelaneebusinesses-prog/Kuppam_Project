@@ -1,0 +1,44 @@
+{% extends 'legal_page.html' %}
+{% block legal_icon %}bi-cookie{% endblock %}
+{% block legal_heading %}Cookie Policy{% endblock %}
+{% block legal_lead %}The cookies and browser storage this website uses.{% endblock %}
+{% block legal_crumb %}Cookie Policy{% endblock %}
+
+{% block legal_body %}
+<p>This page covers the OneTownCity website. We use only the cookies and browser storage the site
+needs to work. We do not use advertising or analytics cookies.</p>
+
+<h2 class="h4 mt-4">Cookies we set</h2>
+<div class="table-responsive">
+<table class="table table-sm align-middle">
+    <thead><tr><th scope="col">Name</th><th scope="col">Purpose</th><th scope="col">Type</th></tr></thead>
+    <tbody>
+        <tr><td><code>sessionid</code></td><td>Keeps you signed in while you use the site.</td><td>Essential</td></tr>
+        <tr><td><code>csrftoken</code></td><td>Protects forms from cross-site request forgery.</td><td>Essential</td></tr>
+        <tr><td><code>django_language</code></td><td>Remembers the language you chose.</td><td>Preference</td></tr>
+    </tbody>
+</table>
+</div>
+
+<h2 class="h4 mt-4">Browser storage</h2>
+<p>Your browser's local storage keeps a few preferences on your device only: your chosen light or dark
+theme, the location or city you selected, and whether you dismissed the notification prompt. These are
+not sent to us on each request.</p>
+
+<h2 class="h4 mt-4">Third-party services</h2>
+<ul>
+    <li><strong>Google Fonts</strong> serves the site's fonts, so Google receives your IP address when a page loads.</li>
+    <li><strong>Google Maps</strong> is embedded on the <a href="{% url 'core:contact' %}">Contact page</a> and may set its own cookies when it loads.</li>
+    <li><strong>Google Sign-In and Supabase</strong> handle authentication when you sign in.</li>
+    <li>Links to <strong>WhatsApp</strong> open WhatsApp only when you click them.</li>
+</ul>
+<p>These services have their own privacy policies and cookie practices.</p>
+
+<h2 class="h4 mt-4">Managing cookies</h2>
+<p>You can block or delete cookies in your browser settings. If you block the essential cookies, you
+will not be able to sign in or submit forms.</p>
+
+<h2 class="h4 mt-4">Contact</h2>
+<p>Questions? Email <a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a>
+or see our <a href="{% url 'core:privacy_policy' %}">Privacy Policy</a>.</p>
+{% endblock %}

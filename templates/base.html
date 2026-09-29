@@ -35,9 +35,6 @@
 
     <link rel="canonical" href="{% block canonical_url %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endblock %}">
 
-    <!-- Same navy/amber/white mark already shipped as the Android launcher
-         icon (android/app/src/main/res/drawable/ic_splash.xml) — kept in
-         sync rather than a separate web-only design. -->
     <link rel="icon" href="{% static 'images/favicon.ico' %}" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
@@ -351,7 +348,7 @@
                     <div class="d-flex gap-2">
                         <a href="https://www.instagram.com/craftlanee?igsh=MXYyaG9pNzdmemt0dQ==" target="_blank" rel="noopener" class="hk-social-icon" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
                         <a href="https://wa.me/916301469575" target="_blank" rel="noopener" class="hk-social-icon" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-                        <a href="mailto:director@craftlanee.com" class="hk-social-icon" aria-label="{% trans 'Email us' %}"><i class="bi bi-envelope"></i></a>
+                        <a href="mailto:ctaftelaneebusinesses@gmail.com" class="hk-social-icon" aria-label="{% trans 'Email us' %}"><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-5">
@@ -403,7 +400,7 @@
                 </a>
                 <ul class="hk-footer-contact list-unstyled">
                     <li><a href="tel:+916301469575"><i class="bi bi-telephone"></i> +91 63014 69575</a></li>
-                    <li><a href="mailto:director@craftlanee.com"><i class="bi bi-envelope"></i> director@craftlanee.com</a></li>
+                    <li><a href="mailto:ctaftelaneebusinesses@gmail.com"><i class="bi bi-envelope"></i> ctaftelaneebusinesses@gmail.com</a></li>
                     <li><a href="https://craftlanee.com/" target="_blank" rel="noopener"><i class="bi bi-globe2"></i> craftlanee.com</a></li>
                     <li><span><i class="bi bi-geo-alt"></i> Rajiv Colony Circle, 2nd floor, Kuppam, AP - 517425</span></li>
                 </ul>
@@ -414,6 +411,9 @@
                 <span class="hk-footer-legal-links">
                     <a href="{% url 'core:privacy_policy' %}">{% trans "Privacy Policy" %}</a>
                     <a href="{% url 'core:terms_of_service' %}">{% trans "Terms of Service" %}</a>
+                    <a href="{% url 'core:refund_policy' %}">{% trans "Refund Policy" %}</a>
+                    <a href="{% url 'core:cookie_policy' %}">{% trans "Cookie Policy" %}</a>
+                    <a href="{% url 'core:business_details' %}">{% trans "Business Details" %}</a>
                 </span>
             </div>
         </div>

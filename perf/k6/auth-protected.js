@@ -1,7 +1,7 @@
 // Auth-protected endpoint check — GET /api/v1/auth/me/ (core/api/views.py's
 // `me`, requires a valid Supabase bearer token; see
 // core/api/authentication.py's SupabaseTokenAuthentication, the same
-// mechanism android/app/.../auth/SessionManager.kt uses).
+// mechanism any non-browser API client would use).
 //
 // No token is fabricated here — there's no way to mint a real Supabase
 // session token without going through actual sign-in. To run this locally:

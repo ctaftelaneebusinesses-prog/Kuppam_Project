@@ -5,7 +5,7 @@ from rest_framework.response import Response
 class StandardResultsSetPagination(PageNumberPagination):
     """
     The one pagination shape every list endpoint in core.api uses, so a
-    client (web or Android) only ever has to handle one envelope:
+    client (web or API) only ever has to handle one envelope:
     {"count", "next", "previous", "page_size", "results"}.
     """
     page_size = 20

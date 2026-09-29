@@ -38,7 +38,7 @@ def rate_limit(scope, limit, window_seconds):
     `window_seconds`. Approximate by design (a fixed window can allow up to
     ~2x `limit` right at a window boundary) — deliberately simple rather than
     a precise sliding-window/token-bucket implementation, since this is meant
-    to blunt casual scripted abuse (web and the native Android client share
+    to blunt casual scripted abuse (web and API clients share
     this backend), not serve as a security boundary on its own.
     """
     def decorator(view_func):
@@ -99,6 +99,8 @@ def onboarding_required(view_func):
             return redirect('core:google_login')
         if not profile.profile_completed:
             return redirect('core:complete_profile')
+        if not profile.consent_confirmed:
+            return redirect('core:confirm_age')
         if profile.role == UserRole.USER and not profile.intent:
             return redirect('core:choose_intent')
         request.profile = profile

@@ -1,5 +1,6 @@
 """Minimal, no-magic object builders shared by core.api's test modules."""
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from core.models import (
     AdminCategoryPermission, Business, Category, Event, Job, ListingStatus, Location, LostFound, News, Profile,
@@ -16,7 +17,7 @@ def _next_username(prefix):
     return f'{prefix}{_counter["n"]}'
 
 
-def make_user(role=UserRole.USER, blocked=False, suspended=False, super_admin=False, prefix='user'):
+def make_user(role=UserRole.USER, blocked=False, suspended=False, super_admin=False, prefix='user', consented=True):
     username = _next_username(prefix)
     user = User.objects.create_user(username=username, email=f'{username}@example.com', password='pass-12345!')
     profile = Profile.objects.create(
@@ -26,6 +27,8 @@ def make_user(role=UserRole.USER, blocked=False, suspended=False, super_admin=Fa
         profile_completed=True,
         is_blocked=blocked,
         is_suspended=suspended,
+        adult_confirmed_at=timezone.now() if consented else None,
+        terms_accepted_at=timezone.now() if consented else None,
     )
     return user, profile
 

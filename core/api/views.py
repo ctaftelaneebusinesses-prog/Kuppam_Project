@@ -1,6 +1,6 @@
 """
 core.api — the shared read/write contract for both the web app's own AJAX
-calls and a future native Android client. Function-based DRF views (matching
+calls and future API clients. Function-based DRF views (matching
 the rest of this project — see core/views.py), built almost entirely out of
 existing pieces: the same querysets (_public_qs/_get_listing_or_404), the same
 ownership predicate (_can_manage_post), the same listing-submission state
@@ -29,9 +29,9 @@ from rest_framework.response import Response
 
 from ..account_deletion import AccountDeletionError, delete_user_account
 from ..decorators import rate_limit
-from ..forms import LISTING_SUBMIT_FORMS, CommentForm, ReportForm, ReviewForm
+from ..forms import LISTING_SUBMIT_FORMS, CommentForm, ConsentForm, ReportForm, ReviewForm
 from ..location_service import reverse_geocode, search_cities
-from ..models import Category, Comment, Favorite, Like, Location, Notification, PostImage, PostVideo, Report, Review
+from ..models import Category, Comment, Favorite, Like, Location, MobileDevice, Notification, PostImage, PostVideo, Report, Review
 from ..push import notify
 from ..views import (
     GALLERY_IMAGE_MAX_BYTES, GALLERY_IMAGE_TYPES, GALLERY_VIDEO_MAX_BYTES, GALLERY_VIDEO_TYPES, LISTING_MODELS,
@@ -98,6 +98,23 @@ def me(request):
 def logout_view(request):
     django_logout(request)
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['POST'])
+@permission_classes(AUTH_REQUIRED)
+def age_confirmation(request):
+    """
+    Records the caller's 18+ confirmation and Terms/Privacy acceptance — the
+    API counterpart of the web's confirm_age / register checkboxes, validated
+    by the same core.forms.ConsentForm. Both must be exactly `true`; nothing
+    is recorded otherwise. Idempotent (earlier timestamps are kept).
+    """
+    form = ConsentForm({k: v for k, v in request.data.items() if k in ('confirm_adult', 'accept_terms')})
+    if not form.is_valid():
+        raise ValidationError({field: errors for field, errors in form.errors.items()})
+    profile = get_profile(request.user)
+    profile.record_consent()
+    return Response({'consent_confirmed': True})
 
 
 # ---------------------------------------------------------------------------
@@ -631,6 +648,49 @@ def notifications_view(request):
     paginator = StandardResultsSetPagination()
     page = paginator.paginate_queryset(qs, request)
     return paginator.get_paginated_response(NotificationSerializer(page, many=True).data)
+
+
+DEVICE_TOKEN_MAX_LENGTH = MobileDevice._meta.get_field('token').max_length
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes(AUTH_REQUIRED)
+@rate_limit('device_register', limit=30, window_seconds=300)
+def devices_view(request):
+    """
+    POST: registers (or refreshes) the caller's FCM token so the backend can
+    later push to this app install. Idempotent — the same token again just
+    updates its metadata; a token last seen under another account is
+    reassigned to the caller, so a shared phone never notifies two people.
+    DELETE: unregisters a token (the client calls it on sign-out). Only ever
+    acts on the caller's own rows, so a token belonging to someone else is
+    indistinguishable from an unknown one (204 either way, no probing).
+    """
+    token = request.data.get('token')
+    if not isinstance(token, str) or not token.strip():
+        raise ValidationError({'token': 'A device token is required.'})
+    token = token.strip()
+    if len(token) > DEVICE_TOKEN_MAX_LENGTH:
+        raise ValidationError({'token': f'Token must be at most {DEVICE_TOKEN_MAX_LENGTH} characters.'})
+
+    if request.method == 'DELETE':
+        MobileDevice.objects.filter(user=request.user, token=token).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    platform = request.data.get('platform', MobileDevice.Platform.ANDROID)
+    if platform not in MobileDevice.Platform.values:
+        raise ValidationError({'platform': f'Must be one of: {", ".join(MobileDevice.Platform.values)}.'})
+    fields = {}
+    for name in ('app_version', 'locale'):
+        value = request.data.get(name, '')
+        if not isinstance(value, str) or len(value) > MobileDevice._meta.get_field(name).max_length:
+            raise ValidationError({name: 'Invalid value.'})
+        fields[name] = value.strip()
+
+    _, created = MobileDevice.objects.update_or_create(
+        token=token, defaults={'user': request.user, 'platform': platform, **fields},
+    )
+    return Response({'registered': True}, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
 
 @api_view(['POST'])

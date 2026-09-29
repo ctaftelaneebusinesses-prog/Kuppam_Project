@@ -69,6 +69,12 @@ class Profile(models.Model):
     intent = models.CharField(max_length=20, choices=Intent.choices, blank=True)
     profile_completed = models.BooleanField(default=False)
 
+    # Consent records (DPDP Act 2023: OneTownCity is 18+ only, so there is no
+    # parental-consent flow). Null = never confirmed — existing accounts
+    # created before this existed are asked once, on their next visit.
+    adult_confirmed_at = models.DateTimeField(null=True, blank=True, help_text='When the user confirmed they are 18 or older')
+    terms_accepted_at = models.DateTimeField(null=True, blank=True, help_text='When the user accepted the Terms of Service and Privacy Policy')
+
     is_blocked = models.BooleanField(default=False, help_text='Blocked users cannot sign in')
     is_suspended = models.BooleanField(default=False, help_text='Suspended admins keep their account but lose listing permissions')
 
@@ -81,6 +87,18 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.full_name or self.user.get_username()
+
+    @property
+    def consent_confirmed(self):
+        return bool(self.adult_confirmed_at and self.terms_accepted_at)
+
+    def record_consent(self, save=True):
+        """Stamps both consents as given now (idempotent: keeps earlier timestamps)."""
+        now = timezone.now()
+        self.adult_confirmed_at = self.adult_confirmed_at or now
+        self.terms_accepted_at = self.terms_accepted_at or now
+        if save:
+            self.save(update_fields=['adult_confirmed_at', 'terms_accepted_at', 'updated_at'])
 
     @property
     def display_photo(self):
@@ -1642,6 +1660,34 @@ class PushSubscription(models.Model):
 
     def __str__(self):
         return f'{self.user} — {self.user_agent[:40] or self.endpoint[:40]}'
+
+
+class MobileDevice(models.Model):
+    """
+    One row per installed native-app instance that registered a Firebase Cloud
+    Messaging token for a user — the mobile counterpart of PushSubscription
+    (which is Web Push, browser-only). A token identifies one app install, so
+    it is unique: if the same device signs in as a different user, register
+    reassigns the row instead of leaving two accounts receiving one phone's
+    notifications. Rows are deleted with the user (cascade) and by the
+    client on sign-out; delivery is not implemented here (registration only).
+    """
+    class Platform(models.TextChoices):
+        ANDROID = 'android', 'Android'
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mobile_devices')
+    token = models.CharField(max_length=512, unique=True)
+    platform = models.CharField(max_length=10, choices=Platform.choices, default=Platform.ANDROID)
+    app_version = models.CharField(max_length=32, blank=True)
+    locale = models.CharField(max_length=16, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f'{self.user} — {self.platform} {self.app_version}'.strip()
 
 
 class LoginHistory(models.Model):

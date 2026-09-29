@@ -32,6 +32,7 @@ def _make_user(username, supabase_uid=None):
         user=user, role=UserRole.USER, full_name=username.title(), profile_completed=True,
         intent=Intent.EXPLORE, supabase_uid=supabase_uid,
     )
+    profile.record_consent()
     return user, profile
 
 

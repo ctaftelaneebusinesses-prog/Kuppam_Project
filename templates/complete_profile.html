@@ -76,6 +76,8 @@
                             </div>
                         </div>
 
+                        {% for field in form %}{% if field.field.widget.input_type == 'checkbox' %}{% include 'partials/consent_field.html' %}{% endif %}{% endfor %}
+
                         <button type="submit" class="btn btn-primary w-100 btn-lg hk-cta-btn">
                             Continue <i class="bi bi-arrow-right"></i>
                         </button>

@@ -11,23 +11,6 @@ staticfiles/
 .DS_Store
 chrome_profile*/
 
-# Android / Gradle
-android/.gradle/
-android/build/
-android/app/build/
-android/local.properties
-
-# Android signing keys
-android/keystores/*.jks
-android/keystores/*.keystore
-*.jks
-*.keystore
-
-# Android Studio
-android/.idea/
-android/*.iml
-android/app/*.iml
-
 # Playwright e2e (Phase 5 tooling)
 e2e/node_modules/
 e2e/test-results/
@@ -43,3 +26,7 @@ scripts/.state/
 
 # graphify knowledge-graph tool output (local cache/report, regenerated on demand)
 graphify-out/
+
+# Signing keys (never commit)
+*.jks
+*.keystore
