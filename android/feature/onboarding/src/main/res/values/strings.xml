@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_title">Signal required</string>
+    <string name="location_body">OneTownCity operates on proximity. Grant location access to synchronize your local engine.</string>
+    <string name="location_enable">Enable location</string>
+    <string name="location_manual">Choose city manually</string>
+    <string name="location_denied">Location access was declined. You can choose your city manually, or allow it later in system settings.</string>
+    <string name="location_open_settings">Open settings</string>
+</resources>
