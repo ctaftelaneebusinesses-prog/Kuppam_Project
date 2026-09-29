@@ -157,6 +157,8 @@ class WebpImageTests(TestCase):
 
     def test_listing_hero_offers_webp_with_jpeg_fallback(self):
         response = self.client.get(reverse('core:job_list'))
-        self.assertContains(response, 'image-set(')
+        # <picture>: resized WebP variants via srcset, the JPEG as <img> fallback.
+        self.assertContains(response, '<source type="image/webp" srcset="')
+        self.assertContains(response, 'images/services/jobs-640.')
         self.assertContains(response, 'images/services/jobs.')
-        self.assertContains(response, ".webp') type('image/webp')")
+        self.assertContains(response, ' 1536w"')

@@ -6969,10 +6969,18 @@ html[data-theme="dark"] .navbar .hk-location-trigger:focus-visible {
     inset: 0 0 var(--hk-lp-overlap) 0;
     z-index: -1;
     border-radius: var(--hk-radius-2xl);
-    background-size: cover;
-    background-position: center;
+    background: #0B1220;
     box-shadow: 0 24px 48px -24px rgba(2, 6, 23, .45);
     overflow: hidden;
+}
+
+.hk-lp-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
 }
 
 .hk-lp-hero-media::after {

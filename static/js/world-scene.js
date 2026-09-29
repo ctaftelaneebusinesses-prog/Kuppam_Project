@@ -102,6 +102,10 @@
             // illustration pieces) — no currentColor tint, unlike the
             // hand-drawn SVG actors below.
             var img = document.createElement('img');
+            // Decorative and (on hero pages) below the banner: never let
+            // these compete with the page's own content for bandwidth.
+            img.loading = 'lazy';
+            img.decoding = 'async';
             img.src = opts.img;
             img.alt = '';
             img.style.width = '100%';

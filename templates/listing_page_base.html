@@ -21,8 +21,15 @@ behind ours instead of competing with it.
 <div class="container py-4 py-lg-5">
 
     <section class="hk-lp-hero{% if hero_image_has_text %} hk-lp-hero--baked{% endif %}" aria-labelledby="hk-lp-hero-title">
-        {% with hero_webp=hero_image|webp_sibling %}
-        <div class="hk-lp-hero-media" style="background-image:url('{% static hero_image %}'){% if hero_webp %};background-image:image-set(url('{% static hero_webp %}') type('image/webp'), url('{% static hero_image %}') type('image/jpeg')){% endif %}{% if hero_focus %};background-position:{{ hero_focus }}{% endif %}"></div>
+        {# A real <img> (not a CSS background) so the browser finds it in the HTML and fetches it first, and phones get the 640px file. #}
+        {% with hero_webp=hero_image|webp_sibling hero_640=hero_image|webp_width:640 hero_1280=hero_image|webp_width:1280 %}
+        <div class="hk-lp-hero-media">
+            <picture>
+                {% if hero_640 %}<source type="image/webp" srcset="{% static hero_640 %} 640w{% if hero_1280 %}, {% static hero_1280 %} 1280w{% endif %}{% if hero_webp %}, {% static hero_webp %} 1536w{% endif %}" sizes="(max-width: 1320px) 100vw, 1296px">
+                {% elif hero_webp %}<source type="image/webp" srcset="{% static hero_webp %}">{% endif %}
+                <img src="{% static hero_image %}" alt="" class="hk-lp-hero-img" fetchpriority="high" decoding="async"{% if hero_focus %} style="object-position:{{ hero_focus }}"{% endif %}>
+            </picture>
+        </div>
         {% endwith %}
 
         <div class="hk-lp-hero-content">

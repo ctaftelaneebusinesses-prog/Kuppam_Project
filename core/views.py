@@ -124,9 +124,11 @@
 #     }
 #     return render(request, 'contact.html', context)
 
+import hashlib
 import json
 import logging
 import re
+import threading
 from datetime import date, time, timedelta
 from math import asin, cos, radians, sin, sqrt
 from urllib.parse import urlencode
@@ -139,11 +141,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.core.paginator import Paginator
+from django.core.paginator import Page, Paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import validate_email
 from django.core.cache import cache
-from django.db import DatabaseError
+from django.db import DatabaseError, connections
 from django.db.models import Count, F, Prefetch, ProtectedError, Q
 from django.db.models.functions import TruncDate
 from django.http import Http404, HttpResponse, JsonResponse
@@ -382,18 +384,6 @@ def _ld_json(data):
     return mark_safe(json_str.replace('&', '\\u0026').replace('<', '\\u003c').replace('>', '\\u003e'))
 
 
-def _detail_qs(request, model_cls):
-    """
-    Queryset used to look up a single listing for its detail page. Super
-    admin can open any listing regardless of status/active state (e.g. to
-    preview a pending submission); everyone else only sees public rows.
-    """
-    profile = getattr(request.user, 'profile', None) if request.user.is_authenticated else None
-    if profile and profile.is_super_admin:
-        return model_cls.objects.all()
-    return _public_qs(model_cls, request)
-
-
 def location_search(request):
     query = request.GET.get('q', '')
     try:
@@ -512,22 +502,56 @@ def nearby_businesses(request):
     return JsonResponse({'results': _nearby_businesses(request, lat, lng, category=category)})
 
 
+#: How long an anonymous visitor's view of a listing is remembered, so
+#: reloads/back-forward/prefetches within that window don't count again.
+VIEW_DEDUPE_SECONDS = 6 * 60 * 60
+
+
+def _record_view(model_cls, pk):
+    model_cls.objects.filter(pk=pk).update(view_count=F('view_count') + 1)
+    PostView.objects.create(content_type=ContentType.objects.get_for_model(model_cls), object_id=pk)
+
+
+def _record_view_in_background(model_cls, pk):
+    try:
+        _record_view(model_cls, pk)
+    except DatabaseError:
+        logging.getLogger(__name__).warning('Could not record a view of %s %s', model_cls.__name__, pk, exc_info=True)
+    finally:
+        connections.close_all()
+
+
 def _bump_views(request, model_cls, pk):
     """
-    Counts one view per browsing session per listing. Without this, a single
+    Counts one view per visitor per listing. Without deduping, a single
     visitor reloading the page, hitting back/forward, or the browser's own
     link-hover prefetching each fired another unconditional increment, so
     "1 real visit" could show up as 3-4 views.
-    """
-    seen = request.session.setdefault('viewed_listings', [])
-    key = f'{model_cls.__name__}:{pk}'
-    if key in seen:
-        return
-    seen.append(key)
-    request.session.modified = True
 
-    model_cls.objects.filter(pk=pk).update(view_count=F('view_count') + 1)
-    PostView.objects.create(content_type=ContentType.objects.get_for_model(model_cls), object_id=pk)
+    Signed-in users are deduped in their existing session. Anonymous visitors
+    are deduped in the cache (by IP + user agent) instead: storing it in a
+    session used to give every anonymous visitor a session row, and every
+    later page view then paid a session lookup against the remote database.
+
+    The two writes run after the response on a background thread in
+    production, so the visitor never waits on them.
+    """
+    key = f'{model_cls.__name__}:{pk}'
+    if request.user.is_authenticated:
+        seen = request.session.setdefault('viewed_listings', [])
+        if key in seen:
+            return
+        seen.append(key)
+        request.session.modified = True
+    else:
+        visitor = hashlib.md5(f"{client_ip(request)}|{request.META.get('HTTP_USER_AGENT', '')}".encode()).hexdigest()
+        if not cache.add(f'core:viewed:{visitor}:{key}', 1, VIEW_DEDUPE_SECONDS):
+            return
+
+    if settings.RECORD_VIEWS_IN_BACKGROUND:
+        threading.Thread(target=_record_view_in_background, args=(model_cls, pk), daemon=True).start()
+    else:
+        _record_view(model_cls, pk)
 
 
 def _community_context(request, obj):
@@ -536,12 +560,14 @@ def _community_context(request, obj):
     user = request.user if request.user.is_authenticated else None
     is_liked = bool(user) and Like.objects.filter(content_type=ct, object_id=obj.pk, user=user).exists()
     is_favorited = bool(user) and Favorite.objects.filter(content_type=ct, object_id=obj.pk, user=user).exists()
+    # comment_count/review_count are kept exact by signals._recount, so a
+    # listing with none (most of them) skips these remote-database queries.
     comments = (
         Comment.objects.filter(content_type=ct, object_id=obj.pk, parent__isnull=True)
         .select_related('user', 'user__profile')
         .prefetch_related(Prefetch('replies', queryset=Comment.objects.select_related('user', 'user__profile')))
-    )
-    reviews = Review.objects.filter(content_type=ct, object_id=obj.pk).select_related('user', 'user__profile')
+    ) if obj.comment_count else []
+    reviews = Review.objects.filter(content_type=ct, object_id=obj.pk).select_related('user', 'user__profile') if obj.review_count else []
 
     return {
         'model_key': obj._meta.model_name,
@@ -1061,7 +1087,7 @@ def business_list(request):
     else:
         category = ''
 
-    page_obj = Paginator(businesses, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, businesses, 'business:general')
 
     counts = _choice_counts(request, base, 'category', 'business:general')
     type_tiles = _type_tiles(
@@ -1090,9 +1116,9 @@ def business_detail(request, slug):
     Detail page for a single business listing — the canonical, shareable
     public URL (e.g. /businesses/sri-medicals/).
     """
-    business = get_object_or_404(_detail_qs(request, Business), slug=slug)
+    business = _get_listing_or_404(request, Business, slug)
     _bump_views(request, Business, business.pk)
-    related_businesses = _public_qs(Business, request).filter(category=business.category).exclude(pk=business.pk)[:3]
+    related_businesses = _cached_related(request, business, _public_qs(Business, request).filter(category=business.category).exclude(pk=business.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1168,7 +1194,7 @@ def directory_list(request, category):
             Q(name__icontains=query) | Q(address__icontains=query)
         )
 
-    page_obj = Paginator(businesses, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, businesses, f'business:directory:{category}')
 
     # Single-category directories (Transport, Repair, ...) have nothing to
     # split by, so they get no tile row — just the total.
@@ -1253,6 +1279,82 @@ def _choice_counts(request, qs, field, cache_scope):
     return counts
 
 
+class _KnownCountPaginator(Paginator):
+    """Paginator over an already-counted result set (see _cached_page), so
+    page links and "Page 2 of 5" work without re-running COUNT(*)."""
+
+    def __init__(self, count, per_page):
+        super().__init__([], per_page)
+        self._known_count = count
+
+    @property
+    def count(self):
+        return self._known_count
+
+
+def _cached_page(request, qs, cache_scope, per_page=12):
+    """
+    One page of a public listing queryset, served from cache on repeat views.
+
+    The app server and the database are in different regions, so every query
+    costs a few hundred milliseconds; the COUNT(*) + page fetch behind a
+    listing page were most of its load time. Cached per city, filters and
+    page number for 5 minutes, and keyed on the version counter the listing
+    signals bump on every save/delete, so a new, edited or removed listing
+    shows on the next view (view/like counters may lag by up to the TTL).
+    """
+    params = request.GET.copy()
+    requested_page = params.pop('page', [''])[-1]
+    current = active_location(request)
+    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    filters = hashlib.md5(params.urlencode().encode()).hexdigest()
+    cache_key = f'core:listing_page:{cache_scope}:{version}:{current.pk if current else "all"}:{filters}:{requested_page}'
+
+    cached = cache.get(cache_key)
+    if cached is None:
+        page = Paginator(qs, per_page).get_page(requested_page)
+        cached = (page.paginator.count, page.number, list(page.object_list))
+        cache.set(cache_key, cached, 300)
+
+    count, number, objects = cached
+    return Page(objects, number, _KnownCountPaginator(count, per_page))
+
+
+def _listing_cache_prefix(request, name):
+    current = active_location(request)
+    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    return f'core:{name}:{version}:{current.pk if current else "all"}'
+
+
+def _get_listing_or_404(request, model_cls, slug):
+    """
+    A listing for its detail page. Public lookups are cached like listing
+    pages (see _cached_page) — every listing save, including the counter
+    updates signals._recount makes after a comment/review/like, bumps the
+    version and clears it. Super Admin previews (any status) aren't cached.
+    """
+    profile = getattr(request.user, 'profile', None) if request.user.is_authenticated else None
+    if profile and profile.is_super_admin:
+        return get_object_or_404(model_cls.objects.all(), slug=slug)
+
+    cache_key = f'{_listing_cache_prefix(request, "listing")}:{model_cls._meta.model_name}:{hashlib.md5(slug.encode()).hexdigest()}'
+    obj = cache.get(cache_key)
+    if obj is None:
+        obj = get_object_or_404(_public_qs(model_cls, request), slug=slug)
+        cache.set(cache_key, obj, 300)
+    return obj
+
+
+def _cached_related(request, obj, qs):
+    """The (up to 3) related listings under a detail page, cached per listing."""
+    cache_key = f'{_listing_cache_prefix(request, "related")}:{obj._meta.model_name}:{obj.pk}'
+    related = cache.get(cache_key)
+    if related is None:
+        related = list(qs[:3])
+        cache.set(cache_key, related, 300)
+    return related
+
+
 def _type_tiles(request, param, selected, choices, counts, icon_for, tint_for):
     """
     Filter tiles for a listing page: one per (value, label) choice, each
@@ -1317,7 +1419,7 @@ def property_list(request):
     else:
         property_type = ''
 
-    page_obj = Paginator(properties, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, properties, 'property')
 
     type_counts = _choice_counts(request, base, 'property_type', 'property')
     type_tiles = _type_tiles(
@@ -1345,9 +1447,9 @@ def property_detail(request, slug):
     """
     Detail page for a single property listing.
     """
-    property_obj = get_object_or_404(_detail_qs(request, Property), slug=slug)
+    property_obj = _get_listing_or_404(request, Property, slug)
     _bump_views(request, Property, property_obj.pk)
-    related_properties = _public_qs(Property, request).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk)[:3]
+    related_properties = _cached_related(request, property_obj, _public_qs(Property, request).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1423,7 +1525,7 @@ def job_list(request):
     if shift_date and shift_time:
         jobs = jobs.filter(shift_start_time__lte=shift_time, shift_end_time__gte=shift_time)
 
-    page_obj = Paginator(jobs, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, jobs, 'job')
 
     counts = _choice_counts(request, base, 'job_type', 'job')
     type_tiles = _type_tiles(
@@ -1453,9 +1555,9 @@ def job_detail(request, slug):
     """
     Detail page for a single job listing.
     """
-    job = get_object_or_404(_detail_qs(request, Job), slug=slug)
+    job = _get_listing_or_404(request, Job, slug)
     _bump_views(request, Job, job.pk)
-    related_jobs = _public_qs(Job, request).filter(company=job.company).exclude(pk=job.pk)[:3]
+    related_jobs = _cached_related(request, job, _public_qs(Job, request).filter(company=job.company).exclude(pk=job.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1503,7 +1605,7 @@ def event_list(request):
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    page_obj = Paginator(events, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, events, 'event')
 
     context = {
         'page_title': 'Events - OneTownCity',
@@ -1521,9 +1623,9 @@ def event_detail(request, slug):
     """
     Detail page for a single event listing.
     """
-    event = get_object_or_404(_detail_qs(request, Event), slug=slug)
+    event = _get_listing_or_404(request, Event, slug)
     _bump_views(request, Event, event.pk)
-    related_events = _public_qs(Event, request).exclude(pk=event.pk)[:3]
+    related_events = _cached_related(request, event, _public_qs(Event, request).exclude(pk=event.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1556,6 +1658,10 @@ def event_detail(request, slug):
     return render(request, 'event_detail.html', context)
 
 
+#: News filter categories, cleared by signals.on_category_changed.
+NEWS_CATEGORIES_CACHE_KEY = 'core:news_categories'
+
+
 def news_list(request):
     """
     News listing page with search (by title or content), an optional
@@ -1569,8 +1675,11 @@ def news_list(request):
     query = request.GET.get('q', '').strip()
     category_key = request.GET.get('category', '').strip()
 
-    news_categories = Category.objects.filter(is_active=True, listing_model='news').order_by('order', 'label')
-    selected_category = news_categories.filter(key=category_key).first() if category_key else None
+    news_categories = cache.get(NEWS_CATEGORIES_CACHE_KEY)
+    if news_categories is None:
+        news_categories = list(Category.objects.filter(is_active=True, listing_model='news').order_by('order', 'label'))
+        cache.set(NEWS_CATEGORIES_CACHE_KEY, news_categories, 300)
+    selected_category = next((cat for cat in news_categories if cat.key == category_key), None) if category_key else None
     if selected_category:
         articles = articles.filter(listing_category=selected_category)
     else:
@@ -1581,9 +1690,8 @@ def news_list(request):
             Q(title__icontains=query) | Q(content__icontains=query)
         )
 
-    page_obj = Paginator(articles, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, articles, 'news')
 
-    news_categories = list(news_categories)
     category_icons = {cat.key: cat.icon or 'bi-newspaper' for cat in news_categories}
     category_tints = {cat.key: i % TINT_COUNT for i, cat in enumerate(news_categories)}
     counts = _choice_counts(request, base, 'listing_category__key', 'news')
@@ -1615,9 +1723,9 @@ def news_detail(request, slug):
     """
     Detail page for a single news article.
     """
-    article = get_object_or_404(_detail_qs(request, News), slug=slug)
+    article = _get_listing_or_404(request, News, slug)
     _bump_views(request, News, article.pk)
-    related_articles = _public_qs(News, request).exclude(pk=article.pk)[:3]
+    related_articles = _cached_related(request, article, _public_qs(News, request).exclude(pk=article.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1670,7 +1778,7 @@ def project_list(request):
     else:
         project_status = ''
 
-    page_obj = Paginator(projects, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, projects, 'project')
 
     counts = _choice_counts(request, base, 'project_status', 'project')
     type_tiles = _type_tiles(
@@ -1698,9 +1806,9 @@ def project_detail(request, slug):
     """
     Detail page for a single upcoming project.
     """
-    project = get_object_or_404(_detail_qs(request, Project), slug=slug)
+    project = _get_listing_or_404(request, Project, slug)
     _bump_views(request, Project, project.pk)
-    related_projects = _public_qs(Project, request).exclude(pk=project.pk)[:3]
+    related_projects = _cached_related(request, project, _public_qs(Project, request).exclude(pk=project.pk))
 
     context = {
         'page_title': f'{project.title} - OneTownCity',
@@ -1733,7 +1841,7 @@ def scholarship_list(request):
     else:
         scholarship_type = ''
 
-    page_obj = Paginator(scholarships, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, scholarships, 'scholarship')
 
     counts = _choice_counts(request, base, 'scholarship_type', 'scholarship')
     type_tiles = _type_tiles(
@@ -1759,13 +1867,13 @@ def scholarship_list(request):
 
 def scholarship_detail(request, slug):
     """Detail page for a single scholarship/government scheme."""
-    scholarship = get_object_or_404(_detail_qs(request, Scholarship), slug=slug)
+    scholarship = _get_listing_or_404(request, Scholarship, slug)
     _bump_views(request, Scholarship, scholarship.pk)
-    related_scholarships = (
+    related_scholarships = _cached_related(request, scholarship, (
         _public_qs(Scholarship, request)
         .filter(scholarship_type=scholarship.scholarship_type)
-        .exclude(pk=scholarship.pk)[:3]
-    )
+        .exclude(pk=scholarship.pk)
+    ))
 
     context = {
         'page_title': f'{scholarship.title} - OneTownCity',
@@ -1803,7 +1911,7 @@ def lost_found_list(request):
     else:
         item_category = ''
 
-    page_obj = Paginator(items, 12).get_page(request.GET.get('page'))
+    page_obj = _cached_page(request, items, 'lostfound')
 
     counts = _choice_counts(request, base, 'report_type', 'lostfound')
     type_tiles = _type_tiles(
@@ -1831,13 +1939,13 @@ def lost_found_list(request):
 
 def lost_found_detail(request, slug):
     """Detail page for a single lost/found item report."""
-    item = get_object_or_404(_detail_qs(request, LostFound), slug=slug)
+    item = _get_listing_or_404(request, LostFound, slug)
     _bump_views(request, LostFound, item.pk)
-    related_items = (
+    related_items = _cached_related(request, item, (
         _public_qs(LostFound, request)
         .filter(report_type=item.report_type)
-        .exclude(pk=item.pk)[:3]
-    )
+        .exclude(pk=item.pk)
+    ))
 
     context = {
         'page_title': f'{item.title} - OneTownCity',

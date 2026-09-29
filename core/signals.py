@@ -64,7 +64,9 @@ def on_comment_changed(sender, instance, created=False, **kwargs):
 @receiver(post_save, sender=Category)
 @receiver(post_delete, sender=Category)
 def on_category_changed(sender, instance, **kwargs):
-    cache.delete(CATEGORY_TREE_CACHE_KEY)
+    # 'core:news_categories' is views.NEWS_CATEGORIES_CACHE_KEY (not imported:
+    # views imports this module).
+    cache.delete_many([CATEGORY_TREE_CACHE_KEY, 'core:news_categories'])
 
 
 @receiver(post_save, sender=Location)

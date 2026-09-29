@@ -161,6 +161,12 @@ DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
 # the test suite against a local in-memory SQLite DB instead sidesteps
 # that entirely; it's only ever used under the test runner, never for
 # a real request, so it doesn't affect production behavior.
+# Listing view counts are written on a background thread after the response
+# (core.views._bump_views) so visitors don't wait on two remote-database
+# round trips. Synchronous under the test runner, whose in-memory SQLite DB
+# isn't visible to other threads.
+RECORD_VIEWS_IN_BACKGROUND = 'test' not in sys.argv
+
 if 'test' in sys.argv:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -198,6 +204,10 @@ else:
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            # Default is 300 entries; cached listing pages, listings and
+            # related blocks (core.views._cached_page etc.) would otherwise
+            # keep evicting the homepage sections.
+            'OPTIONS': {'MAX_ENTRIES': 5000},
         }
     }
 

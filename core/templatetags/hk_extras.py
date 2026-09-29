@@ -32,6 +32,26 @@ def webp_sibling(static_path):
     return _webp_sibling(str(static_path))
 
 
+@lru_cache(maxsize=256)
+def _webp_width_variant(static_path, width):
+    path = PurePosixPath(static_path)
+    candidate = str(path.with_name(f'{path.stem}-{width}.webp'))
+    return candidate if finders.find(candidate) else ''
+
+
+@register.filter
+def webp_width(static_path, width):
+    """
+    The static path of a pre-resized WebP of a stock photo at `width` pixels
+    (images/services/news.jpg|webp_width:640 -> images/services/news-640.webp),
+    or '' when there isn't one. The originals are 1536px wide but shown as
+    ~300px cards and ~1300px banners; these variants are what srcset serves.
+    """
+    if not static_path:
+        return ''
+    return _webp_width_variant(str(static_path), int(width))
+
+
 @register.filter
 def maps_search_url(location_text):
     """Google Maps search link built from a free-text address/location string."""

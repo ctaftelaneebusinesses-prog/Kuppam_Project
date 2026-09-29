@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -79,6 +80,9 @@ class ListingListTests(APITestCase):
 
 class ListingDetailVisibilityTests(APITestCase):
     def setUp(self):
+        # View dedupe for anonymous visitors lives in the cache, which
+        # otherwise carries over from earlier tests reusing the same pks.
+        cache.clear()
         self.city = f.make_city('Kuppam')
         self.owner, self.owner_profile = f.make_user(role=UserRole.ADMIN)
         self.other_user, self.other_profile = f.make_user()

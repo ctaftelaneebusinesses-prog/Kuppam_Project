@@ -52,7 +52,7 @@ class ListingLayoutTests(TestCase):
         self.assertContains(self.client.get(reverse('core:restaurant_list')), '1 place listed')
         # Projects' printed title fills the photo's top half, so the banner
         # is anchored to the bottom of the photo instead.
-        self.assertContains(self.client.get(reverse('core:project_list')), 'background-position:center bottom')
+        self.assertContains(self.client.get(reverse('core:project_list')), 'style="object-position:center bottom"')
 
     def test_empty_page_does_not_claim_featured_listings(self):
         response = self.client.get(reverse('core:lost_found_list'))

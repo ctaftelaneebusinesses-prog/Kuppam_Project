@@ -139,7 +139,10 @@
                     <div class="hk-service-card-media">
                         <div class="hk-service-card-media-inner">
                             <picture>
-                                {% with cat_webp=cat.image|webp_sibling %}{% if cat_webp %}<source srcset="{% static cat_webp %}" type="image/webp">{% endif %}{% endwith %}
+                                {% with cat_webp=cat.image|webp_sibling cat_640=cat.image|webp_width:640 cat_1280=cat.image|webp_width:1280 %}
+                                {% if cat_640 %}<source type="image/webp" srcset="{% static cat_640 %} 640w{% if cat_1280 %}, {% static cat_1280 %} 1280w{% endif %}" sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 30vw">
+                                {% elif cat_webp %}<source srcset="{% static cat_webp %}" type="image/webp">{% endif %}
+                                {% endwith %}
                                 <img src="{% static cat.image %}" alt="{{ cat.label }}" loading="lazy" decoding="async">
                             </picture>
                         </div>
