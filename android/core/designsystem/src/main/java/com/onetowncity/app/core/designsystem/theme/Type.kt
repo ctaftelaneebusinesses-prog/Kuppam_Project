@@ -2,6 +2,7 @@ package com.onetowncity.app.core.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -19,12 +20,14 @@ import com.onetowncity.app.core.designsystem.R
  *    proprietary Ndot-57, which we are not licensed to ship; swapping it later means replacing
  *    res/font/doto.ttf and nothing else.
  */
+@OptIn(ExperimentalTextApi::class)
 private fun inter(weight: FontWeight) = Font(
     resId = R.font.inter,
     weight = weight,
     variationSettings = FontVariation.Settings(FontVariation.weight(weight.weight)),
 )
 
+@OptIn(ExperimentalTextApi::class)
 private fun doto(weight: FontWeight) = Font(
     resId = R.font.doto,
     weight = weight,

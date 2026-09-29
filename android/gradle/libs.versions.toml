@@ -1,12 +1,12 @@
-# Versions were the latest stable releases on Maven/Google Maven when this file was written
-# (2026-09-29). AGP 8.13.x is used on purpose: it is the last 8.x line; AGP 9 changes how Kotlin is applied.
+# Versions are pinned to what AGP 8.13 supports (checked by an actual build on 2026-09-29). The newest androidx releases
+# (Compose BOM 2026.08+, core-ktx 1.19, lifecycle 2.11, activity-compose 1.13) need AGP 9.1 + compileSdk 37, so they are held back.
 [versions]
 agp = "8.13.2"
-kotlin = "2.4.10"
-composeBom = "2026.09.00"
-activityCompose = "1.13.0"
-lifecycle = "2.11.0"
-coreKtx = "1.19.1"
+kotlin = "2.3.21"
+composeBom = "2026.06.01"
+activityCompose = "1.12.4"
+lifecycle = "2.10.0"
+coreKtx = "1.18.0"
 coroutines = "1.11.0"
 junit = "4.13.2"
 
