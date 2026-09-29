@@ -81,19 +81,41 @@
     function addActor(layer, opts) {
         var el = document.createElement('div');
         el.className = 'world-actor';
+        // Remembered so placeBelowHero() can re-stack the pieces under a
+        // page hero: which margin the piece sits in, and whether it was
+        // authored as an upper (top-anchored) or lower corner piece.
+        el.dataset.side = opts.left.indexOf('100vw') !== -1 ? 'right' : 'left';
+        el.dataset.slot = opts.top != null ? 'upper' : 'lower';
         el.style.left = opts.left;
         if (opts.bottom != null) el.style.bottom = opts.bottom;
         if (opts.top != null) el.style.top = opts.top;
         var scale = isMobile() ? (opts.mobileScale || .72) : 1;
         el.style.width = (opts.w * scale) + 'px';
         el.style.height = (opts.h * scale) + 'px';
-        el.style.color = opts.color;
         el.style.animation = opts.anim + ' ' + (opts.duration || 'var(--world-duration)') + ' ' + (opts.timing || 'linear') + ' infinite';
         if (opts.delay) el.style.animationDelay = opts.delay;
         if (opts.vars) {
             Object.keys(opts.vars).forEach(function (k) { el.style.setProperty(k, opts.vars[k]); });
         }
-        el.innerHTML = opts.svg;
+        if (opts.img) {
+            // Full-color raster artwork (e.g. education's scattered
+            // illustration pieces) — no currentColor tint, unlike the
+            // hand-drawn SVG actors below.
+            var img = document.createElement('img');
+            // Decorative and (on hero pages) below the banner: never let
+            // these compete with the page's own content for bandwidth.
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.src = opts.img;
+            img.alt = '';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'contain';
+            el.appendChild(img);
+        } else {
+            el.style.color = opts.color;
+            el.innerHTML = opts.svg;
+        }
         layer.appendChild(el);
         return el;
     }
@@ -104,67 +126,105 @@
     var SCENES = {
         // Restaurant: chef preps -> waiter carries the plate across the
         // screen -> customer at the table -> plate cleared -> loop restarts.
+        // Restaurants: same treatment as Education/Healthcare — 4 full-color
+        // pieces cut from static/images/restaurents.png (storefront, plated
+        // dish, phone + takeaway bag, map + cloche).
         restaurant: {
-            duration: '14s',
-            build: function (layer, color) {
-                addActor(layer, { left: '16vw', bottom: '14%', w: 34, h: 68, anim: 'wa-r-chef', svg: SVG.person(SVG.chefHat), color: color });
-                addActor(layer, { left: '20vw', bottom: '10%', w: 34, h: 68, anim: 'wa-r-waiter', svg: SVG.person(), color: color });
-                addActor(layer, { left: '72vw', bottom: '14%', w: 40, h: 20, anim: 'wa-r-plate', svg: SVG.plate, color: color });
-                addActor(layer, { left: '73vw', bottom: '20%', w: 20, h: 40, anim: 'wa-r-steam', svg: SVG.steam, color: color });
-                addActor(layer, { left: '76vw', bottom: '11%', w: 34, h: 68, anim: 'wa-r-customer', svg: SVG.person(), color: color });
-                addActor(layer, { left: '80vw', bottom: '15%', w: 24, h: 32, anim: 'wa-r-receipt', svg: SVG.receipt, color: color });
+            duration: '15s',
+            build: function (layer) {
+                addActor(layer, { left: 'calc(100vw - 380px)', top: '5%', w: 340, h: 182, anim: 'wa-generic-hover', delay: '-1s', img: '/static/images/restaurant-scene/storefront.webp', mobileScale: .4 });
+                addActor(layer, { left: '-1vw', top: '9%', w: 240, h: 195, anim: 'wa-generic-hover', delay: '-5s', img: '/static/images/restaurant-scene/dish-table.webp', mobileScale: .4 });
+                addActor(layer, { left: '-1vw', bottom: '5%', w: 270, h: 175, anim: 'wa-generic-hover', delay: '-3s', img: '/static/images/restaurant-scene/phone-takeaway.webp', mobileScale: .4 });
+                addActor(layer, { left: 'calc(100vw - 290px)', bottom: '4%', w: 260, h: 171, anim: 'wa-generic-hover', delay: '-7s', img: '/static/images/restaurant-scene/map-cloche.webp', mobileScale: .4 });
             },
         },
-        // Healthcare: patient arrives -> doctor + clipboard checkup ->
-        // patient recovers and leaves -> ambulance cameo -> loop restarts.
+        // Healthcare: no walking patient/doctor silhouettes — 4 full-color
+        // pieces cropped from static/images/Hospital_img.png, large and
+        // balanced 2-left/2-right in the page's outer margins (doctor+
+        // hospital top-right, heart+stethoscope top-left, clipboard+
+        // medicines bottom-left, ambulance+shield bottom-right), same
+        // treatment as Education's scene.
         health: {
-            duration: '16s',
-            build: function (layer, color) {
-                addActor(layer, { left: '25vw', bottom: '10%', w: 34, h: 68, anim: 'wa-h-patient', svg: SVG.person(), color: color });
-                addActor(layer, { left: '28vw', bottom: '10%', w: 34, h: 68, anim: 'wa-h-doctor', svg: SVG.person(SVG.doctorBadge), color: color });
-                addActor(layer, { left: '32vw', bottom: '17%', w: 26, h: 30, anim: 'wa-h-clipboard', svg: SVG.clipboard, color: color });
-                addActor(layer, { left: '85vw', bottom: '6%', w: 100, h: 50, anim: 'wa-h-ambulance', svg: SVG.vehicle(SVG.ambulanceCross), color: color });
-                addActor(layer, { left: '6vw', top: '12%', w: 160, h: 32, anim: 'wa-h-heartbeat', duration: '3s', svg: SVG.heartbeat, color: color });
+            duration: '15s',
+            build: function (layer) {
+                addActor(layer, { left: 'calc(100vw - 360px)', top: '5%', w: 320, h: 178, anim: 'wa-generic-hover', delay: '-1s', img: '/static/images/hospital-scene/doctor-hospital.webp', mobileScale: .4 });
+                addActor(layer, { left: '-1vw', top: '8%', w: 230, h: 169, anim: 'wa-generic-hover', delay: '-5s', img: '/static/images/hospital-scene/heart-stethoscope.webp', mobileScale: .4 });
+                addActor(layer, { left: '-1vw', bottom: '6%', w: 280, h: 114, anim: 'wa-generic-hover', delay: '-3s', img: '/static/images/hospital-scene/clipboard-meds.webp', mobileScale: .4 });
+                addActor(layer, { left: 'calc(100vw - 300px)', bottom: '4%', w: 260, h: 121, anim: 'wa-generic-hover', delay: '-7s', img: '/static/images/hospital-scene/ambulance-shield.webp', mobileScale: .4 });
             },
         },
-        // Transport: commuter walks to the stop -> bus arrives -> boards ->
-        // bus crosses the screen -> loop restarts.
-        transport: {
-            duration: '14s',
-            build: function (layer, color) {
-                addActor(layer, { left: '50vw', bottom: '10%', w: 34, h: 68, anim: 'wa-t-commuter', svg: SVG.person(), color: color });
-                addActor(layer, { left: '54vw', bottom: '17%', w: 30, h: 18, anim: 'wa-t-ticket', svg: SVG.ticket, color: color });
-                addActor(layer, { left: '46vw', bottom: '8%', w: 26, h: 22, anim: 'wa-t-luggage', svg: SVG.luggage, color: color });
-                addActor(layer, { left: '50vw', bottom: '4%', w: 96, h: 48, anim: 'wa-t-bus', svg: SVG.vehicle(), color: color });
+        // Education: no walking silhouette — 4 full-color pieces cropped
+        // from static/images/Education_pics.png, large and placed in the
+        // page's outer margins (cap+books top-right, open book bottom-left,
+        // backpack bottom-center, globe right side) — z-index:-1 (.world-bg)
+        // means they always paint behind real content, so generous size/
+        // reach into the content area is safe: cards/pagination render on
+        // top regardless of any positional overlap.
+        education: {
+            duration: '15s',
+            build: function (layer) {
+                addActor(layer, { left: 'calc(100vw - 360px)', top: '6%', w: 320, h: 171, anim: 'wa-generic-hover', delay: '-1s', img: '/static/images/education-scene/cap-books.webp', mobileScale: .4 });
+                addActor(layer, { left: '-2vw', bottom: '8%', w: 260, h: 186, anim: 'wa-generic-hover', delay: '-4s', img: '/static/images/education-scene/open-book.webp', mobileScale: .4 });
+                addActor(layer, { left: '36vw', bottom: '2%', w: 230, h: 144, anim: 'wa-generic-hover', delay: '-7s', img: '/static/images/education-scene/backpack.webp', mobileScale: .4 });
+                addActor(layer, { left: 'calc(100vw - 280px)', bottom: '20%', w: 210, h: 169, anim: 'wa-generic-hover', delay: '-2.5s', img: '/static/images/education-scene/globe.webp', mobileScale: .4 });
+            },
+        },
+        // Jobs: same treatment — 4 pieces cropped from the bottom row of
+        // static/images/jobs.png (laptop search, CV, briefcase, growth chart).
+        jobs: {
+            duration: '15s',
+            build: function (layer) {
+                addActor(layer, { left: 'calc(100vw - 340px)', top: '6%', w: 300, h: 219, anim: 'wa-generic-hover', delay: '-1s', img: '/static/images/jobs-scene/laptop-search.webp', mobileScale: .4 });
+                addActor(layer, { left: '-1vw', top: '10%', w: 240, h: 169, anim: 'wa-generic-hover', delay: '-5s', img: '/static/images/jobs-scene/cv-books.webp', mobileScale: .4 });
+                addActor(layer, { left: '-1vw', bottom: '6%', w: 250, h: 197, anim: 'wa-generic-hover', delay: '-3s', img: '/static/images/jobs-scene/briefcase.webp', mobileScale: .4 });
+                addActor(layer, { left: 'calc(100vw - 270px)', bottom: '5%', w: 240, h: 184, anim: 'wa-generic-hover', delay: '-7s', img: '/static/images/jobs-scene/growth-chart.webp', mobileScale: .4 });
+            },
+        },
+        // Shops / Businesses: 4 pieces cropped from static/images/shops.png.
+        business: {
+            duration: '15s',
+            build: function (layer) {
+                addActor(layer, { left: 'calc(100vw - 300px)', top: '5%', w: 250, h: 329, anim: 'wa-generic-hover', delay: '-1s', img: '/static/images/shops-scene/storefront.webp', mobileScale: .4 });
+                addActor(layer, { left: '1vw', top: '10%', w: 150, h: 138, anim: 'wa-generic-hover', delay: '-5s', img: '/static/images/shops-scene/location-pin.webp', mobileScale: .4 });
+                addActor(layer, { left: '-1vw', bottom: '5%', w: 220, h: 247, anim: 'wa-generic-hover', delay: '-3s', img: '/static/images/shops-scene/cart-bags.webp', mobileScale: .4 });
+                addActor(layer, { left: 'calc(100vw - 240px)', bottom: '4%', w: 200, h: 233, anim: 'wa-generic-hover', delay: '-7s', img: '/static/images/shops-scene/phone-bags.webp', mobileScale: .4 });
             },
         },
     };
 
-    // The remaining 6 categories share the lighter wa-generic-approach /
-    // wa-generic-hover vocabulary — one walker plus 2-3 floating props.
-    var LIGHT_SCENES = {
-        business: { duration: '15s', props: [SVG.bag, SVG.tag, SVG.chart] },
-        education: { duration: '15s', props: [SVG.book, SVG.cap] },
-        realestate: { duration: '15s', props: [SVG.house, SVG.key] },
-        projects: { duration: '15s', props: [SVG.cone, SVG.chart] },
-        events: { duration: '15s', props: [SVG.gift, SVG.sparkle] },
-        news: { duration: '15s', props: [SVG.newspaper, SVG.mic] },
+    // The remaining categories use the same four-corner layout as the
+    // hand-placed scenes above — 4 full-color pieces cut from each
+    // category's illustration sheet in static/images/ (one quadrant each),
+    // two per side in the page's outer margins.
+    var CORNERS = [
+        { left: 'calc(100vw - 320px)', top: '6%', delay: '-1s' },
+        { left: '-1vw', top: '10%', delay: '-5s' },
+        { left: '-1vw', bottom: '5%', delay: '-3s' },
+        { left: 'calc(100vw - 300px)', bottom: '4%', delay: '-7s' },
+    ];
+    var ILLUSTRATED_SCENES = {
+        transport: ['bus', 'train', 'taxi', 'truck'],
+        news: ['newspaper', 'reporter', 'town-updates', 'community-event'],
+        village: ['reading-news', 'gathering', 'weather', 'road-work'],
+        realestate: ['villa', 'apartments', 'commercial', 'map-search'],
+        events: ['wedding', 'concert', 'seminar', 'garden-party'],
+        repair: ['plumber', 'electrician', 'carpenter', 'ac-service'],
+        tourism: ['beach', 'temple', 'hilltop', 'theme-park'],
+        projects: ['apartments', 'construction', 'layout-plan', 'growth'],
+        marketplace: ['buy', 'sell', 'exchange', 'marketplace'],
+        students: ['counselling', 'scholarships', 'enrollment', 'study-group'],
+        tuition: ['one-on-one', 'classroom', 'books-globe', 'coaching-centre'],
     };
-    Object.keys(LIGHT_SCENES).forEach(function (key) {
-        var cfg = LIGHT_SCENES[key];
+    Object.keys(ILLUSTRATED_SCENES).forEach(function (key) {
         SCENES[key] = {
-            duration: cfg.duration,
-            build: function (layer, color) {
-                addActor(layer, {
-                    left: '38vw', bottom: '10%', w: 30, h: 60, anim: 'wa-generic-approach', svg: SVG.person(), color: color,
-                    vars: { '--actor-start': '-14vw', '--actor-exit': '30vw' },
-                });
-                var positions = [{ left: '65vw', bottom: '20%' }, { left: '80vw', bottom: '32%' }, { left: '15vw', bottom: '30%' }];
-                cfg.props.forEach(function (svg, i) {
-                    var pos = positions[i % positions.length];
+            duration: '15s',
+            build: function (layer) {
+                ILLUSTRATED_SCENES[key].forEach(function (name, i) {
+                    var pos = CORNERS[i];
                     addActor(layer, {
-                        left: pos.left, bottom: pos.bottom, w: 34, h: 34, anim: 'wa-generic-hover',
-                        delay: '-' + (i * 2.5) + 's', svg: svg, color: color,
+                        left: pos.left, top: pos.top, bottom: pos.bottom, w: 280, h: 220,
+                        anim: 'wa-generic-hover', delay: pos.delay, mobileScale: .4,
+                        img: '/static/images/' + key + '-scene/' + name + '.webp',
                     });
                 });
             },
@@ -213,7 +273,69 @@
         root.style.setProperty('--world-duration', config.duration);
         var color = 'rgba(var(--hk-cat-' + categoryKey + '-rgb), .34)';
         config.build(actorLayer, color);
+        placeBelowHero();
         root.classList.add('is-active');
+    }
+
+    // ------------------------------------------------------------------
+    // Keep the illustrations off the page hero banner.
+    //
+    // The viewport-fixed corners above put the upper pieces right beside
+    // (and peeking out around) a listing page's photo banner, which reads
+    // as clutter. When the page has a hero, the layer instead scrolls with
+    // the document and each margin's pieces stack straight down from just
+    // below the banner: the lower piece first, the upper piece under it.
+    // Pages without a hero keep the fixed four-corner layout.
+    // ------------------------------------------------------------------
+    var HERO_SELECTOR = '.hk-lp-hero';
+
+    function placeBelowHero() {
+        if (!root || !activeCategory) return;
+        var hero = document.querySelector(HERO_SELECTOR);
+        if (!hero) {
+            root.classList.remove('is-below-hero');
+            root.style.height = '';
+            return;
+        }
+        root.classList.add('is-below-hero');
+
+        var gap = 24; // clears the hover float (10px lift + tilt)
+        var heroBottom = hero.getBoundingClientRect().bottom + window.scrollY;
+        var actors = actorLayer.querySelectorAll('.world-actor');
+
+        ['left', 'right'].forEach(function (side) {
+            var y = heroBottom + gap;
+            ['lower', 'upper'].forEach(function (slot) {
+                Array.prototype.forEach.call(actors, function (el) {
+                    if (el.dataset.side !== side || el.dataset.slot !== slot) return;
+                    el.style.bottom = '';
+                    el.style.top = y + 'px';
+                    y += el.offsetHeight + gap;
+                });
+            });
+        });
+
+        // Span the whole document (so the pieces scroll with it) without
+        // ever making it taller: measure with the layer collapsed, and let
+        // overflow:hidden clip anything past the end of a short page.
+        root.style.height = '0px';
+        root.style.height = document.documentElement.scrollHeight + 'px';
+    }
+
+    var relayoutFrame = null;
+    function scheduleRelayout() {
+        if (relayoutFrame) return;
+        relayoutFrame = requestAnimationFrame(function () {
+            relayoutFrame = null;
+            placeBelowHero();
+        });
+    }
+    window.addEventListener('resize', scheduleRelayout);
+    window.addEventListener('load', scheduleRelayout);
+    if ('ResizeObserver' in window) {
+        // Catches late layout shifts (web fonts, lazy images, filters) that
+        // move the hero or change the page's length after first paint.
+        new ResizeObserver(scheduleRelayout).observe(document.body);
     }
 
     window.changeWorldScene = changeWorldScene;

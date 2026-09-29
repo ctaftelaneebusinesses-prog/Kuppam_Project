@@ -124,9 +124,11 @@
 #     }
 #     return render(request, 'contact.html', context)
 
+import hashlib
 import json
 import logging
 import re
+import threading
 from datetime import date, time, timedelta
 from math import asin, cos, radians, sin, sqrt
 from urllib.parse import urlencode
@@ -139,11 +141,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.core.paginator import Paginator
+from django.core.paginator import Page, Paginator
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import validate_email
 from django.core.cache import cache
-from django.db import DatabaseError
+from django.db import DatabaseError, connections
 from django.db.models import Count, F, Prefetch, ProtectedError, Q
 from django.db.models.functions import TruncDate
 from django.http import Http404, HttpResponse, JsonResponse
@@ -177,6 +179,8 @@ from .models import (
 )
 from .location_service import active_location, reverse_geocode, save_location, search_cities, serialize_location
 from .push import notify, notify_bulk
+from .signals import HOME_SECTIONS_VERSION_KEY
+from .templatetags.hk_extras import TINT_COUNT, tint_index
 from .supabase_auth import SupabaseAuthError, fetch_supabase_user
 
 User = get_user_model()
@@ -380,18 +384,6 @@ def _ld_json(data):
     return mark_safe(json_str.replace('&', '\\u0026').replace('<', '\\u003c').replace('>', '\\u003e'))
 
 
-def _detail_qs(request, model_cls):
-    """
-    Queryset used to look up a single listing for its detail page. Super
-    admin can open any listing regardless of status/active state (e.g. to
-    preview a pending submission); everyone else only sees public rows.
-    """
-    profile = getattr(request.user, 'profile', None) if request.user.is_authenticated else None
-    if profile and profile.is_super_admin:
-        return model_cls.objects.all()
-    return _public_qs(model_cls, request)
-
-
 def location_search(request):
     query = request.GET.get('q', '')
     try:
@@ -510,22 +502,56 @@ def nearby_businesses(request):
     return JsonResponse({'results': _nearby_businesses(request, lat, lng, category=category)})
 
 
+#: How long an anonymous visitor's view of a listing is remembered, so
+#: reloads/back-forward/prefetches within that window don't count again.
+VIEW_DEDUPE_SECONDS = 6 * 60 * 60
+
+
+def _record_view(model_cls, pk):
+    model_cls.objects.filter(pk=pk).update(view_count=F('view_count') + 1)
+    PostView.objects.create(content_type=ContentType.objects.get_for_model(model_cls), object_id=pk)
+
+
+def _record_view_in_background(model_cls, pk):
+    try:
+        _record_view(model_cls, pk)
+    except DatabaseError:
+        logging.getLogger(__name__).warning('Could not record a view of %s %s', model_cls.__name__, pk, exc_info=True)
+    finally:
+        connections.close_all()
+
+
 def _bump_views(request, model_cls, pk):
     """
-    Counts one view per browsing session per listing. Without this, a single
+    Counts one view per visitor per listing. Without deduping, a single
     visitor reloading the page, hitting back/forward, or the browser's own
     link-hover prefetching each fired another unconditional increment, so
     "1 real visit" could show up as 3-4 views.
-    """
-    seen = request.session.setdefault('viewed_listings', [])
-    key = f'{model_cls.__name__}:{pk}'
-    if key in seen:
-        return
-    seen.append(key)
-    request.session.modified = True
 
-    model_cls.objects.filter(pk=pk).update(view_count=F('view_count') + 1)
-    PostView.objects.create(content_type=ContentType.objects.get_for_model(model_cls), object_id=pk)
+    Signed-in users are deduped in their existing session. Anonymous visitors
+    are deduped in the cache (by IP + user agent) instead: storing it in a
+    session used to give every anonymous visitor a session row, and every
+    later page view then paid a session lookup against the remote database.
+
+    The two writes run after the response on a background thread in
+    production, so the visitor never waits on them.
+    """
+    key = f'{model_cls.__name__}:{pk}'
+    if request.user.is_authenticated:
+        seen = request.session.setdefault('viewed_listings', [])
+        if key in seen:
+            return
+        seen.append(key)
+        request.session.modified = True
+    else:
+        visitor = hashlib.md5(f"{client_ip(request)}|{request.META.get('HTTP_USER_AGENT', '')}".encode()).hexdigest()
+        if not cache.add(f'core:viewed:{visitor}:{key}', 1, VIEW_DEDUPE_SECONDS):
+            return
+
+    if settings.RECORD_VIEWS_IN_BACKGROUND:
+        threading.Thread(target=_record_view_in_background, args=(model_cls, pk), daemon=True).start()
+    else:
+        _record_view(model_cls, pk)
 
 
 def _community_context(request, obj):
@@ -534,12 +560,14 @@ def _community_context(request, obj):
     user = request.user if request.user.is_authenticated else None
     is_liked = bool(user) and Like.objects.filter(content_type=ct, object_id=obj.pk, user=user).exists()
     is_favorited = bool(user) and Favorite.objects.filter(content_type=ct, object_id=obj.pk, user=user).exists()
+    # comment_count/review_count are kept exact by signals._recount, so a
+    # listing with none (most of them) skips these remote-database queries.
     comments = (
         Comment.objects.filter(content_type=ct, object_id=obj.pk, parent__isnull=True)
         .select_related('user', 'user__profile')
         .prefetch_related(Prefetch('replies', queryset=Comment.objects.select_related('user', 'user__profile')))
-    )
-    reviews = Review.objects.filter(content_type=ct, object_id=obj.pk).select_related('user', 'user__profile')
+    ) if obj.comment_count else []
+    reviews = Review.objects.filter(content_type=ct, object_id=obj.pk).select_related('user', 'user__profile') if obj.review_count else []
 
     return {
         'model_key': obj._meta.model_name,
@@ -588,6 +616,22 @@ DIRECTORY_CATEGORIES = {
 _DIRECTORY_BUSINESS_CATEGORIES = {
     cat for config in DIRECTORY_CATEGORIES.values() for cat in config['categories']
 }
+
+#: Maps a Business.category value to the data-category-bg key its ambient
+#: background wash (main.css) and world-scene actors (world-scene.js) are
+#: keyed on — only restaurants/hospitals/education/transport have a scene
+#: of their own (see directory_list's own data-category-bg logic); every
+#: other Business category (repair, tourism, general shops, etc.) falls
+#: back to the same generic 'business' wash business_list.html uses.
+_BUSINESS_CATEGORY_BG = {
+    'restaurant': 'restaurant', 'bakery': 'restaurant',
+    'hospital': 'health', 'pharmacy': 'health',
+    'school': 'education', 'college': 'education',
+    'transport': 'transport',
+}
+
+def _business_category_bg(category):
+    return _BUSINESS_CATEGORY_BG.get(category, 'business')
 
 #: Category choices for the general Businesses page's filter dropdown —
 #: every Business sub-category NOT already covered by a dedicated directory
@@ -748,25 +792,30 @@ def robots_txt(request):
     return HttpResponse('\n'.join(lines), content_type='text/plain')
 
 
-def home(request):
+HOME_SECTIONS_CACHE_TTL = 300
+
+
+def _home_sections(request, current, today):
     """
-    Homepage: hero section, search box, category grid, featured businesses.
+    Every listing section + stat on the homepage. These are identical for
+    every visitor in the same city, yet used to cost ~20 sequential queries
+    per page view against the remote database (each a full network round
+    trip) — cached per city/day, and dropped immediately whenever a listing
+    is saved or deleted (see signals.bump_home_sections_cache).
     """
-    # Fall back to the latest listings whenever nothing has been marked
-    # "Featured" yet, so these sections never render as blank gaps on the
-    # homepage while admins are still curating featured picks.
-    featured_businesses = _public_qs(Business, request).filter(is_featured=True)[:6] \
-        or _public_qs(Business, request).order_by('-created_at')[:6]
-    featured_properties = _public_qs(Property, request).filter(is_featured=True)[:6] \
-        or _public_qs(Property, request).order_by('-created_at')[:6]
-    featured_jobs = _public_qs(Job, request).filter(is_featured=True)[:6] \
-        or _public_qs(Job, request).order_by('-created_at')[:6]
-    featured_events = _public_qs(Event, request).filter(is_featured=True, event_date__gte=timezone.localdate())[:6] \
-        or _public_qs(Event, request).filter(event_date__gte=timezone.localdate()).order_by('event_date')[:6]
-    featured_news = _public_qs(News, request).filter(is_featured=True)[:6] \
-        or _public_qs(News, request).order_by('-created_at')[:6]
-    featured_projects = _public_qs(Project, request).filter(is_featured=True)[:6] \
-        or _public_qs(Project, request).order_by('-created_at')[:6]
+    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    cache_key = f'core:home_sections:{version}:{current.pk if current else "all"}:{today.isoformat()}'
+    sections = cache.get(cache_key)
+    if sections is not None:
+        return sections
+
+    # Fall back to the latest projects whenever nothing has been marked
+    # "Featured" yet, so this section never renders as a blank gap on the
+    # homepage while admins are still curating featured picks. (Featured
+    # businesses/properties/jobs/events/news used to be queried here too, but
+    # home.html never rendered them — up to 10 wasted round trips per view.)
+    featured_projects = list(_public_qs(Project, request).filter(is_featured=True)[:6]) \
+        or list(_public_qs(Project, request).order_by('-created_at')[:6])
 
     # "Today in Your Town": events actually happening today + "What's
     # Happening in Your Village" posts actually published today (see the
@@ -779,14 +828,13 @@ def home(request):
     # September). When nothing is dated today, recent_news_fallback backs a
     # separately-labeled "Latest Updates" block instead (see home.html) —
     # computed only then, so a live day never pays for the extra query.
-    today = timezone.localdate()
-    events_today = _public_qs(Event, request).filter(event_date=today).order_by('event_time')[:6]
+    events_today = list(_public_qs(Event, request).filter(event_date=today).order_by('event_time')[:6])
     village_news_qs = _public_qs(News, request).filter(listing_category__key='village-happenings')
-    news_today = village_news_qs.filter(published_date=today).order_by('-created_at')[:6]
+    news_today = list(village_news_qs.filter(published_date=today).order_by('-created_at')[:6])
     recent_news_fallback = [] if (events_today or news_today) \
         else list(village_news_qs.order_by('-published_date')[:3])
-    places_to_visit = _public_qs(Business, request).filter(category='tourism').order_by('-is_featured', 'name')[:6]
-    repair_shops_initial = _public_qs(Business, request).filter(category='repair').order_by('-is_featured', 'name')[:6]
+    places_to_visit = list(_public_qs(Business, request).filter(category='tourism').order_by('-is_featured', 'name')[:6])
+    repair_shops_initial = list(_public_qs(Business, request).filter(category='repair').order_by('-is_featured', 'name')[:6])
 
     stats = {
         'businesses': _public_qs(Business, request).count(),
@@ -795,12 +843,32 @@ def home(request):
         'users': get_user_model().objects.count(),
     }
 
+    sections = {
+        'featured_projects': featured_projects,
+        'events_today': events_today,
+        'news_today': news_today,
+        'recent_news_fallback': recent_news_fallback,
+        'places_to_visit': places_to_visit,
+        'repair_shops_initial': repair_shops_initial,
+        'stats': stats,
+    }
+    cache.set(cache_key, sections, HOME_SECTIONS_CACHE_TTL)
+    return sections
+
+
+def home(request):
+    """
+    Homepage: hero section, search box, category grid, featured businesses.
+    """
+    today = timezone.localdate()
+    current = active_location(request)
+    sections = _home_sections(request, current, today)
+
     # Reuses the same cached lookup the navbar's category_tree context
     # processor already computes (see core/context_processors.py) instead of
     # re-querying Category here — home.html never reads .children on these,
     # so the separate prefetch this used to run was pure waste on top of it.
     from .context_processors import category_tree
-    current = active_location(request)
 
     # Service-card counts must match what each category's page will actually
     # show THIS visitor (see Category.public_listing_count) rather than a
@@ -811,26 +879,16 @@ def home(request):
     # categories lead instead of whatever admin-set `order` they'd otherwise
     # follow.
     categories = list(category_tree(request)['nav_category_tree'])
+    display_counts = Category.public_listing_counts(categories, current)
     for cat in categories:
-        cat.display_count = cat.public_listing_count(current)
+        cat.display_count = display_counts[cat.pk]
     categories = sorted((c for c in categories if c.display_count > 0), key=lambda c: c.display_count, reverse=True)
 
     context = {
         'page_title': f'OneTownCity {current.name}' if current else 'OneTownCity — Visual Local Engine & Discovery Portal',
         'categories': categories,
-        'featured_businesses': featured_businesses,
-        'featured_properties': featured_properties,
-        'featured_jobs': featured_jobs,
-        'featured_events': featured_events,
-        'featured_news': featured_news,
-        'featured_projects': featured_projects,
-        'events_today': events_today,
-        'news_today': news_today,
-        'recent_news_fallback': recent_news_fallback,
-        'places_to_visit': places_to_visit,
-        'repair_shops_initial': repair_shops_initial,
+        **sections,
         'today_date': today,
-        'stats': stats,
     }
     return render(request, 'home.html', context)
 
@@ -907,11 +965,12 @@ def search(request):
     total_results = 0
 
     if query:
-        def _section(key, label, icon, qs, list_url_name, card_partial, item_key):
+        def _section(key, label, icon, qs, list_url_name, card_partial, item_key, count=None):
             qs = qs.filter(
                 _SEARCH_FILTERS[key](query)
             )
-            count = qs.count()
+            if count is None:
+                count = qs.count()
             return {
                 'label': label,
                 'icon': icon,
@@ -922,11 +981,21 @@ def search(request):
                 'view_all_url': reverse(list_url_name) + '?' + urlencode({'q': query}),
             }
 
+        # Every Business section's count in ONE conditional-aggregate query,
+        # instead of a separate COUNT round trip per directory (10 of them).
+        business_counts = _public_qs(Business, request).filter(_SEARCH_FILTERS['business'](query)).aggregate(
+            general=Count('pk', filter=~Q(category__in=_DIRECTORY_BUSINESS_CATEGORIES)),
+            **{
+                directory_key: Count('pk', filter=Q(category__in=config['categories']))
+                for directory_key, config in DIRECTORY_CATEGORIES.items()
+            },
+        )
         sections = [
             _section(
                 'business', 'Nearby Shops', 'bi-shop',
                 _public_qs(Business, request).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES),
                 'core:business_list', 'partials/business_card.html', 'business',
+                count=business_counts['general'],
             ),
         ]
         for directory_key, config in DIRECTORY_CATEGORIES.items():
@@ -934,6 +1003,7 @@ def search(request):
                 'business', config['label'], config['icon'],
                 _public_qs(Business, request).filter(category__in=config['categories']),
                 SEARCH_CATEGORY_REDIRECT[directory_key], 'partials/business_card.html', 'business',
+                count=business_counts[directory_key],
             ))
         sections += [
             _section('property', 'Properties', 'bi-house-door', _public_qs(Property, request), 'core:property_list', 'partials/property_card.html', 'property'),
@@ -968,7 +1038,8 @@ def business_list(request):
     context) — so a listing only ever appears on the one page that matches
     its category. Supports search (by name or category) and pagination.
     """
-    businesses = _public_qs(Business, request).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES)
+    base = _public_qs(Business, request).exclude(category__in=_DIRECTORY_BUSINESS_CATEGORIES)
+    businesses = base
 
     query = request.GET.get('q', '').strip()
     category = request.GET.get('category', '').strip()
@@ -983,20 +1054,26 @@ def business_list(request):
     else:
         category = ''
 
-    paginator = Paginator(businesses, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = _cached_page(request, businesses, 'business:general')
+
+    counts = _choice_counts(request, base, 'category', 'business:general')
+    type_tiles = _type_tiles(
+        request, 'category', category, GENERAL_BUSINESS_CATEGORY_CHOICES, counts,
+        icon_for=lambda value: Business.PLACEHOLDER_ICONS.get(value, 'bi-shop-window'),
+        tint_for=lambda value: tint_index(Business, 'category', value),
+    )
 
     context = {
         'page_title': 'Businesses - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_category': category,
         'selected_category_label': dict(GENERAL_BUSINESS_CATEGORY_CHOICES).get(category, ''),
         'category_choices': GENERAL_BUSINESS_CATEGORY_CHOICES,
-        'total_results': businesses.count(),
-        'hero_image': CATEGORIES_BY_SLUG['shops']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['shops']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['shops'],
+            filters_active=bool(query or category),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'business_list.html', context)
 
@@ -1006,9 +1083,9 @@ def business_detail(request, slug):
     Detail page for a single business listing — the canonical, shareable
     public URL (e.g. /businesses/sri-medicals/).
     """
-    business = get_object_or_404(_detail_qs(request, Business), slug=slug)
+    business = _get_listing_or_404(request, Business, slug)
     _bump_views(request, Business, business.pk)
-    related_businesses = _public_qs(Business, request).filter(category=business.category).exclude(pk=business.pk)[:3]
+    related_businesses = _cached_related(request, business, _public_qs(Business, request).filter(category=business.category).exclude(pk=business.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1040,6 +1117,7 @@ def business_detail(request, slug):
         'page_title': f'{business.name} - OneTownCity',
         'business': business,
         'related_businesses': related_businesses,
+        'category_bg': _business_category_bg(business.category),
         'schema_json': _ld_json(schema),
         **_community_context(request, business),
     }
@@ -1062,7 +1140,8 @@ def directory_list(request, category):
     if config is None:
         raise Http404('Unknown directory category')
 
-    businesses = _public_qs(Business, request).filter(category__in=config['categories'])
+    base = _public_qs(Business, request).filter(category__in=config['categories'])
+    businesses = base
 
     subcategory_choices = [
         (key, label) for key, label in Business.CATEGORY_CHOICES
@@ -1082,26 +1161,208 @@ def directory_list(request, category):
             Q(name__icontains=query) | Q(address__icontains=query)
         )
 
-    paginator = Paginator(businesses, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = _cached_page(request, businesses, f'business:directory:{category}')
 
-    hero = CATEGORIES_BY_SLUG.get(category)
+    # Single-category directories (Transport, Repair, ...) have nothing to
+    # split by, so they get no tile row — just the total.
+    counts = _choice_counts(request, base, 'category', f'business:directory:{category}')
+    type_tiles = _type_tiles(
+        request, 'type', subcategory, subcategory_choices, counts,
+        icon_for=lambda value: Business.PLACEHOLDER_ICONS.get(value, config['icon']),
+        tint_for=lambda value: tint_index(Business, 'category', value),
+    ) if subcategory_choices else []
 
     context = {
         'page_title': f"{config['label']} - OneTownCity",
-        'page_obj': page_obj,
         'query': query,
-        'total_results': businesses.count(),
         'directory_label': config['label'],
         'directory_icon': config['icon'],
         'directory_key': category,
         'subcategory_choices': subcategory_choices,
         'selected_subcategory': subcategory,
-        'hero_image': hero['image'] if hero else '',
-        'hero_tagline': hero['description'] if hero else '',
+        'selected_subcategory_label': dict(subcategory_choices).get(subcategory, ''),
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG.get(category),
+            filters_active=bool(query or subcategory),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'directory_list.html', context)
+
+
+#: Icons for the type tiles on the category listing pages. Business and
+#: Lost & Found reuse their models' PLACEHOLDER_ICONS; News uses each
+#: Category row's own icon.
+PROPERTY_TYPE_TILE_ICONS = {
+    'sale': 'bi-house-check', 'rent': 'bi-key', 'apartment': 'bi-buildings',
+    'villa': 'bi-house-heart', 'plot': 'bi-map', 'commercial': 'bi-shop-window',
+    'pg': 'bi-door-open', 'other': 'bi-house',
+}
+JOB_TYPE_TILE_ICONS = {'regular': 'bi-briefcase', 'hourly': 'bi-clock-history'}
+PROJECT_STATUS_TILE_ICONS = {'planned': 'bi-pencil-square', 'ongoing': 'bi-cone-striped', 'completed': 'bi-check-circle'}
+SCHOLARSHIP_TYPE_TILE_ICONS = {
+    'government': 'bi-bank', 'merit': 'bi-trophy', 'need_based': 'bi-heart',
+    'minority': 'bi-people', 'sports': 'bi-dribbble', 'research': 'bi-journal-richtext',
+    'other': 'bi-mortarboard',
+}
+
+#: Stock hero photos that already have a title/tagline printed on them —
+#: listing_page_base.html shows these without its own copy overlay.
+HERO_IMAGES_WITH_TEXT = frozenset({
+    'images/services/hospitals.jpg', 'images/services/education.jpg',
+    'images/services/restaurants.jpg', 'images/services/upcoming-projects.jpg',
+    'images/services/news.jpg', 'images/services/events.jpg',
+})
+
+#: Where to anchor a hero photo in the banner when its printed title would
+#: otherwise sit behind our own copy (default: centered).
+HERO_IMAGE_FOCUS = {
+    # "UPCOMING PROJECTS / BUILDING TODAY..." fills the top-left half.
+    'images/services/upcoming-projects.jpg': 'center bottom',
+}
+
+#: A page with at most this many types shows a tile for every type (empty
+#: ones dimmed); with more, only the types that actually have listings.
+TYPE_TILE_LIMIT = 8
+
+
+def _choice_counts(request, qs, field, cache_scope):
+    """
+    {value of `field`: public listing count} for this visitor's city, in one
+    grouped query. `field=None` gives {None: total}. Cached briefly, keyed on
+    the version counter the listing signals bump on every save/delete, so a
+    new/removed listing is reflected on the next view.
+    """
+    current = active_location(request)
+    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    cache_key = f'core:choice_counts:{cache_scope}:{version}:{current.pk if current else "all"}'
+    counts = cache.get(cache_key)
+    if counts is None:
+        if field is None:
+            counts = {None: qs.count()}
+        else:
+            counts = dict(qs.order_by().values_list(field).annotate(n=Count('pk')).values_list(field, 'n'))
+        cache.set(cache_key, counts, 300)
+    return counts
+
+
+class _KnownCountPaginator(Paginator):
+    """Paginator over an already-counted result set (see _cached_page), so
+    page links and "Page 2 of 5" work without re-running COUNT(*)."""
+
+    def __init__(self, count, per_page):
+        super().__init__([], per_page)
+        self._known_count = count
+
+    @property
+    def count(self):
+        return self._known_count
+
+
+def _cached_page(request, qs, cache_scope, per_page=12):
+    """
+    One page of a public listing queryset, served from cache on repeat views.
+
+    The app server and the database are in different regions, so every query
+    costs a few hundred milliseconds; the COUNT(*) + page fetch behind a
+    listing page were most of its load time. Cached per city, filters and
+    page number for 5 minutes, and keyed on the version counter the listing
+    signals bump on every save/delete, so a new, edited or removed listing
+    shows on the next view (view/like counters may lag by up to the TTL).
+    """
+    params = request.GET.copy()
+    requested_page = params.pop('page', [''])[-1]
+    current = active_location(request)
+    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    filters = hashlib.md5(params.urlencode().encode()).hexdigest()
+    cache_key = f'core:listing_page:{cache_scope}:{version}:{current.pk if current else "all"}:{filters}:{requested_page}'
+
+    cached = cache.get(cache_key)
+    if cached is None:
+        page = Paginator(qs, per_page).get_page(requested_page)
+        cached = (page.paginator.count, page.number, list(page.object_list))
+        cache.set(cache_key, cached, 300)
+
+    count, number, objects = cached
+    return Page(objects, number, _KnownCountPaginator(count, per_page))
+
+
+def _listing_cache_prefix(request, name):
+    current = active_location(request)
+    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    return f'core:{name}:{version}:{current.pk if current else "all"}'
+
+
+def _get_listing_or_404(request, model_cls, slug):
+    """
+    A listing for its detail page. Public lookups are cached like listing
+    pages (see _cached_page) — every listing save, including the counter
+    updates signals._recount makes after a comment/review/like, bumps the
+    version and clears it. Super Admin previews (any status) aren't cached.
+    """
+    profile = getattr(request.user, 'profile', None) if request.user.is_authenticated else None
+    if profile and profile.is_super_admin:
+        return get_object_or_404(model_cls.objects.all(), slug=slug)
+
+    cache_key = f'{_listing_cache_prefix(request, "listing")}:{model_cls._meta.model_name}:{hashlib.md5(slug.encode()).hexdigest()}'
+    obj = cache.get(cache_key)
+    if obj is None:
+        obj = get_object_or_404(_public_qs(model_cls, request), slug=slug)
+        cache.set(cache_key, obj, 300)
+    return obj
+
+
+def _cached_related(request, obj, qs):
+    """The (up to 3) related listings under a detail page, cached per listing."""
+    cache_key = f'{_listing_cache_prefix(request, "related")}:{obj._meta.model_name}:{obj.pk}'
+    related = cache.get(cache_key)
+    if related is None:
+        related = list(qs[:3])
+        cache.set(cache_key, related, 300)
+    return related
+
+
+def _type_tiles(request, param, selected, choices, counts, icon_for, tint_for):
+    """
+    Filter tiles for a listing page: one per (value, label) choice, each
+    linking to the page filtered by ?<param>=<value> (or back to unfiltered
+    when it's the active one), keeping the visitor's other filters.
+    """
+    show_all = len(choices) <= TYPE_TILE_LIMIT
+    tiles = []
+    for value, label in choices:
+        count = counts.get(value, 0)
+        if not (count or value == selected or (show_all and value != 'other')):
+            continue
+        params = request.GET.copy()
+        params.pop('page', None)
+        if value == selected:
+            params.pop(param, None)
+        else:
+            params[param] = value
+        tiles.append({
+            'value': value, 'label': label, 'count': count,
+            'icon': icon_for(value), 'tint': tint_for(value),
+            'url': f'?{params.urlencode()}' if params else request.path,
+            'is_active': value == selected,
+        })
+    return tiles
+
+
+def _listing_page_context(request, page_obj, hero, filters_active, total_listed, type_tiles=()):
+    """Context listing_page_base.html needs on top of each page's own."""
+    return {
+        'page_obj': page_obj,
+        'total_results': page_obj.paginator.count,
+        'total_listed': total_listed,
+        'type_tiles': list(type_tiles),
+        'filters_active': filters_active,
+        'clear_url': request.path,
+        'hero_image': hero['image'] if hero else '',
+        'hero_tagline': hero['description'] if hero else '',
+        'hero_image_has_text': bool(hero) and hero['image'] in HERO_IMAGES_WITH_TEXT,
+        'hero_focus': HERO_IMAGE_FOCUS.get(hero['image'], '') if hero else '',
+    }
 
 
 def property_list(request):
@@ -1109,7 +1370,8 @@ def property_list(request):
     Properties listing page with search (by title or location), filter
     by type, and pagination.
     """
-    properties = _public_qs(Property, request)
+    base = _public_qs(Property, request)
+    properties = base
 
     query = request.GET.get('q', '').strip()
     property_type = request.GET.get('type', '').strip()
@@ -1119,22 +1381,31 @@ def property_list(request):
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    if property_type:
+    if property_type in dict(Property.PROPERTY_TYPE_CHOICES):
         properties = properties.filter(property_type=property_type)
+    else:
+        property_type = ''
 
-    paginator = Paginator(properties, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = _cached_page(request, properties, 'property')
+
+    type_counts = _choice_counts(request, base, 'property_type', 'property')
+    type_tiles = _type_tiles(
+        request, 'type', property_type, Property.PROPERTY_TYPE_CHOICES, type_counts,
+        icon_for=lambda value: PROPERTY_TYPE_TILE_ICONS.get(value, 'bi-house'),
+        tint_for=lambda value: tint_index(Property, 'property_type', value),
+    )
 
     context = {
         'page_title': 'Properties - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_type': property_type,
+        'selected_type_label': dict(Property.PROPERTY_TYPE_CHOICES).get(property_type, ''),
         'type_choices': Property.PROPERTY_TYPE_CHOICES,
-        'total_results': properties.count(),
-        'hero_image': CATEGORIES_BY_SLUG['real-estate']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['real-estate']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['real-estate'],
+            filters_active=bool(query or property_type),
+            total_listed=sum(type_counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'property_list.html', context)
 
@@ -1143,9 +1414,9 @@ def property_detail(request, slug):
     """
     Detail page for a single property listing.
     """
-    property_obj = get_object_or_404(_detail_qs(request, Property), slug=slug)
+    property_obj = _get_listing_or_404(request, Property, slug)
     _bump_views(request, Property, property_obj.pk)
-    related_properties = _public_qs(Property, request).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk)[:3]
+    related_properties = _cached_related(request, property_obj, _public_qs(Property, request).filter(property_type=property_obj.property_type).exclude(pk=property_obj.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1183,7 +1454,8 @@ def job_list(request):
     a plain date match, refined by time only when both a date and a time are
     given (a bare time with no date isn't a meaningful filter on its own).
     """
-    jobs = _public_qs(Job, request)
+    base = _public_qs(Job, request)
+    jobs = base
 
     query = request.GET.get('q', '').strip()
     job_type = request.GET.get('type', '').strip()
@@ -1220,21 +1492,28 @@ def job_list(request):
     if shift_date and shift_time:
         jobs = jobs.filter(shift_start_time__lte=shift_time, shift_end_time__gte=shift_time)
 
-    paginator = Paginator(jobs, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = _cached_page(request, jobs, 'job')
+
+    counts = _choice_counts(request, base, 'job_type', 'job')
+    type_tiles = _type_tiles(
+        request, 'type', job_type, Job.JOB_TYPE_CHOICES, counts,
+        icon_for=lambda value: JOB_TYPE_TILE_ICONS.get(value, 'bi-briefcase'),
+        tint_for=lambda value: tint_index(Job, 'job_type', value),
+    )
 
     context = {
         'page_title': 'Jobs - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_job_type': job_type,
+        'selected_job_type_label': dict(Job.JOB_TYPE_CHOICES).get(job_type, ''),
         'job_type_choices': Job.JOB_TYPE_CHOICES,
         'selected_date': date_str,
         'selected_time': time_str,
-        'total_results': jobs.count(),
-        'hero_image': CATEGORIES_BY_SLUG['jobs']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['jobs']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['jobs'],
+            filters_active=bool(query or job_type or date_str),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'job_list.html', context)
 
@@ -1243,9 +1522,9 @@ def job_detail(request, slug):
     """
     Detail page for a single job listing.
     """
-    job = get_object_or_404(_detail_qs(request, Job), slug=slug)
+    job = _get_listing_or_404(request, Job, slug)
     _bump_views(request, Job, job.pk)
-    related_jobs = _public_qs(Job, request).filter(company=job.company).exclude(pk=job.pk)[:3]
+    related_jobs = _cached_related(request, job, _public_qs(Job, request).filter(company=job.company).exclude(pk=job.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1283,7 +1562,8 @@ def event_list(request):
     Events listing page with search (by title or location) and pagination.
     Upcoming events are shown first (model default ordering).
     """
-    events = _public_qs(Event, request)
+    base = _public_qs(Event, request)
+    events = base
 
     query = request.GET.get('q', '').strip()
 
@@ -1292,17 +1572,16 @@ def event_list(request):
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    paginator = Paginator(events, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = _cached_page(request, events, 'event')
 
     context = {
         'page_title': 'Events - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
-        'total_results': events.count(),
-        'hero_image': CATEGORIES_BY_SLUG['events']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['events']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['events'],
+            filters_active=bool(query),
+            total_listed=_choice_counts(request, base, None, 'event')[None],
+        ),
     }
     return render(request, 'event_list.html', context)
 
@@ -1311,9 +1590,9 @@ def event_detail(request, slug):
     """
     Detail page for a single event listing.
     """
-    event = get_object_or_404(_detail_qs(request, Event), slug=slug)
+    event = _get_listing_or_404(request, Event, slug)
     _bump_views(request, Event, event.pk)
-    related_events = _public_qs(Event, request).exclude(pk=event.pk)[:3]
+    related_events = _cached_related(request, event, _public_qs(Event, request).exclude(pk=event.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1346,6 +1625,10 @@ def event_detail(request, slug):
     return render(request, 'event_detail.html', context)
 
 
+#: News filter categories, cleared by signals.on_category_changed.
+NEWS_CATEGORIES_CACHE_KEY = 'core:news_categories'
+
+
 def news_list(request):
     """
     News listing page with search (by title or content), an optional
@@ -1353,13 +1636,17 @@ def news_list(request):
     Happening in Your Village" — mirrors directory_list's ?type= pattern),
     and pagination. Most recently published articles are shown first.
     """
-    articles = _public_qs(News, request)
+    base = _public_qs(News, request)
+    articles = base
 
     query = request.GET.get('q', '').strip()
     category_key = request.GET.get('category', '').strip()
 
-    news_categories = Category.objects.filter(is_active=True, listing_model='news').order_by('order', 'label')
-    selected_category = news_categories.filter(key=category_key).first() if category_key else None
+    news_categories = cache.get(NEWS_CATEGORIES_CACHE_KEY)
+    if news_categories is None:
+        news_categories = list(Category.objects.filter(is_active=True, listing_model='news').order_by('order', 'label'))
+        cache.set(NEWS_CATEGORIES_CACHE_KEY, news_categories, 300)
+    selected_category = next((cat for cat in news_categories if cat.key == category_key), None) if category_key else None
     if selected_category:
         articles = articles.filter(listing_category=selected_category)
     else:
@@ -1370,20 +1657,31 @@ def news_list(request):
             Q(title__icontains=query) | Q(content__icontains=query)
         )
 
-    paginator = Paginator(articles, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = _cached_page(request, articles, 'news')
+
+    category_icons = {cat.key: cat.icon or 'bi-newspaper' for cat in news_categories}
+    category_tints = {cat.key: i % TINT_COUNT for i, cat in enumerate(news_categories)}
+    counts = _choice_counts(request, base, 'listing_category__key', 'news')
+    type_tiles = _type_tiles(
+        request, 'category', category_key, [(cat.key, cat.label) for cat in news_categories], counts,
+        icon_for=category_icons.get, tint_for=category_tints.get,
+    )
+
+    hero = dict(CATEGORIES_BY_SLUG['news'])
+    if selected_category and selected_category.description:
+        hero['description'] = selected_category.description
 
     context = {
         'page_title': selected_category.label if selected_category else 'OneTownCity News',
-        'page_obj': page_obj,
         'query': query,
-        'total_results': articles.count(),
         'news_categories': news_categories,
         'selected_category_key': category_key,
         'selected_category': selected_category,
-        'hero_image': CATEGORIES_BY_SLUG['news']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['news']['description'],
+        **_listing_page_context(
+            request, page_obj, hero,
+            filters_active=bool(query or category_key),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'news_list.html', context)
 
@@ -1392,9 +1690,9 @@ def news_detail(request, slug):
     """
     Detail page for a single news article.
     """
-    article = get_object_or_404(_detail_qs(request, News), slug=slug)
+    article = _get_listing_or_404(request, News, slug)
     _bump_views(request, News, article.pk)
-    related_articles = _public_qs(News, request).exclude(pk=article.pk)[:3]
+    related_articles = _cached_related(request, article, _public_qs(News, request).exclude(pk=article.pk))
 
     schema = {
         '@context': 'https://schema.org',
@@ -1431,26 +1729,42 @@ def project_list(request):
     pagination. Featured/newest projects are shown first (model default
     ordering).
     """
-    projects = _public_qs(Project, request)
+    base = _public_qs(Project, request)
+    projects = base
 
     query = request.GET.get('q', '').strip()
+    project_status = request.GET.get('status', '').strip()
 
     if query:
         projects = projects.filter(
             Q(title__icontains=query) | Q(location__icontains=query)
         )
 
-    paginator = Paginator(projects, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    if project_status in dict(Project.STATUS_CHOICES):
+        projects = projects.filter(project_status=project_status)
+    else:
+        project_status = ''
+
+    page_obj = _cached_page(request, projects, 'project')
+
+    counts = _choice_counts(request, base, 'project_status', 'project')
+    type_tiles = _type_tiles(
+        request, 'status', project_status, Project.STATUS_CHOICES, counts,
+        icon_for=lambda value: PROJECT_STATUS_TILE_ICONS.get(value, 'bi-cone-striped'),
+        tint_for=lambda value: tint_index(Project, 'project_status', value),
+    )
 
     context = {
         'page_title': 'Upcoming Projects - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
-        'total_results': projects.count(),
-        'hero_image': CATEGORIES_BY_SLUG['projects']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['projects']['description'],
+        'selected_status': project_status,
+        'selected_status_label': dict(Project.STATUS_CHOICES).get(project_status, ''),
+        'status_choices': Project.STATUS_CHOICES,
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['projects'],
+            filters_active=bool(query or project_status),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'project_list.html', context)
 
@@ -1459,9 +1773,9 @@ def project_detail(request, slug):
     """
     Detail page for a single upcoming project.
     """
-    project = get_object_or_404(_detail_qs(request, Project), slug=slug)
+    project = _get_listing_or_404(request, Project, slug)
     _bump_views(request, Project, project.pk)
-    related_projects = _public_qs(Project, request).exclude(pk=project.pk)[:3]
+    related_projects = _cached_related(request, project, _public_qs(Project, request).exclude(pk=project.pk))
 
     context = {
         'page_title': f'{project.title} - OneTownCity',
@@ -1478,7 +1792,8 @@ def scholarship_list(request):
     provider or description), a type filter, and pagination. Open-ended
     schemes and the soonest deadlines are surfaced first (model ordering).
     """
-    scholarships = _public_qs(Scholarship, request)
+    base = _public_qs(Scholarship, request)
+    scholarships = base
 
     query = request.GET.get('q', '').strip()
     scholarship_type = request.GET.get('type', '').strip()
@@ -1493,32 +1808,39 @@ def scholarship_list(request):
     else:
         scholarship_type = ''
 
-    paginator = Paginator(scholarships, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = _cached_page(request, scholarships, 'scholarship')
+
+    counts = _choice_counts(request, base, 'scholarship_type', 'scholarship')
+    type_tiles = _type_tiles(
+        request, 'type', scholarship_type, Scholarship.TYPE_CHOICES, counts,
+        icon_for=lambda value: SCHOLARSHIP_TYPE_TILE_ICONS.get(value, 'bi-mortarboard'),
+        tint_for=lambda value: tint_index(Scholarship, 'scholarship_type', value),
+    )
 
     context = {
         'page_title': 'Scholarships & Government Schemes - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_type': scholarship_type,
+        'selected_type_label': dict(Scholarship.TYPE_CHOICES).get(scholarship_type, ''),
         'type_choices': Scholarship.TYPE_CHOICES,
-        'total_results': scholarships.count(),
-        'hero_image': CATEGORIES_BY_SLUG['scholarships']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['scholarships']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['scholarships'],
+            filters_active=bool(query or scholarship_type),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'scholarship_list.html', context)
 
 
 def scholarship_detail(request, slug):
     """Detail page for a single scholarship/government scheme."""
-    scholarship = get_object_or_404(_detail_qs(request, Scholarship), slug=slug)
+    scholarship = _get_listing_or_404(request, Scholarship, slug)
     _bump_views(request, Scholarship, scholarship.pk)
-    related_scholarships = (
+    related_scholarships = _cached_related(request, scholarship, (
         _public_qs(Scholarship, request)
         .filter(scholarship_type=scholarship.scholarship_type)
-        .exclude(pk=scholarship.pk)[:3]
-    )
+        .exclude(pk=scholarship.pk)
+    ))
 
     context = {
         'page_title': f'{scholarship.title} - OneTownCity',
@@ -1534,7 +1856,8 @@ def lost_found_list(request):
     Lost & Found listing page with search (by title, description or
     location), Lost/Found and item-category filters, and pagination.
     """
-    items = _public_qs(LostFound, request)
+    base = _public_qs(LostFound, request)
+    items = base
 
     query = request.GET.get('q', '').strip()
     report_type = request.GET.get('type', '').strip()
@@ -1555,34 +1878,41 @@ def lost_found_list(request):
     else:
         item_category = ''
 
-    paginator = Paginator(items, 12)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = _cached_page(request, items, 'lostfound')
+
+    counts = _choice_counts(request, base, 'report_type', 'lostfound')
+    type_tiles = _type_tiles(
+        request, 'type', report_type, LostFoundType.choices, counts,
+        icon_for=lambda value: LostFound.PLACEHOLDER_ICONS.get(value, 'bi-search'),
+        tint_for=lambda value: tint_index(LostFound, 'report_type', value),
+    )
 
     context = {
         'page_title': 'Lost & Found - OneTownCity',
-        'page_obj': page_obj,
         'query': query,
         'selected_type': report_type,
+        'selected_type_label': dict(LostFoundType.choices).get(report_type, ''),
         'type_choices': LostFoundType.choices,
         'selected_category': item_category,
         'category_choices': LostFound.CATEGORY_CHOICES,
-        'total_results': items.count(),
-        'hero_image': CATEGORIES_BY_SLUG['lost-found']['image'],
-        'hero_tagline': CATEGORIES_BY_SLUG['lost-found']['description'],
+        **_listing_page_context(
+            request, page_obj, CATEGORIES_BY_SLUG['lost-found'],
+            filters_active=bool(query or report_type or item_category),
+            total_listed=sum(counts.values()), type_tiles=type_tiles,
+        ),
     }
     return render(request, 'lost_found_list.html', context)
 
 
 def lost_found_detail(request, slug):
     """Detail page for a single lost/found item report."""
-    item = get_object_or_404(_detail_qs(request, LostFound), slug=slug)
+    item = _get_listing_or_404(request, LostFound, slug)
     _bump_views(request, LostFound, item.pk)
-    related_items = (
+    related_items = _cached_related(request, item, (
         _public_qs(LostFound, request)
         .filter(report_type=item.report_type)
-        .exclude(pk=item.pk)[:3]
-    )
+        .exclude(pk=item.pk)
+    ))
 
     context = {
         'page_title': f'{item.title} - OneTownCity',

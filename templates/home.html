@@ -138,7 +138,13 @@
                 <a href="{{ cat.list_url }}" class="text-decoration-none">
                     <div class="hk-service-card-media">
                         <div class="hk-service-card-media-inner">
-                            <img src="{% static cat.image %}" alt="{{ cat.label }}" loading="lazy">
+                            <picture>
+                                {% with cat_webp=cat.image|webp_sibling cat_640=cat.image|webp_width:640 cat_1280=cat.image|webp_width:1280 %}
+                                {% if cat_640 %}<source type="image/webp" srcset="{% static cat_640 %} 640w{% if cat_1280 %}, {% static cat_1280 %} 1280w{% endif %}" sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 30vw">
+                                {% elif cat_webp %}<source srcset="{% static cat_webp %}" type="image/webp">{% endif %}
+                                {% endwith %}
+                                <img src="{% static cat.image %}" alt="{{ cat.label }}" loading="lazy" decoding="async">
+                            </picture>
                         </div>
                         <span class="hk-service-card-count"><i class="bi bi-list-check"></i> {% blocktrans count counter=cat.display_count %}{{ counter }} Listing{% plural %}{{ counter }} Listings{% endblocktrans %}</span>
                         <div class="hk-service-card-icon"><i class="bi {{ cat.icon }}"></i></div>

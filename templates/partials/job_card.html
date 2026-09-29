@@ -1,73 +1,52 @@
 {% comment %}
 Reusable job card. Include with: {% include 'partials/job_card.html' with job=<job_instance> %}
-Used identically on job_list.html, the homepage Featured Jobs section, and the
-"related jobs" section on job_detail.html.
+Same photo-first layout as property_card.html: job-type pill + save button
+over the photo, then title, company, location, shift and salary.
 {% endcomment %}
 {% load i18n hk_extras %}
-<div class="card h-100 hk-card">
-    {% if job.is_featured %}
-    <span class="hk-badge-featured">
-        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
-    </span>
-    {% endif %}
-    {% if job.has_image %}
-    <img src="{{ job.display_image }}" class="card-img-top hk-card-img" alt="{{ job.job_title }}" loading="lazy" data-fallback-icon="{{ job.placeholder_icon }}">
-    {% else %}
-    <div class="hk-card-placeholder"><i class="bi {{ job.placeholder_icon }}"></i></div>
-    {% endif %}
-    <div class="card-body d-flex flex-column">
-        {% if job.job_type == 'hourly' %}
-        <span class="badge bg-primary-subtle text-primary mb-2 align-self-start">
-            <i class="bi bi-clock-history"></i> {% trans "Hourly Basis" %}
+<article class="hk-lp-card h-100">
+    <div class="hk-lp-card-media">
+        <a href="{% url 'core:job_detail' job.slug %}" class="hk-lp-card-media-link" tabindex="-1" aria-hidden="true">
+            {% if job.has_image %}
+            <img src="{{ job.display_image }}" class="hk-card-img" alt="" loading="lazy" decoding="async" data-fallback-icon="{{ job.placeholder_icon }}">
+            {% else %}
+            <div class="hk-card-placeholder"><i class="bi {{ job.placeholder_icon }}"></i></div>
+            {% endif %}
+        </a>
+        <span class="hk-lp-pill hk-tint-{{ job|choice_tint:'job_type' }}">
+            <i class="bi {% if job.job_type == 'hourly' %}bi-clock-history{% else %}bi-briefcase{% endif %}"></i> {{ job.get_job_type_display }}
         </span>
+        {% if job.is_featured %}
+        <span class="hk-lp-featured" title="{% trans 'Featured' %}"><i class="bi bi-star-fill"></i><span class="visually-hidden">{% trans "Featured" %}</span></span>
         {% endif %}
-        <div class="d-flex align-items-center mb-3">
-            <div class="hk-icon-circle me-3">
-                <i class="bi bi-briefcase-fill"></i>
-            </div>
-            <div>
-                <h5 class="card-title mb-0">{{ job.job_title }}</h5>
-                <p class="text-muted small mb-0">{{ job.company }}</p>
-            </div>
-        </div>
+        {% include 'partials/card_save_button.html' with model_key='job' pk=job.pk %}
+    </div>
+
+    <div class="hk-lp-card-body">
+        <h3 class="hk-lp-card-title">
+            <a href="{% url 'core:job_detail' job.slug %}">{{ job.job_title }}</a>
+        </h3>
+        <p class="hk-lp-card-sub"><i class="bi bi-building"></i> {{ job.company }}</p>
+        <p class="hk-lp-card-loc"><i class="bi bi-geo-alt-fill"></i> {{ job.location|truncatechars:60 }}</p>
         {% if job.shift_display %}
-        <p class="card-text text-muted small mb-1">
-            <i class="bi bi-calendar3 text-primary"></i> {{ job.shift_display }}
-        </p>
+        <p class="hk-lp-card-meta"><i class="bi bi-calendar3"></i> {{ job.shift_display }}</p>
         {% endif %}
-        <div class="hk-card-meta-row">
-            <span class="hk-rating">
+        {% if job.salary %}
+        <p class="hk-lp-card-key"><i class="bi bi-cash-stack"></i> {{ job.salary }}</p>
+        {% else %}
+        <p class="hk-lp-card-key hk-lp-card-key--muted"><i class="bi bi-dash-circle"></i> {% trans "Salary not disclosed" %}</p>
+        {% endif %}
+        <div class="hk-lp-card-foot">
+            <span class="hk-lp-card-stat" title="{% trans 'Rating' %}">
                 <i class="bi bi-star-fill"></i>
                 {% if job.review_count %}{{ job.avg_rating }} ({{ job.review_count }}){% else %}{% trans "New" %}{% endif %}
             </span>
-            <span><i class="bi bi-eye"></i> {{ job.view_count }}</span>
-        </div>
-        <p class="card-text text-muted small mb-1">
-            <i class="bi bi-geo-alt text-primary"></i> {{ job.location|truncatechars:60 }}
-        </p>
-        {% if job.salary %}
-        <p class="card-text fw-bold text-primary mb-3">
-            <i class="bi bi-cash-stack"></i> {{ job.salary }}
-        </p>
-        {% else %}
-        <p class="card-text text-muted small mb-3">
-            <i class="bi bi-dash-circle"></i> {% trans "Salary not disclosed" %}
-        </p>
-        {% endif %}
-        <a href="{% url 'core:job_detail' job.slug %}" class="btn btn-outline-primary mt-auto">
-            {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
-        </a>
-        <div class="hk-card-actions">
-            {% if user.is_authenticated %}
-            <form method="post" action="{% url 'core:toggle_favorite' 'job' job.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
-            </form>
-            {% else %}
-            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
-            {% endif %}
-            <a href="{{ job.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="{% trans 'Open in Google Maps' %}"><i class="bi bi-geo"></i></a>
-            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:job_detail' job.slug %}" data-title="{{ job.job_title }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
+            <span class="hk-lp-card-stat" title="{% trans 'Views' %}"><i class="bi bi-eye"></i> {{ job.view_count }}</span>
+            <span class="hk-lp-card-actions">
+                <a href="{{ job.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-lp-icon-btn" title="{% trans 'Open in Google Maps' %}" aria-label="{% trans 'Open in Google Maps' %}"><i class="bi bi-map"></i></a>
+                <button type="button" class="hk-lp-icon-btn hk-card-share-btn" data-url="{% url 'core:job_detail' job.slug %}" data-title="{{ job.job_title }}" title="{% trans 'Share' %}" aria-label="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
+                <a href="{% url 'core:job_detail' job.slug %}" class="hk-lp-icon-btn hk-lp-icon-btn--go" title="{% trans 'View Details' %}" aria-label="{% trans 'View Details' %}: {{ job.job_title }}"><i class="bi bi-arrow-right"></i></a>
+            </span>
         </div>
     </div>
-</div>
+</article>

@@ -60,7 +60,12 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Loaded without blocking first paint: a render-blocking stylesheet on
+         a third-party origin held the whole page blank until Google's CSS
+         arrived (an extra DNS + TLS handshake — noticeable on mobile). The
+         system font shows instantly and Inter swaps in when ready. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
 
     <!-- Self-hosted (was cdn.jsdelivr.net) so every page render doesn't
          depend on a third-party CDN being fast/reachable — see static/vendor/. -->
@@ -311,48 +316,66 @@
 
     <!-- Footer -->
     {% block footer %}
-    <footer class="text-light mt-5">
-        <div class="container">
-            <div class="row g-5 mb-2">
+    <footer class="hk-footer text-light">
+        {% include 'partials/footer_skyline.html' %}
+        <div class="container position-relative">
+
+            <section class="hk-footer-cta" aria-labelledby="hk-footer-cta-title">
+                <div class="hk-footer-cta-copy">
+                    <span class="hk-footer-cta-kicker"><i class="bi bi-shop"></i> {% trans "For local businesses" %}</span>
+                    <h2 id="hk-footer-cta-title" class="hk-footer-cta-title">
+                        {% if current_location %}{% blocktrans with city=current_location.name %}Put your business on the map in {{ city }}{% endblocktrans %}{% else %}{% trans "Put your business on the map" %}{% endif %}
+                    </h2>
+                    <p class="hk-footer-cta-text">{% trans "List your shop, service, property or job opening and reach people searching nearby." %}</p>
+                </div>
+                <div class="hk-footer-cta-actions">
+                    <a href="{% url 'core:admin_request_new' %}" class="hk-footer-cta-primary">{% trans "List your business" %} <i class="bi bi-arrow-right"></i></a>
+                    <a href="https://wa.me/916301469575" target="_blank" rel="noopener" class="hk-footer-cta-secondary"><i class="bi bi-whatsapp"></i> {% trans "Talk to us" %}</a>
+                </div>
+            </section>
+
+            <div class="row g-5 hk-footer-main">
                 <div class="col-lg-4">
                     <div class="hk-footer-brand mb-3">
                         <span class="hk-brand-word"><span class="hk-brand-word-one">One</span><span class="hk-brand-accent">TownCity</span></span>
                     </div>
                     {% if current_location %}
-                    <p class="hk-footer-tagline mb-4">{% blocktrans with city=current_location.name %}Your trusted local information portal for {{ city }} — businesses, jobs, real estate, and everything in between.{% endblocktrans %}</p>
+                    <p class="hk-footer-tagline mb-3">{% blocktrans with city=current_location.name %}Your trusted local information portal for {{ city }} — businesses, jobs, real estate, and everything in between.{% endblocktrans %}</p>
+                    <p class="hk-footer-city"><i class="bi bi-geo-alt-fill"></i> {% blocktrans with city=current_location.name %}Showing {{ city }}{% endblocktrans %}</p>
                     {% else %}
-                    <p class="hk-footer-tagline mb-4">{% blocktrans %}Your trusted local information portal — businesses, jobs, real estate, and everything in between.{% endblocktrans %}</p>
+                    <p class="hk-footer-tagline mb-3">{% blocktrans %}Your trusted local information portal — businesses, jobs, real estate, and everything in between.{% endblocktrans %}</p>
                     {% endif %}
                     <div class="d-flex gap-2">
                         <a href="https://www.instagram.com/craftlanee?igsh=MXYyaG9pNzdmemt0dQ==" target="_blank" rel="noopener" class="hk-social-icon" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://wa.me/916301469575" target="_blank" rel="noopener" class="hk-social-icon" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                        <a href="mailto:director@craftlanee.com" class="hk-social-icon" aria-label="{% trans 'Email us' %}"><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
-                <div class="col-6 col-lg-2">
-                    <h6 class="hk-footer-heading">{% trans "Quick Links" %}</h6>
-                    <ul class="list-unstyled hk-footer-links">
+                <div class="col-lg-5">
+                    <h2 class="hk-footer-heading">{% trans "Explore your town" %}</h2>
+                    <ul class="list-unstyled hk-footer-cats">
+                        {% for cat in nav_category_tree %}
+                        <li><a href="{{ cat.list_url }}"><span class="hk-footer-cat-icon"><i class="bi {{ cat.icon|default:'bi-tag' }}"></i></span>{{ cat.label|dyntrans }}</a></li>
+                        {% empty %}
+                        <li><a href="{% url 'core:property_list' %}"><span class="hk-footer-cat-icon"><i class="bi bi-house-door"></i></span>{% trans "Property Listing" %}</a></li>
+                        <li><a href="{% url 'core:business_list' %}"><span class="hk-footer-cat-icon"><i class="bi bi-shop"></i></span>{% trans "Nearby Shops" %}</a></li>
+                        <li><a href="{% url 'core:job_list' %}"><span class="hk-footer-cat-icon"><i class="bi bi-briefcase"></i></span>{% trans "Jobs" %}</a></li>
+                        <li><a href="{% url 'core:event_list' %}"><span class="hk-footer-cat-icon"><i class="bi bi-calendar-event"></i></span>{% trans "Events" %}</a></li>
+                        <li><a href="{% url 'core:news_list' %}"><span class="hk-footer-cat-icon"><i class="bi bi-newspaper"></i></span>{% trans "OneTownCity News" %}</a></li>
+                        <li><a href="{% url 'core:project_list' %}"><span class="hk-footer-cat-icon"><i class="bi bi-cone-striped"></i></span>{% trans "Upcoming Projects" %}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h2 class="hk-footer-heading">{% trans "Company" %}</h2>
+                    <ul class="list-unstyled hk-footer-links hk-footer-links--inline">
                         <li><a href="{% url 'core:home' %}">{% trans "Home" %}</a></li>
                         <li><a href="{% url 'core:services' %}">{% trans "Services" %}</a></li>
                         <li><a href="{% url 'core:about' %}">{% trans "About Us" %}</a></li>
                         <li><a href="{% url 'core:contact' %}">{% trans "Contact" %}</a></li>
                     </ul>
-                </div>
-                <div class="col-6 col-lg-3">
-                    <h6 class="hk-footer-heading">{% trans "Categories" %}</h6>
-                    <ul class="list-unstyled hk-footer-links hk-footer-categories-grid">
-                        {% for cat in nav_category_tree %}
-                        <li><a href="{{ cat.list_url }}">{{ cat.label|dyntrans }}</a></li>
-                        {% empty %}
-                        <li><a href="{% url 'core:property_list' %}">{% trans "Property Listing" %}</a></li>
-                        <li><a href="{% url 'core:business_list' %}">{% trans "Nearby Shops" %}</a></li>
-                        <li><a href="{% url 'core:job_list' %}">{% trans "Jobs" %}</a></li>
-                        <li><a href="{% url 'core:event_list' %}">{% trans "Events" %}</a></li>
-                        <li><a href="{% url 'core:news_list' %}">{% trans "OneTownCity News" %}</a></li>
-                        <li><a href="{% url 'core:project_list' %}">{% trans "Upcoming Projects" %}</a></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="col-lg-3">
-                    <h6 class="hk-footer-heading">{% trans "Stay Updated" %}</h6>
+
+                    <h2 class="hk-footer-heading mt-4">{% trans "Stay Updated" %}</h2>
                     {% if current_location %}
                     <p class="hk-footer-tagline mb-3">{% blocktrans with city=current_location.name %}Get the latest {{ city }} listings and news in your inbox.{% endblocktrans %}</p>
                     {% else %}
@@ -368,25 +391,30 @@
                 </div>
             </div>
 
-            <div class="hk-craftlanee-credit d-flex flex-column flex-md-row align-items-center justify-content-center gap-3 mb-3">
-                <a href="https://craftlanee.com/" target="_blank" rel="noopener" class="hk-craftlanee-badge" title="{% trans 'Visit CraftLanee' %}">
-                    <img src="{% static 'images/craftlanee-logo-mark-white.png' %}" alt="CraftLanee logo" height="22">
+            <p class="hk-footer-wordmark" aria-hidden="true">OneTownCity</p>
+
+            <div class="hk-footer-maker">
+                <a href="https://craftlanee.com/" target="_blank" rel="noopener" class="hk-footer-maker-logo" title="{% trans 'Visit CraftLanee' %}">
+                    <span>{% trans "Crafted by" %}</span>
+                    <img src="{% static 'images/craftlanee-logo-mark-white.png' %}" alt="CraftLanee" height="20">
                 </a>
-                <span class="text-secondary small text-center">
-                    <a href="tel:+916301469575">+91 63014 69575</a>
-                    &middot; <a href="mailto:ctaftelaneebusinesses@gmail.com">ctaftelaneebusinesses@gmail.com</a>
-                    &middot; <a href="https://craftlanee.com/" target="_blank" rel="noopener">craftlanee.com</a>
-                    &middot; CraftLanee, Rajiv Colony Circle, 2nd floor, Kuppam, AP - 517425
-                </span>
+                <ul class="hk-footer-contact list-unstyled">
+                    <li><a href="tel:+916301469575"><i class="bi bi-telephone"></i> +91 63014 69575</a></li>
+                    <li><a href="mailto:ctaftelaneebusinesses@gmail.com"><i class="bi bi-envelope"></i> ctaftelaneebusinesses@gmail.com</a></li>
+                    <li><a href="https://craftlanee.com/" target="_blank" rel="noopener"><i class="bi bi-globe2"></i> craftlanee.com</a></li>
+                    <li><span><i class="bi bi-geo-alt"></i> Rajiv Colony Circle, 2nd floor, Kuppam, AP - 517425</span></li>
+                </ul>
             </div>
 
-            <div class="hk-footer-bottom d-flex flex-column flex-md-row justify-content-center align-items-center gap-2 gap-md-4 small text-secondary hk-footer-legal">
+            <div class="hk-footer-bottom hk-footer-legal">
                 <span>&copy; {% now "Y" %} {% blocktrans %}OneTownCity. All rights reserved. Powered by CraftLanee.{% endblocktrans %}</span>
-                <a href="{% url 'core:privacy_policy' %}">{% trans "Privacy Policy" %}</a>
-                <a href="{% url 'core:terms_of_service' %}">{% trans "Terms of Service" %}</a>
-                <a href="{% url 'core:refund_policy' %}">{% trans "Refund Policy" %}</a>
-                <a href="{% url 'core:cookie_policy' %}">{% trans "Cookie Policy" %}</a>
-                <a href="{% url 'core:business_details' %}">{% trans "Business Details" %}</a>
+                <span class="hk-footer-legal-links">
+                    <a href="{% url 'core:privacy_policy' %}">{% trans "Privacy Policy" %}</a>
+                    <a href="{% url 'core:terms_of_service' %}">{% trans "Terms of Service" %}</a>
+                    <a href="{% url 'core:refund_policy' %}">{% trans "Refund Policy" %}</a>
+                    <a href="{% url 'core:cookie_policy' %}">{% trans "Cookie Policy" %}</a>
+                    <a href="{% url 'core:business_details' %}">{% trans "Business Details" %}</a>
+                </span>
             </div>
         </div>
     </footer>

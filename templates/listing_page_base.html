@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static i18n hk_extras %}
+{% comment %}
+Shared layout for every category listing page (Properties, Shops, the
+directory pages, Jobs, Events, News, Projects, Scholarships, Lost & Found):
+photo hero with the search panel on its bottom edge, type tiles with real
+counts, a results heading, the card grid, pagination and an empty state.
+
+Context every view provides: hero_image, hero_tagline, page_obj,
+total_results, total_listed, type_tiles, filters_active, clear_url.
+Child templates fill the blocks below; the card block renders once per
+listing with the loop variable `obj`.
+
+Every page draws the same copy over its photo. A handful of the stock
+photos (hero_image_has_text) have a title printed in the image itself;
+those get a heavier scrim (.hk-lp-hero--baked) so the printed text recedes
+behind ours instead of competing with it.
+{% endcomment %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+
+    <section class="hk-lp-hero{% if hero_image_has_text %} hk-lp-hero--baked{% endif %}" aria-labelledby="hk-lp-hero-title">
+        {# A real <img> (not a CSS background) so the browser finds it in the HTML and fetches it first, and phones get the 640px file. #}
+        {% with hero_webp=hero_image|webp_sibling hero_640=hero_image|webp_width:640 hero_1280=hero_image|webp_width:1280 %}
+        <div class="hk-lp-hero-media">
+            <picture>
+                {% if hero_640 %}<source type="image/webp" srcset="{% static hero_640 %} 640w{% if hero_1280 %}, {% static hero_1280 %} 1280w{% endif %}{% if hero_webp %}, {% static hero_webp %} 1536w{% endif %}" sizes="(max-width: 1320px) 100vw, 1296px">
+                {% elif hero_webp %}<source type="image/webp" srcset="{% static hero_webp %}">{% endif %}
+                <img src="{% static hero_image %}" alt="" class="hk-lp-hero-img" fetchpriority="high" decoding="async"{% if hero_focus %} style="object-position:{{ hero_focus }}"{% endif %}>
+            </picture>
+        </div>
+        {% endwith %}
+
+        <div class="hk-lp-hero-content">
+            <div class="hk-lp-hero-copy">
+                <span class="hk-lp-eyebrow">{% block hero_eyebrow %}{% endblock %}</span>
+                <h1 id="hk-lp-hero-title" class="hk-lp-hero-title">{% block hero_title %}{% endblock %}</h1>
+                {% if hero_tagline %}<p class="hk-lp-hero-sub">{{ hero_tagline }}</p>{% endif %}
+            </div>
+
+            {% if total_listed %}
+            <div class="hk-lp-hero-stat">
+                <span class="hk-lp-hero-stat-icon"><i class="bi {% block hero_stat_icon %}bi-grid{% endblock %}"></i></span>
+                <span>
+                    <strong>{% block hero_stat_label %}{% endblock %}</strong>
+                    <small>{% if current_location %}{% blocktrans with city=current_location.name %}in {{ city }}{% endblocktrans %}{% else %}{% trans "across OneTownCity" %}{% endif %}</small>
+                </span>
+            </div>
+            {% endif %}
+        </div>
+
+        <form method="get" class="hk-lp-search" role="search" aria-label="{% block search_label %}{% trans 'Search listings' %}{% endblock %}">
+            {% block search_fields %}{% endblock %}
+            <button type="submit" class="hk-lp-search-btn">
+                <i class="bi bi-search"></i> {% block search_button %}{% trans "Search" %}{% endblock %}
+            </button>
+        </form>
+    </section>
+
+    {% if type_tiles %}
+    <nav class="hk-lp-types" aria-label="{% block tiles_label %}{% trans 'Browse by type' %}{% endblock %}">
+        {% for tile in type_tiles %}
+        <a href="{{ tile.url }}"
+           class="hk-lp-type hk-tint-{{ tile.tint }}{% if tile.is_active %} is-active{% endif %}{% if not tile.count %} is-empty{% endif %}"
+           {% if tile.is_active %}aria-current="true"{% endif %}>
+            <span class="hk-lp-type-icon"><i class="bi {{ tile.icon }}"></i></span>
+            <span class="hk-lp-type-label">{{ tile.label }}</span>
+            {% if tile.count %}<span class="hk-lp-type-count">{{ tile.count }}</span>{% endif %}
+        </a>
+        {% endfor %}
+    </nav>
+    {% endif %}
+
+    <div class="hk-lp-results-head">
+        <div>
+            <h2 class="hk-lp-results-title">{% block results_title %}{% endblock %}</h2>
+            <p class="hk-lp-results-sub">
+                {% block results_count %}{% endblock %}
+                {% if query %} {% blocktrans %}matching "<strong>{{ query }}</strong>"{% endblocktrans %}{% elif total_results and not filters_active %} &middot; {% trans "featured listings first" %}{% endif %}
+            </p>
+        </div>
+        {% if filters_active %}
+        <a href="{{ clear_url }}" class="hk-lp-clear">
+            {% trans "Clear filters" %} <i class="bi bi-x-lg"></i>
+        </a>
+        {% endif %}
+    </div>
+
+    {% if page_obj %}
+    <div class="hk-lp-grid">
+        {% for obj in page_obj %}
+        <div data-aos="fade-up" data-aos-delay="{% cycle 0 60 120 180 %}">
+            {% block card %}{% endblock %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-5" aria-label="{% trans 'Listing pagination' %}">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{% querystring page=1 %}" aria-label="{% trans 'First page' %}">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{% querystring page=page_obj.previous_page_number %}" aria-label="{% trans 'Previous page' %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{% querystring page=page_obj.next_page_number %}" aria-label="{% trans 'Next page' %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{% querystring page=page_obj.paginator.num_pages %}" aria-label="{% trans 'Last page' %}">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="hk-lp-empty">
+        <span class="hk-lp-empty-icon"><i class="bi {% block empty_icon %}bi-search{% endblock %}"></i></span>
+        <p class="fw-bold mb-1">{% block empty_title %}{% trans "Nothing found" %}{% endblock %}</p>
+        <p class="text-muted mb-3">
+            {% if filters_active %}{% trans "Try adjusting your search or filters." %}{% else %}{% trans "There are no listings here yet. Please check back soon." %}{% endif %}
+        </p>
+        {% if filters_active %}
+        <a href="{{ clear_url }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-counterclockwise"></i> {% trans "Clear Filters" %}
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

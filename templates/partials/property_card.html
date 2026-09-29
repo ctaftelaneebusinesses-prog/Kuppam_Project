@@ -1,51 +1,46 @@
 {% comment %}
 Reusable property card. Include with: {% include 'partials/property_card.html' with property=<property_instance> %}
+Photo-first layout: colored type pill + save button over the photo, then
+title, locality, price (compact Indian units) and a quiet meta/actions row.
 {% endcomment %}
-{% load humanize %}
 {% load i18n hk_extras %}
-<div class="card h-100 hk-card">
-    {% if property.is_featured %}
-    <span class="hk-badge-featured">
-        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
-    </span>
-    {% endif %}
-    {% if property.has_image %}
-    <img src="{{ property.display_image }}" class="card-img-top hk-card-img" alt="{{ property.title }}" loading="lazy" data-fallback-icon="{{ property.placeholder_icon }}">
-    {% else %}
-    <div class="hk-card-placeholder"><i class="bi {{ property.placeholder_icon }}"></i></div>
-    {% endif %}
-    <div class="card-body d-flex flex-column">
-        <span class="badge bg-primary-subtle text-primary mb-2 align-self-start">
-            {{ property.get_property_type_display }}
+<article class="hk-lp-card h-100">
+    <div class="hk-lp-card-media">
+        <a href="{% url 'core:property_detail' property.slug %}" class="hk-lp-card-media-link" tabindex="-1" aria-hidden="true">
+            {% if property.has_image %}
+            <img src="{{ property.display_image }}" class="hk-card-img" alt="" loading="lazy" decoding="async" data-fallback-icon="{{ property.placeholder_icon }}">
+            {% else %}
+            <div class="hk-card-placeholder"><i class="bi {{ property.placeholder_icon }}"></i></div>
+            {% endif %}
+        </a>
+        <span class="hk-lp-pill hk-tint-{{ property|choice_tint:'property_type' }}">
+            <i class="bi {{ property.placeholder_icon }}"></i> {{ property.get_property_type_display }}
         </span>
-        <h5 class="card-title">{{ property.title }}</h5>
-        <div class="hk-card-meta-row">
-            <span class="hk-rating">
+        {% if property.is_featured %}
+        <span class="hk-lp-featured" title="{% trans 'Featured' %}"><i class="bi bi-star-fill"></i><span class="visually-hidden">{% trans "Featured" %}</span></span>
+        {% endif %}
+        {% include 'partials/card_save_button.html' with model_key='property' pk=property.pk %}
+    </div>
+
+    <div class="hk-lp-card-body">
+        <h3 class="hk-lp-card-title">
+            <a href="{% url 'core:property_detail' property.slug %}">{{ property.title }}</a>
+        </h3>
+        <p class="hk-lp-card-loc"><i class="bi bi-geo-alt-fill"></i> {{ property.location|truncatechars:48 }}</p>
+        <p class="hk-lp-card-price">
+            &#8377;{{ property.price|inr_short }}{% if property.property_type == 'rent' or property.property_type == 'pg' %}<span class="hk-lp-card-per"> /{% trans "month" %}</span>{% endif %}
+        </p>
+        <div class="hk-lp-card-foot">
+            <span class="hk-lp-card-stat" title="{% trans 'Rating' %}">
                 <i class="bi bi-star-fill"></i>
                 {% if property.review_count %}{{ property.avg_rating }} ({{ property.review_count }}){% else %}{% trans "New" %}{% endif %}
             </span>
-            <span><i class="bi bi-eye"></i> {{ property.view_count }}</span>
-        </div>
-        <p class="card-text text-muted small mb-1">
-            <i class="bi bi-geo-alt text-primary"></i> {{ property.location|truncatechars:50 }}
-        </p>
-        <p class="card-text fw-bold text-primary mb-3">
-            &#8377; {{ property.price|floatformat:0|intcomma }}
-        </p>
-        <a href="{% url 'core:property_detail' property.slug %}" class="btn btn-outline-primary mt-auto">
-            {% trans "View Details" %} <i class="bi bi-arrow-right"></i>
-        </a>
-        <div class="hk-card-actions">
-            {% if user.is_authenticated %}
-            <form method="post" action="{% url 'core:toggle_favorite' 'property' property.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Save to favorites' %}"><i class="bi bi-heart"></i></button>
-            </form>
-            {% else %}
-            <a href="{% url 'core:google_login' %}" class="hk-card-icon-btn hk-fav-btn" title="{% trans 'Sign in to save' %}"><i class="bi bi-heart"></i></a>
-            {% endif %}
-            <a href="{{ property.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-card-icon-btn" title="{% trans 'Open in Google Maps' %}"><i class="bi bi-geo"></i></a>
-            <button type="button" class="hk-card-icon-btn hk-card-share-btn" data-url="{% url 'core:property_detail' property.slug %}" data-title="{{ property.title }}" title="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
+            <span class="hk-lp-card-stat" title="{% trans 'Views' %}"><i class="bi bi-eye"></i> {{ property.view_count }}</span>
+            <span class="hk-lp-card-actions">
+                <a href="{{ property.location|maps_search_url }}" target="_blank" rel="noopener" class="hk-lp-icon-btn" title="{% trans 'Open in Google Maps' %}" aria-label="{% trans 'Open in Google Maps' %}"><i class="bi bi-map"></i></a>
+                <button type="button" class="hk-lp-icon-btn hk-card-share-btn" data-url="{% url 'core:property_detail' property.slug %}" data-title="{{ property.title }}" title="{% trans 'Share' %}" aria-label="{% trans 'Share' %}"><i class="bi bi-share"></i></button>
+                <a href="{% url 'core:property_detail' property.slug %}" class="hk-lp-icon-btn hk-lp-icon-btn--go" title="{% trans 'View Details' %}" aria-label="{% trans 'View Details' %}: {{ property.title }}"><i class="bi bi-arrow-right"></i></a>
+            </span>
         </div>
     </div>
-</div>
+</article>

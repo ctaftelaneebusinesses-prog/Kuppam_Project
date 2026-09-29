@@ -2,7 +2,7 @@
 core.api — the shared read/write contract for both the web app's own AJAX
 calls and future API clients. Function-based DRF views (matching
 the rest of this project — see core/views.py), built almost entirely out of
-existing pieces: the same querysets (_public_qs/_detail_qs), the same
+existing pieces: the same querysets (_public_qs/_get_listing_or_404), the same
 ownership predicate (_can_manage_post), the same listing-submission state
 machine (apply_new_listing_submission/apply_listing_edit_state), the same
 Django forms for validation, and the same rate limiter — nothing here is a
@@ -218,7 +218,7 @@ def _get_visible_listing(request, model_cls, pk):
     """
     A listing this requester may view: anyone sees public rows; the owner
     also sees their own regardless of status; a Super Admin sees everything
-    — the same visibility rule core.views._detail_qs / listing_edit apply
+    — the same visibility rule core.views._get_listing_or_404 / listing_edit apply
     on the website, just returning None instead of raising Http404 so
     callers can 404 with a consistent API error envelope.
     """

@@ -1,112 +1,28 @@
-{% extends 'base.html' %}
+{% extends 'listing_page_base.html' %}
+{% load i18n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block body_attrs %}data-category-bg="events"{% endblock %}
 
-{% block content %}
-<section class="container py-5">
+{% block hero_eyebrow %}<i class="bi bi-calendar-event"></i> {% trans "What's On in Town" %}{% endblock %}
+{% block hero_title %}{% trans "Discover Local" %} <span class="hk-lp-hero-accent">{% trans "Events" %}</span>{% endblock %}
+{% block hero_stat_icon %}bi-calendar-event{% endblock %}
+{% block hero_stat_label %}{% blocktrans count counter=total_listed %}{{ counter }} event listed{% plural %}{{ counter }} events listed{% endblocktrans %}{% endblock %}
 
-    {% include 'partials/page_hero.html' with hero_image=hero_image hero_title='Events' hero_subtitle=hero_tagline hero_icon='bi-calendar-event' %}
-
-    <!-- Search -->
-    <div class="hk-search-bar mb-4">
-        <form method="get" class="row g-2 align-items-end">
-            <div class="col-12">
-                <label class="form-label" for="event-search-input">
-                    <i class="bi bi-funnel"></i> Search Events
-                </label>
-            </div>
-            <div class="col-12 col-md-9">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-search text-primary"></i></span>
-                    <input
-                        type="text"
-                        id="event-search-input"
-                        name="q"
-                        class="form-control"
-                        placeholder="Search by event title or location..."
-                        value="{{ query }}"
-                    >
-                </div>
-            </div>
-            <div class="col-12 col-md-3">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Results count -->
-    <div class="hk-results-bar mb-4">
-        <i class="bi bi-list-check"></i>
-        {% if query %}
-            Showing {{ total_results }} result{{ total_results|pluralize }} for "<strong>{{ query }}</strong>"
-            &mdash; <a href="{% url 'core:event_list' %}">Clear search <i class="bi bi-x-circle"></i></a>
-        {% else %}
-            Showing {{ total_results }} event{{ total_results|pluralize }}
-        {% endif %}
-    </div>
-
-    <!-- Event Grid -->
-    {% if page_obj %}
-    <div class="hk-grid-auto">
-        {% for event in page_obj %}
-        <div data-aos="fade-up">
-            {% include 'partials/event_card.html' with event=event %}
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="mt-5" aria-label="Event listing pagination">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First page">
-                        <i class="bi bi-chevron-double-left"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous page">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                </li>
-            {% endif %}
-
-            <li class="page-item active">
-                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-            </li>
-
-            {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next page">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last page">
-                        <i class="bi bi-chevron-double-right"></i>
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-
-    {% else %}
-    <div class="alert alert-info text-center py-5 hk-empty-state">
-        <i class="bi bi-calendar-x display-4 d-block mb-3"></i>
-        <p class="fw-bold mb-1">No events found</p>
-        <p class="text-muted mb-3">Try adjusting your search.</p>
-        {% if query %}
-        <a href="{% url 'core:event_list' %}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-counterclockwise"></i> Clear Search
-        </a>
-        {% endif %}
-    </div>
-    {% endif %}
-
-</section>
+{% block search_label %}{% trans 'Search events' %}{% endblock %}
+{% block search_fields %}
+<label class="hk-lp-field hk-lp-field--grow">
+    <i class="bi bi-search" aria-hidden="true"></i>
+    <span class="visually-hidden">{% trans "Search by event title or location" %}</span>
+    <input type="text" id="event-search-input" name="q" value="{{ query }}" placeholder="{% trans 'Search by event title or location...' %}">
+</label>
 {% endblock %}
+{% block search_button %}{% trans "Search Events" %}{% endblock %}
+
+{% block results_title %}{% if query %}{% trans "Search Results" %}{% else %}{% trans "Upcoming Events" %}{% endif %}{% endblock %}
+{% block results_count %}{% blocktrans count counter=total_results %}{{ counter }} event{% plural %}{{ counter }} events{% endblocktrans %}{% endblock %}
+
+{% block card %}{% include 'partials/event_card.html' with event=obj %}{% endblock %}
+
+{% block empty_icon %}bi-calendar-x{% endblock %}
+{% block empty_title %}{% trans "No events found" %}{% endblock %}
