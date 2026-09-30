@@ -32,3 +32,38 @@ object OneTownApi {
     /** For tests: same wiring, pointed at a MockWebServer (which is plain HTTP, so only tests may call this). */
     internal fun categoryRepositoryForTest(baseUrl: String): CategoryRepository = categoryRepository(baseUrl)
 }
+
+/** Wires sign-in and the signed-in account call. Kept apart from [OneTownApi] so the public catalog client never carries a token. */
+object OneTownAccount {
+    /** [apiBaseUrl] is the Django backend (HTTPS, trailing `/`); [auth] talks to Supabase. */
+    fun create(
+        apiBaseUrl: String,
+        authConfig: com.onetowncity.app.core.data.auth.AuthConfig,
+        store: com.onetowncity.app.core.data.auth.SessionStore,
+    ): Pair<com.onetowncity.app.core.data.auth.SignInService, com.onetowncity.app.core.data.auth.AccountRepository> {
+        val base = okhttp3.OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .callTimeout(30, TimeUnit.SECONDS)
+            .build()
+        val auth = com.onetowncity.app.core.data.auth.SupabaseAuth(authConfig, base, store)
+        val apiClient = base.newBuilder()
+            .addInterceptor { chain ->
+                // Blocking is fine here: OkHttp runs interceptors on its own worker thread.
+                val token = kotlinx.coroutines.runBlocking { auth.accessToken() }
+                val request = if (token == null) chain.request()
+                else chain.request().newBuilder().header("Authorization", "Bearer $token").build()
+                chain.proceed(request)
+            }
+            .build()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(apiBaseUrl)
+            .client(apiClient)
+            .addConverterFactory(Json { ignoreUnknownKeys = true }.asConverterFactory("application/json".toMediaType()))
+            .build()
+        val repository = com.onetowncity.app.core.data.auth.NetworkAccountRepository(
+            retrofit.create(com.onetowncity.app.core.data.auth.AccountApi::class.java), auth,
+        )
+        return auth to repository
+    }
+}

@@ -42,6 +42,7 @@ import com.onetowncity.app.core.designsystem.categoryIconRes
 import com.onetowncity.app.core.designsystem.components.BentoTile
 import com.onetowncity.app.core.designsystem.components.DotMatrixHeader
 import com.onetowncity.app.core.designsystem.components.OneTownSecondaryButton
+import com.onetowncity.app.core.designsystem.components.OneTownTextButton
 import com.onetowncity.app.core.designsystem.components.OneTownText
 import com.onetowncity.app.core.designsystem.rememberReducedMotion
 import com.onetowncity.app.core.designsystem.theme.OneTownTheme
@@ -64,6 +65,7 @@ fun BentoBoxDashboard(
     onCategoryClick: (CategoryTile) -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
+    onSignOut: (() -> Unit)? = null,
 ) {
     Box(
         modifier = modifier
@@ -73,7 +75,7 @@ fun BentoBoxDashboard(
         contentAlignment = Alignment.TopCenter,
     ) {
         Column(Modifier.widthIn(max = ContentMaxWidth).fillMaxSize()) {
-            DashboardHeader(cityName)
+            DashboardHeader(cityName, onSignOut)
             when (state) {
                 HomeUiState.Loading -> LoadingGrid()
                 HomeUiState.Empty -> Message(stringResource(R.string.home_empty))
@@ -85,9 +87,14 @@ fun BentoBoxDashboard(
 }
 
 @Composable
-private fun DashboardHeader(cityName: String?) {
+private fun DashboardHeader(cityName: String?, onSignOut: (() -> Unit)?) {
     Column(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp)) {
-        DotMatrixHeader(stringResource(R.string.home_title), color = OneTownTheme.colors.textPrimary)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            DotMatrixHeader(stringResource(R.string.home_title), color = OneTownTheme.colors.textPrimary)
+            if (onSignOut != null) {
+                OneTownTextButton(stringResource(R.string.home_sign_out), onSignOut)
+            }
+        }
         if (cityName != null) {
             OneTownText(
                 text = cityName,

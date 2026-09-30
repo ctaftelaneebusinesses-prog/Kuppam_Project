@@ -1,4 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+// Supabase URL + anon key: public values (the website ships them in its page source) kept out of git anyway.
+// Read from android/local.properties, or the SUPABASE_URL / SUPABASE_ANON_KEY environment variables (CI).
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
+}
+fun secret(name: String): String = localProps.getProperty(name) ?: System.getenv(name).orEmpty()
 
 plugins {
     alias(libs.plugins.android.application)
@@ -19,6 +27,10 @@ android {
 
         // Base URL of the Django backend; must be HTTPS and end with "/". Override per build type if a staging server appears.
         buildConfigField("String", "API_BASE_URL", "\"https://onetowncity.com/\"")
+        buildConfigField("String", "SUPABASE_URL", "\"${secret("SUPABASE_URL")}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${secret("SUPABASE_ANON_KEY")}\"")
+        // Where the browser sends the user back after Google sign-in. Must be listed in Supabase → Auth → URL Configuration.
+        buildConfigField("String", "AUTH_REDIRECT_URI", "\"onetowncity://auth/callback\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -48,6 +60,7 @@ kotlin {
 dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:designsystem"))
+    implementation(project(":feature:auth"))
     implementation(project(":feature:home"))
     implementation(project(":feature:onboarding"))
 
@@ -55,9 +68,13 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.browser)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     debugImplementation(libs.compose.ui.tooling)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

@@ -25,5 +25,6 @@ rootProject.name = "OneTownCity"
 include(":app")
 include(":core:data")
 include(":core:designsystem")
+include(":feature:auth")
 include(":feature:home")
 include(":feature:onboarding")

@@ -15,6 +15,8 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    testOptions { unitTests.isReturnDefaultValues = true }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

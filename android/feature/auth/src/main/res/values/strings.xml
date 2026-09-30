@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sign_in_title">Sign in</string>
+    <string name="sign_in_body">Sign in with your Google account to explore your town. We never see your Google password.</string>
+    <string name="sign_in_google">Continue with Google</string>
+    <string name="sign_in_working">Signing you in…</string>
+    <string name="sign_in_error_cancelled">Sign-in was cancelled. You can try again whenever you are ready.</string>
+    <string name="sign_in_error_rejected">We couldn\'t complete the sign-in. Please try again.</string>
+    <string name="sign_in_error_network">We couldn\'t reach the sign-in service. Check your connection and try again.</string>
+    <string name="sign_in_error_not_configured">Sign-in isn\'t set up in this build of the app.</string>
+
+    <string name="consent_title">Before you continue</string>
+    <string name="consent_body">OneTownCity is for people aged 18 and over. Please confirm both statements to continue.</string>
+    <string name="consent_adult">I confirm that I am 18 years of age or older.</string>
+    <string name="consent_terms">I agree to the Terms of Service and Privacy Policy.</string>
+    <string name="consent_read_terms">Read the Terms of Service</string>
+    <string name="consent_read_privacy">Read the Privacy Policy</string>
+    <string name="consent_continue">Continue</string>
+    <string name="consent_error">We couldn\'t save your confirmation. Please try again.</string>
+    <string name="consent_sign_out">Sign out</string>
+
+    <string name="blocked_title">Account unavailable</string>
+    <string name="blocked_body">This account has been blocked. Contact support if you think this is a mistake.</string>
+    <string name="problem_title">Something went wrong</string>
+    <string name="problem_body">We couldn\'t reach OneTownCity. Check your connection and try again.</string>
+    <string name="problem_retry">Try again</string>
+</resources>

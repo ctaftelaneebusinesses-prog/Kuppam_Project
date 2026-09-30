@@ -22,6 +22,7 @@ fun OneTownPrimaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val colors = OneTownTheme.colors
     Box(
@@ -29,12 +30,17 @@ fun OneTownPrimaryButton(
             .fillMaxWidth()
             .defaultMinSize(minHeight = MinTouchTarget)
             .clip(OneTownTheme.shapes.pill)
-            .background(colors.accent)
-            .clickable(role = Role.Button, onClick = onClick)
+            .background(if (enabled) colors.accent else colors.surfaceRaised)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 24.dp, vertical = 16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        OneTownText(text, style = OneTownTheme.typography.buttonLabel, color = colors.onAccent, textAlign = TextAlign.Center)
+        OneTownText(
+            text,
+            style = OneTownTheme.typography.buttonLabel,
+            color = if (enabled) colors.onAccent else colors.textSecondary,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -63,3 +69,22 @@ fun OneTownSecondaryButton(
 
 /** 56.dp — comfortably above the 48.dp accessibility minimum. */
 private val MinTouchTarget = 56.dp
+
+/** Quiet text-only action (e.g. Sign out, Read the Terms). Still a full 48.dp touch target. */
+@Composable
+fun OneTownTextButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .defaultMinSize(minHeight = 48.dp, minWidth = 48.dp)
+            .clip(OneTownTheme.shapes.pill)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        OneTownText(text, style = OneTownTheme.typography.sansLabel, color = OneTownTheme.colors.textSecondary)
+    }
+}
