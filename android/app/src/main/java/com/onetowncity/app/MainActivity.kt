@@ -7,18 +7,19 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.onetowncity.app.core.designsystem.theme.OneTownTheme
 import com.onetowncity.app.feature.home.BentoBoxDashboard
-import com.onetowncity.app.feature.home.HomeUiState
+import com.onetowncity.app.feature.home.HomeViewModel
 import com.onetowncity.app.feature.onboarding.LocationOnboarding
 
 /**
- * Temporary host for the first two screens. Real navigation (splash → location → sign-in → home) and the data layer that
- * turns GET /api/v1/categories/ into [HomeUiState.Content] come next; until then the dashboard honestly shows its
- * loading state instead of made-up categories.
+ * Temporary host for the first two screens. Real navigation (splash → location → sign-in → home) comes next; for now
+ * onboarding is followed directly by the dashboard, which loads the live categories from the backend.
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,11 +34,14 @@ class MainActivity : ComponentActivity() {
                 if (!onboardingDone) {
                     LocationOnboarding(onFinished = { onboardingDone = true })
                 } else {
+                    val app = applicationContext as OneTownApplication
+                    val viewModel: HomeViewModel = viewModel(factory = HomeViewModel.factory(app.categoryRepository))
+                    val state by viewModel.state.collectAsStateWithLifecycle()
                     BentoBoxDashboard(
-                        state = HomeUiState.Loading,
+                        state = state,
                         cityName = null,
-                        onCategoryClick = {},
-                        onRetry = {},
+                        onCategoryClick = {}, // Category screens do not exist yet.
+                        onRetry = viewModel::retry,
                     )
                 }
             }

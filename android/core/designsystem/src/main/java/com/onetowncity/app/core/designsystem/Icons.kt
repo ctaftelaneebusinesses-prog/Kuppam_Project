@@ -26,5 +26,6 @@ fun categoryIconRes(iconKey: String): Int = when (iconKey.removePrefix("bi-")) {
     "life-preserver" -> R.drawable.ic_bi_life_preserver
     "arrow-left-right" -> R.drawable.ic_bi_arrow_left_right
     "search-heart" -> R.drawable.ic_bi_search_heart
+    "broadcast" -> R.drawable.ic_bi_broadcast
     else -> R.drawable.ic_bi_tag
 }

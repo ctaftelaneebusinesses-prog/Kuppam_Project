@@ -16,6 +16,9 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
+
+        // Base URL of the Django backend; must be HTTPS and end with "/". Override per build type if a staging server appears.
+        buildConfigField("String", "API_BASE_URL", "\"https://onetowncity.com/\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -32,7 +35,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
 }
 
 kotlin {
@@ -40,6 +46,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":core:data"))
     implementation(project(":core:designsystem"))
     implementation(project(":feature:home"))
     implementation(project(":feature:onboarding"))
@@ -49,6 +56,8 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     debugImplementation(libs.compose.ui.tooling)
 }
