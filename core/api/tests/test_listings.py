@@ -386,3 +386,57 @@ class AllListingTypesSmokeTests(APITestCase):
                 detail_response = self.client.get(reverse('api:listing_detail', args=[model_key, obj.pk]))
                 self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
                 self.assertEqual(detail_response.data['model_key'], model_key)
+
+
+class CategoryKeyFilterTests(APITestCase):
+    """`category_key` applies Category.filter_listings, the same rule the website's counts use."""
+
+    def setUp(self):
+        cache.clear()
+        from core.models import Category
+        self.city = f.make_city('Kuppam')
+        self.food = Category.objects.create(key='tk-food', label='Food', listing_model='business', is_active=True, business_subcategory='tk-restaurant')
+        self.bakery = Category.objects.create(key='tk-bakery', label='Bakery', listing_model='business', is_active=True, business_subcategory='tk-bakery', parent=self.food)
+        self.repair = Category.objects.create(key='tk-repair', label='Repair', listing_model='business', is_active=True, business_subcategory='tk-repair')
+        self.general = Category.objects.create(key='tk-general', label='General', listing_model='business', is_active=True)
+        self.restaurant = f.make_business(city=self.city, category='tk-restaurant', name='Curry House')
+        self.baker = f.make_business(city=self.city, category='tk-bakery', name='Sweet Corner')
+        self.garage = f.make_business(city=self.city, category='tk-repair', name='Fix It')
+        self.shop = f.make_business(city=self.city, category='tk-unclaimed', name='Corner Shop')
+
+    def names(self, key):
+        response = self.client.get(reverse('api:listing_collection', args=['business']), {'category_key': key})
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        return {item['name'] for item in response.data['results']}, response.data['count']
+
+    def test_a_category_includes_its_own_and_its_childrens_listings(self):
+        names, _ = self.names('tk-food')
+        self.assertEqual(names, {'Curry House', 'Sweet Corner'})
+
+    def test_a_child_category_is_just_its_own_listings(self):
+        names, _ = self.names('tk-bakery')
+        self.assertEqual(names, {'Sweet Corner'})
+
+    def test_a_category_without_its_own_value_gets_whatever_siblings_have_not_claimed(self):
+        names, _ = self.names('tk-general')
+        self.assertEqual(names, {'Corner Shop'})
+
+    def test_unknown_or_wrong_type_category_is_404(self):
+        for key in ('tk-nope', 'tk-also-missing'):
+            response = self.client.get(reverse('api:listing_collection', args=['business']), {'category_key': key})
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        other = f.make_category('job', key='jobs-cat')
+        response = self.client.get(reverse('api:listing_collection', args=['business']), {'category_key': other.key})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_the_list_and_the_websites_count_agree(self):
+        for category in (self.food, self.bakery, self.repair, self.general):
+            with self.subTest(category=category.key):
+                _, count = self.names(category.key)
+                self.assertEqual(count, category._compute_listing_count())
+
+    def test_it_composes_with_the_other_filters(self):
+        response = self.client.get(
+            reverse('api:listing_collection', args=['business']), {'category_key': 'tk-food', 'q': 'Curry'},
+        )
+        self.assertEqual({i['name'] for i in response.data['results']}, {'Curry House'})

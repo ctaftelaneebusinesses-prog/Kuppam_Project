@@ -259,6 +259,14 @@ def _list_listings(request, model_key, model_cls):
     if query:
         qs = qs.filter(_SEARCH_FILTERS[model_key](query))
 
+    category_key = request.GET.get('category_key', '').strip()
+    if category_key:
+        # The same "what belongs in this category" rule the website's counts use (Category.filter_listings).
+        category = Category.objects.filter(key=category_key, is_active=True, listing_model=model_key).first()
+        if category is None:
+            raise NotFound('Unknown category for this listing type.')
+        qs = category.filter_listings(qs)
+
     category_param = request.GET.get('category', '').strip()
     if category_param:
         qs = qs.filter(category=category_param) if model_key == 'business' else qs.filter(listing_category__key=category_param)

@@ -517,14 +517,25 @@ class Category(models.Model):
         qs = model.objects.filter(is_active=True, status=ListingStatus.APPROVED)
         if location is not None:
             qs = qs.filter(city=location)
+        return self.filter_listings(qs).count()
+
+    def filter_listings(self, qs):
+        """
+        Narrows `qs` (a queryset of this category's listing model) to the listings that belong to this category:
+        those matching its own sub-category value or its active children's, or — when it defines none — everything
+        no sibling category has claimed. This is the single definition of "what is in this category", used for
+        the listing counts and by the API's `category_key` filter, so a count and the list behind it can never
+        disagree.
+        """
+        _model_name, field_name = self._LISTING_COUNT_MAP.get(self.listing_model, (None, None))
         if not field_name:
-            return qs.count()
+            return qs
 
         own_values = [
             c.business_subcategory for c in [self, *self.active_children] if c.business_subcategory
         ]
         if own_values:
-            return qs.filter(**{f'{field_name}__in': own_values}).count()
+            return qs.filter(**{f'{field_name}__in': own_values})
 
         claimed = set(
             Category.objects.filter(listing_model=self.listing_model, is_active=True)
@@ -533,8 +544,8 @@ class Category(models.Model):
             .values_list('business_subcategory', flat=True)
         )
         if claimed:
-            return qs.exclude(**{f'{field_name}__in': claimed}).count()
-        return qs.count()
+            return qs.exclude(**{f'{field_name}__in': claimed})
+        return qs
 
     @property
     def as_json(self):
