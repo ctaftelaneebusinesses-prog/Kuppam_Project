@@ -62,6 +62,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":feature:auth"))
     implementation(project(":feature:home"))
+    implementation(project(":feature:listings"))
     implementation(project(":feature:onboarding"))
 
     implementation(platform(libs.compose.bom))

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="listings_back">Back</string>
+    <plurals name="listings_count">
+        <item quantity="one">%d listing</item>
+        <item quantity="other">%d listings</item>
+    </plurals>
+    <string name="listings_loading">Loading listings</string>
+    <string name="listings_empty">Nothing here yet. New listings appear as soon as they are approved.</string>
+    <string name="listings_error">We couldn\'t load these listings.</string>
+    <string name="listings_retry">Try again</string>
+    <string name="listings_more_error">We couldn\'t load more.</string>
+    <string name="listings_featured">Featured</string>
+</resources>

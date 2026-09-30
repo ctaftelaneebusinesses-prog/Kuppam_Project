@@ -8,6 +8,8 @@ data class Category(
     val iconKey: String,
     val order: Int,
     val parentId: Int?,
+    /** Which listing type this category holds (`business`, `property`, `job`…): the `{model}` in `/api/v1/listings/{model}/`. */
+    val listingModel: String = "",
 )
 
 /** Why loading failed — the UI shows the same friendly retry for all of them, but tests and logs can tell them apart. */

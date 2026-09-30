@@ -23,4 +23,5 @@ internal fun CategoryDto.toDomain() = Category(
     iconKey = icon,
     order = order,
     parentId = parent,
+    listingModel = listingModel,
 )

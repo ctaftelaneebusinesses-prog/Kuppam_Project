@@ -48,6 +48,7 @@ class HomeViewModel(private val repository: CategoryRepository) : ViewModel() {
         label = category.label,
         iconKey = category.iconKey,
         span = spanForPosition(index),
+        listingModel = category.listingModel,
     )
 
     companion object {

@@ -6,11 +6,15 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -22,7 +26,10 @@ import com.onetowncity.app.feature.auth.ConsentScreen
 import com.onetowncity.app.feature.auth.ProblemScreen
 import com.onetowncity.app.feature.auth.SignInScreen
 import com.onetowncity.app.feature.home.BentoBoxDashboard
+import com.onetowncity.app.feature.home.HomeUiState
 import com.onetowncity.app.feature.home.HomeViewModel
+import com.onetowncity.app.feature.listings.ListingsScreen
+import com.onetowncity.app.feature.listings.ListingsViewModel
 import com.onetowncity.app.feature.onboarding.LocationOnboarding
 import kotlinx.coroutines.launch
 
@@ -82,13 +89,33 @@ class MainActivity : ComponentActivity() {
                     AppScreen.Home -> {
                         val home: HomeViewModel = viewModel(factory = HomeViewModel.factory(app.categoryRepository))
                         val state by home.state.collectAsStateWithLifecycle()
-                        BentoBoxDashboard(
-                            state = state,
-                            cityName = null,
-                            onCategoryClick = {}, // Category screens do not exist yet.
-                            onRetry = home::retry,
-                            onSignOut = appViewModel::onSignOut,
-                        )
+                        // Only the key is saved across rotation; the tile is looked up again from the loaded categories.
+                        var openKey by rememberSaveable { mutableStateOf<String?>(null) }
+                        val open = (state as? HomeUiState.Content)?.tiles?.firstOrNull { it.key == openKey }
+
+                        if (open != null) {
+                            BackHandler { openKey = null }
+                            val listings: ListingsViewModel = viewModel(
+                                key = "listings-${open.key}",
+                                factory = ListingsViewModel.factory(app.listingRepository, open.listingModel, open.key),
+                            )
+                            val listingsState by listings.state.collectAsStateWithLifecycle()
+                            ListingsScreen(
+                                title = open.label,
+                                state = listingsState,
+                                onBack = { openKey = null },
+                                onRetry = listings::retry,
+                                onLoadMore = listings::loadMore,
+                            )
+                        } else {
+                            BentoBoxDashboard(
+                                state = state,
+                                cityName = null,
+                                onCategoryClick = { openKey = it.key },
+                                onRetry = home::retry,
+                                onSignOut = appViewModel::onSignOut,
+                            )
+                        }
                     }
                 }
             }

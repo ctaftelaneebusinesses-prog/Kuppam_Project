@@ -14,14 +14,17 @@ import java.util.concurrent.TimeUnit
 object OneTownApi {
     private val json = Json { ignoreUnknownKeys = true }
 
-    fun categoryRepository(baseUrl: String, client: OkHttpClient = defaultClient()): CategoryRepository {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(client)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-        return NetworkCategoryRepository(retrofit.create(CategoryApi::class.java))
-    }
+    fun categoryRepository(baseUrl: String, client: OkHttpClient = defaultClient()): CategoryRepository =
+        NetworkCategoryRepository(retrofit(baseUrl, client).create(CategoryApi::class.java))
+
+    fun listingRepository(baseUrl: String, client: OkHttpClient = defaultClient()): ListingRepository =
+        NetworkListingRepository(retrofit(baseUrl, client).create(ListingApi::class.java))
+
+    private fun retrofit(baseUrl: String, client: OkHttpClient): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .client(client)
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+        .build()
 
     private fun defaultClient() = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
@@ -31,6 +34,8 @@ object OneTownApi {
 
     /** For tests: same wiring, pointed at a MockWebServer (which is plain HTTP, so only tests may call this). */
     internal fun categoryRepositoryForTest(baseUrl: String): CategoryRepository = categoryRepository(baseUrl)
+
+    internal fun listingRepositoryForTest(baseUrl: String): ListingRepository = listingRepository(baseUrl)
 }
 
 /** Wires sign-in and the signed-in account call. Kept apart from [OneTownApi] so the public catalog client never carries a token. */

@@ -29,6 +29,8 @@ data class CategoryTile(
     val span: TileSpan,
     /** Listing count, once the backend exposes one. Null hides the number instead of inventing it. */
     val count: Int? = null,
+    /** The listing type behind this category (`business`, `job`…), needed to fetch its listings. */
+    val listingModel: String = "",
 )
 
 sealed interface HomeUiState {

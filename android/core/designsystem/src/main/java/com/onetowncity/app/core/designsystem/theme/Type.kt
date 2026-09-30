@@ -50,6 +50,8 @@ class OneTownTypography(
     val dotMatrixDisplay: TextStyle,
     /** Small, widely spaced category headers ("P R O P E R T Y"). */
     val dotMatrixHeader: TextStyle,
+    /** A figure that matters inside a card (a price, a date), smaller than [dotMatrixDisplay]. */
+    val dotMatrixValue: TextStyle,
     val sansTitle: TextStyle,
     val sansBody: TextStyle,
     val sansLabel: TextStyle,
@@ -65,6 +67,10 @@ val DefaultOneTownTypography = OneTownTypography(
     dotMatrixHeader = TextStyle(
         fontFamily = DotMatrixFamily, fontWeight = FontWeight.Bold,
         fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.4.em,
+    ),
+    dotMatrixValue = TextStyle(
+        fontFamily = DotMatrixFamily, fontWeight = FontWeight.Bold,
+        fontSize = 18.sp, lineHeight = 24.sp, letterSpacing = 0.02.em,
     ),
     sansTitle = TextStyle(
         fontFamily = SansFamily, fontWeight = FontWeight.SemiBold,
