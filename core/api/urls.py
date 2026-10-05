@@ -6,6 +6,7 @@ app_name = 'api'
 
 urlpatterns = [
     path('auth/me/', views.me, name='me'),
+    path('auth/me/deactivate/', views.deactivate_me, name='deactivate_me'),
     path('auth/logout/', views.logout_view, name='logout'),
     path('auth/age-confirmation/', views.age_confirmation, name='age_confirmation'),
 

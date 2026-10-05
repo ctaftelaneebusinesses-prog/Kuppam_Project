@@ -27,8 +27,8 @@ from rest_framework.exceptions import NotAuthenticated, NotFound, PermissionDeni
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from ..account_deletion import AccountDeletionError, delete_user_account
-from ..decorators import rate_limit
+from ..account_deactivation import deactivate_account
+from ..decorators import client_ip, rate_limit
 from ..forms import LISTING_SUBMIT_FORMS, CommentForm, ConsentForm, ReportForm, ReviewForm
 from ..location_service import reverse_geocode, search_cities
 from ..models import Category, Comment, Favorite, Like, Location, MobileDevice, Notification, PostImage, PostVideo, Report, Review
@@ -61,34 +61,28 @@ _LISTING_SELECT_RELATED = ('owner__profile', 'listing_category', 'city', 'city__
 # Auth
 # ---------------------------------------------------------------------------
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET'])
 @permission_classes(AUTH_REQUIRED)
 def me(request):
     """
-    GET: the authenticated caller's own profile — works for either a session
+    The authenticated caller's own profile — works for either a session
     (web) or a Supabase bearer token (native).
-
-    DELETE: permanently deletes the caller's own account and personal data
-    (core.account_deletion.delete_user_account — the same function the
-    web's "Delete My Account" page calls, so both clients delete an account
-    identically). Ownership can't be bypassed since there's no id in the
-    URL — it always acts on request.user, never a client-supplied id.
-    Requires {"confirm": "DELETE"} in the request body so a client bug that
-    fires an empty DELETE can't silently wipe an account; this mirrors the
-    "type DELETE to confirm" step the web flow requires (these accounts have
-    no usable password to re-prompt for — see core.supabase_auth).
     """
-    if request.method == 'GET':
-        return Response(MeSerializer(get_profile(request.user)).data)
+    return Response(MeSerializer(get_profile(request.user)).data)
 
-    if request.data.get('confirm') != 'DELETE':
-        raise ValidationError({'confirm': 'Send {"confirm": "DELETE"} to permanently delete your account.'})
 
-    try:
-        delete_user_account(request.user)
-    except AccountDeletionError as exc:
-        raise NotFound(str(exc))
-
+@api_view(['POST'])
+@permission_classes(AUTH_REQUIRED)
+def deactivate_me(request):
+    """
+    Deactivates the caller's own account (core.account_deactivation — the
+    same function the web's "Deactivate My Account" page calls). Nothing is
+    deleted; signing in again reactivates it. Always acts on request.user,
+    never a client-supplied id.
+    """
+    deactivate_account(
+        request.user, ip_address=client_ip(request), user_agent=request.META.get('HTTP_USER_AGENT', ''),
+    )
     django_logout(request)
     return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -33,9 +33,9 @@ class IsActiveAccount(BasePermission):
 
     # Endpoints a signed-in account must still reach before it has confirmed
     # it is 18+ and accepted the Terms: reading its own state, confirming,
-    # and leaving (delete lives on `me`). Everything else needs the consent
+    # and leaving (deactivate_me). Everything else needs the consent
     # the web enforces in onboarding_required, so an API client can't skip it.
-    CONSENT_EXEMPT_URL_NAMES = {'me', 'age_confirmation'}
+    CONSENT_EXEMPT_URL_NAMES = {'me', 'deactivate_me', 'age_confirmation'}
 
     def has_permission(self, request, view):
         if not request.user.is_authenticated:

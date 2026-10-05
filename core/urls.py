@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import views
 
 app_name = 'core'
@@ -122,7 +123,9 @@ urlpatterns = [
     # Dashboard (role-dispatched: Super Admin vs Admin/Content Provider)
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/profile/', views.dashboard_profile, name='dashboard_profile'),
-    path('dashboard/profile/delete/', views.account_delete_confirm, name='account_delete_confirm'),
+    path('dashboard/profile/deactivate/', views.account_deactivate_confirm, name='account_deactivate_confirm'),
+    # Old self-service deletion page — accounts are deactivated now, not deleted.
+    path('dashboard/profile/delete/', RedirectView.as_view(pattern_name='core:account_deactivate_confirm', permanent=True)),
     path('dashboard/users/', views.dashboard_users, name='dashboard_users'),
     path('dashboard/users/<int:user_id>/', views.dashboard_user_detail, name='dashboard_user_detail'),
     path('dashboard/users/<int:user_id>/block/', views.dashboard_user_toggle_block, name='dashboard_user_toggle_block'),

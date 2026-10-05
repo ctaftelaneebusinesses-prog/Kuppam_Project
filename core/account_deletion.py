@@ -1,8 +1,8 @@
 """
-Shared self-service account/data deletion, used by both the web view
-(core.views.account_delete) and the API endpoint (core.api.views.me's DELETE
-method) so there is exactly one implementation of what "delete my account"
-actually does — see the ACCOUNT DELETION IMPLEMENTATION REPORT for the full
+Permanent account/data deletion, run by staff for a deletion request emailed
+to us (`manage.py delete_account`, see the Privacy Policy) — users can only
+deactivate their own account themselves (core.account_deactivation). This is
+the one implementation of what deleting an account actually does — see the ACCOUNT DELETION IMPLEMENTATION REPORT for the full
 per-model dependency map this follows.
 
 Summary of what happens to a deleted user's data:

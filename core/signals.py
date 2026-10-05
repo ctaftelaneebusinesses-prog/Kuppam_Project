@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.contrib.auth.signals import user_logged_in
 from django.core.cache import cache
 from django.db.models import Avg, Count
 from django.db.models.signals import post_delete, post_save
@@ -11,6 +13,21 @@ from .models import (
     Property, Review, Scholarship, Share,
 )
 from .push import notify
+from .account_deactivation import reactivate_account
+from .decorators import client_ip
+
+
+@receiver(user_logged_in)
+def reactivate_on_login(sender, request, user, **kwargs):
+    """
+    Signing in again switches a deactivated account back on. Every web
+    sign-in path (password, Google callback, admin login) goes through
+    django.contrib.auth.login(), so this one receiver covers them all.
+    """
+    ip = client_ip(request) if request is not None else None
+    agent = request.META.get('HTTP_USER_AGENT', '') if request is not None else ''
+    if reactivate_account(user, ip_address=ip, user_agent=agent) and request is not None and hasattr(request, '_messages'):
+        messages.success(request, 'Welcome back! Your account is active again.')
 
 
 def _target(instance):

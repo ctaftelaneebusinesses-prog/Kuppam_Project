@@ -77,6 +77,10 @@ class Profile(models.Model):
 
     is_blocked = models.BooleanField(default=False, help_text='Blocked users cannot sign in')
     is_suspended = models.BooleanField(default=False, help_text='Suspended admins keep their account but lose listing permissions')
+    deactivated_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text='Set when the user deactivates their own account; cleared automatically when they sign in again',
+    )
 
     last_active_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1720,7 +1724,7 @@ class MobileDevice(models.Model):
 
 
 class LoginHistory(models.Model):
-    EVENT_CHOICES = [('login', 'Login'), ('logout', 'Logout')]
+    EVENT_CHOICES = [('login', 'Login'), ('logout', 'Logout'), ('deactivate', 'Deactivated'), ('reactivate', 'Reactivated')]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='login_history')
     event_type = models.CharField(max_length=10, choices=EVENT_CHOICES)
     ip_address = models.GenericIPAddressField(null=True, blank=True)

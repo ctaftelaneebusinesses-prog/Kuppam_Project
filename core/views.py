@@ -157,7 +157,7 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
-from .account_deletion import AccountDeletionError, delete_user_account
+from .account_deactivation import deactivate_account
 from .decorators import (
     city_admin_or_super_required, client_ip, content_providers_required, content_review_required,
     excel_upload_allowed, onboarding_required, posts_dashboard_required, super_admin_required,
@@ -3522,40 +3522,26 @@ def dashboard_profile(request):
 
 
 @onboarding_required
-def account_delete_confirm(request):
+def account_deactivate_confirm(request):
     """
-    'Delete My Account' confirmation page, linked from the Danger Zone on
-    My Profile. GET only ever shows the consequences (never deletes —
-    satisfies the "no deletion from a GET request" requirement by
-    construction); POST performs the actual deletion via the same
-    core.account_deletion.delete_user_account() the API's DELETE
-    /api/v1/auth/me/ endpoint calls, so web and API delete an
-    account identically.
-
-    Accounts here are Google/Supabase-authenticated and have no usable
-    Django password (see core.supabase_auth.resolve_supabase_identity), so
-    a password re-auth prompt isn't available as a confirmation step —
-    typing the literal word DELETE is the confirmation gate instead, mirrored
-    by the API's `confirm: "DELETE"` request-body requirement.
+    'Deactivate My Account' confirmation page, linked from My Profile. GET
+    only shows what deactivating means; POST deactivates through the same
+    core.account_deactivation.deactivate_account() the API's POST
+    /api/v1/auth/me/deactivate/ calls, then signs the user out. Nothing is
+    deleted, and signing in again reactivates the account
+    (core.signals.reactivate_on_login).
     """
     if request.method == 'POST':
-        if request.POST.get('confirm', '').strip().upper() != 'DELETE':
-            messages.error(request, 'Type DELETE exactly (all caps) to confirm — your account was not deleted.')
-            return redirect('core:account_delete_confirm')
-
-        try:
-            delete_user_account(request.user)
-        except AccountDeletionError:
-            messages.error(request, 'This account has already been deleted.')
-            return redirect('core:home')
-
+        deactivate_account(
+            request.user, ip_address=_client_ip(request), user_agent=request.META.get('HTTP_USER_AGENT', ''),
+        )
         logout(request)
-        messages.success(request, 'Your OneTownCity account and personal data have been deleted.')
+        messages.success(request, 'Your account has been deactivated. Sign in again any time to reactivate it.')
         return redirect('core:home')
 
-    return render(request, 'dashboard/account_delete_confirm.html', {
-        'page_title': 'Delete My Account - OneTownCity',
-        'active_nav': 'account_delete',
+    return render(request, 'dashboard/account_deactivate_confirm.html', {
+        'page_title': 'Deactivate My Account - OneTownCity',
+        'active_nav': 'profile',
     })
 
 

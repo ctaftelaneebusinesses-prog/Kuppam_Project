@@ -136,8 +136,8 @@ class APIConsentTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data['consent_confirmed'])
 
-    def test_unconfirmed_account_can_still_delete_itself(self):
-        response = self.client.delete(reverse('api:me'), {'confirm': 'DELETE'}, format='json')
+    def test_unconfirmed_account_can_still_deactivate_itself(self):
+        response = self.client.post(reverse('api:deactivate_me'))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_confirming_requires_both_true(self):

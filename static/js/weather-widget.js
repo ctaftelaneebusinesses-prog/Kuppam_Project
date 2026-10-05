@@ -96,5 +96,12 @@
         });
     }
 
-    resolveCoordsAndFetch();
+    // This script is included mid-page (base_dashboard.html) but
+    // window.HK_CURRENT_LOCATION is only set by an inline script at the end of
+    // base.html, so read it once the whole document has been parsed.
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', resolveCoordsAndFetch);
+    } else {
+        resolveCoordsAndFetch();
+    }
 })();

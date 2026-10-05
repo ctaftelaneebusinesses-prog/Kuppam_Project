@@ -1,12 +1,8 @@
 """
-Tests for core.account_deletion.delete_user_account (the shared service the
-web "Delete My Account" view and the API's DELETE /api/v1/auth/me/ endpoint
-both call) plus the web confirmation view itself.
-
-API-side auth/CSRF/ownership tests for the same DELETE endpoint live in
-core/api/tests/test_account_deletion.py — kept separate since that suite
-needs APITestCase/force_authenticate, while the web view here goes through
-the real onboarding_required + session-login stack.
+Tests for core.account_deletion.delete_user_account — the permanent deletion
+staff run for an emailed deletion request (`manage.py delete_account`). Users
+can only deactivate their own account themselves; see
+core/test_account_deactivation.py.
 """
 from unittest.mock import patch
 
@@ -14,7 +10,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from django.urls import reverse
 
 from core.account_deletion import AccountDeletionError, delete_user_account
 from core.models import (
@@ -172,61 +167,3 @@ class AccountDeletionServiceTests(TestCase):
 
         self.assertTrue(User.objects.filter(id=self.other_user.id).exists())
         self.assertEqual(Favorite.objects.filter(user=self.other_user).count(), 1)
-
-
-class AccountDeleteWebViewTests(TestCase):
-    """The 'Delete My Account' web page — auth gate, GET-never-deletes, and the typed confirmation."""
-
-    def setUp(self):
-        self.user, self.profile = _make_user('webdeleteme')
-        self.url = reverse('core:account_delete_confirm')
-
-    def test_unauthenticated_get_redirects_to_login(self):
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 302)
-
-    def test_unauthenticated_post_redirects_to_login_and_does_not_delete(self):
-        response = self.client.post(self.url, {'confirm': 'DELETE'})
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(User.objects.filter(id=self.user.id).exists())
-
-    def test_get_while_authenticated_shows_confirmation_and_never_deletes(self):
-        self.client.force_login(self.user)
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(User.objects.filter(id=self.user.id).exists())
-
-    def test_post_wrong_confirmation_text_does_not_delete(self):
-        self.client.force_login(self.user)
-        response = self.client.post(self.url, {'confirm': 'please delete my account'})
-        self.assertRedirects(response, self.url)
-        self.assertTrue(User.objects.filter(id=self.user.id).exists())
-
-    def test_post_correct_confirmation_deletes_and_logs_out(self):
-        self.client.force_login(self.user)
-        user_id = self.user.id
-
-        response = self.client.post(self.url, {'confirm': 'DELETE'})
-
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(User.objects.filter(id=user_id).exists())
-        # Session must be invalidated — a follow-up request to any
-        # onboarding_required page should bounce to login, not succeed.
-        response2 = self.client.get(reverse('core:dashboard_profile'))
-        self.assertEqual(response2.status_code, 302)
-
-    def test_post_confirmation_is_case_insensitive(self):
-        self.client.force_login(self.user)
-        response = self.client.post(self.url, {'confirm': 'delete'})
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(User.objects.filter(id=self.user.id).exists())
-
-    def test_repeated_post_after_deletion_does_not_error(self):
-        """A second, already-logged-out submission (e.g. a resubmitted form)
-        must not 500 — it should simply be treated as unauthenticated."""
-        self.client.force_login(self.user)
-        self.client.post(self.url, {'confirm': 'DELETE'})
-
-        response = self.client.post(self.url, {'confirm': 'DELETE'})
-
-        self.assertEqual(response.status_code, 302)  # bounced to login, not a crash

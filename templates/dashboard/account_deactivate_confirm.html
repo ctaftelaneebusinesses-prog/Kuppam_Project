@@ -1,0 +1,41 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block dashboard_content %}
+<h3 class="fw-bold mb-1" data-aos="fade-up">{% trans "Deactivate My Account" %}</h3>
+<p class="text-muted mb-4" data-aos="fade-up">{% trans "Nothing is deleted. Sign in again any time to reactivate your account." %}</p>
+
+<div class="row g-4">
+    <div class="col-xl-9 col-xxl-8 mx-auto" data-aos="fade-up">
+        <div class="card">
+            <div class="card-header bg-white fw-semibold">
+                <i class="bi bi-info-circle"></i> {% trans "What happens when you deactivate" %}
+            </div>
+            <div class="card-body">
+                <ul class="mb-3">
+                    <li>{% trans "You're signed out, and notifications to your devices stop." %}</li>
+                    <li>{% trans "Your profile, favorites and history are kept as they are." %}</li>
+                    <li>{% trans "Listings, reviews and comments you posted stay on the site." %}</li>
+                    <li>{% trans "Signing in again with the same account reactivates it straight away." %}</li>
+                </ul>
+                <p class="text-muted small mb-4">
+                    {% url 'core:privacy_policy' as privacy_url %}
+                    {% blocktrans %}Want your account and personal data permanently deleted instead? See <a href="{{ privacy_url }}">our Privacy Policy</a> for how to request it.{% endblocktrans %}
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-person-dash"></i> {% trans "Deactivate My Account" %}
+                        </button>
+                        <a href="{% url 'core:dashboard_profile' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

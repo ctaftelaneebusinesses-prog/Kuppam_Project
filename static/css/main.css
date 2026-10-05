@@ -7659,3 +7659,168 @@ html[data-theme="dark"] .hk-lp-type-icon {
         animation: none;
     }
 }
+
+/* --- Homepage "Weather Now" panel (home.html #weather, weather-section.js).
+   Same surface/radius/shadow as .hk-card but without its hover lift, since
+   the panel itself isn't a link. Theme tokens (--hk-surface, --hk-ink, …)
+   switch for dark mode on their own. On narrow screens the reading and the
+   stats wrap onto separate rows rather than shrinking. ------------------- */
+.hk-weather-panel {
+    border-radius: var(--hk-radius-card);
+    background: var(--hk-surface);
+    box-shadow: var(--hk-shadow-sm);
+    padding: var(--hk-space-5);
+}
+
+.hk-weather-now {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--hk-space-5);
+}
+
+.hk-weather-now[hidden],
+.hk-weather-search[hidden],
+.hk-weather-status[hidden] {
+    display: none;
+}
+
+.hk-weather-now-main {
+    display: flex;
+    align-items: center;
+    gap: var(--hk-space-4);
+    min-width: 0;
+}
+
+.hk-weather-now-icon {
+    width: 72px;
+    height: 72px;
+    min-width: 72px;
+    border-radius: var(--hk-radius-lg);
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.25rem;
+}
+
+.hk-weather-now-temp {
+    font-family: var(--hk-font-heading);
+    font-weight: 800;
+    font-size: 2.5rem;
+    line-height: 1.1;
+    color: var(--hk-ink);
+}
+
+.hk-weather-now-condition {
+    font-weight: 600;
+    color: var(--hk-ink);
+}
+
+.hk-weather-now-place {
+    margin-top: var(--hk-space-1);
+    color: var(--hk-ink-soft);
+    overflow-wrap: anywhere;
+}
+
+.hk-weather-now-place .bi {
+    color: var(--bs-primary);
+}
+
+.hk-weather-now-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--hk-space-3);
+    margin: 0;
+}
+
+.hk-weather-stat {
+    min-width: 132px;
+    padding: var(--hk-space-3) var(--hk-space-4);
+    border: 1px solid var(--hk-border-soft);
+    border-radius: var(--hk-radius-md);
+}
+
+.hk-weather-stat dt {
+    font-weight: 500;
+    color: var(--hk-ink-soft);
+}
+
+.hk-weather-stat dd {
+    margin: var(--hk-space-1) 0 0;
+    font-family: var(--hk-font-heading);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--hk-ink);
+}
+
+.hk-weather-status {
+    margin: 0;
+    color: var(--hk-ink-soft);
+}
+
+.hk-weather-now:not([hidden]) + .hk-weather-status:not([hidden]) {
+    margin-top: var(--hk-space-4);
+}
+
+.hk-weather-search {
+    margin-top: var(--hk-space-4);
+}
+
+.hk-weather-search-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--hk-space-2);
+}
+
+.hk-weather-search-row .form-control {
+    flex: 1 1 220px;
+}
+
+.hk-weather-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hk-space-2);
+    margin: var(--hk-space-3) 0 0;
+}
+
+.hk-weather-results:empty {
+    display: none;
+}
+
+.hk-weather-result {
+    width: 100%;
+    text-align: left;
+    padding: var(--hk-space-3) var(--hk-space-4);
+    border: 1px solid var(--hk-border-soft);
+    border-radius: var(--hk-radius-md);
+    background: transparent;
+    color: var(--hk-ink);
+    transition: border-color .2s ease, background-color .2s ease;
+}
+
+.hk-weather-result:hover,
+.hk-weather-result:focus-visible {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.hk-weather-result .bi {
+    color: var(--bs-primary);
+}
+
+@media (max-width: 575.98px) {
+    .hk-weather-panel {
+        padding: var(--hk-space-4);
+    }
+
+    .hk-weather-now-stats {
+        width: 100%;
+    }
+
+    .hk-weather-stat {
+        flex: 1 1 0;
+    }
+}

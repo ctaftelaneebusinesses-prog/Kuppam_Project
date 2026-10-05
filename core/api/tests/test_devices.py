@@ -89,11 +89,11 @@ class DeviceRegistrationAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertTrue(MobileDevice.objects.filter(token='owners-token', user=owner).exists())
 
-    def test_account_deletion_removes_devices(self):
+    def test_account_deactivation_removes_devices(self):
         user, _ = f.make_user()
         self.client.force_authenticate(user)
         self.client.post(self.url, {'token': 'tok-1'}, format='json')
-        self.client.delete(reverse('api:me'), {'confirm': 'DELETE'}, format='json')
+        self.client.post(reverse('api:deactivate_me'))
         self.assertFalse(MobileDevice.objects.exists())
 
     def test_rate_limited_after_burst(self):

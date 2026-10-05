@@ -2,6 +2,8 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.authentication import SessionAuthentication as _DRFSessionAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
+from ..account_deactivation import reactivate_account
+from ..decorators import client_ip
 from ..supabase_auth import SupabaseAuthError, fetch_supabase_user, resolve_supabase_identity
 
 
@@ -59,6 +61,11 @@ class SupabaseTokenAuthentication(BaseAuthentication):
         user, profile = resolve_supabase_identity(supabase_user)
         if profile.is_blocked:
             raise AuthenticationFailed('This account has been blocked. Contact support if you think this is a mistake.')
+
+        # The app signing in with a token counts as signing in again, the
+        # same as a web login (core.signals.reactivate_on_login).
+        if profile.deactivated_at:
+            reactivate_account(user, ip_address=client_ip(request), user_agent=request.META.get('HTTP_USER_AGENT', ''))
 
         return (user, token)
 

@@ -97,6 +97,11 @@ def onboarding_required(view_func):
             logout(request)
             messages.error(request, 'This account has been blocked. Contact support if you think this is a mistake.')
             return redirect('core:google_login')
+        if profile.deactivated_at:
+            # Still signed in on another browser after deactivating there.
+            logout(request)
+            messages.info(request, 'This account is deactivated. Sign in again to reactivate it.')
+            return redirect('core:google_login')
         if not profile.profile_completed:
             return redirect('core:complete_profile')
         if not profile.consent_confirmed:
@@ -216,6 +221,11 @@ def excel_upload_allowed(view_func):
         if profile.is_blocked:
             logout(request)
             messages.error(request, 'This account has been blocked. Contact support if you think this is a mistake.')
+            return redirect('core:google_login')
+        if profile.deactivated_at:
+            # Still signed in on another browser after deactivating there.
+            logout(request)
+            messages.info(request, 'This account is deactivated. Sign in again to reactivate it.')
             return redirect('core:google_login')
         if profile.role not in (UserRole.ADMIN, UserRole.SUPER_ADMIN):
             messages.error(request, 'You do not have permission to access this page.')
