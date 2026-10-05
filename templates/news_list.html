@@ -1,11 +1,11 @@
 {% extends 'listing_page_base.html' %}
-{% load i18n %}
+{% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block body_attrs %}data-category-bg="{% if selected_category_key == 'village-happenings' %}village{% else %}news{% endif %}"{% endblock %}
 
 {% block hero_eyebrow %}<i class="bi {{ selected_category.icon|default:'bi-newspaper' }}"></i> {% trans "Stay in the Know" %}{% endblock %}
-{% block hero_title %}{% trans "Latest Local" %} <span class="hk-lp-hero-accent">{% trans "News" %}</span>{% endblock %}
+{% block hero_title %}{% if selected_category and selected_category.key != 'news' %}{{ selected_category.label|dyntrans }}{% else %}{% trans "Latest Local" %} <span class="hk-lp-hero-accent">{% trans "News" %}</span>{% endif %}{% endblock %}
 {% block hero_stat_icon %}bi-newspaper{% endblock %}
 {% block hero_stat_label %}{% blocktrans count counter=total_listed %}{{ counter }} article published{% plural %}{{ counter }} articles published{% endblocktrans %}{% endblock %}
 

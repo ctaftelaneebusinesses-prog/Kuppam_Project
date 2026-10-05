@@ -736,7 +736,7 @@ CATEGORIES = [
     },
     {
         'name': 'Buy / Sell / Exchange', 'icon': 'bi-arrow-left-right', 'slug': 'marketplace',
-        'image': 'images/services/shops.jpg',
+        'image': 'images/services/marketplace.jpg',
         'description': 'Shops and outlets for buying, selling, or exchanging used goods.',
         'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['marketplace']['categories']).count(),
     },
@@ -1670,6 +1670,8 @@ def news_list(request):
     hero = dict(CATEGORIES_BY_SLUG['news'])
     if selected_category and selected_category.description:
         hero['description'] = selected_category.description
+    if selected_category and selected_category.image:
+        hero['image'] = selected_category.image
 
     context = {
         'page_title': selected_category.label if selected_category else 'OneTownCity News',

@@ -10,6 +10,7 @@ server-rendered pages (only core/api/ has tests) — this file is scoped
 narrowly to the pages this change actually touched, not a general web-view
 test suite.
 """
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 
@@ -240,6 +241,27 @@ class CategoryPageHeroTests(TestCase):
         self.assertContains(self.client.get(reverse('core:news_list')), 'data-category-bg="news"')
         response = self.client.get(reverse('core:news_list'), {'category': 'village-happenings'})
         self.assertContains(response, 'data-category-bg="village"')
+
+    def test_village_happenings_links_to_its_own_filtered_page(self):
+        village = Category.objects.get(key='village-happenings')
+        news = Category.objects.get(key='news')
+        self.assertEqual(village.list_url, reverse('core:news_list') + '?category=village-happenings')
+        self.assertEqual(news.list_url, reverse('core:news_list'))
+
+    def test_news_hero_uses_the_selected_categorys_photo(self):
+        Category.objects.filter(key='village-happenings').update(image='images/services/village-happenings.jpg')
+        cache.clear()  # .update() skips the signal that clears the cached news categories
+        village = self.client.get(reverse('core:news_list'), {'category': 'village-happenings'})
+        self.assertContains(village, 'images/services/village-happenings.')
+        self.assertNotContains(village, 'images/services/news.')
+        self.assertContains(village, '<h1 id="hk-lp-hero-title" class="hk-lp-hero-title">What&#x27;s Happening in Your Village</h1>', html=False)
+        self.assertContains(self.client.get(reverse('core:news_list')), 'images/services/news.')
+
+    def test_marketplace_has_its_own_photo_not_the_shops_storefront(self):
+        self.assertEqual(Category.objects.get(key='marketplace').image, 'images/services/marketplace.jpg')
+        response = self.client.get(reverse('core:marketplace_list'))
+        self.assertContains(response, 'images/services/marketplace.')
+        self.assertNotContains(response, 'images/services/shops.')
 
     def test_tuition_students_marketplace_pages_opt_into_their_scenes(self):
         self.assertContains(self.client.get(reverse('core:tuition_center_list')), 'data-category-bg="tuition"')

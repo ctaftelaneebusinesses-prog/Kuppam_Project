@@ -390,7 +390,15 @@ class Category(models.Model):
                 url += f'?category={self.business_subcategory}'
             return url
         url_name = self._LIST_URL_NAMES.get(self.listing_model)
-        return reverse(url_name) if url_name else '#'
+        if not url_name:
+            return '#'
+        url = reverse(url_name)
+        # News sub-sections (e.g. "What's Happening in Your Village") share
+        # the one /news/ page, so they need its ?category= filter — without
+        # it they open the unfiltered OneTownCity News page instead.
+        if self.listing_model == 'news' and self.key != 'news':
+            url += f'?category={self.key}'
+        return url
 
     #: Which model + field each listing_model counts/filters against. Business,
     #: Property, Job and Project have a real choice field a business_subcategory
