@@ -44,7 +44,7 @@ class SitemapTests(TestCase):
     def test_previously_missing_category_pages_are_now_included(self):
         locs = self.locs(self.sitemap_xml())
         for path in [
-            '/repair-services/', '/places-to-visit/', '/tuition-centers/',
+            '/repair-services/', '/places-to-visit/',
             '/student-services/', '/marketplace/', '/scholarships/', '/lost-found/',
         ]:
             self.assertTrue(

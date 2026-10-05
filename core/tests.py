@@ -57,22 +57,35 @@ class StudentDirectoryPagesTests(TestCase):
             self.assertEqual(category.business_subcategory, business_subcategory)
             self.assertEqual(category.listing_model, 'business')
             self.assertTrue(category.is_active)
-            self.assertIsNone(category.parent_id)
 
-    def test_tuition_centers_directory_page(self):
-        response = self.client.get(reverse('core:tuition_center_list'))
+    def test_tuition_and_scholarships_are_sections_of_student_services(self):
+        student_services = Category.objects.get(key='student_services')
+        self.assertIsNone(student_services.parent_id)
+        for key in ('tuition_center', 'scholarships'):
+            self.assertEqual(Category.objects.get(key=key).parent, student_services)
+        self.assertIsNone(Category.objects.get(key='marketplace').parent_id)
+
+    def test_student_services_page_covers_tuition_centers(self):
+        response = self.client.get(reverse('core:student_services_list'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Tuition &amp; Coaching Centers')
+        self.assertContains(response, self.student_services_business.name)
         self.assertContains(response, self.tuition_business.name)
         self.assertNotContains(response, self.other_business.name)
         self.assertNotContains(response, self.marketplace_business.name)
+        # Section tiles: Tuition, the renamed generic tile, and Scholarships.
+        self.assertContains(response, 'Tuition &amp; Coaching Centers')
+        self.assertContains(response, 'Hostels, Printing &amp; More')
+        self.assertContains(response, f'href="{reverse("core:scholarship_list")}"')
 
-    def test_student_services_directory_page(self):
-        response = self.client.get(reverse('core:student_services_list'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Student Services')
-        self.assertContains(response, self.student_services_business.name)
-        self.assertNotContains(response, self.other_business.name)
+    def test_student_services_tuition_filter(self):
+        response = self.client.get(reverse('core:student_services_list'), {'type': 'tuition_center'})
+        self.assertContains(response, self.tuition_business.name)
+        self.assertNotContains(response, self.student_services_business.name)
+
+    def test_old_tuition_centers_url_redirects_permanently(self):
+        response = self.client.get('/tuition-centers/', {'q': 'maths'})
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], reverse('core:student_services_list') + '?q=maths&type=tuition_center')
 
     def test_marketplace_directory_page(self):
         response = self.client.get(reverse('core:marketplace_list'))
@@ -90,25 +103,59 @@ class StudentDirectoryPagesTests(TestCase):
         self.assertNotContains(response, self.marketplace_business.name)
 
     def test_category_list_url_points_at_the_dedicated_directory(self):
-        self.assertEqual(Category.objects.get(key='tuition_center').list_url, reverse('core:tuition_center_list'))
+        self.assertEqual(
+            Category.objects.get(key='tuition_center').list_url,
+            reverse('core:student_services_list') + '?type=tuition_center',
+        )
         self.assertEqual(Category.objects.get(key='student_services').list_url, reverse('core:student_services_list'))
         self.assertEqual(Category.objects.get(key='marketplace').list_url, reverse('core:marketplace_list'))
 
-    def test_homepage_links_to_the_dedicated_directories_not_the_general_page(self):
+    def test_menus_and_homepage_show_one_student_services_category(self):
         response = self.client.get(reverse('core:home'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, reverse('core:tuition_center_list'))
         self.assertContains(response, reverse('core:student_services_list'))
         self.assertContains(response, reverse('core:marketplace_list'))
+        self.assertNotContains(response, '/tuition-centers/')
+        self.assertNotContains(response, 'Tuition &amp; Coaching Centers')
+        self.assertNotContains(response, f'href="{reverse("core:scholarship_list")}"')
 
     def test_search_category_redirect_covers_the_three_new_categories(self):
         for key, url_name in [
-            ('tuition_center', 'core:tuition_center_list'),
+            ('tuition_center', 'core:student_services_list'),
             ('student_services', 'core:student_services_list'),
             ('marketplace', 'core:marketplace_list'),
         ]:
             response = self.client.get(reverse('core:search'), {'category': key})
             self.assertRedirects(response, reverse(url_name))
+
+
+class StudentServicesSubmissionTests(TestCase):
+    """A Content Provider granted Student Services can post into both of its
+    sections (grants cover subcategories); one granted only Tuition can't
+    post Scholarships."""
+
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        from core.models import AdminCategoryPermission, Intent, Profile, UserRole
+        user = get_user_model().objects.create_user(username='provider', email='provider@example.com', password='pass-12345!')
+        self.profile = Profile.objects.create(
+            user=user, role=UserRole.ADMIN, full_name='Provider', profile_completed=True, intent=Intent.UPLOAD,
+        )
+        self.profile.record_consent()
+        self.grant = lambda key: AdminCategoryPermission.objects.create(admin=user, category=Category.objects.get(key=key))
+        self.client.force_login(user)
+
+    def test_student_services_grant_covers_tuition_and_scholarships(self):
+        self.grant('student_services')
+        for key in ('tuition_center', 'scholarships'):
+            self.assertTrue(self.profile.can_manage_category(Category.objects.get(key=key)))
+            response = self.client.get(reverse('core:listing_submit', args=[key]))
+            self.assertEqual(response.status_code, 200, key)
+
+    def test_tuition_grant_does_not_cover_scholarships(self):
+        self.grant('tuition_center')
+        self.assertTrue(self.profile.can_manage_category(Category.objects.get(key='tuition_center')))
+        self.assertFalse(self.profile.can_manage_category(Category.objects.get(key='scholarships')))
 
 
 class ScholarshipPagesTests(TestCase):
@@ -128,8 +175,20 @@ class ScholarshipPagesTests(TestCase):
     def test_migration_seeded_the_category(self):
         category = Category.objects.get(key='scholarships')
         self.assertEqual(category.listing_model, 'scholarship')
-        self.assertIsNone(category.parent_id)
+        self.assertEqual(category.parent.key, 'student_services')
         self.assertTrue(category.is_active)
+
+    def test_list_page_links_back_to_student_services(self):
+        response = self.client.get(reverse('core:scholarship_list'))
+        self.assertContains(response, f'href="{reverse("core:student_services_list")}"')
+        detail = self.client.get(self.open_scholarship.get_absolute_url())
+        self.assertContains(detail, f'href="{reverse("core:student_services_list")}"')
+
+    def test_student_services_count_includes_scholarships(self):
+        cache.clear()
+        student_services = Category.objects.get(key='student_services')
+        self.assertEqual(student_services.public_listing_count(None), 1)  # just the approved scholarship
+        self.assertEqual(Category.public_listing_counts([student_services], None)[student_services.pk], 1)
 
     def test_list_page_shows_approved_hides_pending(self):
         response = self.client.get(reverse('core:scholarship_list'))
@@ -263,7 +322,6 @@ class CategoryPageHeroTests(TestCase):
         self.assertContains(response, 'images/services/marketplace.')
         self.assertNotContains(response, 'images/services/shops.')
 
-    def test_tuition_students_marketplace_pages_opt_into_their_scenes(self):
-        self.assertContains(self.client.get(reverse('core:tuition_center_list')), 'data-category-bg="tuition"')
+    def test_students_marketplace_pages_opt_into_their_scenes(self):
         self.assertContains(self.client.get(reverse('core:student_services_list')), 'data-category-bg="students"')
         self.assertContains(self.client.get(reverse('core:marketplace_list')), 'data-category-bg="marketplace"')

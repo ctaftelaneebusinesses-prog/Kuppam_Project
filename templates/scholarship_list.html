@@ -3,7 +3,8 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 
-{% block hero_eyebrow %}<i class="bi bi-mortarboard-fill"></i> {% trans "Support for Students" %}{% endblock %}
+{# A section of Student Services, so the eyebrow leads back to it. #}
+{% block hero_eyebrow %}<a href="{% url 'core:student_services_list' %}" class="text-reset text-decoration-none"><i class="bi bi-arrow-left"></i> {% trans "Student Services" %}</a>{% endblock %}
 {% block hero_title %}{% trans "Scholarships &" %} <span class="hk-lp-hero-accent">{% trans "Government Schemes" %}</span>{% endblock %}
 {% block hero_stat_icon %}bi-mortarboard{% endblock %}
 {% block hero_stat_label %}{% blocktrans count counter=total_listed %}{{ counter }} scheme listed{% plural %}{{ counter }} schemes listed{% endblocktrans %}{% endblock %}

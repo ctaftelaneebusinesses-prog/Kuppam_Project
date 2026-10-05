@@ -2,7 +2,7 @@
 {% load i18n hk_extras %}
 
 {% block title %}{{ page_title }}{% endblock %}
-{% block body_attrs %}data-category-bg="{% if directory_key == 'restaurants' %}restaurant{% elif directory_key == 'hospitals' %}health{% elif directory_key == 'education' %}education{% elif directory_key == 'transport' %}transport{% elif directory_key == 'repair' %}repair{% elif directory_key == 'tourism' %}tourism{% elif directory_key == 'tuition_center' %}tuition{% elif directory_key == 'student_services' %}students{% elif directory_key == 'marketplace' %}marketplace{% endif %}" data-subcategory="{{ selected_subcategory }}"{% endblock %}
+{% block body_attrs %}data-category-bg="{% if directory_key == 'restaurants' %}restaurant{% elif directory_key == 'hospitals' %}health{% elif directory_key == 'education' %}education{% elif directory_key == 'transport' %}transport{% elif directory_key == 'repair' %}repair{% elif directory_key == 'tourism' %}tourism{% elif directory_key == 'student_services' %}students{% elif directory_key == 'marketplace' %}marketplace{% endif %}" data-subcategory="{{ selected_subcategory }}"{% endblock %}
 
 {% comment %}
 One template for all nine directory pages (Restaurants, Hospitals,

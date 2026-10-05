@@ -359,7 +359,7 @@ class Category(models.Model):
         'restaurants': 'core:restaurant_list', 'hospitals': 'core:hospital_list',
         'education': 'core:education_list', 'transport': 'core:transport_list',
         'repair': 'core:repair_list', 'tourism': 'core:places_to_visit_list',
-        'tuition_center': 'core:tuition_center_list', 'student_services': 'core:student_services_list',
+        'student_services': 'core:student_services_list',
         'marketplace': 'core:marketplace_list',
     }
     _LIST_URL_NAMES = {
@@ -383,6 +383,9 @@ class Category(models.Model):
         filter instead of routing to the dedicated education_list page.
         """
         from django.urls import reverse
+        if self.key == 'tuition_center':
+            # A section of the Student Services page, not a page of its own.
+            return reverse('core:student_services_list') + '?type=tuition_center'
         if self.listing_model == 'business':
             url_name = self._BUSINESS_DIRECTORY_URL_NAMES.get(self.key, 'core:business_list')
             url = reverse(url_name)
@@ -514,10 +517,28 @@ class Category(models.Model):
             for cat, _condition in entries:
                 counts[cat.pk] = result[f'c{cat.pk}']
 
+        # A category can hold a section of another listing type (Scholarships
+        # under Student Services) — its card counts those listings too.
+        sections = {cat.pk: cat._other_model_children() for cat in missing}
+        children = [child for kids in sections.values() for child in kids]
+        if children:
+            child_counts = cls.public_listing_counts(children, location)
+            for cat in missing:
+                counts[cat.pk] += sum(child_counts[child.pk] for child in sections[cat.pk])
+
         cache.set_many({keys[cat.pk]: counts[cat.pk] for cat in missing}, 300)
         return counts
 
+    def _other_model_children(self):
+        """Active subcategories listing a different model than this one (uses a prefetched `children`)."""
+        return [c for c in self.children.all() if c.is_active and c.listing_model != self.listing_model]
+
     def _compute_listing_count(self, location=None):
+        return self._compute_own_listing_count(location) + sum(
+            child.public_listing_count(location) for child in self._other_model_children()
+        )
+
+    def _compute_own_listing_count(self, location=None):
         model_name, field_name = self._LISTING_COUNT_MAP.get(self.listing_model, (None, None))
         if not model_name:
             return 0

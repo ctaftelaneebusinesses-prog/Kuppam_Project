@@ -24,7 +24,7 @@ class StaticViewSitemap(Sitemap):
             'core:refund_policy', 'core:cookie_policy', 'core:business_details',
             'core:business_list', 'core:restaurant_list', 'core:hospital_list',
             'core:education_list', 'core:transport_list', 'core:repair_list',
-            'core:places_to_visit_list', 'core:tuition_center_list',
+            'core:places_to_visit_list',
             'core:student_services_list', 'core:marketplace_list',
             'core:property_list', 'core:job_list', 'core:event_list',
             'core:news_list', 'core:project_list',

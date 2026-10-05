@@ -605,8 +605,14 @@ DIRECTORY_CATEGORIES = {
     'transport': {'categories': ['transport'], 'label': 'Transport', 'icon': 'bi-bus-front'},
     'repair': {'categories': ['repair'], 'label': 'Repair Services', 'icon': 'bi-wrench-adjustable'},
     'tourism': {'categories': ['tourism'], 'label': 'Places to Visit', 'icon': 'bi-binoculars'},
-    'tuition_center': {'categories': ['tuition_center'], 'label': 'Tuition & Coaching Centers', 'icon': 'bi-book-half'},
-    'student_services': {'categories': ['student_services'], 'label': 'Student Services', 'icon': 'bi-life-preserver'},
+    # One Student Services page covers tuition centers too (Scholarships &
+    # Government Schemes, a separate model, get a tile linking to their own
+    # page — see directory_list). 'labels' renames a filter tile where the
+    # Business.category label would just repeat the page's own name.
+    'student_services': {
+        'categories': ['tuition_center', 'student_services'], 'label': 'Student Services', 'icon': 'bi-life-preserver',
+        'labels': {'student_services': 'Hostels, Printing & More'},
+    },
     'marketplace': {'categories': ['marketplace'], 'label': 'Buy / Sell / Exchange', 'icon': 'bi-arrow-left-right'},
 }
 
@@ -723,28 +729,17 @@ CATEGORIES = [
         'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['tourism']['categories']).count(),
     },
     {
-        'name': 'Tuition & Coaching Centers', 'icon': 'bi-book-half', 'slug': 'tuition_center',
-        'image': 'images/services/tuition.jpg',
-        'description': 'Find tuition centers, coaching institutes, and academic support near you.',
-        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['tuition_center']['categories']).count(),
-    },
-    {
         'name': 'Student Services', 'icon': 'bi-life-preserver', 'slug': 'student_services',
         'image': 'images/services/student-services.jpg',
-        'description': 'Local services useful to students — hostels, printing, courier, and more.',
-        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['student_services']['categories']).count(),
+        'description': 'Tuition and coaching centers, scholarships and government schemes, hostels, printing and other services for students.',
+        'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['student_services']['categories']).count()
+            + _public_qs(Scholarship).count(),
     },
     {
         'name': 'Buy / Sell / Exchange', 'icon': 'bi-arrow-left-right', 'slug': 'marketplace',
         'image': 'images/services/marketplace.jpg',
         'description': 'Shops and outlets for buying, selling, or exchanging used goods.',
         'count_fn': lambda: _public_qs(Business).filter(category__in=DIRECTORY_CATEGORIES['marketplace']['categories']).count(),
-    },
-    {
-        'name': 'Scholarships & Government Schemes', 'icon': 'bi-mortarboard-fill', 'slug': 'scholarships',
-        'image': 'images/services/scholarships.jpg',
-        'description': 'Find scholarships and government schemes for students, verified and kept up to date.',
-        'count_fn': lambda: _public_qs(Scholarship).count(),
     },
     {
         'name': 'Lost & Found', 'icon': 'bi-search-heart', 'slug': 'lost-found',
@@ -757,6 +752,15 @@ CATEGORIES = [
 #: CATEGORIES indexed by slug — used to attach a hero_image/hero_tagline to
 #: every listing page's context without re-typing image paths and copy.
 CATEGORIES_BY_SLUG = {c['slug']: c for c in CATEGORIES}
+
+#: Hero for the Scholarships & Government Schemes page — a section of
+#: Student Services rather than a category of its own, so it isn't in
+#: CATEGORIES (the search page's category chips).
+SCHOLARSHIPS_HERO = {
+    'name': 'Scholarships & Government Schemes', 'icon': 'bi-mortarboard-fill',
+    'image': 'images/services/scholarships.jpg',
+    'description': 'Find scholarships and government schemes for students, verified and kept up to date.',
+}
 
 
 def service_worker(request):
@@ -925,7 +929,7 @@ SEARCH_CATEGORY_REDIRECT = {
     'projects': 'core:project_list',
     'repair': 'core:repair_list',
     'tourism': 'core:places_to_visit_list',
-    'tuition_center': 'core:tuition_center_list',
+    'tuition_center': 'core:student_services_list',
     'student_services': 'core:student_services_list',
     'marketplace': 'core:marketplace_list',
     'scholarships': 'core:scholarship_list',
@@ -1124,6 +1128,34 @@ def business_detail(request, slug):
     return render(request, 'business_detail.html', context)
 
 
+def tuition_centers_redirect(request):
+    """
+    Tuition & Coaching Centers is now a section of the Student Services page;
+    the old /tuition-centers/ address permanently redirects there (keeping
+    any search) so bookmarks and search-engine links still land right.
+    """
+    params = request.GET.copy()
+    params.pop('page', None)
+    params['type'] = 'tuition_center'
+    return redirect(f"{reverse('core:student_services_list')}?{params.urlencode()}", permanent=True)
+
+
+def _scholarships_tile(request):
+    """
+    Student Services' "Scholarships & Government Schemes" tile. Scholarships
+    are their own model, so rather than a ?type= filter this links through to
+    their dedicated page, with the same per-city count the homepage uses.
+    """
+    category = Category.objects.filter(key='scholarships').first()
+    count = category.public_listing_count(active_location(request)) if category else 0
+    return {
+        'value': 'scholarships', 'label': 'Scholarships & Government Schemes', 'count': count,
+        # Next palette slot after the Student Services tiles, so it never matches either.
+        'icon': 'bi-mortarboard-fill', 'tint': (tint_index(Business, 'category', 'student_services') + 1) % TINT_COUNT,
+        'url': reverse('core:scholarship_list'), 'is_active': False,
+    }
+
+
 def directory_list(request, category):
     """
     Listing page for a fixed-category slice of Business records (Restaurants,
@@ -1143,8 +1175,9 @@ def directory_list(request, category):
     base = _public_qs(Business, request).filter(category__in=config['categories'])
     businesses = base
 
+    labels = config.get('labels', {})
     subcategory_choices = [
-        (key, label) for key, label in Business.CATEGORY_CHOICES
+        (key, labels.get(key, label)) for key, label in Business.CATEGORY_CHOICES
         if key in config['categories']
     ] if len(config['categories']) > 1 else []
 
@@ -1171,6 +1204,8 @@ def directory_list(request, category):
         icon_for=lambda value: Business.PLACEHOLDER_ICONS.get(value, config['icon']),
         tint_for=lambda value: tint_index(Business, 'category', value),
     ) if subcategory_choices else []
+    if category == 'student_services':
+        type_tiles.append(_scholarships_tile(request))
 
     context = {
         'page_title': f"{config['label']} - OneTownCity",
@@ -1826,7 +1861,7 @@ def scholarship_list(request):
         'selected_type_label': dict(Scholarship.TYPE_CHOICES).get(scholarship_type, ''),
         'type_choices': Scholarship.TYPE_CHOICES,
         **_listing_page_context(
-            request, page_obj, CATEGORIES_BY_SLUG['scholarships'],
+            request, page_obj, SCHOLARSHIPS_HERO,
             filters_active=bool(query or scholarship_type),
             total_listed=sum(counts.values()), type_tiles=type_tiles,
         ),

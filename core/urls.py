@@ -60,7 +60,7 @@ urlpatterns = [
     path('transport/', views.directory_list, {'category': 'transport'}, name='transport_list'),
     path('repair-services/', views.directory_list, {'category': 'repair'}, name='repair_list'),
     path('places-to-visit/', views.directory_list, {'category': 'tourism'}, name='places_to_visit_list'),
-    path('tuition-centers/', views.directory_list, {'category': 'tuition_center'}, name='tuition_center_list'),
+    path('tuition-centers/', views.tuition_centers_redirect, name='tuition_center_list'),
     path('student-services/', views.directory_list, {'category': 'student_services'}, name='student_services_list'),
     path('marketplace/', views.directory_list, {'category': 'marketplace'}, name='marketplace_list'),
 
