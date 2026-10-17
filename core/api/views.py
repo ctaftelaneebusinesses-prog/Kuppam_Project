@@ -27,6 +27,8 @@ from rest_framework.exceptions import NotAuthenticated, NotFound, PermissionDeni
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from django.core.cache import cache
+from ..signals import HOME_SECTIONS_VERSION_KEY
 from ..account_deactivation import deactivate_account
 from ..decorators import client_ip, rate_limit
 from ..forms import LISTING_SUBMIT_FORMS, CommentForm, ConsentForm, ReportForm, ReviewForm
@@ -157,11 +159,17 @@ def reverse_geocode_view(request):
 
 @api_view(['GET'])
 def categories(request):
-    qs = Category.objects.filter(is_active=True).select_related('parent')
     listing_model = request.GET.get('listing_model', '').strip()
+    cache_key = f'core:api:categories:{listing_model or "all"}'
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        return Response(cached_data)
+    qs = Category.objects.filter(is_active=True).select_related('parent')
     if listing_model:
         qs = qs.filter(listing_model=listing_model)
-    return Response(CategorySerializer(qs.order_by('order', 'label'), many=True).data)
+    data = CategorySerializer(qs.order_by('order', 'label'), many=True).data
+    cache.set(cache_key, data, 300)
+    return Response(data)
 
 
 # ---------------------------------------------------------------------------
@@ -263,9 +271,23 @@ def _list_listings(request, model_key, model_cls):
     ordering = request.GET.get('ordering', '')
     qs = qs.order_by(ordering) if ordering in _LISTING_ORDERINGS else qs.order_by('-created_at')
 
+    is_public_read = (not mine) and (not request.user.is_authenticated)
+    cache_key = None
+    if is_public_read:
+        version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+        page_num = request.GET.get('page', '1')
+        page_size = request.GET.get('page_size', '20')
+        cache_key = f'core:api:listings:{version}:{model_key}:{city.pk if city else "all"}:{category_param}:{ordering}:{query}:{page_num}:{page_size}'
+        cached_resp = cache.get(cache_key)
+        if cached_resp is not None:
+            return Response(cached_resp)
+
     paginator = StandardResultsSetPagination()
     page = paginator.paginate_queryset(qs.select_related(*_LISTING_SELECT_RELATED), request)
-    return paginator.get_paginated_response(LISTING_SERIALIZERS[model_key](page, many=True).data)
+    resp = paginator.get_paginated_response(LISTING_SERIALIZERS[model_key](page, many=True).data)
+    if is_public_read and cache_key:
+        cache.set(cache_key, resp.data, 300)
+    return resp
 
 
 def _create_listing(request, model_key, model_cls):

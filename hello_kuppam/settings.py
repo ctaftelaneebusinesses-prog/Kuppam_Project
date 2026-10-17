@@ -184,29 +184,22 @@ else:
 # add a Redis instance on Railway/Render and set it there to share the cache across
 # gunicorn workers; without it, every worker just keeps its own in-memory cache,
 # which is still faster than re-hitting Postgres on every request.
-REDIS_URL = os.getenv('REDIS_URL', '')
+REDIS_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1')
 
 if REDIS_URL:
     CACHES = {
         'default': {
-            'BACKEND': 'django_redis.cache.RedisCache',
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
             'LOCATION': REDIS_URL,
-            'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient'},
+            'KEY_PREFIX': 'otc_prod',
+            'TIMEOUT': 300,
         }
     }
-    # Serve session reads from Redis instead of a database round trip on
-    # every logged-in request (writes still go to the DB too). Only safe with
-    # a cache shared by every worker — with the per-process LocMemCache
-    # below, a logout in one worker would leave the session alive in the
-    # others' caches — so it's deliberately not enabled in that branch.
     SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 else:
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            # Default is 300 entries; cached listing pages, listings and
-            # related blocks (core.views._cached_page etc.) would otherwise
-            # keep evicting the homepage sections.
             'OPTIONS': {'MAX_ENTRIES': 5000},
         }
     }
@@ -247,18 +240,15 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Whitenoise serves static files directly from the app server in production
 # (no separate nginx/CDN needed) with cache-busting hashed filenames + gzip.
 STORAGES = {
-    'default': {'BACKEND': 'core.storage.SupabaseMediaStorage'},
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
     'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
 }
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Same reasoning as the sqlite DATABASES override above: SupabaseMediaStorage
-# makes a real network call to Supabase Storage on every save, which the
-# test suite has no credentials for and shouldn't depend on anyway. Local
-# disk (Django's default FileSystemStorage) under a throwaway temp dir is
-# only ever used under the test runner.
+# User-uploaded media is stored on the server's filesystem and served by Nginx.
+# Tests use an isolated temporary directory so they never modify production media.
 if 'test' in sys.argv:
     import tempfile
     STORAGES['default'] = {'BACKEND': 'django.core.files.storage.FileSystemStorage'}

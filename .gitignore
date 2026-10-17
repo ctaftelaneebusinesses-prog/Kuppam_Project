@@ -30,3 +30,17 @@ graphify-out/
 # Signing keys (never commit)
 *.jks
 *.keystore
+
+# Local secrets, backups, and development environments
+.env.*
+!.env.example
+.venv/
+*.backup
+*.backup-*
+*.before-*
+*.pem
+*.key
+*.p12
+*.pfx
+*.dump
+backups/
