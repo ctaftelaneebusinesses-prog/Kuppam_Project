@@ -149,6 +149,8 @@ from django.db import DatabaseError, connections
 from django.db.models import Count, F, Prefetch, ProtectedError, Q
 from django.db.models.functions import TruncDate
 from django.http import Http404, HttpResponse, JsonResponse
+from django.middleware.csrf import get_token
+from django.utils.translation import get_language
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -1156,6 +1158,108 @@ def _scholarships_tile(request):
     }
 
 
+_DIR_HTML_ALLOWED_PARAMS = frozenset({'q', 'type', 'page'})
+_CSRF_TOKEN_PLACEHOLDER = '__OTC_CSRF_TOKEN__'
+_CSRF_INPUT_RE = re.compile(
+    r'(<input\b[^>]*name=["\']csrfmiddlewaretoken["\'][^>]*value=["\'])([^"\']+)(["\'][^>]*>)|'
+    r'(<input\b[^>]*value=["\'])([^"\']+)(["\'][^>]*name=["\']csrfmiddlewaretoken["\'][^>]*>)'
+)
+_CSRF_RESTORE_RE = re.compile(
+    r'(<input\b[^>]*name=["\']csrfmiddlewaretoken["\'][^>]*value=["\'])' + re.escape(_CSRF_TOKEN_PLACEHOLDER) + r'(["\'][^>]*>)|'
+    r'(<input\b[^>]*value=["\'])' + re.escape(_CSRF_TOKEN_PLACEHOLDER) + r'(["\'][^>]*name=["\']csrfmiddlewaretoken["\'][^>]*>)'
+)
+
+
+def _sanitize_csrf_tokens(html):
+    def _repl(m):
+        if m.group(1):
+            return f"{m.group(1)}{_CSRF_TOKEN_PLACEHOLDER}{m.group(3)}"
+        return f"{m.group(4)}{_CSRF_TOKEN_PLACEHOLDER}{m.group(6)}"
+    return _CSRF_INPUT_RE.sub(_repl, html)
+
+
+def _restore_csrf_token(html, token):
+    def _repl(m):
+        if m.group(1):
+            return f"{m.group(1)}{token}{m.group(2)}"
+        return f"{m.group(3)}{token}{m.group(4)}"
+    return _CSRF_RESTORE_RE.sub(_repl, html)
+
+
+def _is_dir_html_cache_eligible(request, category):
+    """
+    Determines whether directory_list for the given category is eligible
+    for anonymous rendered HTML caching.
+    """
+    if category != 'education':
+        return False
+    if request.method != 'GET':
+        return False
+    if request.user.is_authenticated:
+        return False
+
+    # Pending Django flash messages must not enter shared cache or be hidden
+    try:
+        storage = messages.get_messages(request)
+        if storage:
+            return False
+    except Exception:
+        pass
+
+    # High-cardinality and bot parameter protection: only allowed params permitted
+    params = request.GET
+    if set(params.keys()) - _DIR_HTML_ALLOWED_PARAMS:
+        return False
+
+    # Multi-value parameter guard: each allowed parameter must have at most 1 value
+    if any(len(params.getlist(k)) > 1 for k in params):
+        return False
+
+    # Bounded query length to prevent arbitrary long search query attacks
+    raw_q = params.get('q', '').strip()
+    if len(raw_q) > 40:
+        return False
+
+    # Guard against placeholder reflection or injection
+    if _CSRF_TOKEN_PLACEHOLDER in raw_q:
+        return False
+
+    # Bounded page validation: if page is present, must be positive integer <= 100
+    if 'page' in params:
+        raw_page = params.get('page', '').strip()
+        if raw_page and (not raw_page.isdigit() or len(raw_page) > 5 or int(raw_page) < 1 or int(raw_page) > 1000):
+            return False
+
+    return True
+
+
+def _dir_html_cache_key(request, category):
+    """
+    Computes a deterministic, collision-free cache key for anonymous HTML caching.
+    Partitions by:
+    - category
+    - version (bumped by signals on listing/review/like change)
+    - active location (session city or 'all')
+    - active language code
+    - exact query parameters (q raw value and case preserved, type, page)
+    """
+    try:
+        version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    except Exception:
+        version = 1
+
+    location = active_location(request)
+    loc_key = location.pk if location else 'all'
+    lang = get_language() or 'en'
+
+    normalized_items = tuple(
+        sorted((k, request.GET.get(k, '')) for k in request.GET.keys() if k in _DIR_HTML_ALLOWED_PARAMS)
+    )
+    params_hash = hashlib.md5(repr(normalized_items).encode('utf-8')).hexdigest()
+
+    return f'core:dir_html:{category}:{version}:{loc_key}:{lang}:{params_hash}'
+
+
 def directory_list(request, category):
     """
     Listing page for a fixed-category slice of Business records (Restaurants,
@@ -1171,6 +1275,27 @@ def directory_list(request, category):
     config = DIRECTORY_CATEGORIES.get(category)
     if config is None:
         raise Http404('Unknown directory category')
+
+    # Anonymous rendered HTML cache lookup
+    html_cache_eligible = _is_dir_html_cache_eligible(request, category)
+    cache_key = None
+    if html_cache_eligible:
+        cache_key = _dir_html_cache_key(request, category)
+        try:
+            cached_html = cache.get(cache_key)
+            if cached_html is not None:
+                token = get_token(request)
+                if token:
+                    content_str = _restore_csrf_token(cached_html, token)
+                    request.META['CSRF_COOKIE_USED'] = True
+                else:
+                    content_str = cached_html
+                resp = HttpResponse(content_str, content_type='text/html; charset=utf-8')
+                resp['Vary'] = 'Cookie, Accept-Language'
+                return resp
+        except Exception:
+            # Graceful fallback on cache failure
+            pass
 
     base = _public_qs(Business, request).filter(category__in=config['categories'])
     businesses = base
@@ -1222,7 +1347,28 @@ def directory_list(request, category):
             total_listed=sum(counts.values()), type_tiles=type_tiles,
         ),
     }
-    return render(request, 'directory_list.html', context)
+    response = render(request, 'directory_list.html', context)
+
+    # Populate anonymous HTML cache on successful responses
+    if html_cache_eligible and cache_key and response.status_code == 200:
+        try:
+            html = response.content.decode('utf-8')
+            html_to_cache = _sanitize_csrf_tokens(html)
+
+            raw_q = request.GET.get('q', '').strip()
+            if page_obj.paginator.count == 0:
+                ttl = 60
+            elif raw_q:
+                ttl = 120
+            else:
+                ttl = 300
+
+            cache.set(cache_key, html_to_cache, ttl)
+        except Exception:
+            # Non-blocking on cache store error
+            pass
+
+    return response
 
 
 #: Icons for the type tiles on the category listing pages. Business and
@@ -1269,15 +1415,25 @@ def _choice_counts(request, qs, field, cache_scope):
     new/removed listing is reflected on the next view.
     """
     current = active_location(request)
-    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    try:
+        version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    except Exception:
+        version = 1
     cache_key = f'core:choice_counts:{cache_scope}:{version}:{current.pk if current else "all"}'
-    counts = cache.get(cache_key)
+    counts = None
+    try:
+        counts = cache.get(cache_key)
+    except Exception:
+        counts = None
     if counts is None:
         if field is None:
             counts = {None: qs.count()}
         else:
             counts = dict(qs.order_by().values_list(field).annotate(n=Count('pk')).values_list(field, 'n'))
-        cache.set(cache_key, counts, 300)
+        try:
+            cache.set(cache_key, counts, 300)
+        except Exception:
+            pass
     return counts
 
 
@@ -1308,15 +1464,26 @@ def _cached_page(request, qs, cache_scope, per_page=12):
     params = request.GET.copy()
     requested_page = params.pop('page', [''])[-1]
     current = active_location(request)
-    version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    try:
+        version = cache.get_or_set(HOME_SECTIONS_VERSION_KEY, 1, None)
+    except Exception:
+        version = 1
     filters = hashlib.md5(params.urlencode().encode()).hexdigest()
     cache_key = f'core:listing_page:{cache_scope}:{version}:{current.pk if current else "all"}:{filters}:{requested_page}'
 
-    cached = cache.get(cache_key)
+    cached = None
+    try:
+        cached = cache.get(cache_key)
+    except Exception:
+        cached = None
+
     if cached is None:
         page = Paginator(qs, per_page).get_page(requested_page)
         cached = (page.paginator.count, page.number, list(page.object_list))
-        cache.set(cache_key, cached, 300)
+        try:
+            cache.set(cache_key, cached, 300)
+        except Exception:
+            pass
 
     count, number, objects = cached
     return Page(objects, number, _KnownCountPaginator(count, per_page))

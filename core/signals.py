@@ -83,18 +83,27 @@ def on_comment_changed(sender, instance, created=False, **kwargs):
 def on_category_changed(sender, instance, **kwargs):
     # 'core:news_categories' is views.NEWS_CATEGORIES_CACHE_KEY (not imported:
     # views imports this module).
-    cache.delete_many([CATEGORY_TREE_CACHE_KEY, 'core:news_categories', 'core:api:categories:all', 'core:api:categories:business', 'core:api:categories:property', 'core:api:categories:job', 'core:api:categories:event'])
+    try:
+        cache.delete_many([CATEGORY_TREE_CACHE_KEY, 'core:news_categories', 'core:api:categories:all', 'core:api:categories:business', 'core:api:categories:property', 'core:api:categories:job', 'core:api:categories:event'])
+    except Exception:
+        pass
 
 
 @receiver(post_save, sender=Location)
 @receiver(post_delete, sender=Location)
 def on_location_changed(sender, instance, **kwargs):
-    cache.delete(location_cache_key(instance.pk))
+    try:
+        cache.delete(location_cache_key(instance.pk))
+    except Exception:
+        pass
 
 
 @receiver(post_save, sender=PlatformSettings)
 def on_platform_settings_changed(sender, instance, **kwargs):
-    cache.delete(MAINTENANCE_CACHE_KEY)
+    try:
+        cache.delete(MAINTENANCE_CACHE_KEY)
+    except Exception:
+        pass
 
 
 #: Bumped on every listing save/delete so views._home_sections() and the
@@ -109,7 +118,12 @@ def bump_home_sections_cache():
     try:
         cache.incr(HOME_SECTIONS_VERSION_KEY)
     except ValueError:
-        cache.set(HOME_SECTIONS_VERSION_KEY, 1, None)
+        try:
+            cache.set(HOME_SECTIONS_VERSION_KEY, 1, None)
+        except Exception:
+            pass
+    except Exception:
+        pass
 
 
 def on_home_listing_changed(sender, instance, **kwargs):

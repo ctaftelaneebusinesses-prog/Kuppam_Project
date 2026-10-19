@@ -60,12 +60,19 @@ def cached_active_city(pk):
     except (TypeError, ValueError):
         return None
     key = location_cache_key(pk)
-    city = cache.get(key)
+    city = None
+    try:
+        city = cache.get(key)
+    except Exception:
+        city = None
     if city is None:
         city = Location.objects.filter(
             pk=pk, kind=Location.Kind.CITY, is_active=True,
         ).select_related('parent', 'parent__parent').first() or _NO_CITY
-        cache.set(key, city, 300)
+        try:
+            cache.set(key, city, 300)
+        except Exception:
+            pass
     return None if city == _NO_CITY else city
 
 

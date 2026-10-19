@@ -42,12 +42,19 @@ def translate_text(text, language):
         return text
 
     cache_key = 'dyntrans:' + language + ':' + hashlib.sha1(text.encode('utf-8')).hexdigest()
-    cached = cache.get(cache_key)
+    cached = None
+    try:
+        cached = cache.get(cache_key)
+    except Exception:
+        cached = None
     if cached is not None:
         return cached
 
     translated = _translate_via_google(text, language)
-    cache.set(cache_key, translated, CACHE_TTL_SECONDS)
+    try:
+        cache.set(cache_key, translated, CACHE_TTL_SECONDS)
+    except Exception:
+        pass
     return translated
 
 

@@ -1,5 +1,8 @@
+import logging
 from django.core.cache import cache
 from django.shortcuts import render
+
+logger = logging.getLogger(__name__)
 
 EXEMPT_PATH_PREFIXES = ('/admin/', '/static/', '/media/', '/signin/', '/login/', '/auth/')
 
@@ -12,12 +15,20 @@ MAINTENANCE_CACHE_TTL = 120
 
 
 def maintenance_state():
-    state = cache.get(MAINTENANCE_CACHE_KEY)
+    try:
+        state = cache.get(MAINTENANCE_CACHE_KEY)
+    except Exception as exc:
+        logger.warning("Failed to fetch maintenance state from cache: %s. Falling back to database.", exc)
+        state = None
+
     if state is None:
         from .models import PlatformSettings
         settings_obj = PlatformSettings.load()
         state = (settings_obj.maintenance_mode, settings_obj.maintenance_message)
-        cache.set(MAINTENANCE_CACHE_KEY, state, MAINTENANCE_CACHE_TTL)
+        try:
+            cache.set(MAINTENANCE_CACHE_KEY, state, MAINTENANCE_CACHE_TTL)
+        except Exception as exc:
+            logger.warning("Failed to write maintenance state to cache: %s", exc)
     return state
 
 

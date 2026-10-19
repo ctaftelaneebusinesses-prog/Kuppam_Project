@@ -87,7 +87,11 @@ def category_tree(request):
     partials/nav_categories.html. Replaces what used to be hardcoded links,
     so Super Admin category/subcategory changes cascade there automatically.
     """
-    top_categories = cache.get(CATEGORY_TREE_CACHE_KEY)
+    top_categories = None
+    try:
+        top_categories = cache.get(CATEGORY_TREE_CACHE_KEY)
+    except Exception:
+        top_categories = None
     if top_categories is None:
         from django.db.models import Prefetch
         from .models import Category
@@ -96,7 +100,10 @@ def category_tree(request):
             .prefetch_related(Prefetch('children', queryset=Category.objects.filter(is_active=True).order_by('order', 'label')))
             .order_by('order', 'label')
         )
-        cache.set(CATEGORY_TREE_CACHE_KEY, top_categories, CONTEXT_CACHE_TTL)
+        try:
+            cache.set(CATEGORY_TREE_CACHE_KEY, top_categories, CONTEXT_CACHE_TTL)
+        except Exception:
+            pass
     return {'nav_category_tree': top_categories}
 
 
